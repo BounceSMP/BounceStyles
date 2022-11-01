@@ -1,0 +1,11 @@
+{
+  "entities": [
+    "player"
+  ],
+  "slots": [
+    "head/bounce_head",
+    "chest/bounce_chest",
+    "legs/bounce_legs",
+    "feet/bounce_feet"
+  ]
+}

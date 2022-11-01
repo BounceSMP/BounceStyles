@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "bounce_styles",
+  "version": "${version}",
+  "name": "BounceStyles",
+  "description": "",
+  "authors": [
+    "RyanV"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/bounce_styles/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "dev.bsmp.bouncestyles.client.BounceStylesClient"
+    ],
+    "main": [
+      "dev.bsmp.bouncestyles.BounceStyles"
+    ]
+  },
+  "mixins": [
+    "BounceStyles.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.9",
+    "fabric": "*",
+    "minecraft": "1.18.2"
+  }
+}

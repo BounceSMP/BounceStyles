@@ -1,0 +1,5 @@
+{
+  "icon": "bounce_styles:slots/chest",
+  "order": 2,
+  "validator_predicates": ["bounce_styles:item"]
+}

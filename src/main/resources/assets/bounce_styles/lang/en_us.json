@@ -1,0 +1,12 @@
+{
+  "itemGroup.bounce_styles.head": "BounceStyles - Head",
+  "itemGroup.bounce_styles.body": "BounceStyles - Body",
+  "itemGroup.bounce_styles.legs": "BounceStyles - Legs",
+  "itemGroup.bounce_styles.feet": "BounceStyles - Feet",
+
+  "trinkets.slot.head.bounce_head": "Clothing - Head",
+  "trinkets.slot.chest.bounce_chest": "Clothing - Chest",
+  "trinkets.slot.chest.bounce_arms": "Clothing - Arms",
+  "trinkets.slot.legs.bounce_legs": "Clothing - Legs",
+  "trinkets.slot.feet.bounce_feet": "Clothing - Feet"
+}

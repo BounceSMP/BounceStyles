@@ -1,0 +1,10 @@
+[
+  {
+    "name": "testmodel",
+    "registry_name": "bouncestyles:testtail",
+    "model": "",
+    "texure": "",
+    "animation": "",
+    "animations": ["idle_tail"]
+  }
+]

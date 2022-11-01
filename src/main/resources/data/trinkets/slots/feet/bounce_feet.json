@@ -1,0 +1,4 @@
+{
+  "icon": "bounce_styles:slots/feet",
+  "validator_predicates": ["bounce_styles:item"]
+}
