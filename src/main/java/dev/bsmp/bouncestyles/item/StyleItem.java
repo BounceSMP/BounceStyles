@@ -81,43 +81,37 @@ public class StyleItem extends ArmorItem implements IAnimatable {
 
     @Override
     public void registerControllers(AnimationData animationData) {
-        animationData.addAnimationController(new AnimationController<>(this, "controller", 0, this::predicate));
+        animationData.addAnimationController(new AnimationController<>(this, "controller", 5, this::predicate));
     }
 
     private <P extends IAnimatable> PlayState predicate(AnimationEvent<P> event) {
         LivingEntity entity = event.getExtraDataOfType(LivingEntity.class).get(0);
         AnimationController<?> controller = event.getController();
         if(animationMap != null && !animationMap.isEmpty()) {
-            for(Map.Entry<String, String> entry : animationMap.entrySet()) {
-                switch (entry.getKey()) {
-                    case "idle" -> {
-                        if(!isEntityMoving(entity) && (animationMap.containsKey("sneaking") && !entity.isSneaking()))
-                            return applyAnimation(controller, entry.getValue());
-                    }
-                    case "sneaking" -> {
-                        if (entity.isSneaking())
-                            return applyAnimation(controller, entry.getValue());
-                    }
-                    case "walking" -> {
-                        if(isEntityMoving(entity) && (animationMap.containsKey("sneaking") && !entity.isSneaking()) && (animationMap.containsKey("sprinting") && !entity.isSprinting()))
-                            return applyAnimation(controller, entry.getValue());
-                    }
-                    case "sprinting" -> {
-                        if(entity.isSprinting() && (animationMap.containsKey("sneaking") && !entity.isSneaking()))
-                            return applyAnimation(controller, entry.getValue());
-                    }
-                }
-            }
+            if(entity.isSneaking() && animationMap.containsKey("sneaking"))
+                return applyAnimation(controller, animationMap.get("sneaking"));
+
+            else if(entity.isSprinting() && animationMap.containsKey("sprinting"))
+                return applyAnimation(controller, animationMap.get("sprinting"));
+
+            else if(isEntityMoving(entity) && animationMap.containsKey("walking"))
+                return applyAnimation(controller, animationMap.get("walking"));
+
+            else if(animationMap.containsKey("idle"))
+                return applyAnimation(controller, animationMap.get("idle"));
         }
-        return PlayState.CONTINUE;
+        return PlayState.STOP;
     }
 
     private static PlayState applyAnimation(AnimationController<?> controller, String anim) {
-        Animation animation = controller.getCurrentAnimation();
-        if(animation != null && animation.animationName.equalsIgnoreCase(anim))
+        if(isCurrentAnimation(controller, anim))
             return PlayState.CONTINUE;
         controller.setAnimation(new AnimationBuilder().addAnimation(anim));
         return PlayState.CONTINUE;
+    }
+
+    private static boolean isCurrentAnimation(AnimationController<?> controller, String animation) {
+        return controller.getCurrentAnimation() != null && controller.getCurrentAnimation().animationName.equalsIgnoreCase(animation);
     }
 
     private static boolean isEntityMoving(LivingEntity entity) {
