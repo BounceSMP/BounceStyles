@@ -25,6 +25,8 @@
   "depends": {
     "fabricloader": ">=0.14.9",
     "fabric": "*",
-    "minecraft": "1.18.2"
+    "minecraft": "1.18.2",
+    "geckolib3": ">=3.0.64",
+    "trinkets": ">=3.3.1"
   }
 }
