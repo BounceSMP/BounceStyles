@@ -7,14 +7,13 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
 import dev.bsmp.bouncestyles.BounceStyles;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.Animation;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
@@ -29,6 +28,7 @@ public class StyleItem extends ArmorItem implements IAnimatable {
     @Nullable public final Identifier animationID;
     @Nullable public final HashMap<String, String> animationMap;
     public boolean useBackupModel = false;
+    public List<String> hiddenParts;
 
     public StyleItem(ItemGroup group, Identifier modelID, Identifier textureID, @Nullable Identifier animationID, @Nullable HashMap<String, String> animationMap) {
         super(BounceStyles.STYLE_MATERIAL, EquipmentSlot.MAINHAND, new Settings().group(group));

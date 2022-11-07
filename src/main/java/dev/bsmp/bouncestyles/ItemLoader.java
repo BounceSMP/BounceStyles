@@ -35,7 +35,10 @@ public class ItemLoader {
     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().create();
 
     public static void init() throws IOException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        //ToDo: Prob gotta check some of this on reload too, tho only for registered items.
+        //ToDo: Get proper texture for backup item model. (Prism? FF Coffer?)
+        //ToDo: Get proper texture for Trinket slots
+        //ToDo: Check why Idle Animations don't automatically start correctly
+        //ToDo: Prob gotta check some of this on resource reload too, but only for registered items.
         Path dir = FabricLoader.getInstance().getGameDir().resolve("styles");
         dir.toFile().mkdirs();
         for(Types t : Types.values()) {
@@ -81,9 +84,19 @@ public class ItemLoader {
                         }
                     }
 
+                    //Hidden Parts
+                    List<String> parts = null;
+                    if(item.has("hidden_parts")) {
+                        parts = new ArrayList<>();
+                        JsonArray hidden_parts = item.getAsJsonArray("hidden_parts");
+                        for(JsonElement e : hidden_parts)
+                            parts.add(e.getAsString());
+                    }
+
                     //Register
                     StyleItem newItem = t.baseClass.getDeclaredConstructor(Identifier.class, Identifier.class, Identifier.class, HashMap.class).newInstance(modelID, textureID, animationID, animationMap);
                     Registry.register(Registry.ITEM, new Identifier(BounceStyles.modId, name +"_"+ t.name().toLowerCase()), newItem);
+                    newItem.hiddenParts = parts;
                     t.entryList.add(newItem);
                 }
             }

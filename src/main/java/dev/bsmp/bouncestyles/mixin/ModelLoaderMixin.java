@@ -45,7 +45,6 @@ public abstract class ModelLoaderMixin {
                     this.putModel(modelId, model);
                     this.unbakedModels.put(id, model);
 
-                    //ToDo: WHY THIS NO WORK??
                     Item item = Registry.ITEM.get(new Identifier(BounceStyles.modId, id.getPath().split("#")[0]));
                     if(item instanceof StyleItem) {
                         ((StyleItem)item).useBackupModel = true;
