@@ -37,7 +37,7 @@ public class ItemLoader {
     public static void init() throws IOException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         //ToDo: Get proper texture for backup item model. (Prism? FF Coffer?)
         //ToDo: Get proper texture for Trinket slots
-        //ToDo: Check why Idle Animations don't automatically start correctly
+        //ToDo: Bendy-Lib Compat
         //ToDo: Prob gotta check some of this on resource reload too, but only for registered items.
         Path dir = FabricLoader.getInstance().getGameDir().resolve("styles");
         dir.toFile().mkdirs();
@@ -80,7 +80,9 @@ public class ItemLoader {
 
                         JsonObject animations = item.getAsJsonObject("animations");
                         for(Map.Entry<String, JsonElement> entry : animations.entrySet()) {
-                            animationMap.put(entry.getKey(), entry.getValue().getAsString());
+                            String a = entry.getValue().getAsString();
+                            if(!a.isEmpty())
+                                animationMap.put(entry.getKey(), entry.getValue().getAsString());
                         }
                     }
 
