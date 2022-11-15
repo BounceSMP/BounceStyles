@@ -28,11 +28,13 @@ public class StyleItem extends ArmorItem implements IAnimatable {
     public final Identifier textureID;
     @Nullable public final Identifier animationID;
     @Nullable public final HashMap<String, String> animationMap;
+
     public boolean useBackupModel = false;
     public List<String> hiddenParts;
+    public int transitionTicks;
 
-    public StyleItem(ItemGroup group, Identifier modelID, Identifier textureID, @Nullable Identifier animationID, @Nullable HashMap<String, String> animationMap) {
-        super(BounceStyles.STYLE_MATERIAL, EquipmentSlot.MAINHAND, new Settings().group(group));
+    public StyleItem(ItemGroup group, Identifier modelID, Identifier textureID, @Nullable Identifier animationID, @Nullable HashMap<String, String> animationMap, EquipmentSlot slot) {
+        super(BounceStyles.STYLE_MATERIAL, slot, new Settings().group(group));
         this.modelID = modelID;
         this.textureID = textureID;
         this.animationID = animationID;
@@ -41,7 +43,7 @@ public class StyleItem extends ArmorItem implements IAnimatable {
 
     public static class HeadStyleItem extends StyleItem {
         public HeadStyleItem(Identifier model, Identifier texture, @Nullable Identifier animationID, @Nullable HashMap<String, String> animationMap) {
-            super(BounceStyles.HEAD_GROUP, model, texture, animationID, animationMap);
+            super(BounceStyles.HEAD_GROUP, model, texture, animationID, animationMap, EquipmentSlot.HEAD);
         }
 
         @Override
@@ -51,7 +53,7 @@ public class StyleItem extends ArmorItem implements IAnimatable {
     }
     public static class BodyStyleItem extends StyleItem {
         public BodyStyleItem(Identifier model, Identifier texture, @Nullable Identifier animationID, @Nullable HashMap<String, String> animationMap) {
-            super(BounceStyles.BODY_GROUP, model, texture, animationID,  animationMap);
+            super(BounceStyles.BODY_GROUP, model, texture, animationID,  animationMap, EquipmentSlot.CHEST);
         }
 
         @Override
@@ -61,7 +63,7 @@ public class StyleItem extends ArmorItem implements IAnimatable {
     }
     public static class LegsStyleItem extends StyleItem {
         public LegsStyleItem(Identifier model, Identifier texture, @Nullable Identifier animationID, @Nullable HashMap<String, String> animationMap) {
-            super(BounceStyles.LEGS_GROUP, model, texture, animationID,  animationMap);
+            super(BounceStyles.LEGS_GROUP, model, texture, animationID,  animationMap, EquipmentSlot.LEGS);
         }
 
         @Override
@@ -71,7 +73,7 @@ public class StyleItem extends ArmorItem implements IAnimatable {
     }
     public static class FeetStyleItem extends StyleItem {
         public FeetStyleItem(Identifier model, Identifier texture, @Nullable Identifier animationID, @Nullable HashMap<String, String> animationMap) {
-            super(BounceStyles.FEET_GROUP, model, texture, animationID,  animationMap);
+            super(BounceStyles.FEET_GROUP, model, texture, animationID,  animationMap, EquipmentSlot.FEET);
         }
 
         @Override
@@ -83,24 +85,37 @@ public class StyleItem extends ArmorItem implements IAnimatable {
     @Override
     public void registerControllers(AnimationData animationData) {
         if(this.animationMap != null && !this.animationMap.isEmpty())
-            animationData.addAnimationController(new AnimationController<>(this, "controller", 5, this::predicate));
+            animationData.addAnimationController(new AnimationController<>(this, "controller", this.transitionTicks, this::predicate));
     }
 
     private <P extends IAnimatable> PlayState predicate(AnimationEvent<P> event) {
         LivingEntity entity = event.getExtraDataOfType(LivingEntity.class).get(0);
         AnimationController<?> controller = event.getController();
         if(animationMap != null && !animationMap.isEmpty()) {
-            if(entity.isSneaking() && animationMap.containsKey("sneaking"))
-                return applyAnimation(controller, animationMap.get("sneaking"));
+            String anim;
+            if(entity.isFallFlying() && (anim = animationMap.get("flying")) != null)
+                return applyAnimation(controller, anim);
 
-            else if(entity.isSprinting() && animationMap.containsKey("sprinting"))
-                return applyAnimation(controller, animationMap.get("sprinting"));
+            if(!entity.isOnGround() && (anim = animationMap.get("in_air")) != null)
+                return applyAnimation(controller, anim);
 
-            else if(isEntityMoving(entity) && animationMap.containsKey("walking"))
-                return applyAnimation(controller, animationMap.get("walking"));
+            else if(entity.isSneaking() && (anim = animationMap.get("sneaking")) != null)
+                return applyAnimation(controller, anim);
 
-            else if(animationMap.containsKey("idle"))
-                return applyAnimation(controller, animationMap.get("idle"));
+            else if (entity.isSwimming() && (anim = animationMap.get("swimming")) != null)
+                return applyAnimation(controller, anim);
+
+            else if(entity.isSprinting() && (anim = animationMap.get("sprinting")) != null)
+                return applyAnimation(controller, anim);
+
+            else if(isEntityMoving(entity) && (anim = animationMap.get("walking")) != null)
+                return applyAnimation(controller, anim);
+
+            else if(entity.isSleeping() && (anim = animationMap.get("sleeping")) != null)
+                return applyAnimation(controller, anim);
+
+            else if((anim = animationMap.get("idle")) != null)
+                return applyAnimation(controller, anim);
         }
         return PlayState.STOP;
     }

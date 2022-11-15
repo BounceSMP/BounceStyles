@@ -37,7 +37,6 @@ public class ItemLoader {
     public static void init() throws IOException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         //ToDo: Get proper texture for backup item model. (Prism? FF Coffer?)
         //ToDo: Get proper texture for Trinket slots
-        //ToDo: Bendy-Lib Compat
         //ToDo: Prob gotta check some of this on resource reload too, but only for registered items.
         Path dir = FabricLoader.getInstance().getGameDir().resolve("styles");
         dir.toFile().mkdirs();
@@ -86,6 +85,9 @@ public class ItemLoader {
                         }
                     }
 
+                    //Animation Transition Ticks
+                    int transitionTicks = item.has("transition_ticks") ? item.get("transition_ticks").getAsInt() : 5;
+
                     //Hidden Parts
                     List<String> parts = null;
                     if(item.has("hidden_parts")) {
@@ -98,7 +100,10 @@ public class ItemLoader {
                     //Register
                     StyleItem newItem = t.baseClass.getDeclaredConstructor(Identifier.class, Identifier.class, Identifier.class, HashMap.class).newInstance(modelID, textureID, animationID, animationMap);
                     Registry.register(Registry.ITEM, new Identifier(BounceStyles.modId, name +"_"+ t.name().toLowerCase()), newItem);
+
                     newItem.hiddenParts = parts;
+                    newItem.transitionTicks = transitionTicks;
+
                     t.entryList.add(newItem);
                 }
             }
