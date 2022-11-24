@@ -42,7 +42,10 @@ public class PlayerRendererMixin {
                         playerEntityModel.head.visible = false;
                         playerEntityModel.hat.visible = false;
                     }
-                    case "body" -> playerEntityModel.body.visible = false;
+                    case "body" -> {
+                        playerEntityModel.body.visible = false;
+                        playerEntityModel.jacket.visible = false;
+                    }
                     case "left_arm" -> {
                         playerEntityModel.leftArm.visible = false;
                         playerEntityModel.leftSleeve.visible = false;
