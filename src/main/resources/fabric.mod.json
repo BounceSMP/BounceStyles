@@ -3,13 +3,11 @@
   "id": "bounce_styles",
   "version": "${version}",
   "name": "BounceStyles",
-  "description": "",
+  "description": "A Custom Outfits mod made for BounceSMP",
   "authors": [
     "RyanV"
   ],
-  "contact": {},
   "license": "MIT",
-  "icon": "assets/bounce_styles/icon.png",
   "environment": "*",
   "entrypoints": {
     "client": [

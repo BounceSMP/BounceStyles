@@ -45,7 +45,7 @@ public class BounceStyles implements ModInitializer {
                         return item instanceof StyleItem.FeetStyleItem ? TriState.TRUE : TriState.FALSE;
                 }
             }
-            return TriState.FALSE;
+            return TriState.DEFAULT;
         });
 
         try {
