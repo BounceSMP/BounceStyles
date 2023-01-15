@@ -29,9 +29,10 @@ public class BounceStyles {
 
         IEventBus MOD_BUS = FMLJavaModLoadingContext.get().getModEventBus();
         MinecraftForge.EVENT_BUS.register(this);
+        FMLJavaModLoadingContext.get().getModEventBus().register(this);
 
         MOD_BUS.addListener(this::enqueueInterModComms);
-        MOD_BUS.addListener(BounceStylesClient::onInitializeClient);
+        MOD_BUS.addListener(BounceStylesClient::onRegisterRenderers);
     }
 
     @SubscribeEvent

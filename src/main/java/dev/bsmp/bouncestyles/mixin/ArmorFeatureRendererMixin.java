@@ -18,10 +18,10 @@ import net.minecraft.world.item.ItemStack;
 @Mixin(HumanoidArmorLayer.class)
 public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extends HumanoidModel<T>, A extends HumanoidModel<T>> {
 
-    @Inject(method = "renderArmorPiece", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/HumanoidArmorLayer;renderModel(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IZLnet/minecraft/client/model/Model;FFFLnet/minecraft/resources/ResourceLocation;)V", ordinal = 2), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
-    private void styleItemCheck(PoseStack matrices, MultiBufferSource vertexConsumers, T entity, EquipmentSlot armorSlot, int light, A model, CallbackInfo ci, ItemStack itemStack, ArmorItem armorItem, boolean bl, boolean bl2) {
-        if(armorItem instanceof StyleItem)
-            ci.cancel();
-    }
+//    @Inject(method = "renderArmorPiece", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/HumanoidArmorLayer;renderModel(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IZLnet/minecraft/client/model/Model;FFFLnet/minecraft/resources/ResourceLocation;)V", ordinal = 2), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
+//    private void styleItemCheck(PoseStack poseStack, MultiBufferSource buffer, T livingEntity, EquipmentSlot slot, int i, A model, CallbackInfo ci, ItemStack itemStack, ArmorItem armorItem, boolean bl, boolean bl2) {
+//        if(armorItem instanceof StyleItem)
+//            ci.cancel();
+//    }
 
 }

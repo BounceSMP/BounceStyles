@@ -100,7 +100,7 @@ public class ItemLoader {
                     }
 
                     //Register
-                    StyleItem newItem = t.baseClass.getDeclaredConstructor(ResourceLocation.class, ResourceLocation.class, ResourceLocation.class, HashMap.class).newInstance(modelID, textureID, animationID, animationMap);
+                    StyleItem newItem = t.baseClass.getDeclaredConstructor(String.class, ResourceLocation.class, ResourceLocation.class, ResourceLocation.class, HashMap.class).newInstance(name, modelID, textureID, animationID, animationMap);
 
                     newItem.hiddenParts = parts;
                     newItem.transitionTicks = transitionTicks;

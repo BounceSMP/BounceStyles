@@ -33,8 +33,9 @@ public class StyleItem extends GeoArmorItem implements IAnimatable {
     public List<String> hiddenParts;
     public int transitionTicks;
 
-    public StyleItem(CreativeModeTab group, ResourceLocation modelID, ResourceLocation textureID, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap, EquipmentSlot slot) {
+    public StyleItem(String name, CreativeModeTab group, ResourceLocation modelID, ResourceLocation textureID, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap, EquipmentSlot slot) {
         super(BounceStyles.STYLE_MATERIAL, slot, new Properties().tab(group));
+        setRegistryName(BounceStyles.modId, name);
         this.modelID = modelID;
         this.textureID = textureID;
         this.animationID = animationID;
@@ -42,8 +43,8 @@ public class StyleItem extends GeoArmorItem implements IAnimatable {
     }
 
     public static class HeadStyleItem extends StyleItem {
-        public HeadStyleItem(ResourceLocation model, ResourceLocation texture, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap) {
-            super(StyleTabs.HEAD_GROUP, model, texture, animationID, animationMap, EquipmentSlot.HEAD);
+        public HeadStyleItem(String name, ResourceLocation model, ResourceLocation texture, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap) {
+            super(name, StyleTabs.HEAD_GROUP, model, texture, animationID, animationMap, EquipmentSlot.HEAD);
         }
 
         @Override
@@ -52,8 +53,8 @@ public class StyleItem extends GeoArmorItem implements IAnimatable {
         }
     }
     public static class BodyStyleItem extends StyleItem {
-        public BodyStyleItem(ResourceLocation model, ResourceLocation texture, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap) {
-            super(StyleTabs.BODY_GROUP, model, texture, animationID,  animationMap, EquipmentSlot.CHEST);
+        public BodyStyleItem(String name, ResourceLocation model, ResourceLocation texture, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap) {
+            super(name, StyleTabs.BODY_GROUP, model, texture, animationID,  animationMap, EquipmentSlot.CHEST);
         }
 
         @Override
@@ -62,8 +63,8 @@ public class StyleItem extends GeoArmorItem implements IAnimatable {
         }
     }
     public static class LegsStyleItem extends StyleItem {
-        public LegsStyleItem(ResourceLocation model, ResourceLocation texture, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap) {
-            super(StyleTabs.LEGS_GROUP, model, texture, animationID,  animationMap, EquipmentSlot.LEGS);
+        public LegsStyleItem(String name, ResourceLocation model, ResourceLocation texture, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap) {
+            super(name, StyleTabs.LEGS_GROUP, model, texture, animationID,  animationMap, EquipmentSlot.LEGS);
         }
 
         @Override
@@ -72,8 +73,8 @@ public class StyleItem extends GeoArmorItem implements IAnimatable {
         }
     }
     public static class FeetStyleItem extends StyleItem {
-        public FeetStyleItem(ResourceLocation model, ResourceLocation texture, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap) {
-            super(StyleTabs.FEET_GROUP, model, texture, animationID,  animationMap, EquipmentSlot.FEET);
+        public FeetStyleItem(String name, ResourceLocation model, ResourceLocation texture, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap) {
+            super(name, StyleTabs.FEET_GROUP, model, texture, animationID,  animationMap, EquipmentSlot.FEET);
         }
 
         @Override
