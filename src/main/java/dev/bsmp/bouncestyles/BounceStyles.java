@@ -3,13 +3,12 @@ package dev.bsmp.bouncestyles;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.util.TriState;
-import net.minecraft.item.ArmorMaterial;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
@@ -22,16 +21,16 @@ public class BounceStyles implements ModInitializer {
     public static final String modId = "bounce_styles";
     public static final ArmorMaterial STYLE_MATERIAL = new StyleArmorMaterial();
 
-    public static final ItemGroup HEAD_GROUP = FabricItemGroupBuilder.build(new Identifier(modId, "head"), () -> new ItemStack(Items.CHAINMAIL_HELMET));
-    public static final ItemGroup BODY_GROUP = FabricItemGroupBuilder.build(new Identifier(modId, "body"), () -> new ItemStack(Items.CHAINMAIL_CHESTPLATE));
-    public static final ItemGroup LEGS_GROUP = FabricItemGroupBuilder.build(new Identifier(modId, "legs"), () -> new ItemStack(Items.CHAINMAIL_LEGGINGS));
-    public static final ItemGroup FEET_GROUP = FabricItemGroupBuilder.build(new Identifier(modId, "feet"), () -> new ItemStack(Items.CHAINMAIL_BOOTS));
+    public static final CreativeModeTab HEAD_GROUP = FabricItemGroupBuilder.build(new ResourceLocation(modId, "head"), () -> new ItemStack(Items.CHAINMAIL_HELMET));
+    public static final CreativeModeTab BODY_GROUP = FabricItemGroupBuilder.build(new ResourceLocation(modId, "body"), () -> new ItemStack(Items.CHAINMAIL_CHESTPLATE));
+    public static final CreativeModeTab LEGS_GROUP = FabricItemGroupBuilder.build(new ResourceLocation(modId, "legs"), () -> new ItemStack(Items.CHAINMAIL_LEGGINGS));
+    public static final CreativeModeTab FEET_GROUP = FabricItemGroupBuilder.build(new ResourceLocation(modId, "feet"), () -> new ItemStack(Items.CHAINMAIL_BOOTS));
 
     @Override
     public void onInitialize() {
         GeckoLib.initialize();
 
-        TrinketsApi.registerTrinketPredicate(new Identifier(modId, "item"), (itemStack, slotReference, livingEntity) -> {
+        TrinketsApi.registerTrinketPredicate(new ResourceLocation(modId, "item"), (itemStack, slotReference, livingEntity) -> {
             Item item = itemStack.getItem();
             if(item instanceof StyleItem) {
                 switch (slotReference.inventory().getSlotType().getGroup()) {

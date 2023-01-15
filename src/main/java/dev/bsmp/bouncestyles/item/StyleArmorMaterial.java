@@ -1,31 +1,31 @@
 package dev.bsmp.bouncestyles.item;
 
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.item.ArmorMaterial;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.crafting.Ingredient;
 
 public class StyleArmorMaterial implements ArmorMaterial {
 
     @Override
-    public int getDurability(EquipmentSlot slot) {
+    public int getDurabilityForSlot(EquipmentSlot slot) {
         return 0;
     }
 
     @Override
-    public int getProtectionAmount(EquipmentSlot slot) {
+    public int getDefenseForSlot(EquipmentSlot slot) {
         return 0;
     }
 
     @Override
-    public int getEnchantability() {
+    public int getEnchantmentValue() {
         return 0;
     }
 
     @Override
     public SoundEvent getEquipSound() {
-        return SoundEvents.ITEM_ARMOR_EQUIP_DIAMOND;
+        return SoundEvents.ARMOR_EQUIP_DIAMOND;
     }
 
     @Override

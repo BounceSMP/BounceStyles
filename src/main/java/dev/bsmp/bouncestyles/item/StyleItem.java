@@ -1,17 +1,15 @@
 package dev.bsmp.bouncestyles.item;
 
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.util.Identifier;
-
 import java.util.HashMap;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.CreativeModeTab;
 import dev.bsmp.bouncestyles.BounceStyles;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
@@ -24,17 +22,18 @@ import software.bernie.geckolib3.util.GeckoLibUtil;
 public class StyleItem extends ArmorItem implements IAnimatable {
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
 
-    public final Identifier modelID;
-    public final Identifier textureID;
-    @Nullable public final Identifier animationID;
+    public final ResourceLocation modelID;
+    public final ResourceLocation textureID;
+    @Nullable
+    public final ResourceLocation animationID;
     @Nullable public final HashMap<String, String> animationMap;
 
     public boolean useBackupModel = false;
     public List<String> hiddenParts;
     public int transitionTicks;
 
-    public StyleItem(ItemGroup group, Identifier modelID, Identifier textureID, @Nullable Identifier animationID, @Nullable HashMap<String, String> animationMap, EquipmentSlot slot) {
-        super(BounceStyles.STYLE_MATERIAL, slot, new Settings().group(group));
+    public StyleItem(CreativeModeTab group, ResourceLocation modelID, ResourceLocation textureID, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap, EquipmentSlot slot) {
+        super(BounceStyles.STYLE_MATERIAL, slot, new Properties().tab(group));
         this.modelID = modelID;
         this.textureID = textureID;
         this.animationID = animationID;
@@ -42,43 +41,43 @@ public class StyleItem extends ArmorItem implements IAnimatable {
     }
 
     public static class HeadStyleItem extends StyleItem {
-        public HeadStyleItem(Identifier model, Identifier texture, @Nullable Identifier animationID, @Nullable HashMap<String, String> animationMap) {
+        public HeadStyleItem(ResourceLocation model, ResourceLocation texture, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap) {
             super(BounceStyles.HEAD_GROUP, model, texture, animationID, animationMap, EquipmentSlot.HEAD);
         }
 
         @Override
-        public Identifier getIconId() {
-            return new Identifier(BounceStyles.modId, "textures/item/bounce_head.png");
+        public ResourceLocation getIconId() {
+            return new ResourceLocation(BounceStyles.modId, "textures/item/bounce_head.png");
         }
     }
     public static class BodyStyleItem extends StyleItem {
-        public BodyStyleItem(Identifier model, Identifier texture, @Nullable Identifier animationID, @Nullable HashMap<String, String> animationMap) {
+        public BodyStyleItem(ResourceLocation model, ResourceLocation texture, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap) {
             super(BounceStyles.BODY_GROUP, model, texture, animationID,  animationMap, EquipmentSlot.CHEST);
         }
 
         @Override
-        public Identifier getIconId() {
-            return new Identifier(BounceStyles.modId, "textures/item/bounce_body.png");
+        public ResourceLocation getIconId() {
+            return new ResourceLocation(BounceStyles.modId, "textures/item/bounce_body.png");
         }
     }
     public static class LegsStyleItem extends StyleItem {
-        public LegsStyleItem(Identifier model, Identifier texture, @Nullable Identifier animationID, @Nullable HashMap<String, String> animationMap) {
+        public LegsStyleItem(ResourceLocation model, ResourceLocation texture, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap) {
             super(BounceStyles.LEGS_GROUP, model, texture, animationID,  animationMap, EquipmentSlot.LEGS);
         }
 
         @Override
-        public Identifier getIconId() {
-            return new Identifier(BounceStyles.modId, "textures/item/bounce_legs.png");
+        public ResourceLocation getIconId() {
+            return new ResourceLocation(BounceStyles.modId, "textures/item/bounce_legs.png");
         }
     }
     public static class FeetStyleItem extends StyleItem {
-        public FeetStyleItem(Identifier model, Identifier texture, @Nullable Identifier animationID, @Nullable HashMap<String, String> animationMap) {
+        public FeetStyleItem(ResourceLocation model, ResourceLocation texture, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap) {
             super(BounceStyles.FEET_GROUP, model, texture, animationID,  animationMap, EquipmentSlot.FEET);
         }
 
         @Override
-        public Identifier getIconId() {
-            return new Identifier(BounceStyles.modId, "textures/item/bounce_feet.png");
+        public ResourceLocation getIconId() {
+            return new ResourceLocation(BounceStyles.modId, "textures/item/bounce_feet.png");
         }
     }
 
@@ -99,7 +98,7 @@ public class StyleItem extends ArmorItem implements IAnimatable {
             if(!entity.isOnGround() && (anim = animationMap.get("in_air")) != null)
                 return applyAnimation(controller, anim);
 
-            else if(entity.isSneaking() && (anim = animationMap.get("sneaking")) != null)
+            else if(entity.isShiftKeyDown() && (anim = animationMap.get("sneaking")) != null)
                 return applyAnimation(controller, anim);
 
             else if (entity.isSwimming() && (anim = animationMap.get("swimming")) != null)
@@ -132,7 +131,7 @@ public class StyleItem extends ArmorItem implements IAnimatable {
     }
 
     private static boolean isEntityMoving(LivingEntity entity) {
-        return !(entity.lastLimbDistance > -0.15F && entity.lastLimbDistance < 0.15F);
+        return !(entity.animationSpeedOld > -0.15F && entity.animationSpeedOld < 0.15F);
     }
 
     @Override
@@ -140,7 +139,7 @@ public class StyleItem extends ArmorItem implements IAnimatable {
         return this.factory;
     }
 
-    public Identifier getIconId() {
+    public ResourceLocation getIconId() {
         return null;
     }
 

@@ -8,10 +8,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.JsonHelper;
-import net.minecraft.util.registry.Registry;
-
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -46,7 +45,7 @@ public class ItemLoader {
                 BufferedReader reader = Files.newReader(file, StandardCharsets.UTF_8);
                 JsonArray jsonArray = GSON.fromJson(reader, JsonArray.class);
                 for(JsonElement element : jsonArray) {
-                    JsonObject item = JsonHelper.asObject(element, "item");
+                    JsonObject item = GsonHelper.convertToJsonObject(element, "item");
                     String name = item.get("name").getAsString();
 
                     //Model
@@ -55,7 +54,7 @@ public class ItemLoader {
                         model = item.get("model_id").getAsString();
                     else
                         model = name + ".geo.json";
-                    Identifier modelID = model.contains(":") ? new Identifier(model.split(":")[0], "geo/" + model.split(":")[1]) : new Identifier(BounceStyles.modId, "geo/" + model);
+                    ResourceLocation modelID = model.contains(":") ? new ResourceLocation(model.split(":")[0], "geo/" + model.split(":")[1]) : new ResourceLocation(BounceStyles.modId, "geo/" + model);
 
                     //Texture
                     String texture;
@@ -63,11 +62,11 @@ public class ItemLoader {
                         texture = item.get("texture_id").getAsString();
                     else
                         texture = name + ".png";
-                    Identifier textureID = texture.contains(":") ? new Identifier(texture.split(":")[0], "textures/" + texture.split(":")[1]) : new Identifier(BounceStyles.modId, "textures/" + texture);
+                    ResourceLocation textureID = texture.contains(":") ? new ResourceLocation(texture.split(":")[0], "textures/" + texture.split(":")[1]) : new ResourceLocation(BounceStyles.modId, "textures/" + texture);
 
                     //Animation
                     HashMap<String, String> animationMap = new HashMap<>();
-                    Identifier animationID = null;
+                    ResourceLocation animationID = null;
 
                     if(item.has("animations")) {
                         String anim;
@@ -75,7 +74,7 @@ public class ItemLoader {
                             anim = item.get("animation_id").getAsString();
                         else
                             anim = name + ".animation.json";
-                        animationID = model.contains(":") ? new Identifier(anim.split(":")[0], "animations/" + anim.split(":")[1]) : new Identifier(BounceStyles.modId, "animations/" + anim);
+                        animationID = model.contains(":") ? new ResourceLocation(anim.split(":")[0], "animations/" + anim.split(":")[1]) : new ResourceLocation(BounceStyles.modId, "animations/" + anim);
 
                         JsonObject animations = item.getAsJsonObject("animations");
                         for(Map.Entry<String, JsonElement> entry : animations.entrySet()) {
@@ -98,8 +97,8 @@ public class ItemLoader {
                     }
 
                     //Register
-                    StyleItem newItem = t.baseClass.getDeclaredConstructor(Identifier.class, Identifier.class, Identifier.class, HashMap.class).newInstance(modelID, textureID, animationID, animationMap);
-                    Registry.register(Registry.ITEM, new Identifier(BounceStyles.modId, name +"_"+ t.name().toLowerCase()), newItem);
+                    StyleItem newItem = t.baseClass.getDeclaredConstructor(ResourceLocation.class, ResourceLocation.class, ResourceLocation.class, HashMap.class).newInstance(modelID, textureID, animationID, animationMap);
+                    Registry.register(Registry.ITEM, new ResourceLocation(BounceStyles.modId, name +"_"+ t.name().toLowerCase()), newItem);
 
                     newItem.hiddenParts = parts;
                     newItem.transitionTicks = transitionTicks;

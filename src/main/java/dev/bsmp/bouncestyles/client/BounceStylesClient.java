@@ -1,18 +1,16 @@
 package dev.bsmp.bouncestyles.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import dev.bsmp.bouncestyles.ItemLoader;
 import dev.bsmp.bouncestyles.client.renderer.StyleArmorRenderer;
 import dev.bsmp.bouncestyles.item.StyleItem;
@@ -41,19 +39,19 @@ public class BounceStylesClient implements ClientModInitializer {
             RenderSystem.disableDepthTest();
             RenderSystem.disableBlend();
 
-            Identifier texture = ((StyleItem) stack.getItem()).getIconId();
-            Tessellator tessellator = Tessellator.getInstance();
-            BufferBuilder buffer = tessellator.getBuffer();
+            ResourceLocation texture = ((StyleItem) stack.getItem()).getIconId();
+            Tesselator tesselator = Tesselator.getInstance();
+            BufferBuilder buffer = tesselator.getBuilder();
 
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
             RenderSystem.setShaderTexture(0, texture);
-            buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
-            buffer.vertex(x + 6, y, 0).texture(0,0).next();
-            buffer.vertex(x + 6, y + 10, 0).texture(0,1).next();
-            buffer.vertex(x + 16, y + 10, 0).texture(1,1).next();
-            buffer.vertex(x + 16, y, 0).texture(1,0).next();
-            tessellator.draw();
+            buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+            buffer.vertex(x + 6, y, 0).uv(0,0).endVertex();
+            buffer.vertex(x + 6, y + 10, 0).uv(0,1).endVertex();
+            buffer.vertex(x + 16, y + 10, 0).uv(1,1).endVertex();
+            buffer.vertex(x + 16, y, 0).uv(1,0).endVertex();
+            tesselator.end();
 
             RenderSystem.enableBlend();
             RenderSystem.enableDepthTest();
