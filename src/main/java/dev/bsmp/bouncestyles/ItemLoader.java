@@ -7,8 +7,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import java.io.BufferedReader;
@@ -25,20 +23,25 @@ import java.util.Map;
 import java.util.Objects;
 
 import dev.bsmp.bouncestyles.item.StyleItem;
+import net.minecraft.world.item.Item;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLPaths;
 
 public class ItemLoader {
     public static final List<StyleItem> HEAD_ITEMS = new ArrayList<>();
     public static final List<StyleItem> BODY_ITEMS = new ArrayList<>();
     public static final List<StyleItem> LEGS_ITEMS = new ArrayList<>();
     public static final List<StyleItem> FEET_ITEMS = new ArrayList<>();
+
     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().create();
 
-    public static void init() throws IOException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public static void init(RegistryEvent.Register<Item> event) throws IOException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         //ToDo: Get proper texture for backup item model. (Prism? FF Coffer?)
         //ToDo: Get proper texture for Trinket slots
         //ToDo: Prob gotta check some of this on resource reload too, but only for registered items.
-        Path dir = FabricLoader.getInstance().getGameDir().resolve("styles");
-        dir.toFile().mkdirs();
+        Path dir = FMLPaths.GAMEDIR.get().resolve("styles");
+        dir.toFile().mkdir();
         for(Types t : Types.values()) {
             File file = dir.resolve(t.name()+".json").toFile();
             if(file.exists()) {
@@ -98,12 +101,12 @@ public class ItemLoader {
 
                     //Register
                     StyleItem newItem = t.baseClass.getDeclaredConstructor(ResourceLocation.class, ResourceLocation.class, ResourceLocation.class, HashMap.class).newInstance(modelID, textureID, animationID, animationMap);
-                    Registry.register(Registry.ITEM, new ResourceLocation(BounceStyles.modId, name +"_"+ t.name().toLowerCase()), newItem);
 
                     newItem.hiddenParts = parts;
                     newItem.transitionTicks = transitionTicks;
 
-                    t.entryList.add(newItem);
+                    event.getRegistry().register(newItem);
+                    t.itemList.add(newItem);
                 }
             }
             else {
@@ -119,11 +122,11 @@ public class ItemLoader {
     public enum Types {
         Head(HEAD_ITEMS, StyleItem.HeadStyleItem.class), Body(BODY_ITEMS, StyleItem.BodyStyleItem.class), Legs(LEGS_ITEMS, StyleItem.LegsStyleItem.class), Feet(FEET_ITEMS, StyleItem.FeetStyleItem.class);
 
-        public final List<StyleItem> entryList;
+        public final List<StyleItem> itemList;
         public final Class<? extends StyleItem> baseClass;
 
-        Types(List<StyleItem> entryList, Class<? extends StyleItem> baseClass) {
-            this.entryList = entryList;
+        Types(List<StyleItem> itemList, Class<? extends StyleItem> baseClass) {
+            this.itemList = itemList;
             this.baseClass = baseClass;
         }
     }

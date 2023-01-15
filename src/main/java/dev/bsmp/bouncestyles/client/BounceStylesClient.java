@@ -5,33 +5,30 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import dev.bsmp.bouncestyles.ItemLoader;
 import dev.bsmp.bouncestyles.client.renderer.StyleArmorRenderer;
 import dev.bsmp.bouncestyles.item.StyleItem;
-import dev.emi.trinkets.api.client.TrinketRendererRegistry;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.registries.RegistryObject;
 import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
 
-@Environment(EnvType.CLIENT)
-public class BounceStylesClient implements ClientModInitializer {
+public class BounceStylesClient {
     public static final StyleArmorRenderer STYLE_ARMOR_RENDERER = new StyleArmorRenderer();
 
-    @Override
-    public void onInitializeClient() {
-        ItemLoader.HEAD_ITEMS.forEach(this::registerRenderers);
-        ItemLoader.BODY_ITEMS.forEach(this::registerRenderers);
-        ItemLoader.FEET_ITEMS.forEach(this::registerRenderers);
-        ItemLoader.LEGS_ITEMS.forEach(this::registerRenderers);
+    public static void onInitializeClient(final FMLClientSetupEvent event) {
+        ItemLoader.HEAD_ITEMS.forEach(BounceStylesClient::registerRenderers);
+        ItemLoader.BODY_ITEMS.forEach(BounceStylesClient::registerRenderers);
+        ItemLoader.FEET_ITEMS.forEach(BounceStylesClient::registerRenderers);
+        ItemLoader.LEGS_ITEMS.forEach(BounceStylesClient::registerRenderers);
     }
 
-    private void registerRenderers(StyleItem item) {
-        GeoArmorRenderer.registerArmorRenderer(STYLE_ARMOR_RENDERER, item);
-        TrinketRendererRegistry.registerRenderer(item, STYLE_ARMOR_RENDERER);
+    private static void registerRenderers(StyleItem item) {
+        GeoArmorRenderer.registerArmorRenderer(StyleItem.class, () -> STYLE_ARMOR_RENDERER);
     }
 
     public static void drawStyleItemTypeOverlay(ItemStack stack, int x, int y) {
@@ -57,5 +54,4 @@ public class BounceStylesClient implements ClientModInitializer {
             RenderSystem.enableDepthTest();
         }
     }
-
 }

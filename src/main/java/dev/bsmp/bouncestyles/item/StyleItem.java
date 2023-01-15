@@ -17,9 +17,10 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib3.item.GeoArmorItem;
 import software.bernie.geckolib3.util.GeckoLibUtil;
 
-public class StyleItem extends ArmorItem implements IAnimatable {
+public class StyleItem extends GeoArmorItem implements IAnimatable {
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
 
     public final ResourceLocation modelID;
@@ -42,7 +43,7 @@ public class StyleItem extends ArmorItem implements IAnimatable {
 
     public static class HeadStyleItem extends StyleItem {
         public HeadStyleItem(ResourceLocation model, ResourceLocation texture, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap) {
-            super(BounceStyles.HEAD_GROUP, model, texture, animationID, animationMap, EquipmentSlot.HEAD);
+            super(StyleTabs.HEAD_GROUP, model, texture, animationID, animationMap, EquipmentSlot.HEAD);
         }
 
         @Override
@@ -52,7 +53,7 @@ public class StyleItem extends ArmorItem implements IAnimatable {
     }
     public static class BodyStyleItem extends StyleItem {
         public BodyStyleItem(ResourceLocation model, ResourceLocation texture, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap) {
-            super(BounceStyles.BODY_GROUP, model, texture, animationID,  animationMap, EquipmentSlot.CHEST);
+            super(StyleTabs.BODY_GROUP, model, texture, animationID,  animationMap, EquipmentSlot.CHEST);
         }
 
         @Override
@@ -62,7 +63,7 @@ public class StyleItem extends ArmorItem implements IAnimatable {
     }
     public static class LegsStyleItem extends StyleItem {
         public LegsStyleItem(ResourceLocation model, ResourceLocation texture, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap) {
-            super(BounceStyles.LEGS_GROUP, model, texture, animationID,  animationMap, EquipmentSlot.LEGS);
+            super(StyleTabs.LEGS_GROUP, model, texture, animationID,  animationMap, EquipmentSlot.LEGS);
         }
 
         @Override
@@ -72,7 +73,7 @@ public class StyleItem extends ArmorItem implements IAnimatable {
     }
     public static class FeetStyleItem extends StyleItem {
         public FeetStyleItem(ResourceLocation model, ResourceLocation texture, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap) {
-            super(BounceStyles.FEET_GROUP, model, texture, animationID,  animationMap, EquipmentSlot.FEET);
+            super(StyleTabs.FEET_GROUP, model, texture, animationID,  animationMap, EquipmentSlot.FEET);
         }
 
         @Override

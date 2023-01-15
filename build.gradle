@@ -1,10 +1,36 @@
 plugins {
-    id 'fabric-loom' version '1.0-SNAPSHOT'
-    id 'maven-publish'
+    id "dev.architectury.loom" version "0.12.0-SNAPSHOT"
+    id "maven-publish"
 }
 
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
+
+archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
+
+loom {
+    silentMojangMappingsLicense()
+
+    forge {
+        mixinConfigs = [
+                "bouncestyles.mixins.json"
+        ]
+        dataGen {
+            mod project.mod_id
+        }
+    }
+
+    launches {
+        data {
+            arg "--existing", file("src/main/resources").absolutePath
+        }
+        client {
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+        }
+    }
+}
 
 repositories {
     //Parchment
@@ -15,18 +41,15 @@ repositories {
     maven {
         url = "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/"
     }
-    //Trinkets
+    //Curios
     maven {
-        url = "https://maven.terraformersmc.com/"
-    }
-    maven {
-        url = "https://ladysnake.jfrog.io/artifactory/mods"
+        url = "https://maven.theillusivec4.top/"
     }
 }
 
 dependencies {
-    // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	
     mappings loom.layered() {
         officialMojangMappings()
         parchment("org.parchmentmc.data:parchment-1.18.2:2022.11.06@zip")
@@ -34,41 +57,35 @@ dependencies {
             enigmaMappings()
         }
     }
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-    // Fabric API. This is technically optional, but you probably want it anyway.
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modImplementation "software.bernie.geckolib:geckolib-fabric-1.18:3.0.77"
-    modImplementation "dev.emi:trinkets:3.3.1"
+	
+    forge "net.minecraftforge:forge:${project.forge_version}"
+	
+    modImplementation "software.bernie.geckolib:geckolib-forge-1.18:3.0.57"
+    modRuntimeOnly "top.theillusivec4.curios:curios-forge:1.18.2-5.0.7.1"
+    modCompileOnlyApi "top.theillusivec4.curios:curios-forge:1.18.2-5.0.7.1:api"
 }
 
 processResources {
+    // define properties that can be used during resource processing
     inputs.property "version", project.version
-    filteringCharset "UTF-8"
 
-    filesMatching("fabric.mod.json") {
+    // this will replace the property "${version}" in your mods.toml
+    // with the version you've defined in your gradle.properties
+    filesMatching("META-INF/mods.toml") {
         expand "version": project.version
     }
 }
 
-def targetJavaVersion = 17
-tasks.withType(JavaCompile).configureEach {
+tasks.withType(JavaCompile) {
     // ensure that the encoding is set to UTF-8, no matter what the system default is
     // this fixes some edge cases with special characters not displaying correctly
     // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
     // If Javadoc is generated, this must be specified in that task too.
-    it.options.encoding = "UTF-8"
-    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
-        it.options.release = targetJavaVersion
-    }
+    options.encoding = "UTF-8"
+    options.release = 17
 }
 
 java {
-    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
-    if (JavaVersion.current() < javaVersion) {
-        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
-    }
-    archivesBaseName = project.archives_base_name
     // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
     // if it is present.
     // If you remove this line, sources will not be generated.
@@ -76,8 +93,17 @@ java {
 }
 
 jar {
-    from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}" }
+    // add some additional metadata to the jar manifest
+    manifest {
+        attributes([
+                "Specification-Title"     : project.mod_id,
+                "Specification-Vendor"    : project.mod_author,
+                "Specification-Version"   : "1",
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : version,
+                "Implementation-Vendor"   : project.mod_author,
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
     }
 }
 
@@ -85,7 +111,13 @@ jar {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            from components.java
+            // add all the jars that should be included when publishing to maven
+            artifact(remapJar) {
+                builtBy remapJar
+            }
+            artifact(sourcesJar) {
+                builtBy remapSourcesJar
+            }
         }
     }
 

@@ -1,58 +1,54 @@
 package dev.bsmp.bouncestyles;
 
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
-import net.fabricmc.fabric.api.util.TriState;
-import net.minecraft.resources.ResourceLocation;
+import dev.bsmp.bouncestyles.client.BounceStylesClient;
+import dev.bsmp.bouncestyles.item.StyleArmorMaterial;
 import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.InterModComms;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import software.bernie.geckolib3.GeckoLib;
+import top.theillusivec4.curios.api.CuriosApi;
+import top.theillusivec4.curios.api.SlotTypeMessage;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
-import dev.bsmp.bouncestyles.item.StyleArmorMaterial;
-import dev.bsmp.bouncestyles.item.StyleItem;
-import dev.emi.trinkets.api.TrinketsApi;
-import software.bernie.geckolib3.GeckoLib;
-
-public class BounceStyles implements ModInitializer {
+@Mod(BounceStyles.modId)
+public class BounceStyles {
     public static final String modId = "bounce_styles";
     public static final ArmorMaterial STYLE_MATERIAL = new StyleArmorMaterial();
 
-    public static final CreativeModeTab HEAD_GROUP = FabricItemGroupBuilder.build(new ResourceLocation(modId, "head"), () -> new ItemStack(Items.CHAINMAIL_HELMET));
-    public static final CreativeModeTab BODY_GROUP = FabricItemGroupBuilder.build(new ResourceLocation(modId, "body"), () -> new ItemStack(Items.CHAINMAIL_CHESTPLATE));
-    public static final CreativeModeTab LEGS_GROUP = FabricItemGroupBuilder.build(new ResourceLocation(modId, "legs"), () -> new ItemStack(Items.CHAINMAIL_LEGGINGS));
-    public static final CreativeModeTab FEET_GROUP = FabricItemGroupBuilder.build(new ResourceLocation(modId, "feet"), () -> new ItemStack(Items.CHAINMAIL_BOOTS));
-
-    @Override
-    public void onInitialize() {
+    public BounceStyles() {
         GeckoLib.initialize();
 
-        TrinketsApi.registerTrinketPredicate(new ResourceLocation(modId, "item"), (itemStack, slotReference, livingEntity) -> {
-            Item item = itemStack.getItem();
-            if(item instanceof StyleItem) {
-                switch (slotReference.inventory().getSlotType().getGroup()) {
-                    case "head":
-                        return item instanceof StyleItem.HeadStyleItem ? TriState.TRUE : TriState.FALSE;
-                    case "chest":
-                        return item instanceof StyleItem.BodyStyleItem ? TriState.TRUE : TriState.FALSE;
-                    case "legs":
-                        return item instanceof StyleItem.LegsStyleItem ? TriState.TRUE : TriState.FALSE;
-                    case "feet":
-                        return item instanceof StyleItem.FeetStyleItem ? TriState.TRUE : TriState.FALSE;
-                }
-            }
-            return TriState.DEFAULT;
-        });
+        IEventBus MOD_BUS = FMLJavaModLoadingContext.get().getModEventBus();
+        MinecraftForge.EVENT_BUS.register(this);
 
+        MOD_BUS.addListener(this::enqueueInterModComms);
+        MOD_BUS.addListener(BounceStylesClient::onInitializeClient);
+    }
+
+    @SubscribeEvent
+    public void registerItems(RegistryEvent.Register<Item> event) {
         try {
-            ItemLoader.init();
+            ItemLoader.init(event);
         }
         catch (IOException | NoSuchMethodException | InvocationTargetException | InstantiationException |
                IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void enqueueInterModComms(final InterModEnqueueEvent event) {
+        InterModComms.sendTo(CuriosApi.MODID, SlotTypeMessage.REGISTER_TYPE, () -> new SlotTypeMessage.Builder("head").build());
+        InterModComms.sendTo(CuriosApi.MODID, SlotTypeMessage.REGISTER_TYPE, () -> new SlotTypeMessage.Builder("body").build());
+        InterModComms.sendTo(CuriosApi.MODID, SlotTypeMessage.REGISTER_TYPE, () -> new SlotTypeMessage.Builder("legs").build());
+        InterModComms.sendTo(CuriosApi.MODID, SlotTypeMessage.REGISTER_TYPE, () -> new SlotTypeMessage.Builder("feet").build());
     }
 }
