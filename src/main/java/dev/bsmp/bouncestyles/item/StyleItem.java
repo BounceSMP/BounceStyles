@@ -31,6 +31,7 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.item.GeoArmorItem;
+import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
 import software.bernie.geckolib3.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
@@ -39,6 +40,7 @@ import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 public abstract class StyleItem extends GeoArmorItem implements IAnimatable, ICurioItem {
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
+    private final AnimationController<StyleItem> animationController = new AnimationController<>(this, "controller", this.transitionTicks, this::predicate);
 
     public final ResourceLocation modelID;
     public final ResourceLocation textureID;
@@ -64,9 +66,10 @@ public abstract class StyleItem extends GeoArmorItem implements IAnimatable, ICu
     public void render(String identifier, int index, PoseStack matrixStack, MultiBufferSource renderTypeBuffer, int light, LivingEntity livingEntity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, ItemStack stack) {
         VertexConsumer vertexConsumer = renderTypeBuffer.getBuffer(RenderType.armorCutoutNoCull(BounceStylesClient.STYLE_ARMOR_RENDERER.getTextureLocation(this)));
         ((PlayerModel) ((LivingEntityRenderer<?, ?>) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(livingEntity)).getModel()).copyPropertiesTo(BounceStylesClient.STYLE_ARMOR_RENDERER);
-        BounceStylesClient.STYLE_ARMOR_RENDERER.setCurrentItem(livingEntity, stack, slot);
-        BounceStylesClient.STYLE_ARMOR_RENDERER.applySlot(slot);
-        BounceStylesClient.STYLE_ARMOR_RENDERER.render(partialTicks, matrixStack, vertexConsumer, light);
+        GeoArmorRenderer<StyleItem> renderer = GeoArmorRenderer.getRenderer(this.getClass(), livingEntity);
+        renderer.setCurrentItem(livingEntity, stack, slot);
+        renderer.applySlot(slot);
+        renderer.render(partialTicks, matrixStack, vertexConsumer, light);
     }
 
     @Override
@@ -148,7 +151,7 @@ public abstract class StyleItem extends GeoArmorItem implements IAnimatable, ICu
     @Override
     public void registerControllers(AnimationData animationData) {
         if(this.animationMap != null && !this.animationMap.isEmpty())
-            animationData.addAnimationController(new AnimationController<>(this, "controller", this.transitionTicks, this::predicate));
+            animationData.addAnimationController(animationController);
     }
 
     private <P extends IAnimatable> PlayState predicate(AnimationEvent<P> event) {

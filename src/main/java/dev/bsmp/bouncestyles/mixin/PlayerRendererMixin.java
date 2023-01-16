@@ -33,7 +33,8 @@ public class PlayerRendererMixin {
         );
 
         for(SlotResult slot : results) {
-            if(slot.getStack().getItem() instanceof StyleItem item) {
+            if(slot.getStack().getItem() instanceof StyleItem) {
+                StyleItem item = (StyleItem) slot.getStack().getItem();
                 StyleArmorRenderer.hideParts(playerEntityModel, item);
             }
         }
