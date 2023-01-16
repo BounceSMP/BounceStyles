@@ -3,7 +3,7 @@ plugins {
     id "maven-publish"
 }
 
-sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
 
 archivesBaseName = project.archives_base_name
 version = project.mod_version
@@ -52,17 +52,17 @@ dependencies {
 	
     mappings loom.layered() {
         officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-1.18.2:2022.11.06@zip")
-        mappings(rootProject.file("geckolib-fix.mapping")) {
-            enigmaMappings()
-        }
+        parchment("org.parchmentmc.data:parchment-1.16.5:2022.03.06@zip")
+//        mappings(rootProject.file("geckolib-fix.mapping")) {
+//            enigmaMappings()
+//        }
     }
 	
     forge "net.minecraftforge:forge:${project.forge_version}"
 	
-    modImplementation "software.bernie.geckolib:geckolib-forge-1.18:3.0.57"
-    modRuntimeOnly "top.theillusivec4.curios:curios-forge:1.18.2-5.0.7.1"
-    modCompileOnlyApi "top.theillusivec4.curios:curios-forge:1.18.2-5.0.7.1:api"
+    modImplementation "software.bernie.geckolib:geckolib-forge-1.16.5:3.0.106"
+    modRuntimeOnly "top.theillusivec4.curios:curios-forge:1.16.5-4.0.8.2"
+    modCompileOnlyApi "top.theillusivec4.curios:curios-forge:1.16.5-4.0.8.2:api"
 }
 
 processResources {

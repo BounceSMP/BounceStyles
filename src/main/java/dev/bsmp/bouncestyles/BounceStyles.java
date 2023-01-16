@@ -60,7 +60,7 @@ public class BounceStyles {
     public void onCurioEquip(final CurioEquipEvent event) {
         Item item = event.getStack().getItem();
         if(item instanceof StyleItem) {
-            event.setResult(((StyleItem) item).canEquip(event.getSlotContext(), event.getStack()) ? Event.Result.ALLOW : Event.Result.DEFAULT);
+            event.setResult(((StyleItem) item).canEquip(event.getSlotContext().getIdentifier(), event.getEntityLiving(), event.getStack()) ? Event.Result.ALLOW : Event.Result.DEFAULT);
         }
     }
 
