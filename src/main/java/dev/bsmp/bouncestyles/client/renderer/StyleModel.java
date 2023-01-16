@@ -8,17 +8,17 @@ public class StyleModel extends AnimatedGeoModel<StyleItem> {
 
     @Override
     public ResourceLocation getModelLocation(StyleItem item) {
-        return item.modelID;
+        return item != null ? item.modelID : null;
     }
 
     @Override
     public ResourceLocation getTextureLocation(StyleItem item) {
-        return item.textureID;
+        return  item != null ? item.textureID : null;
     }
 
     @Override
     public ResourceLocation getAnimationFileLocation(StyleItem item) {
-        return item.animationID;
+        return  item != null ? item.animationID : null;
     }
 
 }
