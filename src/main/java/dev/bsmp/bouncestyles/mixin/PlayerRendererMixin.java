@@ -14,8 +14,10 @@ import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.world.item.ItemStack;
 import dev.bsmp.bouncestyles.item.StyleItem;
 import top.theillusivec4.curios.api.CuriosApi;
+import top.theillusivec4.curios.api.SlotResult;
 import top.theillusivec4.curios.api.type.inventory.ICurioStacksHandler;
 
+import java.util.List;
 import java.util.Map;
 
 @Mixin(PlayerRenderer.class)
@@ -23,14 +25,18 @@ public class PlayerRendererMixin {
 
     @Inject(method = "setModelProperties", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;isCrouching()Z", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
     private void checkStyleVisibility(AbstractClientPlayer player, CallbackInfo ci, PlayerModel<?> playerEntityModel) {
-        CuriosApi.getCuriosHelper().getEquippedCurios(player).ifPresent(handler -> {
-            for(int i = 0; i < handler.getSlots(); i++) {
-                Item item = handler.getStackInSlot(i).getItem();
-                if(item instanceof StyleItem) {
-                    StyleArmorRenderer.hideParts(playerEntityModel, (StyleItem) item);
-                }
+        List<SlotResult> results = CuriosApi.getCuriosHelper().findCurios(player,
+                StyleItem.HeadStyleItem.curioSlot,
+                StyleItem.BodyStyleItem.curioSlot,
+                StyleItem.LegsStyleItem.curioSlot,
+                StyleItem.FeetStyleItem.curioSlot
+        );
+
+        for(SlotResult slot : results) {
+            if(slot.stack().getItem() instanceof StyleItem item && slot.slotContext().visible()) {
+                StyleArmorRenderer.hideParts(playerEntityModel, item);
             }
-        });
+        }
 
         for(ItemStack itemStack : player.getArmorSlots())
             if(itemStack.getItem() instanceof StyleItem)
