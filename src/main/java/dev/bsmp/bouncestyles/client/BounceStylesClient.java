@@ -14,7 +14,6 @@ import dev.bsmp.bouncestyles.client.renderer.StyleArmorRenderer;
 import dev.bsmp.bouncestyles.item.StyleItem;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
-import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
 public class BounceStylesClient {

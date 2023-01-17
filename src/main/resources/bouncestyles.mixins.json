@@ -9,7 +9,8 @@
     "ArmorFeatureRendererMixin",
     "ItemRendererMixin",
     "ModelLoaderMixin",
-    "PlayerRendererMixin"
+    "PlayerRendererMixin",
+    "GeoArmorRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
