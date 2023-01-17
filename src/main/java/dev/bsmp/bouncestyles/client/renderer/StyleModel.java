@@ -2,7 +2,6 @@ package dev.bsmp.bouncestyles.client.renderer;
 
 import dev.bsmp.bouncestyles.item.StyleItem;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.core.IAnimatableModel;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
 public class StyleModel extends AnimatedGeoModel<StyleItem> {

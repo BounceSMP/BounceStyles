@@ -1,17 +1,9 @@
 package dev.bsmp.bouncestyles.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import dev.bsmp.bouncestyles.client.renderer.StyleModel;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import dev.bsmp.bouncestyles.ItemLoader;
 import dev.bsmp.bouncestyles.client.renderer.StyleArmorRenderer;
+import dev.bsmp.bouncestyles.client.renderer.StyleModel;
 import dev.bsmp.bouncestyles.item.StyleItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
 

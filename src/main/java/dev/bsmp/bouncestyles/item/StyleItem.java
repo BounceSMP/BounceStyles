@@ -66,7 +66,7 @@ public abstract class StyleItem extends GeoArmorItem implements IAnimatable, ICu
     public void render(String identifier, int index, PoseStack matrixStack, MultiBufferSource renderTypeBuffer, int light, LivingEntity livingEntity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, ItemStack stack) {
         VertexConsumer vertexConsumer = renderTypeBuffer.getBuffer(RenderType.armorCutoutNoCull(BounceStylesClient.STYLE_ARMOR_RENDERER.getTextureLocation(this)));
         ((PlayerModel) ((LivingEntityRenderer<?, ?>) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(livingEntity)).getModel()).copyPropertiesTo(BounceStylesClient.STYLE_ARMOR_RENDERER);
-        GeoArmorRenderer<StyleItem> renderer = GeoArmorRenderer.getRenderer(this.getClass(), livingEntity);
+        GeoArmorRenderer<StyleItem> renderer = GeoArmorRenderer.getRenderer(((StyleItem) stack.getItem()).getClass(), livingEntity);
         renderer.setCurrentItem(livingEntity, stack, slot);
         renderer.applySlot(slot);
         renderer.render(partialTicks, matrixStack, vertexConsumer, light);
@@ -186,7 +186,7 @@ public abstract class StyleItem extends GeoArmorItem implements IAnimatable, ICu
         return PlayState.STOP;
     }
 
-    private static PlayState applyAnimation(AnimationController<?> controller, String anim) {
+    private PlayState applyAnimation(AnimationController<?> controller, String anim) {
         if(isCurrentAnimation(controller, anim))
             return PlayState.CONTINUE;
         controller.setAnimation(new AnimationBuilder().addAnimation(anim));
