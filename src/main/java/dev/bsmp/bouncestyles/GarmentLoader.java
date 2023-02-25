@@ -2,9 +2,8 @@ package dev.bsmp.bouncestyles;
 
 import com.google.common.io.Files;
 import com.google.gson.*;
-import dev.bsmp.bouncestyles.item.StyleItem;
+import dev.bsmp.bouncestyles.data.Garment;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 
@@ -17,17 +16,24 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 
-public class ItemLoader {
-    public static final List<StyleItem> HEAD_ITEMS = new ArrayList<>();
-    public static final List<StyleItem> BODY_ITEMS = new ArrayList<>();
-    public static final List<StyleItem> LEGS_ITEMS = new ArrayList<>();
-    public static final List<StyleItem> FEET_ITEMS = new ArrayList<>();
+public class GarmentLoader {
+    public static final List<ResourceLocation> UNIQUE_IDS = new ArrayList<>();
+    public static final Map<ResourceLocation, Garment> HEAD_ITEMS = new HashMap<>();
+    public static final Map<ResourceLocation, Garment> BODY_ITEMS = new HashMap<>();
+    public static final Map<ResourceLocation, Garment> LEGS_ITEMS = new HashMap<>();
+    public static final Map<ResourceLocation, Garment> FEET_ITEMS = new HashMap<>();
+
+    public static final ResourceLocation HEAD_ICON = new ResourceLocation(BounceStyles.modId, "textures/icon/bounce_head.png");
+    public static final ResourceLocation BODY_ICON = new ResourceLocation(BounceStyles.modId, "textures/icon/bounce_body.png");
+    public static final ResourceLocation LEGS_ICON = new ResourceLocation(BounceStyles.modId, "textures/icon/bounce_legs.png");
+    public static final ResourceLocation FEET_ICON = new ResourceLocation(BounceStyles.modId, "textures/icon/bounce_feet.png");
+
     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().create();
 
     public static void init() throws IOException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         Path dir = FabricLoader.getInstance().getGameDir().resolve("styles");
         dir.toFile().mkdirs();
-        for(Categories category : Categories.values()) {
+        for(Category category : Category.values()) {
             File file = dir.resolve(category.name()+".json").toFile();
             if(!file.exists()) {
                 JsonArray jsonArray = new JsonArray();
@@ -60,20 +66,23 @@ public class ItemLoader {
                             parts.add(e.getAsString());
                     }
 
-                    //Register
-                    StyleItem newItem = category.baseClass.getDeclaredConstructor(ResourceLocation.class, ResourceLocation.class, ResourceLocation.class, HashMap.class).newInstance(modelID, textureID, animationID, animationMap);
-                    Registry.register(Registry.ITEM, new ResourceLocation(BounceStyles.modId, name +"_"+ category.name().toLowerCase()), newItem);
+                    ResourceLocation id = new ResourceLocation(BounceStyles.modId, name);
+                    Garment garment = new Garment(id, modelID, textureID, animationID, animationMap);
 
-                    newItem.hiddenParts = parts;
-                    newItem.transitionTicks = transitionTicks;
+                    garment.hiddenParts = parts;
+                    garment.transitionTicks = transitionTicks;
 
-                    category.entryList.add(newItem);
+                    category.entryList.put(id, garment);
+                    if(!UNIQUE_IDS.contains(id))
+                        UNIQUE_IDS.add(id);
                 }
             }
         }
     }
 
-
+    public static boolean idExists(ResourceLocation id) {
+        return UNIQUE_IDS.contains(id);
+    }
 
     private static ResourceLocation parseModel(JsonObject item, String name) {
         String model;
@@ -119,15 +128,15 @@ public class ItemLoader {
         return animationMap;
     }
 
-    public enum Categories {
-        Head(HEAD_ITEMS, StyleItem.HeadStyleItem.class), Body(BODY_ITEMS, StyleItem.BodyStyleItem.class), Legs(LEGS_ITEMS, StyleItem.LegsStyleItem.class), Feet(FEET_ITEMS, StyleItem.FeetStyleItem.class);
+    public enum Category {
+        Head(HEAD_ICON, HEAD_ITEMS), Body(BODY_ICON, BODY_ITEMS), Legs(LEGS_ICON, LEGS_ITEMS), Feet(FEET_ICON, FEET_ITEMS);
 
-        public final List<StyleItem> entryList;
-        public final Class<? extends StyleItem> baseClass;
+        public final Map<ResourceLocation, Garment> entryList;
+        public final ResourceLocation categoryIcon;
 
-        Categories(List<StyleItem> entryList, Class<? extends StyleItem> baseClass) {
+        Category(ResourceLocation categoryIcon, Map<ResourceLocation, Garment> entryList) {
+            this.categoryIcon = categoryIcon;
             this.entryList = entryList;
-            this.baseClass = baseClass;
         }
     }
 }

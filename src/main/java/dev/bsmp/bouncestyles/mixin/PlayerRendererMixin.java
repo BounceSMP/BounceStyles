@@ -1,38 +1,38 @@
 package dev.bsmp.bouncestyles.mixin;
 
+import dev.bsmp.bouncestyles.data.Garment;
+import dev.bsmp.bouncestyles.data.PlayerStyleData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import java.util.Optional;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
-import dev.bsmp.bouncestyles.item.StyleItem;
-import dev.emi.trinkets.api.SlotReference;
-import dev.emi.trinkets.api.TrinketComponent;
-import dev.emi.trinkets.api.TrinketsApi;
 
 @Mixin(PlayerRenderer.class)
 public class PlayerRendererMixin {
 
     @Inject(method = "setModelProperties", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;isCrouching()Z", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
     private void checkStyleVisibility(AbstractClientPlayer player, CallbackInfo ci, PlayerModel<?> playerEntityModel) {
-        Optional<TrinketComponent> o = TrinketsApi.getTrinketComponent(player);
-        if(o.isPresent())
-            for(Tuple<SlotReference, ItemStack> pair : o.get().getEquipped(stack -> stack.getItem() instanceof StyleItem))
-                hideParts(playerEntityModel, (StyleItem) pair.getB().getItem());
-
-        for(ItemStack itemStack : player.getArmorSlots())
-            if(itemStack.getItem() instanceof StyleItem)
-                hideParts(playerEntityModel, (StyleItem) itemStack.getItem());
+        PlayerStyleData styleData = PlayerStyleData.getPlayerData(player);
+        for(String s : styleData.getHiddenParts()) {
+            switch (s) {
+                case "head" -> playerEntityModel.head.visible = false;
+                case "body" -> playerEntityModel.body.visible = false;
+                case "left_arm" -> playerEntityModel.leftArm.visible = false;
+                case "right_arm" -> playerEntityModel.rightArm.visible = false;
+                case "left_leg" -> playerEntityModel.leftLeg.visible = false;
+                case "right_leg" -> playerEntityModel.rightLeg.visible = false;
+            }
+        }
     }
 
-    private void hideParts(PlayerModel<?> playerEntityModel, StyleItem item) {
+    private void hideParts(PlayerModel<?> playerEntityModel, Garment garment) {
+        /*
         if(item.hiddenParts != null && !item.hiddenParts.isEmpty()) {
             for(String s : item.hiddenParts) {
                 switch (s) {
@@ -63,6 +63,7 @@ public class PlayerRendererMixin {
                 }
             }
         }
+         */
     }
 
 }
