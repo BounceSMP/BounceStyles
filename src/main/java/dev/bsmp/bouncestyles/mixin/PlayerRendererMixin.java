@@ -1,6 +1,6 @@
 package dev.bsmp.bouncestyles.mixin;
 
-import dev.bsmp.bouncestyles.data.Garment;
+import dev.bsmp.bouncestyles.data.Style;
 import dev.bsmp.bouncestyles.data.PlayerStyleData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
-import net.minecraft.world.item.ItemStack;
 
 @Mixin(PlayerRenderer.class)
 public class PlayerRendererMixin {
@@ -31,7 +30,7 @@ public class PlayerRendererMixin {
         }
     }
 
-    private void hideParts(PlayerModel<?> playerEntityModel, Garment garment) {
+    private void hideParts(PlayerModel<?> playerEntityModel, Style style) {
         /*
         if(item.hiddenParts != null && !item.hiddenParts.isEmpty()) {
             for(String s : item.hiddenParts) {

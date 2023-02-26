@@ -7,34 +7,31 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import dev.bsmp.bouncestyles.BounceStyles;
-import dev.bsmp.bouncestyles.GarmentLoader;
+import dev.bsmp.bouncestyles.StyleLoader;
 import dev.bsmp.bouncestyles.client.BounceStylesClient;
-import dev.bsmp.bouncestyles.data.Garment;
+import dev.bsmp.bouncestyles.data.Style;
 import dev.bsmp.bouncestyles.data.PlayerStyleData;
 import dev.bsmp.bouncestyles.networking.EquipStyleC2S;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import org.objectweb.asm.util.CheckAnnotationAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class WardrobeGarmentWidget extends AbstractWidget {
+public class WardrobeStyleWidget extends AbstractWidget {
     private static final ResourceLocation TEX_WIDGETS = new ResourceLocation(BounceStyles.modId, "textures/gui/widgets.png");
 
-    List<GarmentButton> buttons = new ArrayList<>();
-    GarmentButton selectedButton;
-    GarmentLoader.Category category;
+    List<StyleButton> buttons = new ArrayList<>();
+    StyleButton selectedButton;
+    StyleLoader.Category category;
 
     float previewRotation = 0f;
     int buttonsPerRow = 6;
@@ -46,12 +43,12 @@ public class WardrobeGarmentWidget extends AbstractWidget {
     int scaledXMargin;
     int scaledYMargin;
 
-    public WardrobeGarmentWidget(int x, int y, int width, int height) {
+    public WardrobeStyleWidget(int x, int y, int width, int height) {
         super(x, y, width, height, new TextComponent("Wardrobe Selection"));
         updateButtons(null, new ArrayList<>());
     }
 
-    public void updateButtons(GarmentLoader.Category category, List<Garment> garments) {
+    public void updateButtons(StyleLoader.Category category, List<Style> styles) {
         this.scroll = 0;
         this.category = category;
         this.buttons.clear();
@@ -74,19 +71,13 @@ public class WardrobeGarmentWidget extends AbstractWidget {
         int btnSize = workingWidth / this.buttonsPerRow;
         int scaledBtnSize = (int) (btnSize / guiScale);
 
-        this.totalRows = (garments.size() / this.buttonsPerRow) + 1;
+        this.totalRows = (styles.size() / this.buttonsPerRow) + 1;
 
         int heightOverflow = ((rowsPerPage * xMargin) + (rowsPerPage * btnSize)) - actualHeight;
         if(heightOverflow > 0) {
             btnSize -= heightOverflow;
             scaledBtnSize = (int) (btnSize / guiScale);
         }
-        int remainingWidth = workingWidth - ((buttonsPerRow * btnSize) + (buttonsPerRow * xMargin));
-        int remainingHeight = workingHeight - ((rowsPerPage * btnSize) + (rowsPerPage * yMargin));
-//        if(remainingWidth > 0)
-//            xMargin += remainingWidth / buttonsPerRow;
-//        if(remainingHeight > 0)
-//            yMargin += remainingHeight / rowsPerPage;
         this.scaledXMargin = (int) (xMargin / guiScale);
         this.scaledYMargin = (int) (yMargin / guiScale);
 
@@ -96,13 +87,13 @@ public class WardrobeGarmentWidget extends AbstractWidget {
         int index = 0;
         for(int row = 0; row < this.totalRows; row++) {
             for(int i = 0; i < this.buttonsPerRow; i++) {
-                if(index < garments.size()) {
-                    Garment garment = garments.get(index);
-                    GarmentButton button = new GarmentButton(
+                if(index < styles.size()) {
+                    Style style = styles.get(index);
+                    StyleButton button = new StyleButton(
                             this, this.left + (i * this.scaledXMargin) + (i * scaledBtnSize), this.top + (row * this.scaledYMargin) + (row * scaledBtnSize),
-                            scaledBtnSize, scaledBtnSize, garment);
+                            scaledBtnSize, scaledBtnSize, style);
                     this.buttons.add(button);
-                    if(styleData != null && styleData.getGarmentForSlot(category) == garment)
+                    if(styleData != null && styleData.getStyleForSlot(category) == style)
                         this.selectedButton = button;
                 }
                 index++;
@@ -120,7 +111,7 @@ public class WardrobeGarmentWidget extends AbstractWidget {
                 for(int i = 0; i < this.buttonsPerRow; i++) {
                     int index = (row * this.buttonsPerRow) + i;
                     if(index < this.buttons.size()) {
-                        GarmentButton button = this.buttons.get(index);
+                        StyleButton button = this.buttons.get(index);
                         if(button.mouseClicked(mouseX, mouseY, mouseButton))
                             return true;
                     }
@@ -149,7 +140,7 @@ public class WardrobeGarmentWidget extends AbstractWidget {
             for(int i = 0; i < this.buttonsPerRow; i++) {
                 int index = (row * this.buttonsPerRow) + i;
                 if(index < this.buttons.size()) {
-                    GarmentButton button = this.buttons.get(index);
+                    StyleButton button = this.buttons.get(index);
                     button.y = top + ((row - scroll) * button.getHeight()) + ((row - scroll) * scaledYMargin);
                     button.render(poseStack, mouseX, mouseY, partialTick);
                 }
@@ -160,7 +151,7 @@ public class WardrobeGarmentWidget extends AbstractWidget {
                 for (int i = 0; i < this.buttonsPerRow; i++) {
                     int index = (row * this.buttonsPerRow) + i;
                     if (index < this.buttons.size()) {
-                        GarmentButton button = this.buttons.get(index);
+                        StyleButton button = this.buttons.get(index);
                         if (button.isHoveredOrFocused()) {
                             button.renderToolTip(poseStack, mouseX, mouseY);
                             return;
@@ -171,25 +162,37 @@ public class WardrobeGarmentWidget extends AbstractWidget {
         }
     }
 
-    public static class GarmentButton extends Button {
-        private WardrobeGarmentWidget parentWidget;
-        private Garment garment;
+    public static class StyleButton extends Button {
+        private WardrobeStyleWidget parentWidget;
+        private Style style;
 
-        public GarmentButton(WardrobeGarmentWidget parentWidget, int x, int y, int width, int height, Garment garment) {
-            super(x, y, width, height, new TextComponent(garment.garmentId.toString()), null);
+        public StyleButton(WardrobeStyleWidget parentWidget, int x, int y, int width, int height, Style style) {
+            super(x, y, width, height, new TranslatableComponent(style.styleId.getNamespace()+"."+style.styleId.getPath()+"."+parentWidget.category.name().toLowerCase()), null);
             this.parentWidget = parentWidget;
-            this.garment = garment;
+            this.style = style;
         }
 
         @Override
         public void renderButton(PoseStack stack, int mouseX, int mouseY, float partialTick) {
+            Window window = Minecraft.getInstance().getWindow();
+            double guiScale = window.getGuiScale();
+
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, TEX_WIDGETS);
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, this.alpha);
 
             blit(stack, this.x, this.y, this.width, this.height, 0, getYOffset() * 50, 50, 50, 256, 256);
 
-            float guiScale = (float) Minecraft.getInstance().getWindow().getGuiScale();
+            if(!isHoveredOrFocused()) {
+                int sOffset = width / 6;
+                int sSize = sOffset * 2;
+                RenderSystem.enableScissor(
+                        (int) ((this.x + sOffset) * guiScale),
+                        (int) ((window.getGuiScaledHeight() - y - height + sOffset) * guiScale),
+                        (int) ((width - sSize) * guiScale),
+                        (int) (((height - sSize) * guiScale))
+                );
+            }
 
             PoseStack poseStack = RenderSystem.getModelViewStack();
             poseStack.pushPose();
@@ -203,7 +206,13 @@ public class WardrobeGarmentWidget extends AbstractWidget {
                 case Legs, Feet -> -1.8F;
             };
             poseStack2.translate(0.0, 0, 1000.0);
-            poseStack2.scale((float) (height * 0.7), (float) (height * 0.7), 10f);
+            if(isHoveredOrFocused()) {
+                poseStack2.scale((float) (height * 0.7), (float) (height * 0.7), 10f);
+            }
+            else {
+                poseStack2.scale((float) (height * 0.6), (float) (height * 0.6), 10f);
+            }
+
             poseStack2.translate(0.0, y, 0.0);
             Quaternion quaternion = Vector3f.ZP.rotationDegrees(180.0f);
             Quaternion quaternion2 = Vector3f.YP.rotationDegrees(parentWidget.previewRotation);
@@ -211,9 +220,9 @@ public class WardrobeGarmentWidget extends AbstractWidget {
             poseStack2.mulPose(quaternion);
             Lighting.setupForEntityInInventory();
             MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-            RenderSystem.runAsFancy(() -> BounceStylesClient.GARMENT_RENDERER.renderGarmentForGUI(
+            RenderSystem.runAsFancy(() -> BounceStylesClient.GARMENT_RENDERER.renderStyleForGUI(
                     poseStack2,
-                    this.garment,
+                    this.style,
                     this.parentWidget.category,
                     bufferSource,
                     partialTick,
@@ -223,6 +232,9 @@ public class WardrobeGarmentWidget extends AbstractWidget {
             poseStack.popPose();
             RenderSystem.applyModelViewMatrix();
             Lighting.setupFor3DItems();
+
+            if(!isHoveredOrFocused())
+                RenderSystem.disableScissor();
         }
 
         @Override
@@ -232,7 +244,7 @@ public class WardrobeGarmentWidget extends AbstractWidget {
                 this.parentWidget.selectedButton = null;
             }
             else {
-                EquipStyleC2S.sendToServer(this.parentWidget.category, this.garment);
+                EquipStyleC2S.sendToServer(this.parentWidget.category, this.style);
                 this.parentWidget.selectedButton = this;
             }
         }

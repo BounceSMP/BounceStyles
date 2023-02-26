@@ -1,31 +1,31 @@
 package dev.bsmp.bouncestyles.client.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
-import dev.bsmp.bouncestyles.GarmentLoader;
+import dev.bsmp.bouncestyles.StyleLoader;
 import dev.bsmp.bouncestyles.client.screen.widgets.WardrobeCategoryWidget;
-import dev.bsmp.bouncestyles.client.screen.widgets.WardrobeGarmentWidget;
+import dev.bsmp.bouncestyles.client.screen.widgets.WardrobeStyleWidget;
 import dev.bsmp.bouncestyles.client.screen.widgets.WardrobePreviewWidget;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 public class WardrobeScreen extends Screen {
 
     WardrobeCategoryWidget categoryWidget;
-    WardrobeGarmentWidget garmentWidget;
+    WardrobeStyleWidget styleWidget;
     WardrobePreviewWidget previewWidget;
 
-    List<ResourceLocation> unlockedGarments;
-    GarmentLoader.Category selectedCategory;
+    List<ResourceLocation> unlockedStyles;
+    StyleLoader.Category selectedCategory;
 
     public WardrobeScreen(List<ResourceLocation> unlocks) {
         super(new TextComponent("Wardrobe Screen"));
-        this.unlockedGarments = unlocks;
+        this.unlockedStyles = unlocks;
     }
 
     @Override
@@ -35,8 +35,8 @@ public class WardrobeScreen extends Screen {
         int topBarHeight = height / 10;
         this.previewWidget = addRenderableWidget(new WardrobePreviewWidget(0, 0, previewRight, height, minecraft.player));
         this.categoryWidget = addRenderableWidget(new WardrobeCategoryWidget(this, previewRight, 1, width - previewRight, topBarHeight));
-        this.garmentWidget = addRenderableWidget(new WardrobeGarmentWidget(previewRight, topBarHeight, width - previewRight, height - topBarHeight));
-        this.setSelectedCategory(GarmentLoader.Category.Head);
+        this.styleWidget = addRenderableWidget(new WardrobeStyleWidget(previewRight, topBarHeight, width - previewRight, height - topBarHeight));
+        this.setSelectedCategory(StyleLoader.Category.Head);
     }
 
     @Override
@@ -75,10 +75,14 @@ public class WardrobeScreen extends Screen {
         hLine(poseStack, 3, previewRight-3, height - 3, 0xFF005454);
     }
 
-    public void setSelectedCategory(GarmentLoader.Category category) {
+    public void setSelectedCategory(StyleLoader.Category category) {
         this.selectedCategory = category;
-        this.garmentWidget.updateButtons(category, category.entryList.values().stream().filter(
-                garment -> this.unlockedGarments.contains(garment.garmentId) || (minecraft.player.isCreative() && minecraft.player.hasPermissions(2))
-        ).toList());
+        this.styleWidget.updateButtons(category, StyleLoader.REGISTRY.values().stream()
+                .filter(
+                        style -> style.categories.contains(category)
+                        && (this.unlockedStyles.contains(style.styleId) || (minecraft.player.isCreative() && minecraft.player.hasPermissions(2)))
+                )
+                .sorted(Comparator.comparing(o -> o.styleId.toString()))
+                .toList());
     }
 }

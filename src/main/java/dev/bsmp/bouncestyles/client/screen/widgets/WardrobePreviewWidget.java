@@ -34,11 +34,11 @@ public class WardrobePreviewWidget extends AbstractWidget {
                 (int) ((width - 5) * scale),
                 (int) (height * scale)
         );
-        renderPlayer(poseStack, 0);
+        renderPlayer();
         RenderSystem.disableScissor();
     }
 
-    private void renderPlayer(PoseStack stack, float partialTick) {
+    private void renderPlayer() {
         Window window = Minecraft.getInstance().getWindow();
         double guiScale = window.getGuiScale();
         PoseStack poseStack = RenderSystem.getModelViewStack();

@@ -3,13 +3,12 @@ package dev.bsmp.bouncestyles.client.screen.widgets;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.bsmp.bouncestyles.BounceStyles;
-import dev.bsmp.bouncestyles.GarmentLoader;
+import dev.bsmp.bouncestyles.StyleLoader;
 import dev.bsmp.bouncestyles.client.screen.WardrobeScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.TextComponent;
@@ -28,10 +27,10 @@ public class WardrobeCategoryWidget extends AbstractWidget {
         this.parentScreen = parentScreen;
         int i = 0;
         double guiScale = Minecraft.getInstance().getWindow().getGuiScale();
-        for(GarmentLoader.Category category : GarmentLoader.Category.values()) {
+        for(StyleLoader.Category category : StyleLoader.Category.values()) {
             CategoryButton button = new CategoryButton(this, category, x + (int)(10 / guiScale) + (i * height) + (i * (int) (10 / guiScale)), y, height, height);
             this.buttonList.add(button);
-            if(category == GarmentLoader.Category.Head)
+            if(category == StyleLoader.Category.Head)
                 this.selectedButton = button;
             i++;
         }
@@ -64,9 +63,9 @@ public class WardrobeCategoryWidget extends AbstractWidget {
     public static class CategoryButton extends Button {
         private static final ResourceLocation TEX_CATEGORY_BG = new ResourceLocation(BounceStyles.modId, "textures/icon/category_bg.png");
         WardrobeCategoryWidget parentWidget;
-        GarmentLoader.Category category;
+        StyleLoader.Category category;
 
-        public CategoryButton(WardrobeCategoryWidget parentWidget, GarmentLoader.Category category, int x, int y, int width, int height) {
+        public CategoryButton(WardrobeCategoryWidget parentWidget, StyleLoader.Category category, int x, int y, int width, int height) {
             super(x, y, width, height, new TextComponent(category.name()), null);
             this.parentWidget = parentWidget;
             this.category = category;
@@ -77,13 +76,12 @@ public class WardrobeCategoryWidget extends AbstractWidget {
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, TEX_CATEGORY_BG);
             RenderSystem.enableDepthTest();
-            blit(poseStack, this.x, this.y, this.width, this.height, 0, this.parentWidget.selectedButton == this ? 24 : 0, 24, 24, 24, 48);
-
-            if(isHoveredOrFocused())
-                fill(poseStack, x + 3, y + 3, x + width - 3, y + height - 3, 0xcc00ccFF);
+            blit(poseStack, this.x, this.y, this.width, this.height, 0,
+                    this.parentWidget.selectedButton == this ? 48 : this.isHoveredOrFocused() ? 24 : 0,
+                    24, 24, 24, 72);
 
             RenderSystem.setShaderTexture(0, this.category.categoryIcon);
-            if(category == GarmentLoader.Category.Body)
+            if(category == StyleLoader.Category.Body)
                 blit(poseStack, this.x + 3, this.y + 3, this.width - 6, this.height - 6, 0, 0, 16, 16, 16, 16);
             else
                 blit(poseStack, this.x + 2, this.y + 2, this.width - 4, this.height - 4, 0, 0, 16, 16, 16, 16);

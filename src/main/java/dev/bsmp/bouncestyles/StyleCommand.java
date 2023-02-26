@@ -48,8 +48,8 @@ public class StyleCommand {
     private static int unlockAll(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> players) {
         for(ServerPlayer player : players) {
             PlayerStyleData styleData = PlayerStyleData.getPlayerData(player);
-            for(ResourceLocation id : GarmentLoader.UNIQUE_IDS) {
-                styleData.unlockGarment(id);
+            for(ResourceLocation id : StyleLoader.REGISTRY.keySet()) {
+                styleData.unlockStyle(id);
             }
         }
         return 1;
@@ -57,8 +57,8 @@ public class StyleCommand {
 
     private static int unlock(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets, ResourceLocation id) {
         for(ServerPlayer player : targets)
-            if (id != null && GarmentLoader.idExists(id))
-                PlayerStyleData.getPlayerData(player).unlockGarment(id);
+            if (id != null && StyleLoader.idExists(id))
+                PlayerStyleData.getPlayerData(player).unlockStyle(id);
         return 1;
     }
 

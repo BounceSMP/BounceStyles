@@ -1,8 +1,8 @@
 package dev.bsmp.bouncestyles.networking;
 
 import dev.bsmp.bouncestyles.BounceStyles;
-import dev.bsmp.bouncestyles.GarmentLoader;
-import dev.bsmp.bouncestyles.data.Garment;
+import dev.bsmp.bouncestyles.StyleLoader;
+import dev.bsmp.bouncestyles.data.Style;
 import dev.bsmp.bouncestyles.data.PlayerStyleData;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -17,38 +17,38 @@ public class EquipStyleC2S {
     public static final ResourceLocation ID = new ResourceLocation(BounceStyles.modId, "equip_c2s");
 
     public static void handle(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl serverGamePacketListener, FriendlyByteBuf buf, PacketSender packetSender) {
-        GarmentLoader.Category category = GarmentLoader.Category.valueOf(buf.readUtf());
-        ResourceLocation garmentID;
+        StyleLoader.Category category = StyleLoader.Category.valueOf(buf.readUtf());
+        ResourceLocation styleID;
         if(buf.readableBytes() > 0)
-            garmentID = buf.readResourceLocation();
+            styleID = buf.readResourceLocation();
         else {
-            garmentID = null;
+            styleID = null;
         }
 
         server.execute(() -> {
             PlayerStyleData styleData = PlayerStyleData.getPlayerData(player);
-            Garment garment = category.entryList.get(garmentID);
-            if(garment == null || styleData.hasGarmentUnlocked(garment) || (player.isCreative() && player.hasPermissions(2))) {
+            Style style = StyleLoader.REGISTRY.get(styleID);
+            if(style == null || styleData.hasStyleUnlocked(style) || (player.isCreative() && player.hasPermissions(2))) {
                 switch (category) {
-                    case Head -> styleData.setHeadGarment(garment);
-                    case Body -> styleData.setBodyGarment(garment);
-                    case Legs -> styleData.setLegGarment(garment);
-                    case Feet -> styleData.setFeetGarment(garment);
+                    case Head -> styleData.setHeadStyle(style);
+                    case Body -> styleData.setBodyStyle(style);
+                    case Legs -> styleData.setLegStyle(style);
+                    case Feet -> styleData.setFeetStyle(style);
                 }
                 SyncStyleDataS2C.sendToPlayer(player, player.getId(), styleData);
             }
         });
     }
 
-    public static void sendToServer(GarmentLoader.Category category, Garment garment) {
-        ClientPlayNetworking.send(ID, toBuf(category, garment));
+    public static void sendToServer(StyleLoader.Category category, Style style) {
+        ClientPlayNetworking.send(ID, toBuf(category, style));
     }
 
-    private static FriendlyByteBuf toBuf(GarmentLoader.Category category, Garment garment) {
+    private static FriendlyByteBuf toBuf(StyleLoader.Category category, Style style) {
         FriendlyByteBuf buf = PacketByteBufs.create();
         buf.writeUtf(category.name());
-        if(garment != null)
-            buf.writeResourceLocation(garment.garmentId);
+        if(style != null)
+            buf.writeResourceLocation(style.styleId);
         return buf;
     }
 

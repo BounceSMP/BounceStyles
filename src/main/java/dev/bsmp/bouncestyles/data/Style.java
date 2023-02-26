@@ -1,5 +1,6 @@
 package dev.bsmp.bouncestyles.data;
 
+import dev.bsmp.bouncestyles.StyleLoader;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
@@ -12,23 +13,25 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.util.GeckoLibUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Garment implements IAnimatable {
+public class Style implements IAnimatable {
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
 
-    public final ResourceLocation garmentId;
+    public final ResourceLocation styleId;
     public final ResourceLocation modelID;
     public final ResourceLocation textureID;
     @Nullable public final ResourceLocation animationID;
+
     @Nullable public final HashMap<String, String> animationMap;
-
-    public List<String> hiddenParts;
     public int transitionTicks;
+    public List<String> hiddenParts = new ArrayList<>();
+    public List<StyleLoader.Category> categories = new ArrayList<>();
 
-    public Garment(ResourceLocation garmentId, ResourceLocation modelID, ResourceLocation textureID, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap) {
-        this.garmentId = garmentId;
+    public Style(ResourceLocation styleId, ResourceLocation modelID, ResourceLocation textureID, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap) {
+        this.styleId = styleId;
         this.modelID = modelID;
         this.textureID = textureID;
         this.animationID = animationID;
@@ -44,7 +47,7 @@ public class Garment implements IAnimatable {
         }
     }
 
-    private PlayState predicate(AnimationEvent<Garment> animationEvent) {
+    private PlayState predicate(AnimationEvent<Style> animationEvent) {
         Player player = animationEvent.getExtraDataOfType(Player.class).get(0);
         AnimationController<?> controller = animationEvent.getController();
 
@@ -97,14 +100,14 @@ public class Garment implements IAnimatable {
 
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof Garment))
+        if(!(obj instanceof Style))
             return false;
-        return ((Garment)obj).garmentId.equals(this.garmentId);
+        return ((Style)obj).styleId.equals(this.styleId);
     }
 
     @Override
     public int hashCode() {
-        return this.garmentId.hashCode();
+        return this.styleId.hashCode();
     }
 
     @Override

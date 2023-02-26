@@ -1,9 +1,9 @@
 package dev.bsmp.bouncestyles.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.bsmp.bouncestyles.GarmentLoader;
+import dev.bsmp.bouncestyles.StyleLoader;
 import dev.bsmp.bouncestyles.client.BounceStylesClient;
-import dev.bsmp.bouncestyles.data.Garment;
+import dev.bsmp.bouncestyles.data.Style;
 import dev.bsmp.bouncestyles.data.PlayerStyleData;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -12,20 +12,13 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
-import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.IAnimatableModel;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.processor.IBone;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
-import software.bernie.geckolib3.model.provider.GeoModelProvider;
-import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
-import software.bernie.geckolib3.renderers.geo.GeoLayerRenderer;
 import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 import software.bernie.geckolib3.resource.GeckoLibCache;
 import software.bernie.geckolib3.util.GeoUtils;
@@ -33,7 +26,7 @@ import software.bernie.geckolib3.util.RenderUtils;
 
 import java.util.List;
 
-public class GarmentLayerRenderer extends RenderLayer<Player, PlayerModel<Player>> implements IGeoRenderer<Garment> {
+public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>> implements IGeoRenderer<Style> {
     protected MultiBufferSource rtb = null;
     private final StyleModel modelProvider;
 
@@ -48,14 +41,14 @@ public class GarmentLayerRenderer extends RenderLayer<Player, PlayerModel<Player
 
     static {
         AnimationController.addModelFetcher(animatable -> {
-            if(animatable instanceof Garment) {
+            if(animatable instanceof Style) {
                 return (IAnimatableModel) BounceStylesClient.GARMENT_RENDERER.getGeoModelProvider();
             }
             return null;
         });
     }
 
-    public GarmentLayerRenderer(RenderLayerParent<Player, PlayerModel<Player>> renderer) {
+    public StyleLayerRenderer(RenderLayerParent<Player, PlayerModel<Player>> renderer) {
         super(renderer);
         this.modelProvider = new StyleModel();
     }
@@ -69,38 +62,38 @@ public class GarmentLayerRenderer extends RenderLayer<Player, PlayerModel<Player
         poseStack.scale(-1.005F, -1.0F, 1.005F);
         poseStack.pushPose();
 
-        if(styleData.getHeadGarment() != null)
-            renderGarment(poseStack, styleData.getHeadGarment(), player, GarmentLoader.Category.Head, buffer, limbSwing, limbSwingAmount, partialTick, packedLight);
-        if(styleData.getBodyGarment() != null)
-            renderGarment(poseStack, styleData.getBodyGarment(), player, GarmentLoader.Category.Body, buffer, limbSwing, limbSwingAmount, partialTick, packedLight);
-        if(styleData.getLegGarment() != null)
-            renderGarment(poseStack, styleData.getLegGarment(), player, GarmentLoader.Category.Legs, buffer, limbSwing, limbSwingAmount, partialTick, packedLight);
-        if(styleData.getFeetGarment() != null)
-            renderGarment(poseStack, styleData.getFeetGarment(), player, GarmentLoader.Category.Feet, buffer, limbSwing, limbSwingAmount, partialTick, packedLight);
+        if(styleData.getHeadStyle() != null)
+            renderStyle(poseStack, styleData.getHeadStyle(), player, StyleLoader.Category.Head, buffer, limbSwing, limbSwingAmount, partialTick, packedLight);
+        if(styleData.getBodyStyle() != null)
+            renderStyle(poseStack, styleData.getBodyStyle(), player, StyleLoader.Category.Body, buffer, limbSwing, limbSwingAmount, partialTick, packedLight);
+        if(styleData.getLegStyle() != null)
+            renderStyle(poseStack, styleData.getLegStyle(), player, StyleLoader.Category.Legs, buffer, limbSwing, limbSwingAmount, partialTick, packedLight);
+        if(styleData.getFeetStyle() != null)
+            renderStyle(poseStack, styleData.getFeetStyle(), player, StyleLoader.Category.Feet, buffer, limbSwing, limbSwingAmount, partialTick, packedLight);
 
         poseStack.popPose();
         poseStack.scale(-1.005F, -1.0F, 1.005F);
         poseStack.translate(0.0D, -1.497F, 0.0D);
     }
 
-    public void renderGarment(PoseStack poseStack, Garment garment, Player player, GarmentLoader.Category category, MultiBufferSource buffer, float limbSwing, float limbSwingAmount, float partialTick, int packedLight) {
-        if(GeckoLibCache.getInstance().getGeoModels().containsKey(garment.modelID)) {
-            GeoModel model = this.modelProvider.getModel(garment.modelID);
-            this.modelProvider.setCustomAnimations(garment, getInstanceId(garment), new AnimationEvent<>(garment, limbSwing, limbSwingAmount, partialTick, false, List.of(player)));
+    public void renderStyle(PoseStack poseStack, Style style, Player player, StyleLoader.Category category, MultiBufferSource buffer, float limbSwing, float limbSwingAmount, float partialTick, int packedLight) {
+        if(GeckoLibCache.getInstance().getGeoModels().containsKey(style.modelID)) {
+            GeoModel model = this.modelProvider.getModel(style.modelID);
+            this.modelProvider.setCustomAnimations(style, getInstanceId(style), new AnimationEvent<>(style, limbSwing, limbSwingAmount, partialTick, false, List.of(player)));
             fit(poseStack, category, false);
-            RenderType renderType = getRenderType(garment, partialTick, poseStack, buffer, null, packedLight, getTextureLocation_geckolib(garment));
-            render(model, garment, partialTick, renderType, poseStack, buffer, null, packedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+            RenderType renderType = getRenderType(style, partialTick, poseStack, buffer, null, packedLight, getTextureLocation_geckolib(style));
+            render(model, style, partialTick, renderType, poseStack, buffer, null, packedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
         }
     }
 
-    public void renderGarmentForGUI(PoseStack poseStack, Garment garment, GarmentLoader.Category category, MultiBufferSource buffer, float partialTick, int packedLight) {
-        GeoModel model = this.modelProvider.getModel(garment.modelID);
+    public void renderStyleForGUI(PoseStack poseStack, Style style, StyleLoader.Category category, MultiBufferSource buffer, float partialTick, int packedLight) {
+        GeoModel model = this.modelProvider.getModel(style.modelID);
         fit(poseStack, category, true);
-        RenderType renderType = getRenderType(garment, partialTick, poseStack, buffer, null, packedLight, getTextureLocation_geckolib(garment));
-        render(model, garment, partialTick, renderType, poseStack, buffer, null, packedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+        RenderType renderType = getRenderType(style, partialTick, poseStack, buffer, null, packedLight, getTextureLocation_geckolib(style));
+        render(model, style, partialTick, renderType, poseStack, buffer, null, packedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
     }
 
-    private void fit(PoseStack poseStack, GarmentLoader.Category category, boolean gui) {
+    private void fit(PoseStack poseStack, StyleLoader.Category category, boolean gui) {
         setBoneVisibility(headBone, false);
         setBoneVisibility(bodyBone, false);
         setBoneVisibility(rightArmBone, false);
@@ -191,12 +184,12 @@ public class GarmentLayerRenderer extends RenderLayer<Player, PlayerModel<Player
     }
 
     @Override
-    public AnimatedGeoModel<Garment> getGeoModelProvider() {
+    public AnimatedGeoModel<Style> getGeoModelProvider() {
         return this.modelProvider;
     }
 
     @Override
-    public ResourceLocation getTextureLocation_geckolib(Garment garment) {
-        return this.modelProvider.getTextureLocation(garment);
+    public ResourceLocation getTextureLocation_geckolib(Style style) {
+        return this.modelProvider.getTextureLocation(style);
     }
 }

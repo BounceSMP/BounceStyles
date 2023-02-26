@@ -31,7 +31,7 @@ public class BounceStyles implements ModInitializer {
         });
 
         try {
-            GarmentLoader.init();
+            StyleLoader.init();
         }
         catch (IOException | NoSuchMethodException | InvocationTargetException | InstantiationException |
                IllegalAccessException e) {

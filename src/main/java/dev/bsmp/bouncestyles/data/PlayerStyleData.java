@@ -1,6 +1,6 @@
 package dev.bsmp.bouncestyles.data;
 
-import dev.bsmp.bouncestyles.GarmentLoader;
+import dev.bsmp.bouncestyles.StyleLoader;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -13,46 +13,46 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerStyleData {
-    private @Nullable Garment headGarment;
-    private @Nullable Garment bodyGarment;
-    private @Nullable Garment legGarment;
-    private @Nullable Garment feetGarment;
+    private @Nullable Style headStyle;
+    private @Nullable Style bodyStyle;
+    private @Nullable Style legStyle;
+    private @Nullable Style feetStyle;
     private List<ResourceLocation> unlocks;
     private List<String> hiddenParts = new ArrayList<>();
 
-    public PlayerStyleData(@Nullable Garment headGarment, @Nullable Garment bodyGarment, @Nullable Garment legGarment, @Nullable Garment feetGarment) {
-        this(headGarment, bodyGarment, legGarment, feetGarment, new ArrayList<>());
+    public PlayerStyleData(@Nullable Style headStyle, @Nullable Style bodyStyle, @Nullable Style legStyle, @Nullable Style feetStyle) {
+        this(headStyle, bodyStyle, legStyle, feetStyle, new ArrayList<>());
     }
 
-    public PlayerStyleData(@Nullable Garment headGarment, @Nullable Garment bodyGarment, @Nullable Garment legGarment, @Nullable Garment feetGarment, List<ResourceLocation> unlocks) {
-        setHeadGarment(headGarment);
-        setBodyGarment(bodyGarment);
-        setLegGarment(legGarment);
-        setFeetGarment(feetGarment);
+    public PlayerStyleData(@Nullable Style headStyle, @Nullable Style bodyStyle, @Nullable Style legStyle, @Nullable Style feetStyle, List<ResourceLocation> unlocks) {
+        setHeadStyle(headStyle);
+        setBodyStyle(bodyStyle);
+        setLegStyle(legStyle);
+        setFeetStyle(feetStyle);
         setUnlocks(unlocks);
     }
 
-    public void setHeadGarment(Garment headGarment) {
-        this.headGarment = headGarment;
-        updateVisibility(headGarment);
+    public void setHeadStyle(Style headStyle) {
+        this.headStyle = headStyle;
+        updateVisibility(headStyle);
     }
-    public void setBodyGarment(Garment bodyGarment) {
-        this.bodyGarment = bodyGarment;
-        updateVisibility(bodyGarment);
+    public void setBodyStyle(Style bodyStyle) {
+        this.bodyStyle = bodyStyle;
+        updateVisibility(bodyStyle);
     }
-    public void setLegGarment(Garment legGarment) {
-        this.legGarment = legGarment;
-        updateVisibility(legGarment);
+    public void setLegStyle(Style legStyle) {
+        this.legStyle = legStyle;
+        updateVisibility(legStyle);
     }
-    public void setFeetGarment(Garment feetGarment) {
-        this.feetGarment = feetGarment;
-        updateVisibility(feetGarment);
+    public void setFeetStyle(Style feetStyle) {
+        this.feetStyle = feetStyle;
+        updateVisibility(feetStyle);
     }
 
-    private void updateVisibility(Garment garment) {
-        if(garment == null || garment.hiddenParts == null)
+    private void updateVisibility(Style style) {
+        if(style == null || style.hiddenParts == null)
             return;
-        for(String s : garment.hiddenParts) {
+        for(String s : style.hiddenParts) {
             if(!this.hiddenParts.contains(s))
                 this.hiddenParts.add(s);
         }
@@ -61,25 +61,25 @@ public class PlayerStyleData {
         return this.hiddenParts;
     }
 
-    public Garment getHeadGarment() {
-        return headGarment;
+    public Style getHeadStyle() {
+        return headStyle;
     }
-    public Garment getBodyGarment() {
-        return bodyGarment;
+    public Style getBodyStyle() {
+        return bodyStyle;
     }
-    public Garment getLegGarment() {
-        return legGarment;
+    public Style getLegStyle() {
+        return legStyle;
     }
-    public Garment getFeetGarment() {
-        return feetGarment;
+    public Style getFeetStyle() {
+        return feetStyle;
     }
 
-    public Garment getGarmentForSlot(GarmentLoader.Category category) {
+    public Style getStyleForSlot(StyleLoader.Category category) {
         return switch (category) {
-            case Head -> this.headGarment;
-            case Body -> this.bodyGarment;
-            case Legs -> this.legGarment;
-            case Feet -> this.feetGarment;
+            case Head -> this.headStyle;
+            case Body -> this.bodyStyle;
+            case Legs -> this.legStyle;
+            case Feet -> this.feetStyle;
         };
     }
 
@@ -89,18 +89,18 @@ public class PlayerStyleData {
     public void setUnlocks(List<ResourceLocation> unlocks) {
         this.unlocks = unlocks;
     }
-    public boolean unlockGarment(Garment garment) {
-        return unlockGarment(garment.garmentId);
+    public boolean unlockStyle(Style style) {
+        return unlockStyle(style.styleId);
     }
-    public boolean unlockGarment(ResourceLocation garmentId) {
-        if(unlocks.contains(garmentId))
+    public boolean unlockStyle(ResourceLocation styleId) {
+        if(unlocks.contains(styleId))
             return false;
-        return unlocks.add(garmentId);
+        return unlocks.add(styleId);
     }
-    public boolean hasGarmentUnlocked(Garment garment) {
-        return hasGarmentUnlocked(garment.garmentId);
+    public boolean hasStyleUnlocked(Style style) {
+        return hasStyleUnlocked(style.styleId);
     }
-    public boolean hasGarmentUnlocked(ResourceLocation id) {
+    public boolean hasStyleUnlocked(ResourceLocation id) {
         return unlocks.contains(id);
     }
 
@@ -113,16 +113,16 @@ public class PlayerStyleData {
         return ((StyleEntity)player).getStyleData();
     }
 
-    private static void convertGarment(CompoundTag tag, Garment garment, String slot) {
-        if(garment != null)
-            tag.putString(slot, garment.garmentId.toString());
+    private static void convertStyle(CompoundTag tag, Style style, String slot) {
+        if(style != null)
+            tag.putString(slot, style.styleId.toString());
     }
 
-    private static @Nullable Garment parseGarment(CompoundTag tag, String slot) {
-        Garment garment = null;
+    private static @Nullable Style parseStyle(CompoundTag tag, String slot) {
+        Style style = null;
         if(tag.contains(slot))
-            garment = GarmentLoader.Category.valueOf(slot).entryList.get(ResourceLocation.tryParse(tag.getString(slot)));
-        return garment;
+            style = StyleLoader.REGISTRY.get(ResourceLocation.tryParse(tag.getString(slot)));
+        return style;
     }
 
     public static CompoundTag toNBT(PlayerStyleData styleData) {
@@ -133,10 +133,10 @@ public class PlayerStyleData {
 
     public static CompoundTag equippedToNBT(PlayerStyleData styleData) {
         CompoundTag tag = new CompoundTag();
-        convertGarment(tag, styleData.headGarment, GarmentLoader.Category.Head.name());
-        convertGarment(tag, styleData.bodyGarment, GarmentLoader.Category.Body.name());
-        convertGarment(tag, styleData.legGarment, GarmentLoader.Category.Legs.name());
-        convertGarment(tag, styleData.feetGarment, GarmentLoader.Category.Feet.name());
+        convertStyle(tag, styleData.headStyle, StyleLoader.Category.Head.name());
+        convertStyle(tag, styleData.bodyStyle, StyleLoader.Category.Body.name());
+        convertStyle(tag, styleData.legStyle, StyleLoader.Category.Legs.name());
+        convertStyle(tag, styleData.feetStyle, StyleLoader.Category.Feet.name());
         return tag;
     }
 
@@ -156,10 +156,10 @@ public class PlayerStyleData {
 
     public static PlayerStyleData equippedFromNBT(CompoundTag tag) {
         return new PlayerStyleData(
-                parseGarment(tag, GarmentLoader.Category.Head.name()),
-                parseGarment(tag, GarmentLoader.Category.Body.name()),
-                parseGarment(tag, GarmentLoader.Category.Legs.name()),
-                parseGarment(tag, GarmentLoader.Category.Feet.name())
+                parseStyle(tag, StyleLoader.Category.Head.name()),
+                parseStyle(tag, StyleLoader.Category.Body.name()),
+                parseStyle(tag, StyleLoader.Category.Legs.name()),
+                parseStyle(tag, StyleLoader.Category.Feet.name())
         );
     }
 
