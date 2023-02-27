@@ -1,10 +1,13 @@
 package dev.bsmp.bouncestyles.client.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleLoader;
-import dev.bsmp.bouncestyles.client.screen.widgets.WardrobeCategoryWidget;
-import dev.bsmp.bouncestyles.client.screen.widgets.WardrobeStyleWidget;
-import dev.bsmp.bouncestyles.client.screen.widgets.WardrobePreviewWidget;
+import dev.bsmp.bouncestyles.client.screen.widgets.*;
+import dev.bsmp.bouncestyles.data.StylePreset;
+import dev.bsmp.bouncestyles.networking.EquipStyleC2S;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
@@ -15,13 +18,21 @@ import java.util.List;
 import java.util.Map;
 
 public class WardrobeScreen extends Screen {
+    private static final ResourceLocation TEX_WIDGETS = new ResourceLocation(BounceStyles.modId, "textures/gui/widgets.png");
 
     WardrobeCategoryWidget categoryWidget;
     WardrobeStyleWidget styleWidget;
     WardrobePreviewWidget previewWidget;
+    WardrobePresetsWidget presetsWidget;
+
+    ImageButton clearButton;
+    public EditBox presetName;
 
     List<ResourceLocation> unlockedStyles;
     StyleLoader.Category selectedCategory;
+
+    int previewRight;
+    int topBarHeight;
 
     public WardrobeScreen(List<ResourceLocation> unlocks) {
         super(new TextComponent("Wardrobe Screen"));
@@ -31,11 +42,15 @@ public class WardrobeScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        int previewRight = width / 3;
-        int topBarHeight = height / 10;
+        this.previewRight = width / 3;
+        this.topBarHeight = height / 10;
         this.previewWidget = addRenderableWidget(new WardrobePreviewWidget(0, 0, previewRight, height, minecraft.player));
-        this.categoryWidget = addRenderableWidget(new WardrobeCategoryWidget(this, previewRight, 1, width - previewRight, topBarHeight));
+        this.categoryWidget = addRenderableWidget(new WardrobeCategoryWidget(this, previewRight, 1, width - previewRight - 24, topBarHeight));
         this.styleWidget = addRenderableWidget(new WardrobeStyleWidget(previewRight, topBarHeight, width - previewRight, height - topBarHeight));
+        this.clearButton = addRenderableWidget(new ScaledImageButton(width - topBarHeight, 0, topBarHeight, topBarHeight, 98, 0, 24, 24, TEX_WIDGETS, button -> clear()));
+        this.presetName = addRenderableWidget(new EditBox(minecraft.font, previewRight + topBarHeight + 10, height - topBarHeight - 5, (width - previewRight) / 2, topBarHeight, new TextComponent("Preset Name")));
+        this.presetName.visible = false;
+        this.presetName.active = false;
         this.setSelectedCategory(StyleLoader.Category.Head);
     }
 
@@ -48,8 +63,6 @@ public class WardrobeScreen extends Screen {
     @Override
     public void renderBackground(PoseStack poseStack) {
         super.renderBackground(poseStack);
-        int previewRight = width / 3;
-        int barHeight = height / 10;
 
         fill(poseStack, 0, 0, width, height, 0xcc175796);
         fillGradient(poseStack, previewRight, 0, width, height / 3, 0x5500cccc, 0x00000000);
@@ -75,14 +88,46 @@ public class WardrobeScreen extends Screen {
         hLine(poseStack, 3, previewRight-3, height - 3, 0xFF005454);
     }
 
+    @Override
+    public void tick() {
+        if(this.presetsWidget != null && this.presetsWidget.isActive() && this.presetsWidget.needsRefreshing)
+            this.presetsWidget.refreshEntries();
+    }
+
+    private void clear() {
+        EquipStyleC2S.sendToServer(StyleLoader.Category.Head, null);
+        EquipStyleC2S.sendToServer(StyleLoader.Category.Body, null);
+        EquipStyleC2S.sendToServer(StyleLoader.Category.Legs, null);
+        EquipStyleC2S.sendToServer(StyleLoader.Category.Feet, null);
+    }
+
     public void setSelectedCategory(StyleLoader.Category category) {
         this.selectedCategory = category;
-        this.styleWidget.updateButtons(category, StyleLoader.REGISTRY.values().stream()
-                .filter(
-                        style -> style.categories.contains(category)
-                        && (this.unlockedStyles.contains(style.styleId) || (minecraft.player.isCreative() && minecraft.player.hasPermissions(2)))
-                )
-                .sorted(Comparator.comparing(o -> o.styleId.toString()))
-                .toList());
+        if (category == StyleLoader.Category.Preset) {
+            this.styleWidget.active = false;
+            this.styleWidget.visible = false;
+            this.presetsWidget = addRenderableWidget(new WardrobePresetsWidget(minecraft, this, previewRight, topBarHeight, width - previewRight, height - topBarHeight, 30, topBarHeight));
+        }
+        else {
+            removeWidget(this.presetsWidget);
+            this.presetsWidget = null;
+            this.styleWidget.active = true;
+            this.styleWidget.visible = true;
+            this.styleWidget.updateButtons(
+                    category, StyleLoader.REGISTRY.values().stream()
+                    .filter(style -> style.categories.contains(category)
+                                  && (this.unlockedStyles.contains(style.styleId) || (minecraft.player.isCreative() && minecraft.player.hasPermissions(2)))
+                    )
+                    .sorted(Comparator.comparing(o -> o.styleId.toString()))
+                    .toList()
+            );
+        }
+    }
+
+    public List<StylePreset> requestPresets() {
+        return StyleLoader.PRESETS.values().stream()
+                .filter(stylePreset -> (stylePreset.hasAllUnlocked(this.unlockedStyles)) || (minecraft.player.isCreative() && minecraft.player.hasPermissions(2)))
+                .sorted(Comparator.comparing(o -> o.presetId().toString()))
+                .toList();
     }
 }

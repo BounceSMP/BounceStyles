@@ -1,5 +1,6 @@
 package dev.bsmp.bouncestyles.data;
 
+import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleLoader;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -80,6 +81,7 @@ public class PlayerStyleData {
             case Body -> this.bodyStyle;
             case Legs -> this.legStyle;
             case Feet -> this.feetStyle;
+            case Preset -> null;
         };
     }
 
@@ -102,6 +104,14 @@ public class PlayerStyleData {
     }
     public boolean hasStyleUnlocked(ResourceLocation id) {
         return unlocks.contains(id);
+    }
+    public StylePreset createPreset(String presetName) {
+        ResourceLocation head = this.headStyle != null ? this.headStyle.styleId : null;
+        ResourceLocation body = this.bodyStyle != null ? this.bodyStyle.styleId : null;
+        ResourceLocation legs = this.legStyle != null ? this.legStyle.styleId : null;
+        ResourceLocation feet = this.feetStyle != null ? this.feetStyle.styleId : null;
+        boolean error = StylePreset.checkIds(head, body, legs, feet);
+        return new StylePreset(new ResourceLocation(BounceStyles.modId, presetName.toLowerCase().replace(" ", "_")), presetName, head, body, legs, feet, error);
     }
 
     //Static
@@ -170,5 +180,4 @@ public class PlayerStyleData {
         }
         return list;
     }
-
 }

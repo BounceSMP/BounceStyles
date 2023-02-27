@@ -11,6 +11,7 @@ import dev.bsmp.bouncestyles.StyleLoader;
 import dev.bsmp.bouncestyles.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.data.Style;
 import dev.bsmp.bouncestyles.data.PlayerStyleData;
+import dev.bsmp.bouncestyles.data.StylePreset;
 import dev.bsmp.bouncestyles.networking.EquipStyleC2S;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -45,7 +46,7 @@ public class WardrobeStyleWidget extends AbstractWidget {
 
     public WardrobeStyleWidget(int x, int y, int width, int height) {
         super(x, y, width, height, new TextComponent("Wardrobe Selection"));
-        updateButtons(null, new ArrayList<>());
+        updateButtons(null, new ArrayList<Style>());
     }
 
     public void updateButtons(StyleLoader.Category category, List<Style> styles) {
@@ -200,10 +201,11 @@ public class WardrobeStyleWidget extends AbstractWidget {
             poseStack.scale(1.0f, 1.0f, -1.0f);
             RenderSystem.applyModelViewMatrix();
             PoseStack poseStack2 = new PoseStack();
-            float y = switch (parentWidget.category) {
+            float y = switch (this.parentWidget.category) {
                 case Head -> -(float)(.5f);
                 case Body -> -(1f);
                 case Legs, Feet -> -1.8F;
+                case Preset -> 0.0F;
             };
             poseStack2.translate(0.0, 0, 1000.0);
             if(isHoveredOrFocused()) {
@@ -215,7 +217,7 @@ public class WardrobeStyleWidget extends AbstractWidget {
 
             poseStack2.translate(0.0, y, 0.0);
             Quaternion quaternion = Vector3f.ZP.rotationDegrees(180.0f);
-            Quaternion quaternion2 = Vector3f.YP.rotationDegrees(parentWidget.previewRotation);
+            Quaternion quaternion2 = Vector3f.YP.rotationDegrees(this.parentWidget.previewRotation);
             quaternion.mul(quaternion2);
             poseStack2.mulPose(quaternion);
             Lighting.setupForEntityInInventory();

@@ -2,7 +2,9 @@ package dev.bsmp.bouncestyles;
 
 import com.google.common.io.Files;
 import com.google.gson.*;
+import dev.bsmp.bouncestyles.data.PlayerStyleData;
 import dev.bsmp.bouncestyles.data.Style;
+import dev.bsmp.bouncestyles.data.StylePreset;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -15,11 +17,13 @@ import java.util.*;
 
 public class StyleLoader {
     public static final HashMap<ResourceLocation, Style> REGISTRY = new HashMap<>();
+    public static final HashMap<ResourceLocation, StylePreset> PRESETS = new HashMap<>();
 
     public static final ResourceLocation HEAD_ICON = new ResourceLocation(BounceStyles.modId, "textures/icon/bounce_head.png");
     public static final ResourceLocation BODY_ICON = new ResourceLocation(BounceStyles.modId, "textures/icon/bounce_body.png");
     public static final ResourceLocation LEGS_ICON = new ResourceLocation(BounceStyles.modId, "textures/icon/bounce_legs.png");
     public static final ResourceLocation FEET_ICON = new ResourceLocation(BounceStyles.modId, "textures/icon/bounce_feet.png");
+    public static final ResourceLocation PRESET_ICON = new ResourceLocation(BounceStyles.modId, "textures/icon/bounce_preset.png");
 
     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().create();
 
@@ -29,6 +33,7 @@ public class StyleLoader {
             File file = dir.resolve("styles.json").toFile();
             checkAndConvertOld(file);
             loadStyles(file);
+            loadPresets(dir.resolve("presets.json").toFile());
         }
     }
 
@@ -88,6 +93,8 @@ public class StyleLoader {
         Map<ResourceLocation, JsonObject> items = new HashMap<>();
 
         for(Category category : Category.values()) {
+            if(category == Category.Preset)
+                continue;
             File file = parentDir.resolve(category.name()+".json").toFile();
             if(file.exists()) {
                 BufferedReader reader = Files.newReader(file, StandardCharsets.UTF_8);
@@ -133,6 +140,55 @@ public class StyleLoader {
             BufferedWriter bufferedWriter = Files.newWriter(mainFile, StandardCharsets.UTF_8);
             GSON.toJson(array, bufferedWriter);
             bufferedWriter.close();
+        }
+    }
+
+    private static void loadPresets(File file) throws IOException {
+        if(file.exists()) {
+            BufferedReader reader = Files.newReader(file, StandardCharsets.UTF_8);
+            JsonObject jsonObject = GSON.fromJson(reader, JsonObject.class);
+            for(Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+                ResourceLocation presetId = ResourceLocation.tryParse(BounceStyles.modId + ":" + entry.getKey());
+                StylePreset preset = StylePreset.fromJson(presetId, entry.getValue().getAsJsonObject());
+                PRESETS.put(presetId, preset);
+            }
+        }
+    }
+
+    public static StylePreset createPreset(PlayerStyleData styleData, String presetName) {
+        StylePreset newPreset = styleData.createPreset(presetName);
+        PRESETS.put(newPreset.presetId(), newPreset);
+        writePresetsFile();
+        return newPreset;
+    }
+
+    public static void removePreset(ResourceLocation presetId) {
+        PRESETS.remove(presetId);
+        writePresetsFile();
+    }
+
+    private static void writePresetsFile() {
+        Path dir = FabricLoader.getInstance().getGameDir().resolve("styles");
+        File file = dir.resolve("presets.json").toFile();
+        try {
+            BufferedWriter bufferedWriter = Files.newWriter(file, StandardCharsets.UTF_8);
+            JsonObject jsonObject = new JsonObject();
+
+            for(StylePreset preset : PRESETS.values()) {
+                JsonObject obj = new JsonObject();
+                obj.addProperty("name", preset.name());
+                obj.addProperty("head", preset.headId() != null ? preset.headId().toString() : "");
+                obj.addProperty("body", preset.bodyId() != null ? preset.bodyId().toString() : "");
+                obj.addProperty("legs", preset.legsId() != null ? preset.legsId().toString() : "");
+                obj.addProperty("feet", preset.feetId() != null ? preset.feetId().toString() : "");
+                jsonObject.add(preset.presetId().getPath(), obj);
+            }
+
+            GSON.toJson(jsonObject, bufferedWriter);
+            bufferedWriter.close();
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -193,7 +249,7 @@ public class StyleLoader {
     }
 
     public enum Category {
-        Head(HEAD_ICON), Body(BODY_ICON), Legs(LEGS_ICON), Feet(FEET_ICON);
+        Head(HEAD_ICON), Body(BODY_ICON), Legs(LEGS_ICON), Feet(FEET_ICON), Preset(PRESET_ICON);
 
         public final ResourceLocation categoryIcon;
 
