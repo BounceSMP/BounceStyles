@@ -3,14 +3,19 @@ package dev.bsmp.bouncestyles;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.bsmp.bouncestyles.data.PlayerStyleData;
+import net.minecraft.ChatFormatting;
+import net.minecraft.advancements.Advancement;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.arguments.selector.EntitySelector;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -34,8 +39,9 @@ public class StyleCommand {
                 .literal("all")
                 .executes(context -> StyleCommand.unlockAll(context, EntityArgument.getPlayers(context, "players")))
                 .build();
-        ArgumentCommandNode<CommandSourceStack, String> idNode = Commands
-                .argument("id", StringArgumentType.string())
+        ArgumentCommandNode<CommandSourceStack, ResourceLocation> idNode = Commands
+                .argument("id", ResourceLocationArgument.id())
+                .suggests((commandContext, suggestionsBuilder) -> SharedSuggestionProvider.suggestResource(StyleLoader.REGISTRY.keySet(), suggestionsBuilder))
                 .executes(context -> StyleCommand.unlock(context, EntityArgument.getPlayers(context, "players"), ResourceLocationArgument.getId(context, "id")))
                 .build();
 
@@ -51,14 +57,17 @@ public class StyleCommand {
             for(ResourceLocation id : StyleLoader.REGISTRY.keySet()) {
                 styleData.unlockStyle(id);
             }
+            player.sendMessage(new TextComponent("You've unlocked all current styles, enjoy!").withStyle(style -> style.withColor(ChatFormatting.GOLD)), null);
         }
         return 1;
     }
 
     private static int unlock(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets, ResourceLocation id) {
         for(ServerPlayer player : targets)
-            if (id != null && StyleLoader.idExists(id))
+            if (id != null && StyleLoader.idExists(id)) {
                 PlayerStyleData.getPlayerData(player).unlockStyle(id);
+                player.sendMessage(new TextComponent("Style unlocked").withStyle(style -> style.withColor(ChatFormatting.GOLD)), null);
+            }
         return 1;
     }
 

@@ -17,6 +17,7 @@ import software.bernie.geckolib3.core.IAnimatableModel;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
+import software.bernie.geckolib3.geo.render.built.GeoCube;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
@@ -42,7 +43,7 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
     static {
         AnimationController.addModelFetcher(animatable -> {
             if(animatable instanceof Style) {
-                return (IAnimatableModel) BounceStylesClient.GARMENT_RENDERER.getGeoModelProvider();
+                return (IAnimatableModel) BounceStylesClient.STYLE_RENDERER.getGeoModelProvider();
             }
             return null;
         });
@@ -56,7 +57,6 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
     @Override
     public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, Player player, float limbSwing, float limbSwingAmount,  float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
         PlayerStyleData styleData = PlayerStyleData.getPlayerData(player);
-
 
         poseStack.translate(0.0D, 1.497F, 0.0D);
         poseStack.scale(-1.005F, -1.0F, 1.005F);

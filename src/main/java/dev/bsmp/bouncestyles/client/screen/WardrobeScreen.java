@@ -111,6 +111,10 @@ public class WardrobeScreen extends Screen {
         else {
             removeWidget(this.presetsWidget);
             this.presetsWidget = null;
+            this.presetName.visible = false;
+            this.presetName.active = false;
+            this.presetName.setValue("");
+
             this.styleWidget.active = true;
             this.styleWidget.visible = true;
             this.styleWidget.updateButtons(

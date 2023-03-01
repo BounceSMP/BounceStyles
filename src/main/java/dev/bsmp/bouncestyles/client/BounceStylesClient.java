@@ -1,7 +1,6 @@
 package dev.bsmp.bouncestyles.client;
 
 import dev.bsmp.bouncestyles.client.renderer.StyleLayerRenderer;
-import dev.bsmp.bouncestyles.client.screen.WardrobeScreen;
 import dev.bsmp.bouncestyles.networking.SyncStyleDataS2C;
 import dev.bsmp.bouncestyles.networking.SyncStyleUnlocksBi;
 import net.fabricmc.api.ClientModInitializer;
@@ -12,7 +11,6 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -27,7 +25,7 @@ import org.lwjgl.glfw.GLFW;
 public class BounceStylesClient implements ClientModInitializer {
     public static final KeyMapping KEY_WARDROBE = new KeyMapping("key.bouncestyles.wardrobe", GLFW.GLFW_KEY_C, "key.bouncestyles.category");
 
-    public static StyleLayerRenderer GARMENT_RENDERER;
+    public static StyleLayerRenderer STYLE_RENDERER;
 
     @Override
     public void onInitializeClient() {
@@ -40,7 +38,7 @@ public class BounceStylesClient implements ClientModInitializer {
 
     private void registerRendering(EntityType<? extends LivingEntity> entityType, LivingEntityRenderer<?,?> livingEntityRenderer, LivingEntityFeatureRendererRegistrationCallback.RegistrationHelper registrationHelper, EntityRendererProvider.Context context) {
         if(livingEntityRenderer instanceof PlayerRenderer) {
-            registrationHelper.register(GARMENT_RENDERER = new StyleLayerRenderer((RenderLayerParent<Player, PlayerModel<Player>>) livingEntityRenderer));
+            registrationHelper.register(STYLE_RENDERER = new StyleLayerRenderer((RenderLayerParent<Player, PlayerModel<Player>>) livingEntityRenderer));
         }
     }
 

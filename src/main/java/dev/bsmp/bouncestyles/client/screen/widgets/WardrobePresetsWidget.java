@@ -9,6 +9,7 @@ import dev.bsmp.bouncestyles.data.PlayerStyleData;
 import dev.bsmp.bouncestyles.data.StylePreset;
 import dev.bsmp.bouncestyles.networking.EquipStyleC2S;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.ImageButton;
@@ -80,8 +81,18 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
                 else
                     s = "Save";
             }
-            fill(poseStack, mouseX + 1, mouseY - 11, mouseX + minecraft.font.width(s) + 1, mouseY - 2, 0xFF000000);
-            drawString(poseStack, minecraft.font, s, mouseX + 2, mouseY - 10, 0xFFFFFF);
+
+            Font font = Minecraft.getInstance().font;
+            int textWidth = font.width(s);
+            fill(poseStack, mouseX + 2, mouseY - 12, mouseX + textWidth + 7, mouseY + 2, 0xFF000000);
+
+            vLine(poseStack, mouseX + 1, mouseY - 13, mouseY + 3, 0xFF00A8A8);
+            vLine(poseStack, mouseX + textWidth + 7, mouseY - 13, mouseY + 2, 0xFF00A8A8);
+
+            hLine(poseStack, mouseX + 1, mouseX + textWidth + 7, mouseY - 13, 0xFF00A8A8);
+            hLine(poseStack, mouseX + 1, mouseX + textWidth + 7, mouseY + 2, 0xFF00A8A8);
+
+            drawString(poseStack, minecraft.font, s, mouseX + 5, mouseY - 9, 0xFFFFFF);
         }
     }
 

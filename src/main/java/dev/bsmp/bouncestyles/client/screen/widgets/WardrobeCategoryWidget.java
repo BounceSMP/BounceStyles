@@ -101,6 +101,13 @@ public class WardrobeCategoryWidget extends AbstractWidget {
             Font font = Minecraft.getInstance().font;
             int textWidth = font.width(getMessage());
             fill(poseStack, mouseX + 2, mouseY - 12, mouseX + textWidth + 7, mouseY + 2, 0xFF000000);
+
+            vLine(poseStack, mouseX + 1, mouseY - 13, mouseY + 3, 0xFF00A8A8);
+            vLine(poseStack, mouseX + textWidth + 7, mouseY - 13, mouseY + 2, 0xFF00A8A8);
+
+            hLine(poseStack, mouseX + 1, mouseX + textWidth + 7, mouseY - 13, 0xFF00A8A8);
+            hLine(poseStack, mouseX + 1, mouseX + textWidth + 7, mouseY + 2, 0xFF00A8A8);
+
             drawString(poseStack, Minecraft.getInstance().font, getMessage(), mouseX + 5, mouseY - 9, 0xFFFFFF);
         }
     }

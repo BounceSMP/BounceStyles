@@ -9,9 +9,9 @@ import com.mojang.math.Vector3f;
 import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleLoader;
 import dev.bsmp.bouncestyles.client.BounceStylesClient;
+import dev.bsmp.bouncestyles.client.renderer.StyleLayerRenderer;
 import dev.bsmp.bouncestyles.data.Style;
 import dev.bsmp.bouncestyles.data.PlayerStyleData;
-import dev.bsmp.bouncestyles.data.StylePreset;
 import dev.bsmp.bouncestyles.networking.EquipStyleC2S;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -23,6 +23,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import software.bernie.geckolib3.geo.render.built.GeoBone;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -201,7 +202,7 @@ public class WardrobeStyleWidget extends AbstractWidget {
             poseStack.scale(1.0f, 1.0f, -1.0f);
             RenderSystem.applyModelViewMatrix();
             PoseStack poseStack2 = new PoseStack();
-            float y = switch (this.parentWidget.category) {
+            float offsetY = switch (this.parentWidget.category) {
                 case Head -> -(float)(.5f);
                 case Body -> -(1f);
                 case Legs, Feet -> -1.8F;
@@ -214,15 +215,14 @@ public class WardrobeStyleWidget extends AbstractWidget {
             else {
                 poseStack2.scale((float) (height * 0.6), (float) (height * 0.6), 10f);
             }
-
-            poseStack2.translate(0.0, y, 0.0);
+            poseStack2.translate(0.0, offsetY, 0.0);
             Quaternion quaternion = Vector3f.ZP.rotationDegrees(180.0f);
             Quaternion quaternion2 = Vector3f.YP.rotationDegrees(this.parentWidget.previewRotation);
             quaternion.mul(quaternion2);
             poseStack2.mulPose(quaternion);
             Lighting.setupForEntityInInventory();
             MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-            RenderSystem.runAsFancy(() -> BounceStylesClient.GARMENT_RENDERER.renderStyleForGUI(
+            RenderSystem.runAsFancy(() -> BounceStylesClient.STYLE_RENDERER.renderStyleForGUI(
                     poseStack2,
                     this.style,
                     this.parentWidget.category,
