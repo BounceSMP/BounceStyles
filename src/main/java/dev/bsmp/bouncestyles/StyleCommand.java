@@ -1,48 +1,44 @@
 package dev.bsmp.bouncestyles;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import dev.bsmp.bouncestyles.data.PlayerStyleData;
-import net.minecraft.ChatFormatting;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
-import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
-import net.minecraft.commands.arguments.selector.EntitySelector;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-
+import dev.bsmp.bouncestyles.data.StyleData;
 import java.util.Collection;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.EntitySelector;
+import net.minecraft.command.argument.EntityArgumentType;
+import net.minecraft.command.argument.IdentifierArgumentType;
+import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.LiteralText;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 
 public class StyleCommand {
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        LiteralCommandNode<CommandSourceStack> styleNode = Commands
+    public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
+        LiteralCommandNode<ServerCommandSource> styleNode = CommandManager
                 .literal("style")
-                .requires(commandSourceStack -> commandSourceStack.hasPermission(2))
+                .requires(commandSourceStack -> commandSourceStack.hasPermissionLevel(2))
                 .build();
         dispatcher.getRoot().addChild(styleNode);
 
-        LiteralCommandNode<CommandSourceStack> unlockNode = Commands
+        LiteralCommandNode<ServerCommandSource> unlockNode = CommandManager
                 .literal("unlock")
                 .build();
-        ArgumentCommandNode<CommandSourceStack, EntitySelector> playerNode = Commands
-                .argument("players", EntityArgument.players())
+        ArgumentCommandNode<ServerCommandSource, EntitySelector> playerNode = CommandManager
+                .argument("players", EntityArgumentType.players())
                 .build();
-        LiteralCommandNode<CommandSourceStack> allNode = Commands
+        LiteralCommandNode<ServerCommandSource> allNode = CommandManager
                 .literal("all")
-                .executes(context -> StyleCommand.unlockAll(context, EntityArgument.getPlayers(context, "players")))
+                .executes(context -> StyleCommand.unlockAll(context, EntityArgumentType.getPlayers(context, "players")))
                 .build();
-        ArgumentCommandNode<CommandSourceStack, ResourceLocation> idNode = Commands
-                .argument("id", ResourceLocationArgument.id())
-                .suggests((commandContext, suggestionsBuilder) -> SharedSuggestionProvider.suggestResource(StyleLoader.REGISTRY.keySet(), suggestionsBuilder))
-                .executes(context -> StyleCommand.unlock(context, EntityArgument.getPlayers(context, "players"), ResourceLocationArgument.getId(context, "id")))
+        ArgumentCommandNode<ServerCommandSource, Identifier> idNode = CommandManager
+                .argument("id", IdentifierArgumentType.identifier())
+                .suggests((commandContext, suggestionsBuilder) -> CommandSource.suggestIdentifiers(StyleLoader.REGISTRY.keySet(), suggestionsBuilder))
+                .executes(context -> StyleCommand.unlock(context, EntityArgumentType.getPlayers(context, "players"), IdentifierArgumentType.getIdentifier(context, "id")))
                 .build();
 
         styleNode.addChild(unlockNode);
@@ -51,22 +47,22 @@ public class StyleCommand {
         playerNode.addChild(idNode);
     }
 
-    private static int unlockAll(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> players) {
-        for(ServerPlayer player : players) {
-            PlayerStyleData styleData = PlayerStyleData.getPlayerData(player);
-            for(ResourceLocation id : StyleLoader.REGISTRY.keySet()) {
+    private static int unlockAll(CommandContext<ServerCommandSource> context, Collection<ServerPlayerEntity> players) {
+        for(ServerPlayerEntity player : players) {
+            StyleData styleData = StyleData.getPlayerData(player);
+            for(Identifier id : StyleLoader.REGISTRY.keySet()) {
                 styleData.unlockStyle(id);
             }
-            player.sendMessage(new TextComponent("You've unlocked all current styles, enjoy!").withStyle(style -> style.withColor(ChatFormatting.GOLD)), null);
+            player.sendSystemMessage(new LiteralText("You've unlocked all current styles, enjoy!").styled(style -> style.withColor(Formatting.GOLD)), null);
         }
         return 1;
     }
 
-    private static int unlock(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets, ResourceLocation id) {
-        for(ServerPlayer player : targets)
+    private static int unlock(CommandContext<ServerCommandSource> context, Collection<ServerPlayerEntity> targets, Identifier id) {
+        for(ServerPlayerEntity player : targets)
             if (id != null && StyleLoader.idExists(id)) {
-                PlayerStyleData.getPlayerData(player).unlockStyle(id);
-                player.sendMessage(new TextComponent("Style unlocked").withStyle(style -> style.withColor(ChatFormatting.GOLD)), null);
+                StyleData.getPlayerData(player).unlockStyle(id);
+                player.sendSystemMessage(new LiteralText("Style unlocked").styled(style -> style.withColor(Formatting.GOLD)), null);
             }
         return 1;
     }

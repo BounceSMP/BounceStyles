@@ -1,33 +1,33 @@
 package dev.bsmp.bouncestyles.client.screen.widgets;
 
-import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.render.DiffuseLighting;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
+import net.minecraft.client.util.Window;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.LiteralText;
+import net.minecraft.util.math.Quaternion;
+import net.minecraft.util.math.Vec3f;
 
-public class WardrobePreviewWidget extends AbstractWidget {
+public class WardrobePreviewWidget extends ClickableWidget {
 
-    private Player previewPlayer;
+    private PlayerEntity previewPlayer;
     float previewRotation;
 
-    public WardrobePreviewWidget(int x, int y, int width, int height, Player player) {
-        super(x, y, width, height, new TextComponent("Player Preview"));
+    public WardrobePreviewWidget(int x, int y, int width, int height, PlayerEntity player) {
+        super(x, y, width, height, new LiteralText("Player Preview"));
         this.previewPlayer = player;
     }
 
     @Override
-    public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
-        Window window = Minecraft.getInstance().getWindow();
-        double scale = window.getGuiScale();
+    public void renderButton(MatrixStack poseStack, int mouseX, int mouseY, float partialTick) {
+        Window window = MinecraftClient.getInstance().getWindow();
+        double scale = window.getScaleFactor();
         RenderSystem.enableScissor(
                 (int) ((x + 3) * scale),
                 (int) (y * scale),
@@ -39,47 +39,47 @@ public class WardrobePreviewWidget extends AbstractWidget {
     }
 
     private void renderPlayer() {
-        Window window = Minecraft.getInstance().getWindow();
-        double guiScale = window.getGuiScale();
-        PoseStack poseStack = RenderSystem.getModelViewStack();
-        poseStack.pushPose();
+        Window window = MinecraftClient.getInstance().getWindow();
+        double guiScale = window.getScaleFactor();
+        MatrixStack poseStack = RenderSystem.getModelViewStack();
+        poseStack.push();
         poseStack.translate(x + (width / 2), y + height - (height / 6), 1050.0);
         poseStack.scale(1f, 1f, -1f);
         RenderSystem.applyModelViewMatrix();
-        PoseStack poseStack2 = new PoseStack();
+        MatrixStack poseStack2 = new MatrixStack();
         poseStack2.translate(0.0, y, 1000.0);
-        poseStack2.scale((float) ((window.getHeight() / 3) / guiScale), (float) ((window.getHeight() / 3) / guiScale), 1);
-        Quaternion quaternion = Vector3f.ZP.rotationDegrees(180F);
-        Quaternion quaternion2 = Vector3f.YP.rotationDegrees(previewRotation);
-        quaternion.mul(quaternion2);
-        poseStack2.mulPose(quaternion);
-        float h = this.previewPlayer.yBodyRot;
-        float i = this.previewPlayer.getYRot();
-        float j = this.previewPlayer.getXRot();
-        float k = this.previewPlayer.yHeadRotO;
-        float l = this.previewPlayer.yHeadRot;
-        this.previewPlayer.yBodyRot = 160f;
-        this.previewPlayer.setYRot(160.0f);
-        this.previewPlayer.setXRot(0f);
-        this.previewPlayer.yHeadRot = this.previewPlayer.getYRot();
-        this.previewPlayer.yHeadRotO = this.previewPlayer.getYRot();
-        Lighting.setupForEntityInInventory();
-        EntityRenderDispatcher renderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
-        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-        quaternion2.conj();
-        renderDispatcher.overrideCameraOrientation(quaternion2);
-        renderDispatcher.setRenderShadow(false);
+        poseStack2.scale((float) ((window.getFramebufferHeight() / 3) / guiScale), (float) ((window.getFramebufferHeight() / 3) / guiScale), 1);
+        Quaternion quaternion = Vec3f.POSITIVE_Z.getDegreesQuaternion(180F);
+        Quaternion quaternion2 = Vec3f.POSITIVE_Y.getDegreesQuaternion(previewRotation);
+        quaternion.hamiltonProduct(quaternion2);
+        poseStack2.multiply(quaternion);
+        float h = this.previewPlayer.bodyYaw;
+        float i = this.previewPlayer.getYaw();
+        float j = this.previewPlayer.getPitch();
+        float k = this.previewPlayer.prevHeadYaw;
+        float l = this.previewPlayer.headYaw;
+        this.previewPlayer.bodyYaw = 160f;
+        this.previewPlayer.setYaw(160.0f);
+        this.previewPlayer.setPitch(0f);
+        this.previewPlayer.headYaw = this.previewPlayer.getYaw();
+        this.previewPlayer.prevHeadYaw = this.previewPlayer.getYaw();
+        DiffuseLighting.method_34742(); //Setup Entity Lighting
+        EntityRenderDispatcher renderDispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher();
+        VertexConsumerProvider.Immediate bufferSource = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
+        quaternion2.conjugate();
+        renderDispatcher.setRotation(quaternion2);
+        renderDispatcher.setRenderShadows(false);
         RenderSystem.runAsFancy(() -> renderDispatcher.render(this.previewPlayer, 0, 0, 0, 0, 1f, poseStack2, bufferSource, 0xF000F0));
-        bufferSource.endBatch();
-        renderDispatcher.setRenderShadow(true);
-        this.previewPlayer.yBodyRot = h;
-        this.previewPlayer.setYRot(i);
-        this.previewPlayer.setXRot(j);
-        this.previewPlayer.yHeadRotO = k;
-        this.previewPlayer.yHeadRot = l;
-        poseStack.popPose();
+        bufferSource.draw();
+        renderDispatcher.setRenderShadows(true);
+        this.previewPlayer.bodyYaw = h;
+        this.previewPlayer.setYaw(i);
+        this.previewPlayer.setPitch(j);
+        this.previewPlayer.prevHeadYaw = k;
+        this.previewPlayer.headYaw = l;
+        poseStack.pop();
         RenderSystem.applyModelViewMatrix();
-        Lighting.setupFor3DItems();
+        DiffuseLighting.enableGuiDepthLighting();
     }
 
     @Override
@@ -93,5 +93,5 @@ public class WardrobePreviewWidget extends AbstractWidget {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput narrationElementOutput) {}
+    public void appendNarrations(NarrationMessageBuilder narrationElementOutput) {}
 }

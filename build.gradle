@@ -6,6 +6,10 @@ plugins {
 version = project.mod_version
 group = project.maven_group
 
+loom {
+    accessWidenerPath = file("src/main/resources/bouncestyles.accesswidener")
+}
+
 repositories {
     //Parchment
     maven {
@@ -21,8 +25,9 @@ dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings loom.layered() {
-        officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-1.18.2:2022.11.06@zip")
+        mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+//        officialMojangMappings()
+//        parchment("org.parchmentmc.data:parchment-1.18.2:2022.11.06@zip")
         mappings(rootProject.file("geckolib-fix.mapping")) {
             enigmaMappings()
         }

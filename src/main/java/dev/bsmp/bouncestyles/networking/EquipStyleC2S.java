@@ -3,32 +3,32 @@ package dev.bsmp.bouncestyles.networking;
 import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleLoader;
 import dev.bsmp.bouncestyles.data.Style;
-import dev.bsmp.bouncestyles.data.PlayerStyleData;
+import dev.bsmp.bouncestyles.data.StyleData;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
 
 public class EquipStyleC2S {
-    public static final ResourceLocation ID = new ResourceLocation(BounceStyles.modId, "equip_c2s");
+    public static final Identifier ID = new Identifier(BounceStyles.modId, "equip_c2s");
 
-    public static void handle(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl serverGamePacketListener, FriendlyByteBuf buf, PacketSender packetSender) {
-        StyleLoader.Category category = StyleLoader.Category.valueOf(buf.readUtf());
-        ResourceLocation styleID;
+    public static void handle(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler serverGamePacketListener, PacketByteBuf buf, PacketSender packetSender) {
+        StyleLoader.Category category = StyleLoader.Category.valueOf(buf.readString());
+        Identifier styleID;
         if(buf.readableBytes() > 0)
-            styleID = buf.readResourceLocation();
+            styleID = buf.readIdentifier();
         else {
             styleID = null;
         }
 
         server.execute(() -> {
-            PlayerStyleData styleData = PlayerStyleData.getPlayerData(player);
+            StyleData styleData = StyleData.getPlayerData(player);
             Style style = StyleLoader.REGISTRY.get(styleID);
-            if(style == null || styleData.hasStyleUnlocked(style) || (player.isCreative() && player.hasPermissions(2))) {
+            if(style == null || styleData.hasStyleUnlocked(style) || (player.isCreative() && player.hasPermissionLevel(2))) {
                 switch (category) {
                     case Head -> styleData.setHeadStyle(style);
                     case Body -> styleData.setBodyStyle(style);
@@ -44,11 +44,11 @@ public class EquipStyleC2S {
         ClientPlayNetworking.send(ID, toBuf(category, style));
     }
 
-    private static FriendlyByteBuf toBuf(StyleLoader.Category category, Style style) {
-        FriendlyByteBuf buf = PacketByteBufs.create();
-        buf.writeUtf(category.name());
+    private static PacketByteBuf toBuf(StyleLoader.Category category, Style style) {
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeString(category.name());
         if(style != null)
-            buf.writeResourceLocation(style.styleId);
+            buf.writeIdentifier(style.styleId);
         return buf;
     }
 

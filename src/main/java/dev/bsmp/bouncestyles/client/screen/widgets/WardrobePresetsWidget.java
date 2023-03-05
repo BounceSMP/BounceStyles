@@ -1,39 +1,36 @@
 package dev.bsmp.bouncestyles.client.screen.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleLoader;
 import dev.bsmp.bouncestyles.client.screen.WardrobeScreen;
-import dev.bsmp.bouncestyles.data.PlayerStyleData;
+import dev.bsmp.bouncestyles.data.StyleData;
 import dev.bsmp.bouncestyles.data.StylePreset;
 import dev.bsmp.bouncestyles.networking.EquipStyleC2S;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.components.AbstractSelectionList;
-import net.minecraft.client.gui.components.ImageButton;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.widget.EntryListWidget;
+import net.minecraft.client.gui.widget.TexturedButtonWidget;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Identifier;
 
-import java.util.List;
-
-public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresetsWidget.PresetEntry> {
-    private static final ResourceLocation TEX_WIDGETS = new ResourceLocation(BounceStyles.modId, "textures/gui/widgets.png");
+public class WardrobePresetsWidget extends EntryListWidget<WardrobePresetsWidget.PresetEntry> {
+    private static final Identifier TEX_WIDGETS = new Identifier(BounceStyles.modId, "textures/gui/widgets.png");
 
     private WardrobeScreen parentScreen;
     private ScaledImageButton createButton;
     boolean namingPreset;
     public boolean needsRefreshing;
 
-    public WardrobePresetsWidget(Minecraft minecraft, WardrobeScreen parentScreen, int x, int y, int width, int height, int itemHeight, int buttonSize) {
+    public WardrobePresetsWidget(MinecraftClient minecraft, WardrobeScreen parentScreen, int x, int y, int width, int height, int itemHeight, int buttonSize) {
         super(minecraft, width, height, y, y + height, itemHeight);
-        this.x0 = x;
-        this.x1 = x + width;
+        this.left = x;
+        this.right = x + width;
 
         this.parentScreen = parentScreen;
         this.createButton = new ScaledImageButton(x + 5, y + height - buttonSize - 5, buttonSize, buttonSize, 74, 0, 24, 24, TEX_WIDGETS, button -> {
@@ -46,17 +43,17 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
                 this.parentScreen.presetName.visible = false;
                 this.parentScreen.presetName.active = false;
                 this.namingPreset = false;
-                String name = this.parentScreen.presetName.getValue();
+                String name = this.parentScreen.presetName.getText();
                 if(!name.isBlank()) {
-                    StyleLoader.createPreset(PlayerStyleData.getPlayerData(minecraft.player), name);
+                    StyleLoader.createPreset(StyleData.getPlayerData(minecraft.player), name);
                     refreshEntries();
                 }
-                this.parentScreen.presetName.setValue("");
+                this.parentScreen.presetName.setText("");
             }
         });
 
         setRenderBackground(false);
-        setRenderTopAndBottom(false);
+        setRenderHorizontalShadows(false);
         refreshEntries();
     }
 
@@ -69,30 +66,30 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
     }
 
     @Override
-    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
+    public void render(MatrixStack poseStack, int mouseX, int mouseY, float partialTick) {
         super.render(poseStack, mouseX, mouseY, partialTick);
 
         this.createButton.render(poseStack, mouseX, mouseY, partialTick);
         if(this.createButton.isMouseOver(mouseX, mouseY)) {
             String s = "Create Preset";
             if (this.namingPreset) {
-                if (this.parentScreen.presetName.getValue().isBlank())
+                if (this.parentScreen.presetName.getText().isBlank())
                     s = "Cancel";
                 else
                     s = "Save";
             }
 
-            Font font = Minecraft.getInstance().font;
-            int textWidth = font.width(s);
+            TextRenderer font = MinecraftClient.getInstance().textRenderer;
+            int textWidth = font.getWidth(s);
             fill(poseStack, mouseX + 2, mouseY - 12, mouseX + textWidth + 7, mouseY + 2, 0xFF000000);
 
-            vLine(poseStack, mouseX + 1, mouseY - 13, mouseY + 3, 0xFF00A8A8);
-            vLine(poseStack, mouseX + textWidth + 7, mouseY - 13, mouseY + 2, 0xFF00A8A8);
+            drawVerticalLine(poseStack, mouseX + 1, mouseY - 13, mouseY + 3, 0xFF00A8A8);
+            drawVerticalLine(poseStack, mouseX + textWidth + 7, mouseY - 13, mouseY + 2, 0xFF00A8A8);
 
-            hLine(poseStack, mouseX + 1, mouseX + textWidth + 7, mouseY - 13, 0xFF00A8A8);
-            hLine(poseStack, mouseX + 1, mouseX + textWidth + 7, mouseY + 2, 0xFF00A8A8);
+            drawHorizontalLine(poseStack, mouseX + 1, mouseX + textWidth + 7, mouseY - 13, 0xFF00A8A8);
+            drawHorizontalLine(poseStack, mouseX + 1, mouseX + textWidth + 7, mouseY + 2, 0xFF00A8A8);
 
-            drawString(poseStack, minecraft.font, s, mouseX + 5, mouseY - 9, 0xFFFFFF);
+            drawStringWithShadow(poseStack, client.textRenderer, s, mouseX + 5, mouseY - 9, 0xFFFFFF);
         }
     }
 
@@ -105,13 +102,13 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
     }
 
     @Override
-    protected int getScrollbarPosition() {
-        return this.x1 - 5;
+    protected int getScrollbarPositionX() {
+        return this.right - 5;
     }
 
     @Override
     public int getRowLeft() {
-        return this.x0 + 5;
+        return this.left + 5;
     }
 
     @Override
@@ -119,24 +116,24 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
         return this.width - ((this.width / 10) * 2);
     }
 
-    public static class PresetEntry extends AbstractSelectionList.Entry<PresetEntry> {
+    public static class PresetEntry extends EntryListWidget.Entry<PresetEntry> {
         WardrobePresetsWidget parentWidget;
         StylePreset preset;
-        ImageButton deleteButton;
+        TexturedButtonWidget deleteButton;
 
         boolean isHovered = false;
 
         public PresetEntry(WardrobePresetsWidget parentWidget, StylePreset preset) {
             this.parentWidget = parentWidget;
             this.preset = preset;
-            this.deleteButton = new ImageButton(0,0,24,24,50,0, TEX_WIDGETS, button -> {
+            this.deleteButton = new TexturedButtonWidget(0,0,24,24,50,0, TEX_WIDGETS, button -> {
                 StyleLoader.removePreset(this.preset.presetId());
                 this.parentWidget.needsRefreshing = true;
             });
         }
 
         @Override
-        public void render(PoseStack poseStack, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean isMouseOver, float partialTick) {
+        public void render(MatrixStack poseStack, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean isMouseOver, float partialTick) {
             isMouseOver = this.isHovered = mouseX >= left && mouseX <= left + width && mouseY >= top && mouseY <= top + height;
 
             int colorBg = isMouseOver ? 0xFF2E4C6B : 0xFF0D2C4C;
@@ -149,7 +146,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
             fill(poseStack, left, top, left + 1, top + height, colorOutline); //Left Line
             fill(poseStack, left + width - 1, top, left + width, top + height, colorOutline); //Right Line
 
-            drawString(poseStack, Minecraft.getInstance().font, this.preset.name(), left + 5, top + (height / 2) - 4, isMouseOver ? 0xb3fffe : 0xFFFFFF);
+            drawStringWithShadow(poseStack, MinecraftClient.getInstance().textRenderer, this.preset.name(), left + 5, top + (height / 2) - 4, isMouseOver ? 0xb3fffe : 0xFFFFFF);
             this.deleteButton.x = left + width + 5;
             this.deleteButton.y = top + 1;
             this.deleteButton.render(poseStack, mouseX, mouseY, partialTick);
@@ -158,11 +155,11 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
                 RenderSystem.setShader(GameRenderer::getPositionTexShader);
                 RenderSystem.setShaderTexture(0, TEX_WIDGETS);
                 RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-                GuiComponent.blit(poseStack, left + width - 22, top + 2, 50, 48, 22, 22, 256, 256);
+                DrawableHelper.drawTexture(poseStack, left + width - 22, top + 2, 50, 48, 22, 22, 256, 256);
                 if(isMouseOver) {
                     String s = "One or more items in this preset are not unlocked or invalid!";
-                    fill(poseStack, mouseX + 1, mouseY - 11, mouseX + Minecraft.getInstance().font.width(s) + 1, mouseY - 2, 0xFF000000);
-                    drawString(poseStack, Minecraft.getInstance().font, s, mouseX + 2, mouseY - 10, 0xFFFFFF);
+                    fill(poseStack, mouseX + 1, mouseY - 11, mouseX + MinecraftClient.getInstance().textRenderer.getWidth(s) + 1, mouseY - 2, 0xFF000000);
+                    drawStringWithShadow(poseStack, MinecraftClient.getInstance().textRenderer, s, mouseX + 2, mouseY - 10, 0xFFFFFF);
                 }
             }
         }
@@ -179,7 +176,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
                 EquipStyleC2S.sendToServer(StyleLoader.Category.Body, StyleLoader.getStyle(preset.bodyId()));
                 EquipStyleC2S.sendToServer(StyleLoader.Category.Legs, StyleLoader.getStyle(preset.legsId()));
                 EquipStyleC2S.sendToServer(StyleLoader.Category.Feet, StyleLoader.getStyle(preset.feetId()));
-                Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+                MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f));
                 return true;
             }
             return this.deleteButton.mouseClicked(mouseX, mouseY, button);
@@ -187,5 +184,5 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput narrationElementOutput) {}
+    public void appendNarrations(NarrationMessageBuilder narrationElementOutput) {}
 }
