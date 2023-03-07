@@ -7,6 +7,8 @@ import dev.bsmp.bouncestyles.data.StyleData;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -35,7 +37,11 @@ public class EquipStyleC2S {
                     case Legs -> styleData.setLegStyle(style);
                     case Feet -> styleData.setFeetStyle(style);
                 }
+
                 SyncStyleDataS2C.sendToPlayer(player, player.getId(), styleData);
+                for(ServerPlayerEntity trackingPlayer : PlayerLookup.tracking(player)) {
+                    SyncStyleDataS2C.sendToPlayer(trackingPlayer, player.getId(), styleData);
+                }
             }
         });
     }

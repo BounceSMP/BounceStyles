@@ -8,11 +8,17 @@ import dev.bsmp.bouncestyles.networking.EquipStyleC2S;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+
+import dev.bsmp.bouncestyles.networking.ToggleArmorVisibilityC2S;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class WardrobeScreen extends Screen {
@@ -24,6 +30,7 @@ public class WardrobeScreen extends Screen {
     WardrobePresetsWidget presetsWidget;
 
     TexturedButtonWidget clearButton;
+    TexturedButtonWidget toggleArmorButton;
     public TextFieldWidget presetName;
 
     List<Identifier> unlockedStyles;
@@ -42,10 +49,15 @@ public class WardrobeScreen extends Screen {
         super.init();
         this.previewRight = width / 3;
         this.topBarHeight = height / 10;
+
         this.previewWidget = addDrawableChild(new WardrobePreviewWidget(0, 0, previewRight, height, client.player));
-        this.categoryWidget = addDrawableChild(new WardrobeCategoryWidget(this, previewRight, 1, width - previewRight - 24, topBarHeight));
+        this.categoryWidget = addDrawableChild(new WardrobeCategoryWidget(this, previewRight, 1, width - previewRight - 48, topBarHeight));
         this.styleWidget = addDrawableChild(new WardrobeStyleWidget(previewRight, topBarHeight, width - previewRight, height - topBarHeight));
-        this.clearButton = addDrawableChild(new ScaledImageButton(width - topBarHeight, 0, topBarHeight, topBarHeight, 98, 0, 24, 24, TEX_WIDGETS, button -> clear()));
+
+        int btnSize = topBarHeight;
+        this.clearButton = addDrawableChild(new ScaledImageButton(new LiteralText("Clear Equipped"), width - topBarHeight, 1, btnSize, btnSize, 98, 0, 24, 24, TEX_WIDGETS, button -> clear()));
+        this.toggleArmorButton = addDrawableChild(new ScaledImageButton(new LiteralText("Toggle Armor Visibility"),width - (topBarHeight * 2), 1, btnSize, btnSize, 122, 0, 24, 24, TEX_WIDGETS, button -> toggleArmor()));
+
         this.presetName = addDrawableChild(new TextFieldWidget(client.textRenderer, previewRight + topBarHeight + 10, height - topBarHeight - 5, (width - previewRight) / 2, topBarHeight, new LiteralText("Preset Name")));
         this.presetName.visible = false;
         this.presetName.active = false;
@@ -99,6 +111,10 @@ public class WardrobeScreen extends Screen {
         EquipStyleC2S.sendToServer(StyleLoader.Category.Feet, null);
     }
 
+    private void toggleArmor() {
+        ToggleArmorVisibilityC2S.sendToServer();
+    }
+
     public void setSelectedCategory(StyleLoader.Category category) {
         this.selectedCategory = category;
         if (category == StyleLoader.Category.Preset) {
@@ -131,5 +147,23 @@ public class WardrobeScreen extends Screen {
                 .filter(stylePreset -> (stylePreset.hasAllUnlocked(this.unlockedStyles)) || (client.player.isCreative() && client.player.hasPermissionLevel(2)))
                 .sorted(Comparator.comparing(o -> o.presetId().toString()))
                 .toList();
+    }
+
+    public static void drawTooltip(Text text, int x, int y, TextRenderer font, MatrixStack poseStack, int right) {
+        if(right <= 0) right = MinecraftClient.getInstance().getWindow().getScaledWidth();
+        int textWidth = font.getWidth(text) + 3;
+        int textX = x + 4 + textWidth > right ? x + (right - (x + textWidth)) - 2 : x + 2;
+
+        poseStack.translate(0, 0, 100);
+
+        fill(poseStack, textX, y - 11, x + textWidth + 3, y + 1, 0xFF000000);
+
+        fill(poseStack, textX, y - 12, x + textWidth + 3, y - 11, 0xFF00A8A8);
+        fill(poseStack, textX, y + 1, x + textWidth + 3, y + 2, 0xFF00A8A8);
+
+        fill(poseStack, textX, y - 12, textX + 1, y + 2, 0xFF00A8A8);
+        fill(poseStack, textX + textWidth + 1, y - 12, textX + textWidth + 2, y + 2, 0xFF00A8A8);
+
+        drawTextWithShadow(poseStack, font, text, textX + 3, y - 9, 0xFFFFFF);
     }
 }

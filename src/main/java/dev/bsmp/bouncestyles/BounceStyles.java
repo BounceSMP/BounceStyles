@@ -3,6 +3,7 @@ package dev.bsmp.bouncestyles;
 import dev.bsmp.bouncestyles.networking.EquipStyleC2S;
 import dev.bsmp.bouncestyles.networking.SyncStyleDataS2C;
 import dev.bsmp.bouncestyles.networking.SyncStyleUnlocksBi;
+import dev.bsmp.bouncestyles.networking.ToggleArmorVisibilityC2S;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
@@ -25,6 +26,7 @@ public class BounceStyles implements ModInitializer {
 
         ServerPlayNetworking.registerGlobalReceiver(SyncStyleUnlocksBi.ID_C2S, SyncStyleUnlocksBi::handleServer);
         ServerPlayNetworking.registerGlobalReceiver(EquipStyleC2S.ID, EquipStyleC2S::handle);
+        ServerPlayNetworking.registerGlobalReceiver(ToggleArmorVisibilityC2S.ID, ToggleArmorVisibilityC2S::handle);
 
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
             StyleCommand.register(dispatcher);

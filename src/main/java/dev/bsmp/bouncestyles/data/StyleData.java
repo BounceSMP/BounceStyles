@@ -18,6 +18,7 @@ public class StyleData {
     private @Nullable Style bodyStyle;
     private @Nullable Style legStyle;
     private @Nullable Style feetStyle;
+    private boolean showArmor = true;
     private List<Identifier> unlocks;
     private List<String> hiddenParts = new ArrayList<>();
 
@@ -50,6 +51,13 @@ public class StyleData {
         updateVisibility(feetStyle);
     }
 
+    public void setArmorVisibility(boolean showArmor) {
+        this.showArmor = showArmor;
+    }
+    public void toggleArmorVisibility() {
+        this.showArmor = !this.showArmor;
+    }
+
     private void updateVisibility(Style style) {
         if(style == null || style.hiddenParts == null)
             return;
@@ -57,9 +65,6 @@ public class StyleData {
             if(!this.hiddenParts.contains(s))
                 this.hiddenParts.add(s);
         }
-    }
-    public List<String> getHiddenParts() {
-        return this.hiddenParts;
     }
 
     public Style getHeadStyle() {
@@ -73,6 +78,14 @@ public class StyleData {
     }
     public Style getFeetStyle() {
         return feetStyle;
+    }
+
+    public boolean isArmorVisible() {
+        return this.showArmor;
+    }
+
+    public List<String> getHiddenParts() {
+        return this.hiddenParts;
     }
 
     public Style getStyleForSlot(StyleLoader.Category category) {
@@ -147,6 +160,7 @@ public class StyleData {
         convertStyle(tag, styleData.bodyStyle, StyleLoader.Category.Body.name());
         convertStyle(tag, styleData.legStyle, StyleLoader.Category.Legs.name());
         convertStyle(tag, styleData.feetStyle, StyleLoader.Category.Feet.name());
+        tag.putBoolean("armorVisible", styleData.isArmorVisible());
         return tag;
     }
 
@@ -165,12 +179,14 @@ public class StyleData {
     }
 
     public static StyleData equippedFromNBT(NbtCompound tag) {
-        return new StyleData(
+        StyleData styleData = new StyleData(
                 parseStyle(tag, StyleLoader.Category.Head.name()),
                 parseStyle(tag, StyleLoader.Category.Body.name()),
                 parseStyle(tag, StyleLoader.Category.Legs.name()),
                 parseStyle(tag, StyleLoader.Category.Feet.name())
         );
+        styleData.showArmor = tag.getBoolean("armorVisible");
+        return styleData;
     }
 
     public static List<Identifier> unlocksFromNBT(NbtList unlocksTag) {

@@ -96,17 +96,7 @@ public class WardrobeCategoryWidget extends ClickableWidget {
 
         @Override
         public void renderTooltip(MatrixStack poseStack, int mouseX, int mouseY) {
-            TextRenderer font = MinecraftClient.getInstance().textRenderer;
-            int textWidth = font.getWidth(getMessage());
-            fill(poseStack, mouseX + 2, mouseY - 12, mouseX + textWidth + 7, mouseY + 2, 0xFF000000);
-
-            drawVerticalLine(poseStack, mouseX + 1, mouseY - 13, mouseY + 3, 0xFF00A8A8);
-            drawVerticalLine(poseStack, mouseX + textWidth + 7, mouseY - 13, mouseY + 2, 0xFF00A8A8);
-
-            drawHorizontalLine(poseStack, mouseX + 1, mouseX + textWidth + 7, mouseY - 13, 0xFF00A8A8);
-            drawHorizontalLine(poseStack, mouseX + 1, mouseX + textWidth + 7, mouseY + 2, 0xFF00A8A8);
-
-            drawTextWithShadow(poseStack, MinecraftClient.getInstance().textRenderer, getMessage(), mouseX + 5, mouseY - 9, 0xFFFFFF);
+            WardrobeScreen.drawTooltip(getMessage(), mouseX, mouseY, MinecraftClient.getInstance().textRenderer, poseStack, 0);
         }
     }
 

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleLoader;
 import dev.bsmp.bouncestyles.client.BounceStylesClient;
+import dev.bsmp.bouncestyles.client.screen.WardrobeScreen;
 import dev.bsmp.bouncestyles.data.Style;
 import dev.bsmp.bouncestyles.data.StyleData;
 import dev.bsmp.bouncestyles.networking.EquipStyleC2S;
@@ -250,17 +251,7 @@ public class WardrobeStyleWidget extends ClickableWidget {
 
         @Override
         public void renderTooltip(MatrixStack poseStack, int mouseX, int mouseY) {
-            TextRenderer font = MinecraftClient.getInstance().textRenderer;
-            int textWidth = font.getWidth(getMessage()) + 1;
-            int right = parentWidget.x + parentWidget.width;
-            int textX = mouseX + 2 + textWidth > right ? mouseX + (right - (mouseX + textWidth)) - 2 : mouseX + 2;
-            poseStack.translate(0, 0, 100);
-            fill(poseStack, textX, mouseY - 11, mouseX + textWidth + 3, mouseY + 1, 0xFF000000);
-            drawHorizontalLine(poseStack, textX, mouseX + textWidth + 2, mouseY - 12, 0xFF00A8A8);
-            drawHorizontalLine(poseStack, textX, mouseX + textWidth + 2, mouseY + 1, 0xFF00A8A8);
-            drawVerticalLine(poseStack, textX, mouseY - 12, mouseY + 2, 0xFF00A8A8);
-            drawVerticalLine(poseStack, textX + textWidth + 1, mouseY - 13, mouseY + 2, 0xFF00A8A8);
-            drawTextWithShadow(poseStack, font, getMessage(), textX + 2, mouseY - 9, 0xFFFFFF);
+            WardrobeScreen.drawTooltip(getMessage(), mouseX, mouseY, MinecraftClient.getInstance().textRenderer, poseStack, parentWidget.x + parentWidget.width);
         }
 
         private int getYOffset() {

@@ -17,6 +17,7 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
 
 public class WardrobePresetsWidget extends EntryListWidget<WardrobePresetsWidget.PresetEntry> {
@@ -33,7 +34,7 @@ public class WardrobePresetsWidget extends EntryListWidget<WardrobePresetsWidget
         this.right = x + width;
 
         this.parentScreen = parentScreen;
-        this.createButton = new ScaledImageButton(x + 5, y + height - buttonSize - 5, buttonSize, buttonSize, 74, 0, 24, 24, TEX_WIDGETS, button -> {
+        this.createButton = new ScaledImageButton(null, x + 5, y + height - buttonSize - 5, buttonSize, buttonSize, 74, 0, 24, 24, TEX_WIDGETS, button -> {
             if(!this.namingPreset) {
                 this.parentScreen.presetName.visible = true;
                 this.parentScreen.presetName.active = true;
@@ -79,17 +80,7 @@ public class WardrobePresetsWidget extends EntryListWidget<WardrobePresetsWidget
                     s = "Save";
             }
 
-            TextRenderer font = MinecraftClient.getInstance().textRenderer;
-            int textWidth = font.getWidth(s);
-            fill(poseStack, mouseX + 2, mouseY - 12, mouseX + textWidth + 7, mouseY + 2, 0xFF000000);
-
-            drawVerticalLine(poseStack, mouseX + 1, mouseY - 13, mouseY + 3, 0xFF00A8A8);
-            drawVerticalLine(poseStack, mouseX + textWidth + 7, mouseY - 13, mouseY + 2, 0xFF00A8A8);
-
-            drawHorizontalLine(poseStack, mouseX + 1, mouseX + textWidth + 7, mouseY - 13, 0xFF00A8A8);
-            drawHorizontalLine(poseStack, mouseX + 1, mouseX + textWidth + 7, mouseY + 2, 0xFF00A8A8);
-
-            drawStringWithShadow(poseStack, client.textRenderer, s, mouseX + 5, mouseY - 9, 0xFFFFFF);
+            WardrobeScreen.drawTooltip(new LiteralText(s), mouseX, mouseY, MinecraftClient.getInstance().textRenderer, poseStack, 0);
         }
     }
 

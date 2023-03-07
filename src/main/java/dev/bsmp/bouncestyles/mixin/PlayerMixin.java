@@ -8,12 +8,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 
 @Mixin(PlayerEntity.class)
-public abstract class EntityMixin implements StyleEntity {
+public abstract class PlayerMixin implements StyleEntity {
     private StyleData styleData;
 
     @Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
