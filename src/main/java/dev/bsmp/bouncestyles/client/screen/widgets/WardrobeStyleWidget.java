@@ -127,7 +127,7 @@ public class WardrobeStyleWidget extends ClickableWidget {
             return false;
         if(this.scroll - delta < 0)
             return false;
-        if(this.scroll - delta > 3)
+        if(this.scroll - delta > (totalRows - rowsPerPage))
             return false;
         this.scroll -= delta;
         return true;
@@ -136,6 +136,7 @@ public class WardrobeStyleWidget extends ClickableWidget {
     @Override
     public void renderButton(MatrixStack poseStack, int mouseX, int mouseY, float partialTick) {
         this.previewRotation = this.previewRotation >= 360 ? 0 : this.previewRotation + (partialTick * 2.5f);
+
         for(int row = scroll; row < scroll + rowsPerPage; row++) {
             for(int i = 0; i < this.buttonsPerRow; i++) {
                 int index = (row * this.buttonsPerRow) + i;
@@ -146,6 +147,7 @@ public class WardrobeStyleWidget extends ClickableWidget {
                 }
             }
         }
+
         if(hovered) {
             for (int row = scroll; row < scroll + rowsPerPage; row++) {
                 for (int i = 0; i < this.buttonsPerRow; i++) {
@@ -154,10 +156,20 @@ public class WardrobeStyleWidget extends ClickableWidget {
                         StyleButton button = this.buttons.get(index);
                         if (button.isHovered()) {
                             button.renderTooltip(poseStack, mouseX, mouseY);
-                            return;
+                            break;
                         }
                     }
                 }
+            }
+        }
+
+        if(totalRows > rowsPerPage) {
+            int totalScrolls = (totalRows - rowsPerPage) + 1;
+            int scrollHeight = totalScrolls * 10;
+            int scrollTop = (y + (height / 2)) - (scrollHeight / 2);
+            for(int i = 0; i < totalScrolls; i++) {
+                int colour = i == scroll ? 0xFF00cccc : 0xFF222222;
+                fill(poseStack, x + width - 6, scrollTop + (i * 10), x + width - 1, scrollTop + (i * 10) + 5, colour);
             }
         }
     }
