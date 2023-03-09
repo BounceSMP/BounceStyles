@@ -1,24 +1,30 @@
 package dev.bsmp.bouncestyles.client.renderer;
 
-import dev.bsmp.bouncestyles.item.StyleItem;
-import net.minecraft.resources.ResourceLocation;
+import dev.bsmp.bouncestyles.data.Style;
+import net.minecraft.util.Identifier;
+import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
-public class StyleModel extends AnimatedGeoModel<StyleItem> {
+public class StyleModel extends AnimatedGeoModel<Style> {
 
     @Override
-    public ResourceLocation getModelLocation(StyleItem item) {
-        return item.modelID;
+    public void setCustomAnimations(Style animatable, int instanceId, AnimationEvent animationEvent) {
+        super.setCustomAnimations(animatable, instanceId, animationEvent);
     }
 
     @Override
-    public ResourceLocation getTextureLocation(StyleItem item) {
-        return item.textureID;
+    public Identifier getModelLocation(Style style) {
+        return style.modelID;
     }
 
     @Override
-    public ResourceLocation getAnimationFileLocation(StyleItem item) {
-        return item.animationID;
+    public Identifier getTextureLocation(Style style) {
+        return style.textureID;
+    }
+
+    @Override
+    public Identifier getAnimationFileLocation(Style style) {
+        return style.animationID;
     }
 
 }

@@ -1,10 +1,14 @@
 plugins {
-    id 'fabric-loom' version '1.0-SNAPSHOT'
+    id 'fabric-loom' version '1.1-SNAPSHOT'
     id 'maven-publish'
 }
 
 version = project.mod_version
 group = project.maven_group
+
+loom {
+    accessWidenerPath = file("src/main/resources/bouncestyles.accesswidener")
+}
 
 repositories {
     //Parchment
@@ -15,21 +19,15 @@ repositories {
     maven {
         url = "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/"
     }
-    //Trinkets
-    maven {
-        url = "https://maven.terraformersmc.com/"
-    }
-    maven {
-        url = "https://ladysnake.jfrog.io/artifactory/mods"
-    }
 }
 
 dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings loom.layered() {
-        officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-1.18.2:2022.11.06@zip")
+        mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+//        officialMojangMappings()
+//        parchment("org.parchmentmc.data:parchment-1.18.2:2022.11.06@zip")
         mappings(rootProject.file("geckolib-fix.mapping")) {
             enigmaMappings()
         }
@@ -39,7 +37,6 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modImplementation "software.bernie.geckolib:geckolib-fabric-1.18:3.0.77"
-    modImplementation "dev.emi:trinkets:3.3.1"
 }
 
 processResources {

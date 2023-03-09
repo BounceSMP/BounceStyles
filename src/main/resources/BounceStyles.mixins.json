@@ -4,11 +4,11 @@
   "package": "dev.bsmp.bouncestyles.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "PlayerMixin"
   ],
   "client": [
-    "ArmorFeatureRendererMixin",
-    "ItemRendererMixin",
-    "ModelLoaderMixin",
+    "ArmorRenderingMixin",
+    "InventoryScreenMixin",
     "PlayerRendererMixin"
   ],
   "injectors": {
