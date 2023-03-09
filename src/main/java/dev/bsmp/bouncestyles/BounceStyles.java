@@ -1,5 +1,6 @@
 package dev.bsmp.bouncestyles;
 
+import dev.bsmp.bouncestyles.commands.StyleCommand;
 import dev.bsmp.bouncestyles.networking.EquipStyleC2S;
 import dev.bsmp.bouncestyles.networking.SyncStyleDataS2C;
 import dev.bsmp.bouncestyles.networking.SyncStyleUnlocksBi;

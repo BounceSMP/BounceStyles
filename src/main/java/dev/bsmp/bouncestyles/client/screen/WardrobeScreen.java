@@ -52,7 +52,7 @@ public class WardrobeScreen extends Screen {
 
         this.previewWidget = addDrawableChild(new WardrobePreviewWidget(0, 0, previewRight, height, client.player));
         this.categoryWidget = addDrawableChild(new WardrobeCategoryWidget(this, previewRight, 1, width - previewRight - 48, topBarHeight));
-        this.styleWidget = addDrawableChild(new WardrobeStyleWidget(previewRight, topBarHeight, width - previewRight, height - topBarHeight));
+        this.styleWidget = addDrawableChild(new WardrobeStyleWidget(previewRight, topBarHeight + 2, width - previewRight, height - topBarHeight));
 
         int btnSize = topBarHeight;
         this.clearButton = addDrawableChild(new ScaledImageButton(new LiteralText("Clear Equipped"), width - topBarHeight, 1, btnSize, btnSize, 98, 0, 24, 24, TEX_WIDGETS, button -> clear()));
@@ -109,6 +109,7 @@ public class WardrobeScreen extends Screen {
         EquipStyleC2S.sendToServer(StyleLoader.Category.Body, null);
         EquipStyleC2S.sendToServer(StyleLoader.Category.Legs, null);
         EquipStyleC2S.sendToServer(StyleLoader.Category.Feet, null);
+//        this.styleWidget.selectedButton = null;
     }
 
     private void toggleArmor() {
