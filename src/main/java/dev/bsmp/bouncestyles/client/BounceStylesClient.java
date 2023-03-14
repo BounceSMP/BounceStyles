@@ -1,57 +1,65 @@
 package dev.bsmp.bouncestyles.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import dev.bsmp.bouncestyles.client.renderer.StyleModel;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import dev.bsmp.bouncestyles.ItemLoader;
-import dev.bsmp.bouncestyles.client.renderer.StyleArmorRenderer;
-import dev.bsmp.bouncestyles.item.StyleItem;
+import dev.bsmp.bouncestyles.BounceStyles;
+import dev.bsmp.bouncestyles.client.renderer.StyleLayerRenderer;
+import dev.bsmp.bouncestyles.client.screen.WardrobeScreen;
+import dev.bsmp.bouncestyles.data.StyleData;
+import dev.bsmp.bouncestyles.networking.BounceStylesNetwork;
+import dev.bsmp.bouncestyles.networking.SyncStyleUnlocksBi;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.render.entity.LivingEntityRenderer;
+import net.minecraft.client.render.entity.model.PlayerEntityModel;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.EntityRenderersEvent;
-import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
-import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
+import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import org.lwjgl.glfw.GLFW;
 
+@Mod.EventBusSubscriber(value = Dist.CLIENT, modid = BounceStyles.modId, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class BounceStylesClient {
-    public static final StyleArmorRenderer STYLE_ARMOR_RENDERER = new StyleArmorRenderer(new StyleModel());
+    public static final KeyBinding KEY_WARDROBE = new KeyBinding("key.bouncestyles.wardrobe", GLFW.GLFW_KEY_C, "key.bouncestyles.category");
+    public static StyleLayerRenderer STYLE_RENDERER;
 
-    public static void onRegisterRenderers(final EntityRenderersEvent.AddLayers event) {
-        GeoArmorRenderer.registerArmorRenderer(StyleItem.HeadStyleItem.class, () -> STYLE_ARMOR_RENDERER);
-        GeoArmorRenderer.registerArmorRenderer(StyleItem.BodyStyleItem.class, () -> STYLE_ARMOR_RENDERER);
-        GeoArmorRenderer.registerArmorRenderer(StyleItem.LegsStyleItem.class, () -> STYLE_ARMOR_RENDERER);
-        GeoArmorRenderer.registerArmorRenderer(StyleItem.FeetStyleItem.class, () -> STYLE_ARMOR_RENDERER);
-
-        ItemLoader.HEAD_ITEMS.forEach(item -> CuriosRendererRegistry.register(item, () -> STYLE_ARMOR_RENDERER));
-        ItemLoader.BODY_ITEMS.forEach(item -> CuriosRendererRegistry.register(item, () -> STYLE_ARMOR_RENDERER));
-        ItemLoader.LEGS_ITEMS.forEach(item -> CuriosRendererRegistry.register(item, () -> STYLE_ARMOR_RENDERER));
-        ItemLoader.FEET_ITEMS.forEach(item -> CuriosRendererRegistry.register(item, () -> STYLE_ARMOR_RENDERER));
+    @SubscribeEvent
+    static void clientSetup(FMLClientSetupEvent event) {
+        ClientRegistry.registerKeyBinding(KEY_WARDROBE);
     }
 
-    public static void drawStyleItemTypeOverlay(ItemStack stack, int x, int y) {
-        if(stack.getItem() instanceof StyleItem && ((StyleItem)stack.getItem()).useBackupModel) {
-            RenderSystem.disableDepthTest();
-            RenderSystem.disableBlend();
-
-            ResourceLocation texture = ((StyleItem) stack.getItem()).getIconId();
-            Tesselator tesselator = Tesselator.getInstance();
-            BufferBuilder buffer = tesselator.getBuilder();
-
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-            RenderSystem.setShaderTexture(0, texture);
-            buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-            buffer.vertex(x + 6, y, 0).uv(0,0).endVertex();
-            buffer.vertex(x + 6, y + 10, 0).uv(0,1).endVertex();
-            buffer.vertex(x + 16, y + 10, 0).uv(1,1).endVertex();
-            buffer.vertex(x + 16, y, 0).uv(1,0).endVertex();
-            tesselator.end();
-
-            RenderSystem.enableBlend();
-            RenderSystem.enableDepthTest();
+    @SubscribeEvent
+    static void registerRendering(EntityRenderersEvent.AddLayers event) {
+        for (String s : event.getSkins()) {
+            LivingEntityRenderer<PlayerEntity, PlayerEntityModel<PlayerEntity>> playerRenderer = event.getSkin(s);
+            playerRenderer.addFeature(STYLE_RENDERER = new StyleLayerRenderer(playerRenderer));
         }
     }
+
+    public static void syncStyle(int playerID, StyleData styleData) {
+        Entity entity = MinecraftClient.getInstance().world.getEntityById(playerID);
+        if(entity instanceof PlayerEntity)
+            StyleData.setPlayerData((PlayerEntity) entity, styleData);
+    }
+
+    public static void openWardrobeScreen(StyleData styleData) {
+        StyleData.setPlayerData(MinecraftClient.getInstance().player, styleData);
+        MinecraftClient.getInstance().setScreen(new WardrobeScreen(styleData.getUnlocks()));
+    }
+
+    @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = BounceStyles.modId, bus = Mod.EventBusSubscriber.Bus.FORGE)
+    public static class EventHandler {
+
+        @SubscribeEvent
+        static void keyEvent(InputEvent.KeyInputEvent event) {
+            if(KEY_WARDROBE.isPressed())
+                BounceStylesNetwork.NETWORK.sendToServer(new SyncStyleUnlocksBi());
+        }
+
+    }
+
 }
