@@ -8,12 +8,11 @@ import dev.bsmp.bouncestyles.networking.BounceStylesNetwork;
 import dev.bsmp.bouncestyles.networking.SyncStyleUnlocksBi;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.render.entity.LivingEntityRenderer;
-import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
@@ -25,11 +24,15 @@ public class BounceStylesClient {
     public static final KeyBinding KEY_WARDROBE = new KeyBinding("key.bouncestyles.wardrobe", GLFW.GLFW_KEY_C, "key.bouncestyles.category");
     public static StyleLayerRenderer STYLE_RENDERER;
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     static void clientSetup(FMLClientSetupEvent event) {
         ClientRegistry.registerKeyBinding(KEY_WARDROBE);
-        MinecraftClient.getInstance().getEntityRenderDispatcher().getSkinMap().values().forEach(playerEntityRenderer -> {
-            playerEntityRenderer.addFeature(STYLE_RENDERER = new StyleLayerRenderer(playerEntityRenderer));
+        event.enqueueWork(() -> {
+            MinecraftClient.getInstance().getEntityRenderDispatcher().getSkinMap().values().forEach(renderer -> {
+                if (BounceStylesClient.STYLE_RENDERER == null)
+                    BounceStylesClient.STYLE_RENDERER = new StyleLayerRenderer(renderer);
+                renderer.addFeature(STYLE_RENDERER);
+            });
         });
     }
 
