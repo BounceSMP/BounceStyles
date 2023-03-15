@@ -5,6 +5,7 @@ import dev.bsmp.bouncestyles.StyleLoader;
 import dev.bsmp.bouncestyles.client.screen.WardrobeScreen;
 import dev.bsmp.bouncestyles.data.StyleData;
 import dev.bsmp.bouncestyles.data.StylePreset;
+import dev.bsmp.bouncestyles.mixin.EntryListAccessor;
 import dev.bsmp.bouncestyles.networking.BounceStylesNetwork;
 import dev.bsmp.bouncestyles.networking.EquipStyleC2S;
 import net.minecraft.client.MinecraftClient;
@@ -52,8 +53,8 @@ public class WardrobePresetsWidget extends EntryListWidget<WardrobePresetsWidget
 
 //        setRenderBackground(false);
 
-        this.field_26846 = false;
-        this.field_26847 = false;
+        ((EntryListAccessor)this).setField_26846(false);
+        ((EntryListAccessor)this).setField_26847(false);
         setRenderHeader(false, 0);
         refreshEntries();
     }

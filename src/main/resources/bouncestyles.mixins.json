@@ -10,7 +10,8 @@
     "ArmorRenderingMixin",
     "InventoryScreenMixin",
     "PlayerRendererMixin",
-    "PlayerModelAccessor"
+    "PlayerModelAccessor",
+    "EntryListAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
