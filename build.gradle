@@ -33,33 +33,20 @@ loom {
 }
 
 repositories {
-    //Parchment
-    maven {
-        url = "https://maven.parchmentmc.org"
-    }
     //GeckoLib
     maven {
         url = "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/"
-    }
-    //Curios
-    maven {
-        url = "https://maven.theillusivec4.top/"
     }
 }
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	
-    mappings loom.layered() {
-        officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-1.16.5:2022.03.06@zip")
-    }
+
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	
     forge "net.minecraftforge:forge:${project.forge_version}"
 	
     modImplementation "software.bernie.geckolib:geckolib-forge-1.16.5:3.0.106"
-    modRuntimeOnly "top.theillusivec4.curios:curios-forge:1.16.5-4.0.8.2"
-    modCompileOnlyApi "top.theillusivec4.curios:curios-forge:1.16.5-4.0.8.2:api"
 }
 
 processResources {

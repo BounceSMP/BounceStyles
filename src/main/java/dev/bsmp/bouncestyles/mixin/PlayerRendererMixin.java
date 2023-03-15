@@ -1,47 +1,50 @@
 package dev.bsmp.bouncestyles.mixin;
 
-import dev.bsmp.bouncestyles.client.renderer.StyleArmorRenderer;
-import net.minecraft.world.item.Item;
+import dev.bsmp.bouncestyles.data.StyleData;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.entity.PlayerEntityRenderer;
+import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
-import net.minecraft.world.item.ItemStack;
-import dev.bsmp.bouncestyles.item.StyleItem;
-import top.theillusivec4.curios.api.CuriosApi;
-import top.theillusivec4.curios.api.SlotResult;
-import top.theillusivec4.curios.api.type.inventory.ICurioStacksHandler;
-
-import java.util.List;
-import java.util.Map;
-
-@Mixin(PlayerRenderer.class)
+@Mixin(PlayerEntityRenderer.class)
 public class PlayerRendererMixin {
 
-    @Inject(method = "setModelProperties", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;isCrouching()Z", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void checkStyleVisibility(AbstractClientPlayer player, CallbackInfo ci, PlayerModel<?> playerEntityModel) {
-        List<SlotResult> results = CuriosApi.getCuriosHelper().findCurios(player,
-                StyleItem.HeadStyleItem.curioSlot,
-                StyleItem.BodyStyleItem.curioSlot,
-                StyleItem.LegsStyleItem.curioSlot,
-                StyleItem.FeetStyleItem.curioSlot
-        );
-
-        for(SlotResult slot : results) {
-            if(slot.getStack().getItem() instanceof StyleItem) {
-                StyleItem item = (StyleItem) slot.getStack().getItem();
-                StyleArmorRenderer.hideParts(playerEntityModel, item);
+    @Inject(method = "setModelPose", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/AbstractClientPlayerEntity;isInSneakingPose()Z", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
+    private void checkStyleVisibility(AbstractClientPlayerEntity player, CallbackInfo ci, PlayerEntityModel<?> model) {
+        StyleData styleData = StyleData.getPlayerData(player);
+        for(String s : styleData.getHiddenParts()) {
+            switch (s) {
+                case "head":
+                    model.head.visible = false;
+                    model.hat.visible = false;
+                break;
+                case "body":
+                    model.body.visible = false;
+                    model.jacket.visible = false;
+                    ((PlayerModelAccessor)model).getCloak().visible = false;
+                break;
+                case "left_arm":
+                    model.leftArm.visible = false;
+                    model.leftSleeve.visible = false;
+                break;
+                case "right_arm":
+                    model.rightArm.visible = false;
+                    model.rightSleeve.visible = false;
+                break;
+                case "left_leg":
+                    model.leftLeg.visible = false;
+                    model.leftPants.visible = false;
+                break;
+                case "right_leg":
+                    model.rightLeg.visible = false;
+                    model.rightPants.visible = false;
+                break;
             }
         }
-
-        for(ItemStack itemStack : player.getArmorSlots())
-            if(itemStack.getItem() instanceof StyleItem)
-                StyleArmorRenderer.hideParts(playerEntityModel, (StyleItem) itemStack.getItem());
     }
 
 }
