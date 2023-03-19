@@ -4,10 +4,15 @@ import com.google.common.io.Files;
 import com.google.gson.*;
 import dev.bsmp.bouncestyles.data.StyleData;
 import dev.bsmp.bouncestyles.data.Style;
+import dev.bsmp.bouncestyles.data.StyleMagazineItem;
 import dev.bsmp.bouncestyles.data.StylePreset;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
@@ -193,6 +198,19 @@ public class StyleLoader {
 
     public static Style getStyle(Identifier id) {
         return REGISTRY.get(id);
+    }
+
+    @Nullable public static Style getStyleFromStack(ItemStack itemStack) {
+        if(!(itemStack.getItem() instanceof StyleMagazineItem))
+            return null;
+        return getStyle(getStyleIdFromStack(itemStack));
+    }
+
+    @Nullable public static Identifier getStyleIdFromStack(ItemStack itemStack) {
+        NbtCompound nbt = itemStack.getNbt();
+        if(nbt == null || !nbt.contains("styleId"))
+            return null;
+        return Identifier.tryParse(nbt.getString("styleId"));
     }
 
     public static boolean idExists(Identifier id) {

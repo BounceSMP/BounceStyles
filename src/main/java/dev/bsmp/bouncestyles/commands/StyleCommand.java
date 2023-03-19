@@ -9,13 +9,17 @@ import dev.bsmp.bouncestyles.data.Style;
 import dev.bsmp.bouncestyles.data.StyleData;
 
 import java.util.Collection;
+import java.util.Collections;
 
+import dev.bsmp.bouncestyles.data.StyleMagazineItem;
 import dev.bsmp.bouncestyles.networking.SyncStyleDataS2C;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.EntitySelector;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.IdentifierArgumentType;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -26,12 +30,18 @@ import net.minecraft.util.Identifier;
 public class StyleCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         LiteralCommandNode<ServerCommandSource> styleNode = CommandManager
-                .literal("style")
+                .literal("bouncestyles")
                 .requires(commandSourceStack -> commandSourceStack.hasPermissionLevel(2))
                 .build();
         dispatcher.getRoot().addChild(styleNode);
 
-        //Unlock
+        registerUnlockCommand(styleNode);
+        registerEquipCommand(styleNode);
+        registerItemCommand(styleNode);
+    }
+
+    //Register
+    private static void registerUnlockCommand(LiteralCommandNode<ServerCommandSource> styleNode) {
         LiteralCommandNode<ServerCommandSource> unlockNode = CommandManager
                 .literal("unlock")
                 .build();
@@ -51,8 +61,9 @@ public class StyleCommand {
         unlockNode.addChild(playerNode);
         playerNode.addChild(allNode);
         playerNode.addChild(unlockIdNode);
+    }
 
-        //Equip
+    private static void registerEquipCommand(LiteralCommandNode<ServerCommandSource> styleNode) {
         LiteralCommandNode<ServerCommandSource> equipNode = CommandManager
                 .literal("equip")
                 .build();
@@ -73,6 +84,26 @@ public class StyleCommand {
         equipIdNode.addChild(equipPlayerNode);
     }
 
+    private static void registerItemCommand(LiteralCommandNode<ServerCommandSource> styleNode) {
+        LiteralCommandNode<ServerCommandSource> itemizeNode = CommandManager
+                .literal("itemize")
+                .build();
+        ArgumentCommandNode<ServerCommandSource, Identifier> idNode = CommandManager
+                .argument("id", IdentifierArgumentType.identifier())
+                .suggests((context, builder) -> CommandSource.suggestIdentifiers(StyleLoader.REGISTRY.keySet(), builder))
+                .executes(context -> itemize(Collections.singleton(context.getSource().getPlayer()), IdentifierArgumentType.getIdentifier(context, "id")))
+                .build();
+        ArgumentCommandNode<ServerCommandSource, EntitySelector> playerNode = CommandManager
+                .argument("player", EntityArgumentType.players())
+                .executes(context -> itemize(EntityArgumentType.getPlayers(context, "player"), IdentifierArgumentType.getIdentifier(context, "id")))
+                .build();
+
+        styleNode.addChild(itemizeNode);
+        itemizeNode.addChild(idNode);
+        idNode.addChild(playerNode);
+    }
+
+    //Functions
     private static int unlockAll(Collection<ServerPlayerEntity> players) {
         for(ServerPlayerEntity player : players) {
             StyleData styleData = StyleData.getPlayerData(player);
@@ -84,8 +115,8 @@ public class StyleCommand {
         return 1;
     }
 
-    private static int unlock(Collection<ServerPlayerEntity> targets, Identifier id) {
-        for(ServerPlayerEntity player : targets)
+    private static int unlock(Collection<ServerPlayerEntity> players, Identifier id) {
+        for(ServerPlayerEntity player : players)
             if (id != null && StyleLoader.idExists(id)) {
                 StyleData.getPlayerData(player).unlockStyle(id);
                 player.sendSystemMessage(new LiteralText("Style unlocked").styled(style -> style.withColor(Formatting.GOLD)), null);
@@ -115,6 +146,19 @@ public class StyleCommand {
         }
         else
             context.getSource().sendError(new LiteralText("Given ID not found"));
+        return 0;
+    }
+
+    private static int itemize(Collection<ServerPlayerEntity> targets, Identifier styleId) {
+        for(ServerPlayerEntity player : targets) {
+            ItemStack stack = StyleMagazineItem.createStackForStyle(styleId);
+            if (!player.giveItemStack(stack)) {
+                ItemEntity itemEntity = player.dropItem(stack, false);
+                if (itemEntity == null) continue;
+                itemEntity.resetPickupDelay();
+                itemEntity.setOwner(player.getUuid());
+            }
+        }
         return 0;
     }
 

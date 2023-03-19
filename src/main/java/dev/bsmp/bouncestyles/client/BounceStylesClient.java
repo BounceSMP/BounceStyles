@@ -23,7 +23,7 @@ import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
 public class BounceStylesClient implements ClientModInitializer {
-    public static final KeyBinding KEY_WARDROBE = new KeyBinding("key.bouncestyles.wardrobe", GLFW.GLFW_KEY_C, "key.bouncestyles.category");
+    public static final KeyBinding KEY_WARDROBE = new KeyBinding("key.bounce_styles.wardrobe", GLFW.GLFW_KEY_C, "key.bounce_styles.category");
 
     public static StyleLayerRenderer STYLE_RENDERER;
 
