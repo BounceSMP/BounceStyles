@@ -20,7 +20,7 @@ public class StyleData {
     private @Nullable Style feetStyle;
     private boolean showArmor = true;
     private List<Identifier> unlocks;
-    private List<String> hiddenParts = new ArrayList<>();
+    private final List<String> hiddenParts = new ArrayList<>();
 
     public StyleData(@Nullable Style headStyle, @Nullable Style bodyStyle, @Nullable Style legStyle, @Nullable Style feetStyle) {
         this(headStyle, bodyStyle, legStyle, feetStyle, new ArrayList<>());
@@ -101,10 +101,14 @@ public class StyleData {
     public List<Identifier> getUnlocks() {
         return this.unlocks;
     }
+
     public void setUnlocks(List<Identifier> unlocks) {
         this.unlocks = unlocks;
     }
+
     public boolean unlockStyle(Style style) {
+        if(style == null)
+            return false;
         return unlockStyle(style.styleId);
     }
     public boolean unlockStyle(Identifier styleId) {
@@ -112,12 +116,23 @@ public class StyleData {
             return false;
         return unlocks.add(styleId);
     }
+
+    public boolean removeStyle(Style style) {
+        if(style == null)
+            return false;
+        return removeStyle(style.styleId);
+    }
+    public boolean removeStyle(Identifier styleId) {
+        return unlocks.remove(styleId);
+    }
+
     public boolean hasStyleUnlocked(Style style) {
         return hasStyleUnlocked(style.styleId);
     }
     public boolean hasStyleUnlocked(Identifier id) {
         return unlocks.contains(id);
     }
+
     public StylePreset createPreset(String presetName) {
         Identifier head = this.headStyle != null ? this.headStyle.styleId : null;
         Identifier body = this.bodyStyle != null ? this.bodyStyle.styleId : null;
@@ -197,3 +212,4 @@ public class StyleData {
         return list;
     }
 }
+

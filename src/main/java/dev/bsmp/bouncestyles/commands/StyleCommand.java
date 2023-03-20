@@ -36,6 +36,7 @@ public class StyleCommand {
         dispatcher.getRoot().addChild(styleNode);
 
         registerUnlockCommand(styleNode);
+        registerRemoveCommand(styleNode);
         registerEquipCommand(styleNode);
         registerItemCommand(styleNode);
     }
@@ -59,6 +60,28 @@ public class StyleCommand {
                 .build();
         styleNode.addChild(unlockNode);
         unlockNode.addChild(playerNode);
+        playerNode.addChild(allNode);
+        playerNode.addChild(unlockIdNode);
+    }
+
+    private static void registerRemoveCommand(LiteralCommandNode<ServerCommandSource> styleNode) {
+        LiteralCommandNode<ServerCommandSource> removeNode = CommandManager
+                .literal("remove")
+                .build();
+        ArgumentCommandNode<ServerCommandSource, EntitySelector> playerNode = CommandManager
+                .argument("players", EntityArgumentType.players())
+                .build();
+        LiteralCommandNode<ServerCommandSource> allNode = CommandManager
+                .literal("all")
+                .executes(context -> removeAll(context.getSource(), EntityArgumentType.getPlayers(context, "players")))
+                .build();
+        ArgumentCommandNode<ServerCommandSource, Identifier> unlockIdNode = CommandManager
+                .argument("id", IdentifierArgumentType.identifier())
+                .suggests((context, builder) -> CommandSource.suggestIdentifiers(StyleLoader.REGISTRY.keySet(), builder))
+                .executes(context -> remove(context.getSource(), EntityArgumentType.getPlayers(context, "players"), IdentifierArgumentType.getIdentifier(context, "id")))
+                .build();
+        styleNode.addChild(removeNode);
+        removeNode.addChild(playerNode);
         playerNode.addChild(allNode);
         playerNode.addChild(unlockIdNode);
     }
@@ -120,6 +143,26 @@ public class StyleCommand {
             if (id != null && StyleLoader.idExists(id)) {
                 StyleData.getPlayerData(player).unlockStyle(id);
                 player.sendSystemMessage(new LiteralText("Style unlocked").styled(style -> style.withColor(Formatting.GOLD)), null);
+            }
+        return 1;
+    }
+
+    private static int removeAll(ServerCommandSource source, Collection<ServerPlayerEntity> players) {
+        for(ServerPlayerEntity player : players) {
+            StyleData styleData = StyleData.getPlayerData(player);
+            for(Identifier id : StyleLoader.REGISTRY.keySet()) {
+                styleData.removeStyle(id);
+            }
+            source.sendFeedback(new LiteralText("Removed all styles for " + player.getEntityName()), true);
+        }
+        return 1;
+    }
+
+    private static int remove(ServerCommandSource source, Collection<ServerPlayerEntity> players, Identifier id) {
+        for(ServerPlayerEntity player : players)
+            if (id != null && StyleLoader.idExists(id)) {
+                StyleData.getPlayerData(player).removeStyle(id);
+                source.sendFeedback(new LiteralText("Removed style " + id + " from player " + player.getEntityName()), true);
             }
         return 1;
     }
