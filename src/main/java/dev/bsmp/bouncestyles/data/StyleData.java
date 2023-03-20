@@ -67,16 +67,16 @@ public class StyleData {
         }
     }
 
-    public Style getHeadStyle() {
+    public @Nullable Style getHeadStyle() {
         return headStyle;
     }
-    public Style getBodyStyle() {
+    public @Nullable Style getBodyStyle() {
         return bodyStyle;
     }
-    public Style getLegStyle() {
+    public @Nullable Style getLegStyle() {
         return legStyle;
     }
-    public Style getFeetStyle() {
+    public @Nullable Style getFeetStyle() {
         return feetStyle;
     }
 
@@ -123,7 +123,18 @@ public class StyleData {
         return removeStyle(style.styleId);
     }
     public boolean removeStyle(Identifier styleId) {
-        return unlocks.remove(styleId);
+        boolean b = unlocks.remove(styleId);
+        if(b) {
+            if(headStyle != null && headStyle.styleId == styleId)
+                setHeadStyle(null);
+            if(bodyStyle != null && bodyStyle.styleId == styleId)
+                setBodyStyle(null);
+            if(legStyle != null && legStyle.styleId == styleId)
+                setLegStyle(null);
+            if(feetStyle != null && feetStyle.styleId == styleId)
+                setFeetStyle(null);
+        }
+        return b;
     }
 
     public boolean hasStyleUnlocked(Style style) {
