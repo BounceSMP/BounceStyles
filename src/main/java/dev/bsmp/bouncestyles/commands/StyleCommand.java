@@ -133,7 +133,7 @@ public class StyleCommand {
             for(Identifier id : StyleLoader.REGISTRY.keySet()) {
                 styleData.unlockStyle(id);
             }
-            player.sendSystemMessage(new LiteralText("You've unlocked all current styles, enjoy!").styled(style -> style.withColor(Formatting.GOLD)), null);
+            player.sendMessage(new LiteralText("You've unlocked all current styles, enjoy!").styled(style -> style.withColor(Formatting.GOLD)), false);
         }
         return 1;
     }
@@ -142,7 +142,7 @@ public class StyleCommand {
         for(ServerPlayerEntity player : players)
             if (id != null && StyleLoader.idExists(id)) {
                 StyleData.getPlayerData(player).unlockStyle(id);
-                player.sendSystemMessage(new LiteralText("Style unlocked").styled(style -> style.withColor(Formatting.GOLD)), null);
+                player.sendMessage(new LiteralText("Style unlocked").styled(style -> style.withColor(Formatting.GOLD)), false);
             }
         return 1;
     }

@@ -1,6 +1,8 @@
 package dev.bsmp.bouncestyles.client;
 
 import dev.bsmp.bouncestyles.client.renderer.StyleLayerRenderer;
+import dev.bsmp.bouncestyles.client.screen.WardrobeScreen;
+import dev.bsmp.bouncestyles.data.StyleData;
 import dev.bsmp.bouncestyles.networking.SyncStyleDataS2C;
 import dev.bsmp.bouncestyles.networking.SyncStyleUnlocksBi;
 import net.fabricmc.api.ClientModInitializer;
@@ -10,6 +12,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
@@ -40,6 +43,11 @@ public class BounceStylesClient implements ClientModInitializer {
         if(livingEntityRenderer instanceof PlayerEntityRenderer) {
             registrationHelper.register(STYLE_RENDERER = new StyleLayerRenderer((FeatureRendererContext<PlayerEntity, PlayerEntityModel<PlayerEntity>>) livingEntityRenderer));
         }
+    }
+
+    public static void syncStyleData(StyleData styleData) {
+        StyleData.setPlayerData(MinecraftClient.getInstance().player, styleData);
+        MinecraftClient.getInstance().setScreen(new WardrobeScreen(styleData.getUnlocks()));
     }
 
 }
