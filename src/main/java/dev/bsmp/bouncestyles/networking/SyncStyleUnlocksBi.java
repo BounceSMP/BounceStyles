@@ -1,7 +1,7 @@
 package dev.bsmp.bouncestyles.networking;
 
 import dev.bsmp.bouncestyles.BounceStyles;
-import dev.bsmp.bouncestyles.client.screen.WardrobeScreen;
+import dev.bsmp.bouncestyles.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.data.StyleData;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -21,11 +21,7 @@ public class SyncStyleUnlocksBi {
 
     public static void handleClient(MinecraftClient minecraft, ClientPlayNetworkHandler clientPacketListener, PacketByteBuf buf, PacketSender packetSender) {
         StyleData styleData = StyleData.fromNBT(buf.readNbt());
-
-        minecraft.execute(() -> {
-            StyleData.setPlayerData(minecraft.player, styleData);
-            minecraft.setScreen(new WardrobeScreen(styleData.getUnlocks()));
-        });
+        minecraft.execute(() -> BounceStylesClient.syncStyleData(styleData));
     }
 
     public static void handleServer(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler serverGamePacketListener, PacketByteBuf buf, PacketSender packetSender) {
