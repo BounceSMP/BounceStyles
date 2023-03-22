@@ -3,7 +3,6 @@ package dev.bsmp.bouncestyles.data;
 import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleLoader;
 import net.minecraft.client.item.TooltipContext;
-import net.minecraft.client.item.TooltipData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -16,9 +15,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class StyleMagazineItem extends Item {
     public StyleMagazineItem() {

@@ -1,6 +1,7 @@
 package dev.bsmp.bouncestyles;
 
 import dev.bsmp.bouncestyles.commands.StyleCommand;
+import dev.bsmp.bouncestyles.data.StyleData;
 import dev.bsmp.bouncestyles.data.StyleMagazineItem;
 import dev.bsmp.bouncestyles.networking.EquipStyleC2S;
 import dev.bsmp.bouncestyles.networking.SyncStyleDataS2C;
@@ -8,6 +9,7 @@ import dev.bsmp.bouncestyles.networking.SyncStyleUnlocksBi;
 import dev.bsmp.bouncestyles.networking.ToggleArmorVisibilityC2S;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -36,6 +38,7 @@ public class BounceStyles implements ModInitializer {
 
             EntityTrackingEvents.START_TRACKING.register(SyncStyleDataS2C::startTracking);
             ServerPlayConnectionEvents.JOIN.register(SyncStyleDataS2C::playerJoin);
+            ServerPlayerEvents.COPY_FROM.register(StyleData::copyFrom);
 
             StyleLoader.init();
         }

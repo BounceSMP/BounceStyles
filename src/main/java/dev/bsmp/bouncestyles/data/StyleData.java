@@ -2,6 +2,7 @@ package dev.bsmp.bouncestyles.data;
 
 import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleLoader;
+import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -221,6 +222,10 @@ public class StyleData {
             list.add(Identifier.tryParse(t.asString()));
         }
         return list;
+    }
+
+    public static void copyFrom(ServerPlayerEntity oldPlayer, ServerPlayerEntity newPlayer, boolean b) {
+        StyleData.setPlayerData(newPlayer, StyleData.getPlayerData(oldPlayer));
     }
 }
 
