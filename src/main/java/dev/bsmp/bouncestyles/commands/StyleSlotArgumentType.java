@@ -8,12 +8,9 @@ import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dev.bsmp.bouncestyles.StyleLoader.Category;
-import net.minecraft.advancement.Advancement;
 import net.minecraft.command.CommandSource;
-import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Identifier;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,7 +22,6 @@ public class StyleSlotArgumentType implements ArgumentType<Category> {
     private static final Dynamic2CommandExceptionType INVALID_ENUM = new Dynamic2CommandExceptionType((found, constants) -> new TranslatableText("commands.forge.arguments.enum.invalid", new Object[]{constants, found}));
 
     private StyleSlotArgumentType() {}
-
     public static StyleSlotArgumentType styleSlot() { return new StyleSlotArgumentType(); }
 
     public static Category getCategory(CommandContext<ServerCommandSource> context, String name) {

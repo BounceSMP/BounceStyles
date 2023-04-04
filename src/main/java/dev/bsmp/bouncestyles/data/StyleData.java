@@ -113,7 +113,7 @@ public class StyleData {
         return unlockStyle(style.styleId);
     }
     public boolean unlockStyle(Identifier styleId) {
-        if(unlocks.contains(styleId))
+        if(styleId == null || unlocks.contains(styleId))
             return false;
         return unlocks.add(styleId);
     }
@@ -194,6 +194,8 @@ public class StyleData {
     public static NbtList unlocksToNBT(StyleData styleData) {
         NbtList list = new NbtList();
         for(Identifier id : styleData.unlocks) {
+            if(id == null)
+                continue;
             list.add(NbtString.of(id.toString()));
         }
         return list;
