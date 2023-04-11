@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "bounce_styles",
+  "version": "${version}",
+  "name": "BounceStyles",
+  "description": "A Custom Outfits mod made for BounceSMP",
+  "authors": [
+    "RyanV"
+  ],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "dev.bsmp.bouncestyles.fabric.client.BounceStylesFabricClient"
+    ],
+    "main": [
+      "dev.bsmp.bouncestyles.fabric.BounceStylesFabric"
+    ]
+  },
+  "mixins": [
+    "bouncestyles.mixins.json"
+  ],
+  "accessWidener": "bouncestyles.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.14.9",
+    "fabric": "*",
+    "minecraft": "1.18.2",
+    "geckolib3": ">=3.0.64"
+  }
+}
