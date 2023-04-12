@@ -34,7 +34,7 @@ public abstract class PlayerMixin implements StyleEntity {
     }
 
     @Override
-    public StyleData getStyleData() {
+    public StyleData getOrCreateStyleData() {
         if(this.styleData == null)
             this.styleData = new StyleData(null, null, null, null, new ArrayList<>());
         return this.styleData;

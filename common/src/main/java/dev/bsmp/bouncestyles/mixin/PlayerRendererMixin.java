@@ -15,7 +15,7 @@ public class PlayerRendererMixin {
 
     @Inject(method = "setModelPose", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/AbstractClientPlayerEntity;isInSneakingPose()Z", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
     private void checkStyleVisibility(AbstractClientPlayerEntity player, CallbackInfo ci, PlayerEntityModel<?> model) {
-        StyleData styleData = StyleData.getPlayerData(player);
+        StyleData styleData = StyleData.getOrCreateStyleData(player);
         for(String s : styleData.getHiddenParts()) {
             switch (s) {
                 case "head" -> {
@@ -25,7 +25,7 @@ public class PlayerRendererMixin {
                 case "body" -> {
                     model.body.visible = false;
                     model.jacket.visible = false;
-                    model.cloak.visible = false;
+                    ((PlayerModelAccessor)model).getCloak().visible = false;
                 }
                 case "left_arm" -> {
                     model.leftArm.visible = false;

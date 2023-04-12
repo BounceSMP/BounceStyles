@@ -47,7 +47,7 @@ public class StyleMagazineItem extends Item {
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         ItemStack itemStack = user.getStackInHand(hand);
         if(!world.isClient) {
-            if(StyleData.getPlayerData(user).unlockStyle(StyleLoader.getStyleIdFromStack(itemStack)) && !user.getAbilities().creativeMode)
+            if(StyleData.getOrCreateStyleData(user).unlockStyle(StyleLoader.getStyleIdFromStack(itemStack)) && !user.getAbilities().creativeMode)
                 itemStack.decrement(1);
         }
         return TypedActionResult.success(itemStack, world.isClient);

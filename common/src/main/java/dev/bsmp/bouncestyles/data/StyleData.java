@@ -1,7 +1,9 @@
 package dev.bsmp.bouncestyles.data;
 
+import dev.architectury.platform.Platform;
 import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleLoader;
+import dev.bsmp.bouncestyles.networking.packets.SyncStyleDataClientbound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
@@ -159,8 +161,8 @@ public class StyleData {
         ((StyleEntity)player).setStyleData(styleData);
     }
 
-    public static StyleData getPlayerData(PlayerEntity player) {
-        return ((StyleEntity)player).getStyleData();
+    public static StyleData getOrCreateStyleData(PlayerEntity player) {
+        return ((StyleEntity)player).getOrCreateStyleData();
     }
 
     private static void convertStyle(NbtCompound tag, Style style, String slot) {
@@ -226,8 +228,12 @@ public class StyleData {
         return list;
     }
 
-    public static void copyFrom(ServerPlayerEntity oldPlayer, ServerPlayerEntity newPlayer, boolean b) {
-        StyleData.setPlayerData(newPlayer, StyleData.getPlayerData(oldPlayer));
+    public static void copyFrom(ServerPlayerEntity player1, ServerPlayerEntity player2, boolean b) {
+        ServerPlayerEntity oldPlayer = Platform.isFabric() ? player2 : player1;
+        ServerPlayerEntity newPlayer = Platform.isFabric() ? player1 : player2;
+
+        StyleData styleData = StyleData.getOrCreateStyleData(oldPlayer);
+        StyleData.setPlayerData(newPlayer, styleData);
     }
 }
 

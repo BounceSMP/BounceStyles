@@ -11,17 +11,11 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(BounceStyles.modId)
-@Mod.EventBusSubscriber(modid = BounceStyles.modId)
 public class BounceStylesForge {
 
     public BounceStylesForge() {
         EventBuses.registerModEventBus(BounceStyles.modId, FMLJavaModLoadingContext.get().getModEventBus());
         BounceStyles.init();
-    }
-
-    @SubscribeEvent
-    public static void startTracking(PlayerEvent.StartTracking event) {
-        SyncStyleDataClientbound.startTracking(event.getTarget(), (ServerPlayerEntity) event.getPlayer());
     }
 
 }

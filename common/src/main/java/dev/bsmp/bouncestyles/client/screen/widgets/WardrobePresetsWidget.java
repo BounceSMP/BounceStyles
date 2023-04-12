@@ -45,7 +45,7 @@ public class WardrobePresetsWidget extends EntryListWidget<WardrobePresetsWidget
                 this.namingPreset = false;
                 String name = this.parentScreen.presetName.getText();
                 if(!name.isBlank()) {
-                    StyleLoader.createPreset(StyleData.getPlayerData(minecraft.player), name);
+                    StyleLoader.createPreset(StyleData.getOrCreateStyleData(minecraft.player), name);
                     refreshEntries();
                 }
                 this.parentScreen.presetName.setText("");

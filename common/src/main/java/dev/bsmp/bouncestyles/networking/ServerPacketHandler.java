@@ -15,7 +15,7 @@ public class ServerPacketHandler {
         ServerPlayerEntity player = (ServerPlayerEntity) ctx.getPlayer();
 
         ctx.queue(() -> {
-            StyleData styleData = StyleData.getPlayerData(player);
+            StyleData styleData = StyleData.getOrCreateStyleData(player);
             Style style = packet.style() != null ? StyleLoader.REGISTRY.get(packet.style().styleId) : null;
             if(style == null || styleData.hasStyleUnlocked(style) || (player.isCreative() && player.hasPermissionLevel(2))) {
                 switch (packet.category()) {
@@ -37,7 +37,7 @@ public class ServerPacketHandler {
         ServerPlayerEntity player = (ServerPlayerEntity) ctx.getPlayer();
 
         ctx.queue(() -> {
-            StyleData styleData = StyleData.getPlayerData(player);
+            StyleData styleData = StyleData.getOrCreateStyleData(player);
             styleData.toggleArmorVisibility();
 
             SyncStyleDataClientbound outPacket = new SyncStyleDataClientbound(player.getId(), styleData);
@@ -50,6 +50,6 @@ public class ServerPacketHandler {
         NetworkManager.PacketContext ctx = contextSupplier.get();
         ServerPlayerEntity player = (ServerPlayerEntity) ctx.getPlayer();
 
-        ctx.queue(() -> new SyncStyleUnlocksClientbound(StyleData.getPlayerData(player)).sendToPlayer(player));
+        ctx.queue(() -> new SyncStyleUnlocksClientbound(StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
     }
 }

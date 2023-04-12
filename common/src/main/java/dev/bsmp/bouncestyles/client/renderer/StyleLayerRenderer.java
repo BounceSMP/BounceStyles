@@ -4,12 +4,7 @@ import dev.bsmp.bouncestyles.StyleLoader;
 import dev.bsmp.bouncestyles.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.data.Style;
 import dev.bsmp.bouncestyles.data.StyleData;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.util.math.*;
 import software.bernie.geckolib3.core.IAnimatableModel;
-import software.bernie.geckolib3.core.builder.Animation;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
@@ -17,7 +12,6 @@ import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 import software.bernie.geckolib3.resource.GeckoLibCache;
-import software.bernie.geckolib3.util.GeckoLibUtil;
 import software.bernie.geckolib3.util.GeoUtils;
 import software.bernie.geckolib3.util.RenderUtils;
 
@@ -61,7 +55,7 @@ public class StyleLayerRenderer extends FeatureRenderer<PlayerEntity, PlayerEnti
 
     @Override
     public void render(MatrixStack poseStack, VertexConsumerProvider buffer, int packedLight, PlayerEntity player, float limbSwing, float limbSwingAmount,  float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
-        StyleData styleData = StyleData.getPlayerData(player);
+        StyleData styleData = StyleData.getOrCreateStyleData(player);
 
         poseStack.translate(0.0D, 1.497F, 0.0D);
         poseStack.scale(-1.005F, -1.0F, 1.005F);

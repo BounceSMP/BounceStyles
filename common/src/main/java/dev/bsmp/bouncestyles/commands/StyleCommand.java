@@ -144,7 +144,7 @@ public class StyleCommand {
     //Functions
     private static int unlockAll(Collection<ServerPlayerEntity> players) {
         for(ServerPlayerEntity player : players) {
-            StyleData styleData = StyleData.getPlayerData(player);
+            StyleData styleData = StyleData.getOrCreateStyleData(player);
             for(Identifier id : StyleLoader.REGISTRY.keySet()) {
                 styleData.unlockStyle(id);
             }
@@ -156,7 +156,7 @@ public class StyleCommand {
     private static int unlock(Collection<ServerPlayerEntity> players, Identifier id) {
         for(ServerPlayerEntity player : players)
             if (id != null && StyleLoader.idExists(id)) {
-                StyleData.getPlayerData(player).unlockStyle(id);
+                StyleData.getOrCreateStyleData(player).unlockStyle(id);
                 player.sendMessage(new LiteralText("Style unlocked").styled(style -> style.withColor(Formatting.GOLD)), false);
             }
         return 1;
@@ -164,7 +164,7 @@ public class StyleCommand {
 
     private static int removeAll(ServerCommandSource source, Collection<ServerPlayerEntity> players) {
         for(ServerPlayerEntity player : players) {
-            StyleData styleData = StyleData.getPlayerData(player);
+            StyleData styleData = StyleData.getOrCreateStyleData(player);
             for(Identifier id : StyleLoader.REGISTRY.keySet()) {
                 styleData.removeStyle(id);
             }
@@ -176,7 +176,7 @@ public class StyleCommand {
     private static int remove(ServerCommandSource source, Collection<ServerPlayerEntity> players, Identifier id) {
         for(ServerPlayerEntity player : players)
             if (id != null && StyleLoader.idExists(id)) {
-                StyleData.getPlayerData(player).removeStyle(id);
+                StyleData.getOrCreateStyleData(player).removeStyle(id);
                 source.sendFeedback(new LiteralText("Removed style " + id + " from player " + player.getEntityName()), true);
             }
         return 1;
@@ -186,7 +186,7 @@ public class StyleCommand {
         if(id == null || StyleLoader.idExists(id)) {
             Style style = id != null ? StyleLoader.getStyle(id) : null;
             if(style == null || style.categories.contains(slot)) {
-                StyleData styleData = StyleData.getPlayerData(player);
+                StyleData styleData = StyleData.getOrCreateStyleData(player);
                 switch (slot) {
                     case Head -> styleData.setHeadStyle(style);
                     case Body -> styleData.setBodyStyle(style);

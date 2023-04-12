@@ -10,7 +10,6 @@ public class BounceStylesFabric implements ModInitializer {
     @Override
     public void onInitialize() {
         BounceStyles.init();
-        EntityTrackingEvents.START_TRACKING.register(SyncStyleDataClientbound::startTracking);
     }
 
 }

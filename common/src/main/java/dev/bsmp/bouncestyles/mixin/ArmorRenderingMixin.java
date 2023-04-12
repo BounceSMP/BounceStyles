@@ -19,7 +19,7 @@ public class ArmorRenderingMixin<T extends LivingEntity> {
         if(!(livingEntity instanceof PlayerEntity))
             return;
 
-        StyleData styleData = StyleData.getPlayerData((PlayerEntity) livingEntity);
+        StyleData styleData = StyleData.getOrCreateStyleData((PlayerEntity) livingEntity);
         if(!styleData.isArmorVisible())
             ci.cancel();
     }

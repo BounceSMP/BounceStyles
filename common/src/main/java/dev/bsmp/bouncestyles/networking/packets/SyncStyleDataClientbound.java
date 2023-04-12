@@ -1,6 +1,5 @@
 package dev.bsmp.bouncestyles.networking.packets;
 
-import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.data.StyleData;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -22,10 +21,6 @@ public record SyncStyleDataClientbound(int entityId, StyleData styleData) implem
 
     public static void startTracking(Entity entity, ServerPlayerEntity player) {
         if(entity instanceof PlayerEntity)
-            new SyncStyleDataClientbound(entity.getId(), StyleData.getPlayerData((PlayerEntity)entity)).sendToPlayer(player);
-    }
-
-    public static void playerJoin(ServerPlayerEntity player) {
-        new SyncStyleDataClientbound(player.getId(), StyleData.getPlayerData(player)).sendToPlayer(player);
+            new SyncStyleDataClientbound(entity.getId(), StyleData.getOrCreateStyleData((PlayerEntity)entity)).sendToPlayer(player);
     }
 }

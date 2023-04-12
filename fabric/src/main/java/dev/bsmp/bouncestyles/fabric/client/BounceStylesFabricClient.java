@@ -21,7 +21,8 @@ public class BounceStylesFabricClient implements ClientModInitializer {
     }
 
     private void registerLayer(EntityType<? extends LivingEntity> entityType, LivingEntityRenderer<?,?> livingEntityRenderer, LivingEntityFeatureRendererRegistrationCallback.RegistrationHelper registrationHelper, EntityRendererFactory.Context context) {
-        registrationHelper.register(BounceStylesClient.STYLE_RENDERER = new StyleLayerRenderer((FeatureRendererContext<PlayerEntity, PlayerEntityModel<PlayerEntity>>) livingEntityRenderer));
+        if(entityType == EntityType.PLAYER)
+            registrationHelper.register(BounceStylesClient.STYLE_RENDERER = new StyleLayerRenderer((FeatureRendererContext<PlayerEntity, PlayerEntityModel<PlayerEntity>>) livingEntityRenderer));
     }
 
 }

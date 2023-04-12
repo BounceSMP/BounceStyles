@@ -5,7 +5,10 @@ import dev.architectury.networking.NetworkChannel;
 import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.networking.packets.*;
 import net.minecraft.entity.Entity;
+import net.minecraft.server.world.EntityTrackingListener;
 import net.minecraft.util.Identifier;
+
+import java.util.Set;
 
 public class BounceStylesNetwork {
     public static final NetworkChannel CHANNEL = NetworkChannel.create(new Identifier(BounceStyles.modId, "network"));
@@ -21,8 +24,10 @@ public class BounceStylesNetwork {
         CHANNEL.register(SyncStyleUnlocksClientbound.class, SyncStyleUnlocksClientbound::encode, SyncStyleUnlocksClientbound::decode, ClientPacketHandler::handleSyncStyleUnlocks);
     }
 
-    @ExpectPlatform
     public static void sendToTrackingPlayers(StylePacket.ClientboundStylePacket packet, Entity entity) {
-        throw new AssertionError();
+        Set<EntityTrackingListener> trackingPlayers = BounceStyles.getPlayersTracking(entity);
+        for(EntityTrackingListener tracker : trackingPlayers) {
+            packet.sendToPlayer(tracker.getPlayer());
+        }
     }
 }

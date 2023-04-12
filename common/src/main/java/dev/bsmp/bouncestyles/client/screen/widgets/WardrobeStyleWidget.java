@@ -52,7 +52,7 @@ public class WardrobeStyleWidget extends ClickableWidget {
         this.category = category;
         this.buttons.clear();
         this.previewRotation = -30f;
-        StyleData styleData = StyleData.getPlayerData(MinecraftClient.getInstance().player);
+        StyleData styleData = StyleData.getOrCreateStyleData(MinecraftClient.getInstance().player);
 
         Window window = MinecraftClient.getInstance().getWindow();
         double guiScale = window.getScaleFactor();
