@@ -4,9 +4,10 @@
   "version": "${version}",
   "name": "BounceStyles",
   "description": "A Custom Outfits mod made for BounceSMP",
-  "authors": [
-    "RyanV"
-  ],
+  "authors": ["RyanV"],
+  "contact": {
+    "issues": "https://github.com/BounceSMP/BounceStyles/issues"
+  },
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
@@ -25,6 +26,6 @@
     "fabric": "*",
     "minecraft": "1.18.2",
     "geckolib3": ">=3.0.64",
-    "architectury": ">=4.9.83"
+    "architectury": ">=4.11.91"
   }
 }

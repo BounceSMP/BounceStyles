@@ -228,9 +228,10 @@ public class StyleData {
         return list;
     }
 
-    public static void copyFrom(ServerPlayerEntity player1, ServerPlayerEntity player2, boolean b) {
-        ServerPlayerEntity oldPlayer = Platform.isFabric() ? player2 : player1;
-        ServerPlayerEntity newPlayer = Platform.isFabric() ? player1 : player2;
+    public static void copyFrom(ServerPlayerEntity oldPlayer, ServerPlayerEntity newPlayer, boolean b) {
+        //Pre-Architectury 4.11.91 Fix
+//        ServerPlayerEntity oldPlayer = Platform.isFabric() ? player2 : player1;
+//        ServerPlayerEntity newPlayer = Platform.isFabric() ? player1 : player2;
 
         StyleData styleData = StyleData.getOrCreateStyleData(oldPlayer);
         StyleData.setPlayerData(newPlayer, styleData);
