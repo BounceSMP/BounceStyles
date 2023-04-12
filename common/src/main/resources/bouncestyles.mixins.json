@@ -1,0 +1,21 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.bsmp.bouncestyles.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "ChunkStorageAccessor",
+    "EntityMixin",
+    "EntityTrackerAccessor",
+    "PlayerMixin"
+  ],
+  "client": [
+    "ArmorRenderingMixin",
+    "InventoryScreenMixin",
+    "PlayerModelAccessor",
+    "PlayerRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

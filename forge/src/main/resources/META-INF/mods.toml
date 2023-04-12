@@ -1,0 +1,48 @@
+modLoader = "javafml"
+loaderVersion = "[40,)"
+license = "MIT"
+issueTrackerURL="https://github.com/BounceSMP/BounceStyles/issues" #optional
+
+[[mods]]
+modId = "bounce_styles"
+version = "${version}"
+displayName = "BounceStyles"
+# This URL will be queried by the Forge update checker in order to find the latest version of your mod.
+# If an update is found, you'll see a little blinking "emerald" symbol on your Mods button!
+# updateJSONURL="https://changeme.dev/updates.json" #optional
+# This is your mod's "homepage" and will be displayed on the mod's information screen in the Mods panel.
+# displayURL="https://changeme.dev/" #optional
+# This will be displayed as your mod's logo in the Mods panel.
+# logoFile="icon.png" #optional
+# Some more fluff displayed in the Mods panel. Feel free to issue your special thanks here!
+# credits="Thanks to Mojang for making this great game" #optional
+authors="RyanV"
+description = '''A Custom Outfits mod made for BounceSMP'''
+
+[[dependencies.bounce_styles]]
+modId = "forge"
+mandatory = true
+versionRange = "[40,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.bounce_styles]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.18.2,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.bounce_styles]]
+modId = "geckolib3"
+mandatory = true
+versionRange = "[3.0.64,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.bounce_styles]]
+modId = "architectury"
+mandatory = true
+versionRange = "[4.11.91,)"
+ordering = "AFTER"
+side = "BOTH"
