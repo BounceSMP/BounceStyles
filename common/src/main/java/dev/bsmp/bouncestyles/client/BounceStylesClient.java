@@ -14,7 +14,6 @@ public class BounceStylesClient {
     public static StyleLayerRenderer STYLE_RENDERER;
 
     public static void init() {
-        BounceStylesNetwork.initClientbound();
         KeyMappingRegistry.register(KEY_WARDROBE);
         ClientTickEvent.CLIENT_POST.register(instance -> { while (KEY_WARDROBE.wasPressed()) new OpenStyleScreenServerbound().sendToServer(); });
     }

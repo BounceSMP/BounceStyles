@@ -42,6 +42,7 @@ public class BounceStyles {
     public static void init() {
         GeckoLib.initialize();
         BounceStylesNetwork.initServerbound();
+        BounceStylesNetwork.initClientbound();
 
         Registrar<Item> items = REGISTRIES.get().get(Registry.ITEM_KEY);
         MAGAZINE_ITEM = items.register(new Identifier(modId, "magazine"), StyleMagazineItem::new);

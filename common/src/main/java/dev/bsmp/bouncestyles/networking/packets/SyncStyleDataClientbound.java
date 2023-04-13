@@ -18,9 +18,4 @@ public record SyncStyleDataClientbound(int entityId, StyleData styleData) implem
                 StyleData.fromNBT(buf.readNbt())
         );
     }
-
-    public static void startTracking(Entity entity, ServerPlayerEntity player) {
-        if(entity instanceof PlayerEntity)
-            new SyncStyleDataClientbound(entity.getId(), StyleData.getOrCreateStyleData((PlayerEntity)entity)).sendToPlayer(player);
-    }
 }
