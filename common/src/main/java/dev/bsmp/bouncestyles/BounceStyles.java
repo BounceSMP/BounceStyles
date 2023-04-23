@@ -26,6 +26,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.chunk.ChunkManager;
 import software.bernie.geckolib3.GeckoLib;
+import software.bernie.geckolib3.core.molang.LazyVariable;
+import software.bernie.geckolib3.resource.GeckoLibCache;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -41,6 +43,7 @@ public class BounceStyles {
 
     public static void init() {
         GeckoLib.initialize();
+
         BounceStylesNetwork.initServerbound();
         BounceStylesNetwork.initClientbound();
 

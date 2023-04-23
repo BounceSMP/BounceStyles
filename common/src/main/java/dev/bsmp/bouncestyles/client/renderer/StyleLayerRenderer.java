@@ -1,21 +1,12 @@
 package dev.bsmp.bouncestyles.client.renderer;
 
+import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleLoader;
 import dev.bsmp.bouncestyles.client.BounceStylesClient;
+import dev.bsmp.bouncestyles.data.MissingStyle;
 import dev.bsmp.bouncestyles.data.Style;
 import dev.bsmp.bouncestyles.data.StyleData;
-import software.bernie.geckolib3.core.IAnimatableModel;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.geo.render.built.GeoBone;
-import software.bernie.geckolib3.geo.render.built.GeoModel;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
-import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
-import software.bernie.geckolib3.resource.GeckoLibCache;
-import software.bernie.geckolib3.util.GeoUtils;
-import software.bernie.geckolib3.util.RenderUtils;
-
-import java.util.List;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -25,10 +16,24 @@ import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
+import software.bernie.geckolib3.core.IAnimatableModel;
+import software.bernie.geckolib3.core.controller.AnimationController;
+import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
+import software.bernie.geckolib3.geo.exception.GeckoLibException;
+import software.bernie.geckolib3.geo.render.built.GeoBone;
+import software.bernie.geckolib3.geo.render.built.GeoModel;
+import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
+import software.bernie.geckolib3.resource.GeckoLibCache;
+import software.bernie.geckolib3.util.GeoUtils;
+import software.bernie.geckolib3.util.RenderUtils;
+
+import java.util.List;
 
 public class StyleLayerRenderer extends FeatureRenderer<PlayerEntity, PlayerEntityModel<PlayerEntity>> implements IGeoRenderer<Style> {
     protected VertexConsumerProvider rtb = null;
     private final StyleModel modelProvider;
+    private boolean missingModel = false;
 
     public static String headBone = "armorHead";
     public static String bodyBone = "armorBody";
@@ -76,18 +81,13 @@ public class StyleLayerRenderer extends FeatureRenderer<PlayerEntity, PlayerEnti
     }
 
     public void renderStyle(MatrixStack poseStack, Style style, PlayerEntity player, StyleLoader.Category category, VertexConsumerProvider buffer, float limbSwing, float limbSwingAmount, float partialTick, int packedLight) {
-        if(GeckoLibCache.getInstance().getGeoModels().containsKey(style.modelID)) {
-            GeoModel model = this.modelProvider.getModel(style.modelID);
-            this.modelProvider.setCustomAnimations(style, player.getId(), new AnimationEvent<>(style, limbSwing, limbSwingAmount, partialTick, false, List.of(player)));
-            fit(poseStack, category, false);
-            RenderLayer renderType = getRenderType(style, partialTick, poseStack, buffer, null, packedLight, getTextureLocation_geckolib(style));
-            render(model, style, partialTick, renderType, poseStack, buffer, null, packedLight, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
-        }
+        GeoModel model = getModel(style.modelID, style, player, limbSwing, limbSwingAmount, partialTick, poseStack, category, false);
+        RenderLayer renderType = getRenderType(style, partialTick, poseStack, buffer, null, packedLight, getTextureLocation_geckolib(style));
+        render(model, style, partialTick, renderType, poseStack, buffer, null, packedLight, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
     }
 
     public void renderStyleForGUI(MatrixStack poseStack, Style style, StyleLoader.Category category, VertexConsumerProvider buffer, float partialTick, int packedLight) {
-        GeoModel model = this.modelProvider.getModel(style.modelID);
-        fit(poseStack, category, true);
+        GeoModel model = getModel(style.modelID, style, MinecraftClient.getInstance().player, 0f, 0f, partialTick, poseStack, category, true);
         RenderLayer renderType = getRenderType(style, partialTick, poseStack, buffer, null, packedLight, getTextureLocation_geckolib(style));
         render(model, style, partialTick, renderType, poseStack, buffer, null, packedLight, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
     }
@@ -169,7 +169,13 @@ public class StyleLayerRenderer extends FeatureRenderer<PlayerEntity, PlayerEnti
     }
 
     private void setBoneVisibility(String bone, boolean isVisible) {
-        this.modelProvider.getBone(bone).setHidden(!isVisible);
+        try {
+            this.modelProvider.getBone(bone).setHidden(!isVisible);
+        }
+        catch (RuntimeException e) {
+            //ToDo custom logger
+            System.out.println("Could not find bone ["+bone+"]");
+        }
     }
 
     @Override
@@ -189,6 +195,28 @@ public class StyleLayerRenderer extends FeatureRenderer<PlayerEntity, PlayerEnti
 
     @Override
     public Identifier getTextureLocation_geckolib(Style style) {
-        return this.modelProvider.getTextureLocation(style);
+        Identifier textureID = this.modelProvider.getTextureLocation(style);
+
+        if(missingModel || !MinecraftClient.getInstance().getResourceManager().containsResource(textureID))
+            textureID = MissingStyle.INSTANCE.textureID;
+
+        return textureID;
+    }
+
+    private GeoModel getModel(Identifier modelID, Style style, PlayerEntity player, float limbSwing, float limbSwingAmount, float partialTick, MatrixStack poseStack, StyleLoader.Category category, boolean isGui) {
+        missingModel = false;
+        GeoModel model;
+        try {
+            model = this.modelProvider.getModel(modelID);
+            this.modelProvider.setCustomAnimations(style, player.getId(), new AnimationEvent<>(style, limbSwing, limbSwingAmount, partialTick, false, List.of(player)));
+            fit(poseStack, category, isGui);
+        }
+        catch (GeckoLibException e) {
+            missingModel = true;
+            model = this.modelProvider.getModel(MissingStyle.INSTANCE.modelID);
+            this.modelProvider.setCustomAnimations(MissingStyle.INSTANCE, 0, new AnimationEvent<>(style, limbSwing, limbSwingAmount, partialTick, false, List.of()));
+        }
+        fit(poseStack, category, isGui);
+        return model;
     }
 }
