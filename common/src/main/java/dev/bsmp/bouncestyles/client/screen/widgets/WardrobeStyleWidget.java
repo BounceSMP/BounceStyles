@@ -4,7 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleLoader;
 import dev.bsmp.bouncestyles.client.BounceStylesClient;
-import dev.bsmp.bouncestyles.client.screen.WardrobeScreen;
 import dev.bsmp.bouncestyles.data.Style;
 import dev.bsmp.bouncestyles.data.StyleData;
 import dev.bsmp.bouncestyles.networking.packets.EquipStyleServerbound;
@@ -25,7 +24,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3f;
 
-public class WardrobeStyleWidget extends ClickableWidget {
+public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidget {
     private static final Identifier TEX_WIDGETS = new Identifier(BounceStyles.modId, "textures/gui/widgets.png");
 
     List<StyleButton> buttons = new ArrayList<>();
@@ -173,7 +172,7 @@ public class WardrobeStyleWidget extends ClickableWidget {
         }
     }
 
-    public static class StyleButton extends ButtonWidget {
+    public class StyleButton extends ButtonWidget {
         private WardrobeStyleWidget parentWidget;
         private Style style;
 
@@ -262,7 +261,7 @@ public class WardrobeStyleWidget extends ClickableWidget {
 
         @Override
         public void renderTooltip(MatrixStack poseStack, int mouseX, int mouseY) {
-            WardrobeScreen.drawTooltip(getMessage(), mouseX, mouseY, MinecraftClient.getInstance().textRenderer, poseStack, parentWidget.x + parentWidget.width);
+            drawTooltip(getMessage(), mouseX, mouseY, MinecraftClient.getInstance().textRenderer, poseStack, parentWidget.x + parentWidget.width);
         }
 
         private int getYOffset() {

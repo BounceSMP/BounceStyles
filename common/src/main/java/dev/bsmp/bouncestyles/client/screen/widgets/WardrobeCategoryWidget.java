@@ -15,7 +15,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
 
-public class WardrobeCategoryWidget extends ClickableWidget {
+public class WardrobeCategoryWidget extends ClickableWidget implements WardrobeWidget {
     final WardrobeScreen parentScreen;
     List<CategoryButton> buttonList = new ArrayList<>();
     CategoryButton selectedButton = null;
@@ -58,7 +58,7 @@ public class WardrobeCategoryWidget extends ClickableWidget {
         return false;
     }
 
-    public static class CategoryButton extends ButtonWidget {
+    public class CategoryButton extends ButtonWidget {
         private static final Identifier TEX_CATEGORY_BG = new Identifier(BounceStyles.modId, "textures/icon/category_bg.png");
         WardrobeCategoryWidget parentWidget;
         StyleLoader.Category category;
@@ -95,7 +95,7 @@ public class WardrobeCategoryWidget extends ClickableWidget {
 
         @Override
         public void renderTooltip(MatrixStack poseStack, int mouseX, int mouseY) {
-            WardrobeScreen.drawTooltip(getMessage(), mouseX, mouseY, MinecraftClient.getInstance().textRenderer, poseStack, 0);
+            drawTooltip(getMessage(), mouseX, mouseY, MinecraftClient.getInstance().textRenderer, poseStack, 0);
         }
     }
 

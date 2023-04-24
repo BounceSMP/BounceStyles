@@ -14,7 +14,7 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3f;
 
-public class WardrobePreviewWidget extends ClickableWidget {
+public class WardrobePreviewWidget extends ClickableWidget implements WardrobeWidget {
 
     private PlayerEntity previewPlayer;
     float previewRotation;

@@ -1,7 +1,6 @@
 package dev.bsmp.bouncestyles.client.screen.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.bsmp.bouncestyles.client.screen.WardrobeScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
 import net.minecraft.client.render.GameRenderer;
@@ -9,7 +8,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-public class ScaledImageButton extends TexturedButtonWidget {
+public class ScaledImageButton extends TexturedButtonWidget implements WardrobeWidget {
     Identifier resourceLocation;
     int uWidth;
     int vHeight;
@@ -44,7 +43,7 @@ public class ScaledImageButton extends TexturedButtonWidget {
     @Override
     public void renderTooltip(MatrixStack poseStack, int mouseX, int mouseY) {
         if(this.getMessage() != null)
-            WardrobeScreen.drawTooltip(getMessage(), mouseX, mouseY, MinecraftClient.getInstance().textRenderer, poseStack, MinecraftClient.getInstance().getWindow().getScaledWidth());
+            drawTooltip(getMessage(), mouseX, mouseY, MinecraftClient.getInstance().textRenderer, poseStack, MinecraftClient.getInstance().getWindow().getScaledWidth());
     }
 
 }

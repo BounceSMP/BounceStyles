@@ -1,7 +1,7 @@
 package dev.bsmp.bouncestyles.mixin;
 
 import dev.bsmp.bouncestyles.BounceStyles;
-import dev.bsmp.bouncestyles.client.screen.WardrobeScreen;
+import dev.bsmp.bouncestyles.client.screen.widgets.WardrobeWidget;
 import dev.bsmp.bouncestyles.networking.packets.OpenStyleScreenServerbound;
 import net.minecraft.client.gui.screen.ingame.AbstractInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
@@ -38,7 +38,7 @@ public abstract class InventoryScreenMixin extends AbstractInventoryScreen<Playe
     }
 
     private void wardrobeTooltip(ButtonWidget button, MatrixStack poseStack, int mouseX, int mouseY) {
-        WardrobeScreen.drawTooltip(button.getMessage(), mouseX, mouseY, this.textRenderer, poseStack, 0);
+        WardrobeWidget.drawTooltipStatic(button.getMessage(), mouseX, mouseY, this.textRenderer, poseStack, 0);
     }
 
 }

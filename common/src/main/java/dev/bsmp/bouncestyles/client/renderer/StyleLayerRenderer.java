@@ -1,6 +1,5 @@
 package dev.bsmp.bouncestyles.client.renderer;
 
-import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleLoader;
 import dev.bsmp.bouncestyles.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.data.MissingStyle;
@@ -24,7 +23,6 @@ import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
-import software.bernie.geckolib3.resource.GeckoLibCache;
 import software.bernie.geckolib3.util.GeoUtils;
 import software.bernie.geckolib3.util.RenderUtils;
 

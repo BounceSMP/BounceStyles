@@ -11,6 +11,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.EntryListWidget;
+import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.sound.PositionedSoundInstance;
@@ -19,11 +20,12 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
 
-public class WardrobePresetsWidget extends EntryListWidget<WardrobePresetsWidget.PresetEntry> {
+public class WardrobePresetsWidget extends EntryListWidget<WardrobePresetsWidget.PresetEntry> implements WardrobeWidget {
     private static final Identifier TEX_WIDGETS = new Identifier(BounceStyles.modId, "textures/gui/widgets.png");
 
-    private WardrobeScreen parentScreen;
-    private ScaledImageButton createButton;
+    private final WardrobeScreen parentScreen;
+    private final ScaledImageButton createPresetButton;
+    public TextFieldWidget presetNameEntry;
     boolean namingPreset;
     public boolean needsRefreshing;
 
@@ -33,23 +35,27 @@ public class WardrobePresetsWidget extends EntryListWidget<WardrobePresetsWidget
         this.right = x + width;
 
         this.parentScreen = parentScreen;
-        this.createButton = new ScaledImageButton(null, x + 5, y + height - buttonSize - 5, buttonSize, buttonSize, 74, 0, 24, 24, TEX_WIDGETS, button -> {
+
+        this.presetNameEntry = new TextFieldWidget(client.textRenderer, x + 10 + buttonSize, y + height - buttonSize - 5, width - 20 - buttonSize, buttonSize, new LiteralText("Preset Name"));
+        this.presetNameEntry.visible = false;
+        this.presetNameEntry.active = false;
+
+        this.createPresetButton = new ScaledImageButton(null, x + 5, y + height - buttonSize - 5, buttonSize, buttonSize, 74, 0, 24, 24, TEX_WIDGETS, button -> {
             if(!this.namingPreset) {
-                this.parentScreen.presetName.visible = true;
-                this.parentScreen.presetName.active = true;
-                this.namingPreset = true;
+                this.presetNameEntry.visible = true;
+                this.presetNameEntry.active = true;
             }
             else {
-                this.parentScreen.presetName.visible = false;
-                this.parentScreen.presetName.active = false;
-                this.namingPreset = false;
-                String name = this.parentScreen.presetName.getText();
+                this.presetNameEntry.visible = false;
+                this.presetNameEntry.active = false;
+                String name = this.presetNameEntry.getText();
                 if(!name.isBlank()) {
                     StyleLoader.createPreset(StyleData.getOrCreateStyleData(minecraft.player), name);
                     refreshEntries();
                 }
-                this.parentScreen.presetName.setText("");
+                this.presetNameEntry.setText("");
             }
+            this.namingPreset = !this.namingPreset;
         });
 
         setRenderBackground(false);
@@ -69,26 +75,41 @@ public class WardrobePresetsWidget extends EntryListWidget<WardrobePresetsWidget
     public void render(MatrixStack poseStack, int mouseX, int mouseY, float partialTick) {
         super.render(poseStack, mouseX, mouseY, partialTick);
 
-        this.createButton.render(poseStack, mouseX, mouseY, partialTick);
-        if(this.createButton.isMouseOver(mouseX, mouseY)) {
+        this.presetNameEntry.render(poseStack, mouseX, mouseY, partialTick);
+        this.createPresetButton.render(poseStack, mouseX, mouseY, partialTick);
+        if(this.createPresetButton.isMouseOver(mouseX, mouseY)) {
             String s = "Create Preset";
             if (this.namingPreset) {
-                if (this.parentScreen.presetName.getText().isBlank())
+                if (this.presetNameEntry.getText().isBlank())
                     s = "Cancel";
                 else
                     s = "Save";
             }
 
-            WardrobeScreen.drawTooltip(new LiteralText(s), mouseX, mouseY, MinecraftClient.getInstance().textRenderer, poseStack, 0);
+            drawTooltip(new LiteralText(s), mouseX, mouseY, MinecraftClient.getInstance().textRenderer, poseStack, 0);
         }
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if(isMouseOver(mouseX, mouseY) && !this.createButton.mouseClicked(mouseX, mouseY, button)) {
+        if(isMouseOver(mouseX, mouseY) && !this.createPresetButton.mouseClicked(mouseX, mouseY, button) && !this.presetNameEntry.mouseClicked(mouseX, mouseY, button)) {
             return super.mouseClicked(mouseX, mouseY, button);
         }
         return true;
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if(this.presetNameEntry.keyPressed(keyCode, scanCode, modifiers))
+            return true;
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean charTyped(char chr, int modifiers) {
+        if(this.presetNameEntry.charTyped(chr, modifiers))
+            return true;
+        return super.charTyped(chr, modifiers);
     }
 
     @Override

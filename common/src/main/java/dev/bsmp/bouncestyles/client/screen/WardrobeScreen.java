@@ -1,43 +1,34 @@
 package dev.bsmp.bouncestyles.client.screen;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleLoader;
 import dev.bsmp.bouncestyles.client.screen.widgets.*;
 import dev.bsmp.bouncestyles.data.StylePreset;
 import dev.bsmp.bouncestyles.networking.packets.EquipStyleServerbound;
+import dev.bsmp.bouncestyles.networking.packets.ToggleArmorVisibilityServerbound;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.TexturedButtonWidget;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.LiteralText;
+import net.minecraft.util.Identifier;
+
 import java.util.Comparator;
 import java.util.List;
 
-import dev.bsmp.bouncestyles.networking.packets.ToggleArmorVisibilityServerbound;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.TexturedButtonWidget;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import org.lwjgl.opengl.GL11;
-
 public class WardrobeScreen extends Screen {
     private static final Identifier TEX_WIDGETS = new Identifier(BounceStyles.modId, "textures/gui/widgets.png");
-
-    WardrobeCategoryWidget categoryWidget;
-    WardrobeStyleWidget styleWidget;
     WardrobePreviewWidget previewWidget;
+    WardrobeCategoryWidget categoryWidget;
+
+    WardrobeStyleWidget styleWidget;
     WardrobePresetsWidget presetsWidget;
 
+    WardrobeWidget activeWidget;
     TexturedButtonWidget clearButton;
-    TexturedButtonWidget toggleArmorButton;
-    public TextFieldWidget presetName;
+    TexturedButtonWidget armorVisibilityButton;
 
     List<Identifier> unlockedStyles;
     StyleLoader.Category selectedCategory;
-
     int previewRight;
     int topBarHeight;
 
@@ -54,21 +45,27 @@ public class WardrobeScreen extends Screen {
 
         this.previewWidget = addDrawableChild(new WardrobePreviewWidget(0, 0, previewRight, height, client.player));
         this.categoryWidget = addDrawableChild(new WardrobeCategoryWidget(this, previewRight, 1, width - previewRight - 48, topBarHeight));
-        this.styleWidget = addDrawableChild(new WardrobeStyleWidget(previewRight, topBarHeight + 2, width - previewRight, height - topBarHeight));
+
+        this.styleWidget = new WardrobeStyleWidget(previewRight, topBarHeight + 2, width - previewRight, height - topBarHeight);
+        this.presetsWidget = new WardrobePresetsWidget(client, this, previewRight, topBarHeight, width - previewRight, height - topBarHeight, 30, topBarHeight);
 
         int btnSize = topBarHeight;
         this.clearButton = addDrawableChild(new ScaledImageButton(new LiteralText("Clear Equipped"), width - topBarHeight, 1, btnSize, btnSize, 98, 0, 24, 24, TEX_WIDGETS, button -> clear()));
         this.toggleArmorButton = addDrawableChild(new ScaledImageButton(new LiteralText("Toggle Armor Visibility"),width - (topBarHeight * 2), 1, btnSize, btnSize, 122, 0, 24, 24, TEX_WIDGETS, button -> toggleArmor()));
 
-        this.presetName = addDrawableChild(new TextFieldWidget(client.textRenderer, previewRight + topBarHeight + 10, height - topBarHeight - 5, (width - previewRight) / 2, topBarHeight, new LiteralText("Preset Name")));
-        this.presetName.visible = false;
-        this.presetName.active = false;
-        this.setSelectedCategory(StyleLoader.Category.Head);
+        if(this.activeWidget instanceof WardrobeStyleWidget)
+            this.activeWidget = this.styleWidget;
+        else if(this.activeWidget instanceof WardrobePresetsWidget)
+            this.activeWidget = this.presetsWidget;
+
+        if(this.selectedCategory == null)
+            this.setSelectedCategory(StyleLoader.Category.Head);
     }
 
     @Override
     public void render(MatrixStack poseStack, int mouseX, int mouseY, float partialTick) {
         renderBackground(poseStack);
+        this.activeWidget.render(poseStack, mouseX, mouseY, partialTick);
         super.render(poseStack, mouseX, mouseY, partialTick);
     }
 
@@ -101,46 +98,49 @@ public class WardrobeScreen extends Screen {
     }
 
     @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        this.activeWidget.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+        this.activeWidget.mouseScrolled(mouseX, mouseY, amount);
+        return super.mouseScrolled(mouseX, mouseY, amount);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        this.activeWidget.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean charTyped(char chr, int modifiers) {
+        this.activeWidget.charTyped(chr, modifiers);
+        return super.charTyped(chr, modifiers);
+    }
+
+    @Override
     public void tick() {
         if(this.presetsWidget != null && this.presetsWidget.isNarratable() && this.presetsWidget.needsRefreshing)
             this.presetsWidget.refreshEntries();
     }
 
-    private void clear() {
-        new EquipStyleServerbound(StyleLoader.Category.Head, null).sendToServer();
-        new EquipStyleServerbound(StyleLoader.Category.Body, null).sendToServer();
-        new EquipStyleServerbound(StyleLoader.Category.Legs, null).sendToServer();
-        new EquipStyleServerbound(StyleLoader.Category.Feet, null).sendToServer();
-//        this.styleWidget.selectedButton = null;
-    }
-
-    private void toggleArmor() {
-        new ToggleArmorVisibilityServerbound().sendToServer();
-    }
-
     public void setSelectedCategory(StyleLoader.Category category) {
         this.selectedCategory = category;
-        if (category == StyleLoader.Category.Preset) {
-            this.styleWidget.active = false;
-            this.styleWidget.visible = false;
-            this.presetsWidget = addDrawableChild(new WardrobePresetsWidget(client, this, previewRight, topBarHeight, width - previewRight, height - topBarHeight, 30, topBarHeight));
-        }
-        else {
-            remove(this.presetsWidget);
-            this.presetsWidget = null;
-            this.presetName.visible = false;
-            this.presetName.active = false;
-            this.presetName.setText("");
 
-            this.styleWidget.active = true;
-            this.styleWidget.visible = true;
+        if (category == StyleLoader.Category.Preset)
+            this.activeWidget = this.presetsWidget;
+        else {
+            this.activeWidget = this.styleWidget;
             this.styleWidget.updateButtons(
                     category, StyleLoader.REGISTRY.values().stream()
-                    .filter(style -> style.categories.contains(category)
-                                  && (this.unlockedStyles.contains(style.styleId) || (client.player.isCreative() && client.player.hasPermissionLevel(2)))
-                    )
-                    .sorted(Comparator.comparing(o -> o.styleId.toString()))
-                    .toList()
+                            .filter(style -> style.categories.contains(category)
+                                    && (this.unlockedStyles.contains(style.styleId) || (client.player.isCreative() && client.player.hasPermissionLevel(2)))
+                            )
+                            .sorted(Comparator.comparing(o -> o.styleId.toString()))
+                            .toList()
             );
         }
     }
@@ -152,24 +152,14 @@ public class WardrobeScreen extends Screen {
                 .toList();
     }
 
-    public static void drawTooltip(Text text, int x, int y, TextRenderer font, MatrixStack poseStack, int right) {
-        if(right <= 0) right = MinecraftClient.getInstance().getWindow().getScaledWidth();
-        int textWidth = font.getWidth(text) + 3;
-        int textX = x + 4 + textWidth > right ? x + (right - (x + textWidth)) - 2 : x + 2;
+    private void clearEquipped() {
+        new EquipStyleServerbound(StyleLoader.Category.Head, null).sendToServer();
+        new EquipStyleServerbound(StyleLoader.Category.Body, null).sendToServer();
+        new EquipStyleServerbound(StyleLoader.Category.Legs, null).sendToServer();
+        new EquipStyleServerbound(StyleLoader.Category.Feet, null).sendToServer();
+    }
 
-        poseStack.push();
-        GlStateManager._enableDepthTest();
-        poseStack.translate(0, 0, 100);
-
-        fill(poseStack, textX, y - 11, x + textWidth + 3, y + 1, 0xFF000000);
-
-        fill(poseStack, textX, y - 12, x + textWidth + 3, y - 11, 0xFF00A8A8);
-        fill(poseStack, textX, y + 1, x + textWidth + 3, y + 2, 0xFF00A8A8);
-
-        fill(poseStack, textX, y - 12, textX + 1, y + 2, 0xFF00A8A8);
-        fill(poseStack, textX + textWidth + 1, y - 12, textX + textWidth + 2, y + 2, 0xFF00A8A8);
-
-        drawTextWithShadow(poseStack, font, text, textX + 3, y - 9, 0xFFFFFF);
-        poseStack.pop();
+    private void toggleArmor() {
+        new ToggleArmorVisibilityServerbound().sendToServer();
     }
 }
