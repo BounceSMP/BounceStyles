@@ -25,7 +25,7 @@
     "fabricloader": ">=0.14.9",
     "fabric": "*",
     "minecraft": "1.18.2",
-    "geckolib3": ">=3.0.64",
+    "geckolib3": ">=3.0.77",
     "architectury": ">=4.11.91"
   }
 }
