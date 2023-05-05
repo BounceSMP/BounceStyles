@@ -50,8 +50,8 @@ public class WardrobeScreen extends Screen {
         this.presetsWidget = new WardrobePresetsWidget(client, this, previewRight, topBarHeight, width - previewRight, height - topBarHeight, 30, topBarHeight);
 
         int btnSize = topBarHeight;
-        this.clearButton = addDrawableChild(new ScaledImageButton(new LiteralText("Clear Equipped"), width - topBarHeight, 1, btnSize, btnSize, 98, 0, 24, 24, TEX_WIDGETS, button -> clear()));
-        this.toggleArmorButton = addDrawableChild(new ScaledImageButton(new LiteralText("Toggle Armor Visibility"),width - (topBarHeight * 2), 1, btnSize, btnSize, 122, 0, 24, 24, TEX_WIDGETS, button -> toggleArmor()));
+        this.clearButton = addDrawableChild(new ScaledImageButton(new LiteralText("Clear Equipped"), width - topBarHeight, 1, btnSize, btnSize, 98, 0, 24, 24, TEX_WIDGETS, button -> clearEquipped()));
+        this.armorVisibilityButton = addDrawableChild(new ScaledImageButton(new LiteralText("Toggle Armor Visibility"),width - (topBarHeight * 2), 1, btnSize, btnSize, 122, 0, 24, 24, TEX_WIDGETS, button -> toggleArmor()));
 
         if(this.activeWidget instanceof WardrobeStyleWidget)
             this.activeWidget = this.styleWidget;
