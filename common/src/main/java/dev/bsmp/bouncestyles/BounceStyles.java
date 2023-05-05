@@ -26,8 +26,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.chunk.ChunkManager;
 import software.bernie.geckolib3.GeckoLib;
-import software.bernie.geckolib3.core.molang.LazyVariable;
-import software.bernie.geckolib3.resource.GeckoLibCache;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -56,6 +54,7 @@ public class BounceStyles {
         PlayerEvent.PLAYER_JOIN.register(BounceStyles::playerJoin);
         PlayerEvent.PLAYER_CLONE.register(StyleData::copyFrom);
         PlayerEvent.PLAYER_RESPAWN.register((player, conqueredEnd) -> new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
+        PlayerEvent.CHANGE_DIMENSION.register((player, oldLevel, newLevel) -> new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
 
         try {
             StyleLoader.init();
