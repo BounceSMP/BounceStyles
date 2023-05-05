@@ -1,9 +1,10 @@
 package dev.bsmp.bouncestyles.data;
 
 import dev.bsmp.bouncestyles.StyleLoader;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.AnimationState;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
@@ -16,8 +17,6 @@ import software.bernie.geckolib3.util.GeckoLibUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Identifier;
 
 public class Style implements IAnimatable {
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
@@ -55,25 +54,25 @@ public class Style implements IAnimatable {
 
         if(animationMap != null && !animationMap.isEmpty()) {
             String anim;
-            if(player.isFallFlying() && (anim = animationMap.get("flying")) != null)
-                return applyAnimation(controller, anim);
-
-            if(!player.isOnGround() && (anim = animationMap.get("in_air")) != null)
-                return applyAnimation(controller, anim);
-
-            else if(player.isSneaking() && (anim = animationMap.get("sneaking")) != null)
+            if(player.isSleeping() && (anim = animationMap.get("sleeping")) != null)
                 return applyAnimation(controller, anim);
 
             else if (player.isSwimming() && (anim = animationMap.get("swimming")) != null)
+                return applyAnimation(controller, anim);
+
+            else if(player.isFallFlying() && (anim = animationMap.get("flying")) != null)
+                return applyAnimation(controller, anim);
+
+            else if(!player.isOnGround() && (anim = animationMap.get("in_air")) != null)
+                return applyAnimation(controller, anim);
+
+            else if(player.isSneaking() && (anim = animationMap.get("sneaking")) != null)
                 return applyAnimation(controller, anim);
 
             else if(player.isSprinting() && (anim = animationMap.get("sprinting")) != null)
                 return applyAnimation(controller, anim);
 
             else if(isEntityMoving(player) && (anim = animationMap.get("walking")) != null)
-                return applyAnimation(controller, anim);
-
-            else if(player.isSleeping() && (anim = animationMap.get("sleeping")) != null)
                 return applyAnimation(controller, anim);
 
             else if((anim = animationMap.get("idle")) != null)
