@@ -207,7 +207,6 @@ public class StyleLayerRenderer extends FeatureRenderer<PlayerEntity, PlayerEnti
         try {
             model = this.modelProvider.getModel(modelID);
             this.modelProvider.setCustomAnimations(style, player.getId(), new AnimationEvent<>(style, limbSwing, limbSwingAmount, partialTick, false, List.of(player)));
-            fit(poseStack, category, isGui);
         }
         catch (GeckoLibException e) {
             missingModel = true;
