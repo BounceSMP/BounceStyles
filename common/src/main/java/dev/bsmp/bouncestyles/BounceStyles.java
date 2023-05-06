@@ -66,12 +66,9 @@ public class BounceStyles {
     }
 
     static void playerJoin(ServerPlayerEntity player) {
-        new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player);
-        for (EntityTrackingListener tracker : getPlayersTracking(player)) {
-            if(player == tracker.getPlayer())
-                continue;
-            new SyncStyleDataClientbound(tracker.getPlayer().getId(), StyleData.getOrCreateStyleData(tracker.getPlayer())).sendToPlayer(player);
-        }
+        SyncStyleDataClientbound packet = new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player));
+        packet.sendToPlayer(player);
+        packet.sendToTrackingPlayers(player);
     }
 
     public static void startTrackingPlayer(ServerPlayerEntity tracker, ServerPlayerEntity tracked) {

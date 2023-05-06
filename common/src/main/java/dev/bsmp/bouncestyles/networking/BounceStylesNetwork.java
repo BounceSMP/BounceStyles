@@ -1,6 +1,5 @@
 package dev.bsmp.bouncestyles.networking;
 
-import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.architectury.networking.NetworkChannel;
 import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.networking.packets.*;
@@ -20,8 +19,8 @@ public class BounceStylesNetwork {
     }
 
     public static void initClientbound() {
-        CHANNEL.register(SyncStyleDataClientbound.class, SyncStyleDataClientbound::encode, SyncStyleDataClientbound::decode, ClientPacketHandler::handleSyncStyleData);
-        CHANNEL.register(SyncStyleUnlocksClientbound.class, SyncStyleUnlocksClientbound::encode, SyncStyleUnlocksClientbound::decode, ClientPacketHandler::handleSyncStyleUnlocks);
+        CHANNEL.register(SyncStyleDataClientbound.class, SyncStyleDataClientbound::encode, SyncStyleDataClientbound::decode, (pkt, ctx) -> { ClientPacketHandler.handleSyncStyleData(pkt, ctx); });
+        CHANNEL.register(SyncStyleUnlocksClientbound.class, SyncStyleUnlocksClientbound::encode, SyncStyleUnlocksClientbound::decode, (pkt, ctx) -> { ClientPacketHandler.handleSyncStyleUnlocks(pkt, ctx); });
     }
 
     public static void sendToTrackingPlayers(StylePacket.ClientboundStylePacket packet, Entity entity) {
