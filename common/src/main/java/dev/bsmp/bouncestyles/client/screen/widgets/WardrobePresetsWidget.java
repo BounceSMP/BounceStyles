@@ -1,5 +1,6 @@
 package dev.bsmp.bouncestyles.client.screen.widgets;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleLoader;
@@ -18,7 +19,11 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.OrderedText;
+import net.minecraft.text.StringVisitable;
 import net.minecraft.util.Identifier;
+
+import java.util.List;
 
 public class WardrobePresetsWidget extends EntryListWidget<WardrobePresetsWidget.PresetEntry> implements WardrobeWidget {
     private static final Identifier TEX_WIDGETS = new Identifier(BounceStyles.modId, "textures/gui/widgets.png");
@@ -26,6 +31,7 @@ public class WardrobePresetsWidget extends EntryListWidget<WardrobePresetsWidget
     private final WardrobeScreen parentScreen;
     private final ScaledImageButton createPresetButton;
     public TextFieldWidget presetNameEntry;
+
     boolean namingPreset;
     public boolean needsRefreshing;
 
@@ -128,6 +134,7 @@ public class WardrobePresetsWidget extends EntryListWidget<WardrobePresetsWidget
     }
 
     public static class PresetEntry extends EntryListWidget.Entry<PresetEntry> {
+        private static List<OrderedText> tooltipLines;
         WardrobePresetsWidget parentWidget;
         StylePreset preset;
         TexturedButtonWidget deleteButton;
@@ -141,6 +148,9 @@ public class WardrobePresetsWidget extends EntryListWidget<WardrobePresetsWidget
                 StyleLoader.removePreset(this.preset.presetId());
                 this.parentWidget.needsRefreshing = true;
             });
+
+//            if(tooltipLines == null)
+                tooltipLines = MinecraftClient.getInstance().textRenderer.wrapLines(StringVisitable.plain("One or more items in this preset are not unlocked or invalid!"), 165);
         }
 
         @Override
@@ -168,9 +178,16 @@ public class WardrobePresetsWidget extends EntryListWidget<WardrobePresetsWidget
                 RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
                 DrawableHelper.drawTexture(poseStack, left + width - 22, top + 2, 50, 48, 22, 22, 256, 256);
                 if(isMouseOver) {
-                    String s = "One or more items in this preset are not unlocked or invalid!";
-                    fill(poseStack, mouseX + 1, mouseY - 11, mouseX + MinecraftClient.getInstance().textRenderer.getWidth(s) + 1, mouseY - 2, 0xFF000000);
-                    drawStringWithShadow(poseStack, MinecraftClient.getInstance().textRenderer, s, mouseX + 2, mouseY - 10, 0xFFFFFF);
+                    poseStack.push();
+                    GlStateManager._enableDepthTest();
+                    poseStack.translate(0, 0, 100);
+                    WardrobeWidget.drawTooltipBackgroundStatic(poseStack, mouseX + 5, mouseY - 12, 168, (tooltipLines.size() * 10) + 7);
+                    int i = 0;
+                    for(OrderedText text : tooltipLines) {
+                        MinecraftClient.getInstance().textRenderer.draw(poseStack, text, mouseX + 9, mouseY - 7 + (i * 10), 0xFFFFFF);
+                        i++;
+                    }
+                    poseStack.pop();
                 }
             }
         }

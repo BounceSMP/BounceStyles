@@ -3,10 +3,10 @@ package dev.bsmp.bouncestyles.data;
 import com.google.gson.JsonObject;
 import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleLoader;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import net.minecraft.util.Identifier;
 
 public record StylePreset(Identifier presetId, String name, @Nullable Identifier headId, @Nullable Identifier bodyId, @Nullable Identifier legsId, @Nullable Identifier feetId, boolean error) {
 
@@ -33,12 +33,11 @@ public record StylePreset(Identifier presetId, String name, @Nullable Identifier
     }
 
     public static boolean checkIds(Identifier... ids) {
-        boolean flag = false;
-        for(Identifier id : ids) {
+        for(Identifier id : ids)
             if(id != null && !StyleLoader.idExists(id))
-                flag = true;
-        }
-        return flag;
+                return true;
+
+        return false;
     }
 
 }
