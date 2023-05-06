@@ -146,10 +146,7 @@ public class WardrobeScreen extends Screen {
     }
 
     public List<StylePreset> requestPresets() {
-        return StyleLoader.PRESETS.values().stream()
-                .filter(stylePreset -> (stylePreset.hasAllUnlocked(this.unlockedStyles)) || (client.player.isCreative() && client.player.hasPermissionLevel(2)))
-                .sorted(Comparator.comparing(o -> o.presetId().toString()))
-                .toList();
+        return StyleLoader.PRESETS.values().stream().toList();
     }
 
     private void clearEquipped() {
