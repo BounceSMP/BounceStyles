@@ -1,7 +1,7 @@
 package dev.bsmp.bouncestyles.data;
 
 import dev.bsmp.bouncestyles.BounceStyles;
-import dev.bsmp.bouncestyles.StyleLoader;
+import dev.bsmp.bouncestyles.StyleRegistry;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -31,12 +31,12 @@ public class StyleMagazineItem extends Item {
         Identifier styleId = Identifier.tryParse(nbt.getString("styleId"));
         if(styleId == null)
             return;
-        Style style = StyleLoader.getStyle(styleId);
+        Style style = StyleRegistry.getStyle(styleId);
         if(style == null)
             return;
 
         tooltip.add(new LiteralText("Issue #" + nbt.getInt("issue")).styled(textStyle -> textStyle.withColor(Formatting.GRAY).withItalic(true).withUnderline(true)));
-        for(StyleLoader.Category category : style.categories) {
+        for(StyleRegistry.Category category : style.categories) {
             tooltip.add(new LiteralText("- ").append(new TranslatableText(style.styleId.getNamespace()+"."+style.styleId.getPath()+"."+category.name().toLowerCase())).styled(
                     textStyle -> textStyle.withColor(Formatting.GRAY))
             );
@@ -47,7 +47,7 @@ public class StyleMagazineItem extends Item {
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         ItemStack itemStack = user.getStackInHand(hand);
         if(!world.isClient) {
-            if(StyleData.getOrCreateStyleData(user).unlockStyle(StyleLoader.getStyleIdFromStack(itemStack)) && !user.getAbilities().creativeMode)
+            if(StyleData.getOrCreateStyleData(user).unlockStyle(StyleRegistry.getStyleIdFromStack(itemStack)) && !user.getAbilities().creativeMode)
                 itemStack.decrement(1);
         }
         return TypedActionResult.success(itemStack, world.isClient);
@@ -65,7 +65,7 @@ public class StyleMagazineItem extends Item {
         random.setSeed(styleId.toString().hashCode());
 
         NbtCompound nbt = new NbtCompound();
-        nbt.putInt("issue", random.nextInt(1, StyleLoader.REGISTRY.size() + 1));
+        nbt.putInt("issue", random.nextInt(1, StyleRegistry.REGISTRY.size() + 1));
         nbt.putString("styleId", styleId.toString());
 
         itemStack.setNbt(nbt);

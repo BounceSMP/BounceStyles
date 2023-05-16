@@ -3,68 +3,86 @@ package dev.bsmp.bouncestyles;
 import com.google.common.io.Files;
 import com.google.gson.*;
 import dev.architectury.platform.Platform;
-import dev.bsmp.bouncestyles.data.StyleData;
 import dev.bsmp.bouncestyles.data.Style;
-import dev.bsmp.bouncestyles.data.StyleMagazineItem;
 import dev.bsmp.bouncestyles.data.StylePreset;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
+import dev.bsmp.bouncestyles.pack.StylesResourcePack;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.ResourcePack;
+import net.minecraft.resource.ResourceReloader;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.util.profiler.Profiler;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 public class StyleLoader {
-    public static final HashMap<Identifier, Style> REGISTRY = new HashMap<>();
-    public static final HashMap<Identifier, StylePreset> PRESETS = new HashMap<>();
-
-    public static final Identifier HEAD_ICON = new Identifier(BounceStyles.modId, "textures/icon/bounce_head.png");
-    public static final Identifier BODY_ICON = new Identifier(BounceStyles.modId, "textures/icon/bounce_body.png");
-    public static final Identifier LEGS_ICON = new Identifier(BounceStyles.modId, "textures/icon/bounce_legs.png");
-    public static final Identifier FEET_ICON = new Identifier(BounceStyles.modId, "textures/icon/bounce_feet.png");
-    public static final Identifier PRESET_ICON = new Identifier(BounceStyles.modId, "textures/icon/bounce_preset.png");
-
     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().create();
 
-    public static void init() throws IOException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        Path dir = Platform.getGameFolder().resolve("styles");
-        File styleFile = dir.resolve("styles.json").toFile();
-        File presetsFile = dir.resolve("presets.json").toFile();
+    public static void init() {
+        try {
+            Path dir = Platform.getGameFolder().resolve("styles");
+            File styleFile = dir.resolve("styles.json").toFile();
+            File presetsFile = dir.resolve("presets.json").toFile();
 
-        if(dir.toFile().mkdirs() || styleFile.exists() || presetsFile.exists()) {
-            createFiles(styleFile, presetsFile);
+            if(dir.toFile().mkdirs() || !presetsFile.exists())
+                createPresetFile(presetsFile);
+
+            checkAndConvertOld(styleFile);
+            if(styleFile.exists())
+                loadStyles(styleFile);
+
+            loadPresets(presetsFile);
         }
-        checkAndConvertOld(styleFile);
-        loadStyles(styleFile);
-        loadPresets(presetsFile);
+        catch (IOException e) {
+            BounceStyles.LOGGER.error(e);
+        }
     }
 
-    private static void createFiles(File styleFile, File presetsFile) throws IOException {
-        if(!styleFile.exists())
-            try(BufferedWriter writer = Files.newWriter(styleFile, StandardCharsets.UTF_8)) {
-                GSON.toJson(new JsonArray(), writer);
-            }
+    public static void reload() {
+        StyleRegistry.REGISTRY.clear();
+        init();
+    }
+
+    private static void createPresetFile(File presetsFile) throws IOException {
         if(!presetsFile.exists())
             try(BufferedWriter writer = Files.newWriter(presetsFile, StandardCharsets.UTF_8)) {
                 GSON.toJson(new JsonObject(), writer);
             }
     }
 
-    private static void loadStyles(File file) throws IOException {
+    public static void loadStyles(File file) throws IOException {
         if(!file.exists())
             return;
 
         try(BufferedReader reader = Files.newReader(file, StandardCharsets.UTF_8)) {
+            loadStyles("Root styles.json", reader);
+        }
+    }
+
+    public static void loadStyles(String fileName, InputStream stream) {
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+            loadStyles(fileName, reader);
+        } catch (IOException e) {
+            BounceStyles.LOGGER.error(e);
+        }
+    }
+
+    private static void loadStyles(String fileName, BufferedReader reader) {
+        try {
             JsonArray jsonArray = GSON.fromJson(reader, JsonArray.class);
 
-            if (jsonArray == null)
+            if (jsonArray == null) {
+                BounceStyles.LOGGER.warn("Read an Empty or Invalid Json file [\"" + fileName + "\"]; Skipping...");
                 return;
+            }
 
+            int i = 0;
             for (JsonElement element : jsonArray) {
                 JsonObject item = JsonHelper.asObject(element, "item");
                 String name = item.get("name").getAsString();
@@ -75,16 +93,23 @@ public class StyleLoader {
                 if (item.has("slots")) {
                     for (JsonElement e : item.getAsJsonArray("slots")) {
                         switch (e.getAsString().toLowerCase()) {
-                            case "head" -> style.categories.add(Category.Head);
-                            case "body" -> style.categories.add(Category.Body);
-                            case "legs" -> style.categories.add(Category.Legs);
-                            case "feet" -> style.categories.add(Category.Feet);
+                            case "head" -> style.categories.add(StyleRegistry.Category.Head);
+                            case "body" -> style.categories.add(StyleRegistry.Category.Body);
+                            case "legs" -> style.categories.add(StyleRegistry.Category.Legs);
+                            case "feet" -> style.categories.add(StyleRegistry.Category.Feet);
                         }
                     }
                 }
 
-                REGISTRY.put(styleId, style);
+                StyleRegistry.REGISTRY.put(styleId, style);
+                i++;
             }
+
+            BounceStyles.LOGGER.info("Added " + i + " styles from \"" + fileName +"\"");
+        }
+        catch (JsonParseException e) {
+            BounceStyles.LOGGER.error("Ran into issues parsing json! - " + e.getLocalizedMessage());
+            BounceStyles.LOGGER.error(e);
         }
     }
 
@@ -117,9 +142,10 @@ public class StyleLoader {
         Path parentDir = mainFile.getParentFile().toPath();
         Map<Identifier, JsonObject> items = new HashMap<>();
 
-        for(Category category : Category.values()) {
-            if(category == Category.Preset)
+        for(StyleRegistry.Category category : StyleRegistry.Category.values()) {
+            if(category == StyleRegistry.Category.Preset)
                 continue;
+
             File file = parentDir.resolve(category.name()+".json").toFile();
             if(file.exists()) {
                 try(BufferedReader reader = Files.newReader(file, StandardCharsets.UTF_8)) {
@@ -177,32 +203,25 @@ public class StyleLoader {
                 for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
                     Identifier presetId = Identifier.tryParse(BounceStyles.modId + ":" + entry.getKey());
                     StylePreset preset = StylePreset.fromJson(presetId, entry.getValue().getAsJsonObject());
-                    PRESETS.put(presetId, preset);
+                    StyleRegistry.PRESETS.put(presetId, preset);
                 }
             }
         }
     }
 
-    public static StylePreset createPreset(StyleData styleData, String presetName) {
-        StylePreset newPreset = styleData.createPreset(presetName);
-        PRESETS.put(newPreset.presetId(), newPreset);
-        writePresetsFile();
-        return newPreset;
-    }
-
     public static void removePreset(Identifier presetId) {
-        PRESETS.remove(presetId);
+        StyleRegistry.PRESETS.remove(presetId);
         writePresetsFile();
     }
 
-    private static void writePresetsFile() {
+    public static void writePresetsFile() {
         Path dir = Platform.getGameFolder().resolve("styles");
         File file = dir.resolve("presets.json").toFile();
         try {
             BufferedWriter bufferedWriter = Files.newWriter(file, StandardCharsets.UTF_8);
             JsonObject jsonObject = new JsonObject();
 
-            for(StylePreset preset : PRESETS.values()) {
+            for(StylePreset preset : StyleRegistry.PRESETS.values()) {
                 JsonObject obj = new JsonObject();
                 obj.addProperty("name", preset.name());
                 obj.addProperty("head", preset.headId() != null ? preset.headId().toString() : "");
@@ -218,27 +237,6 @@ public class StyleLoader {
         catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static Style getStyle(Identifier id) {
-        return REGISTRY.get(id);
-    }
-
-    @Nullable public static Style getStyleFromStack(ItemStack itemStack) {
-        if(!(itemStack.getItem() instanceof StyleMagazineItem))
-            return null;
-        return getStyle(getStyleIdFromStack(itemStack));
-    }
-
-    @Nullable public static Identifier getStyleIdFromStack(ItemStack itemStack) {
-        NbtCompound nbt = itemStack.getNbt();
-        if(nbt == null || !nbt.contains("styleId"))
-            return null;
-        return Identifier.tryParse(nbt.getString("styleId"));
-    }
-
-    public static boolean idExists(Identifier id) {
-        return REGISTRY.containsKey(id);
     }
 
     private static Identifier parseModelId(JsonObject item, String name) {
@@ -289,13 +287,17 @@ public class StyleLoader {
         return item.has("transition_ticks") ? item.get("transition_ticks").getAsInt() : 5;
     }
 
-    public enum Category {
-        Head(HEAD_ICON), Body(BODY_ICON), Legs(LEGS_ICON), Feet(FEET_ICON), Preset(PRESET_ICON);
-
-        public final Identifier categoryIcon;
-
-        Category(Identifier categoryIcon) {
-            this.categoryIcon = categoryIcon;
-        }
+    public static CompletableFuture<Void> loadStylePacks(ResourceReloader.Synchronizer synchronizer, ResourceManager resourceManager, Profiler prepareProfiler, Profiler applyProfiler, Executor prepareExecutor, Executor applyExecutor) {
+        return CompletableFuture.supplyAsync(() -> {
+            for(ResourcePack pack : resourceManager.streamResourcePacks().toList()) {
+                if(pack instanceof StylesResourcePack) {
+                    BounceStyles.LOGGER.info("Registering styles from Style Packs...");
+                    ((StylesResourcePack) pack).registerPackStyles();
+                }
+            }
+            return null;
+        }, prepareExecutor)
+        .thenCompose(synchronizer::whenPrepared)
+        .thenAcceptAsync(o -> {}, applyExecutor);
     }
 }

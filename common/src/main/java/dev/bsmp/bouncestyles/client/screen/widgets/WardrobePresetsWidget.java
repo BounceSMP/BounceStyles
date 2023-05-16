@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleLoader;
+import dev.bsmp.bouncestyles.StyleRegistry;
 import dev.bsmp.bouncestyles.client.screen.WardrobeScreen;
 import dev.bsmp.bouncestyles.data.StyleData;
 import dev.bsmp.bouncestyles.data.StylePreset;
@@ -56,7 +57,7 @@ public class WardrobePresetsWidget extends EntryListWidget<WardrobePresetsWidget
                 this.presetNameEntry.active = false;
                 String name = this.presetNameEntry.getText();
                 if(!name.isBlank()) {
-                    StyleLoader.createPreset(StyleData.getOrCreateStyleData(minecraft.player), name);
+                    StyleRegistry.createPreset(StyleData.getOrCreateStyleData(minecraft.player), name);
                     refreshEntries();
                 }
                 this.presetNameEntry.setText("");
@@ -200,10 +201,10 @@ public class WardrobePresetsWidget extends EntryListWidget<WardrobePresetsWidget
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if(this.isHovered) {
-                new EquipStyleServerbound(StyleLoader.Category.Head, StyleLoader.getStyle(preset.headId())).sendToServer();
-                new EquipStyleServerbound(StyleLoader.Category.Body, StyleLoader.getStyle(preset.bodyId())).sendToServer();
-                new EquipStyleServerbound(StyleLoader.Category.Legs, StyleLoader.getStyle(preset.legsId())).sendToServer();
-                new EquipStyleServerbound(StyleLoader.Category.Feet, StyleLoader.getStyle(preset.feetId())).sendToServer();
+                new EquipStyleServerbound(StyleRegistry.Category.Head, StyleRegistry.getStyle(preset.headId())).sendToServer();
+                new EquipStyleServerbound(StyleRegistry.Category.Body, StyleRegistry.getStyle(preset.bodyId())).sendToServer();
+                new EquipStyleServerbound(StyleRegistry.Category.Legs, StyleRegistry.getStyle(preset.legsId())).sendToServer();
+                new EquipStyleServerbound(StyleRegistry.Category.Feet, StyleRegistry.getStyle(preset.feetId())).sendToServer();
                 MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f));
                 return true;
             }

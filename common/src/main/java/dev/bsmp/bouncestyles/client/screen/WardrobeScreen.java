@@ -1,7 +1,7 @@
 package dev.bsmp.bouncestyles.client.screen;
 
 import dev.bsmp.bouncestyles.BounceStyles;
-import dev.bsmp.bouncestyles.StyleLoader;
+import dev.bsmp.bouncestyles.StyleRegistry;
 import dev.bsmp.bouncestyles.client.screen.widgets.*;
 import dev.bsmp.bouncestyles.data.StylePreset;
 import dev.bsmp.bouncestyles.networking.packets.EquipStyleServerbound;
@@ -28,7 +28,7 @@ public class WardrobeScreen extends Screen {
     TexturedButtonWidget armorVisibilityButton;
 
     List<Identifier> unlockedStyles;
-    StyleLoader.Category selectedCategory;
+    StyleRegistry.Category selectedCategory;
     int previewRight;
     int topBarHeight;
 
@@ -59,7 +59,7 @@ public class WardrobeScreen extends Screen {
             this.activeWidget = this.presetsWidget;
 
         if(this.selectedCategory == null)
-            this.setSelectedCategory(StyleLoader.Category.Head);
+            this.setSelectedCategory(StyleRegistry.Category.Head);
     }
 
     @Override
@@ -127,15 +127,15 @@ public class WardrobeScreen extends Screen {
             this.presetsWidget.refreshEntries();
     }
 
-    public void setSelectedCategory(StyleLoader.Category category) {
+    public void setSelectedCategory(StyleRegistry.Category category) {
         this.selectedCategory = category;
 
-        if (category == StyleLoader.Category.Preset)
+        if (category == StyleRegistry.Category.Preset)
             this.activeWidget = this.presetsWidget;
         else {
             this.activeWidget = this.styleWidget;
             this.styleWidget.updateButtons(
-                    category, StyleLoader.REGISTRY.values().stream()
+                    category, StyleRegistry.REGISTRY.values().stream()
                             .filter(style -> style.categories.contains(category)
                                     && (this.unlockedStyles.contains(style.styleId) || (client.player.isCreative() && client.player.hasPermissionLevel(2)))
                             )
@@ -146,14 +146,14 @@ public class WardrobeScreen extends Screen {
     }
 
     public List<StylePreset> requestPresets() {
-        return StyleLoader.PRESETS.values().stream().toList();
+        return StyleRegistry.PRESETS.values().stream().toList();
     }
 
     private void clearEquipped() {
-        new EquipStyleServerbound(StyleLoader.Category.Head, null).sendToServer();
-        new EquipStyleServerbound(StyleLoader.Category.Body, null).sendToServer();
-        new EquipStyleServerbound(StyleLoader.Category.Legs, null).sendToServer();
-        new EquipStyleServerbound(StyleLoader.Category.Feet, null).sendToServer();
+        new EquipStyleServerbound(StyleRegistry.Category.Head, null).sendToServer();
+        new EquipStyleServerbound(StyleRegistry.Category.Body, null).sendToServer();
+        new EquipStyleServerbound(StyleRegistry.Category.Legs, null).sendToServer();
+        new EquipStyleServerbound(StyleRegistry.Category.Feet, null).sendToServer();
     }
 
     private void toggleArmor() {

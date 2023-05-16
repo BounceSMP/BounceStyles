@@ -4,13 +4,9 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import dev.bsmp.bouncestyles.StyleLoader;
+import dev.bsmp.bouncestyles.StyleRegistry;
 import dev.bsmp.bouncestyles.data.Style;
 import dev.bsmp.bouncestyles.data.StyleData;
-
-import java.util.Collection;
-import java.util.Collections;
-
 import dev.bsmp.bouncestyles.data.StyleMagazineItem;
 import dev.bsmp.bouncestyles.networking.packets.SyncStyleDataClientbound;
 import net.minecraft.command.CommandSource;
@@ -25,6 +21,9 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+
+import java.util.Collection;
+import java.util.Collections;
 
 public class StyleCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
@@ -54,7 +53,7 @@ public class StyleCommand {
                 .build();
         ArgumentCommandNode<ServerCommandSource, Identifier> unlockIdNode = CommandManager
                 .argument("id", IdentifierArgumentType.identifier())
-                .suggests((context, builder) -> CommandSource.suggestIdentifiers(StyleLoader.REGISTRY.keySet(), builder))
+                .suggests((context, builder) -> CommandSource.suggestIdentifiers(StyleRegistry.REGISTRY.keySet(), builder))
                 .executes(context -> unlock(EntityArgumentType.getPlayers(context, "players"), IdentifierArgumentType.getIdentifier(context, "id")))
                 .build();
 
@@ -77,7 +76,7 @@ public class StyleCommand {
                 .build();
         ArgumentCommandNode<ServerCommandSource, Identifier> unlockIdNode = CommandManager
                 .argument("id", IdentifierArgumentType.identifier())
-                .suggests((context, builder) -> CommandSource.suggestIdentifiers(StyleLoader.REGISTRY.keySet(), builder))
+                .suggests((context, builder) -> CommandSource.suggestIdentifiers(StyleRegistry.REGISTRY.keySet(), builder))
                 .executes(context -> remove(context.getSource(), EntityArgumentType.getPlayers(context, "players"), IdentifierArgumentType.getIdentifier(context, "id")))
                 .build();
 
@@ -91,7 +90,7 @@ public class StyleCommand {
         LiteralCommandNode<ServerCommandSource> equipNode = CommandManager
                 .literal("equip")
                 .build();
-        ArgumentCommandNode<ServerCommandSource, StyleLoader.Category> slotNode = CommandManager
+        ArgumentCommandNode<ServerCommandSource, StyleRegistry.Category> slotNode = CommandManager
                 .argument("slot", StyleSlotArgumentType.styleSlot())
                 .build();
 
@@ -105,7 +104,7 @@ public class StyleCommand {
 
         ArgumentCommandNode<ServerCommandSource, Identifier> equipIdNode = CommandManager
                 .argument("id", IdentifierArgumentType.identifier())
-                .suggests((context, builder) -> CommandSource.suggestIdentifiers(StyleLoader.REGISTRY.keySet(), builder))
+                .suggests((context, builder) -> CommandSource.suggestIdentifiers(StyleRegistry.REGISTRY.keySet(), builder))
                 .build();
         ArgumentCommandNode<ServerCommandSource, EntitySelector> equipPlayerNode = CommandManager
                 .argument("player", EntityArgumentType.player())
@@ -128,7 +127,7 @@ public class StyleCommand {
                 .build();
         ArgumentCommandNode<ServerCommandSource, Identifier> idNode = CommandManager
                 .argument("id", IdentifierArgumentType.identifier())
-                .suggests((context, builder) -> CommandSource.suggestIdentifiers(StyleLoader.REGISTRY.keySet(), builder))
+                .suggests((context, builder) -> CommandSource.suggestIdentifiers(StyleRegistry.REGISTRY.keySet(), builder))
                 .executes(context -> itemize(Collections.singleton(context.getSource().getPlayer()), IdentifierArgumentType.getIdentifier(context, "id")))
                 .build();
         ArgumentCommandNode<ServerCommandSource, EntitySelector> playerNode = CommandManager
@@ -145,7 +144,7 @@ public class StyleCommand {
     private static int unlockAll(Collection<ServerPlayerEntity> players) {
         for(ServerPlayerEntity player : players) {
             StyleData styleData = StyleData.getOrCreateStyleData(player);
-            for(Identifier id : StyleLoader.REGISTRY.keySet()) {
+            for(Identifier id : StyleRegistry.REGISTRY.keySet()) {
                 styleData.unlockStyle(id);
             }
             player.sendMessage(new LiteralText("You've unlocked all current styles, enjoy!").styled(style -> style.withColor(Formatting.GOLD)), false);
@@ -155,7 +154,7 @@ public class StyleCommand {
 
     private static int unlock(Collection<ServerPlayerEntity> players, Identifier id) {
         for(ServerPlayerEntity player : players)
-            if (id != null && StyleLoader.idExists(id)) {
+            if (id != null && StyleRegistry.idExists(id)) {
                 StyleData.getOrCreateStyleData(player).unlockStyle(id);
                 player.sendMessage(new LiteralText("Style unlocked").styled(style -> style.withColor(Formatting.GOLD)), false);
             }
@@ -165,7 +164,7 @@ public class StyleCommand {
     private static int removeAll(ServerCommandSource source, Collection<ServerPlayerEntity> players) {
         for(ServerPlayerEntity player : players) {
             StyleData styleData = StyleData.getOrCreateStyleData(player);
-            for(Identifier id : StyleLoader.REGISTRY.keySet()) {
+            for(Identifier id : StyleRegistry.REGISTRY.keySet()) {
                 styleData.removeStyle(id);
             }
             source.sendFeedback(new LiteralText("Removed all styles for " + player.getEntityName()), true);
@@ -175,16 +174,16 @@ public class StyleCommand {
 
     private static int remove(ServerCommandSource source, Collection<ServerPlayerEntity> players, Identifier id) {
         for(ServerPlayerEntity player : players)
-            if (id != null && StyleLoader.idExists(id)) {
+            if (id != null && StyleRegistry.idExists(id)) {
                 StyleData.getOrCreateStyleData(player).removeStyle(id);
                 source.sendFeedback(new LiteralText("Removed style " + id + " from player " + player.getEntityName()), true);
             }
         return 1;
     }
 
-    private static int equip(CommandContext<ServerCommandSource> context, ServerPlayerEntity player, StyleLoader.Category slot, Identifier id) {
-        if(id == null || StyleLoader.idExists(id)) {
-            Style style = id != null ? StyleLoader.getStyle(id) : null;
+    private static int equip(CommandContext<ServerCommandSource> context, ServerPlayerEntity player, StyleRegistry.Category slot, Identifier id) {
+        if(id == null || StyleRegistry.idExists(id)) {
+            Style style = id != null ? StyleRegistry.getStyle(id) : null;
             if(style == null || style.categories.contains(slot)) {
                 StyleData styleData = StyleData.getOrCreateStyleData(player);
                 switch (slot) {

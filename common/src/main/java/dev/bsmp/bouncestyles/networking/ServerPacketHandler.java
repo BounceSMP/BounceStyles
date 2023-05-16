@@ -1,7 +1,7 @@
 package dev.bsmp.bouncestyles.networking;
 
 import dev.architectury.networking.NetworkManager;
-import dev.bsmp.bouncestyles.StyleLoader;
+import dev.bsmp.bouncestyles.StyleRegistry;
 import dev.bsmp.bouncestyles.data.Style;
 import dev.bsmp.bouncestyles.data.StyleData;
 import dev.bsmp.bouncestyles.networking.packets.*;
@@ -16,7 +16,7 @@ public class ServerPacketHandler {
 
         ctx.queue(() -> {
             StyleData styleData = StyleData.getOrCreateStyleData(player);
-            Style style = packet.style() != null ? StyleLoader.REGISTRY.get(packet.style().styleId) : null;
+            Style style = packet.style() != null ? StyleRegistry.REGISTRY.get(packet.style().styleId) : null;
             if(style == null || styleData.hasStyleUnlocked(style) || (player.isCreative() && player.hasPermissionLevel(2))) {
                 switch (packet.category()) {
                     case Head -> styleData.setHeadStyle(style);

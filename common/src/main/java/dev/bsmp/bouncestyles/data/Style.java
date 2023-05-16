@@ -1,6 +1,6 @@
 package dev.bsmp.bouncestyles.data;
 
-import dev.bsmp.bouncestyles.StyleLoader;
+import dev.bsmp.bouncestyles.StyleRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
@@ -29,7 +29,7 @@ public class Style implements IAnimatable {
     @Nullable public final HashMap<String, String> animationMap;
     public int transitionTicks;
     public List<String> hiddenParts = new ArrayList<>();
-    public List<StyleLoader.Category> categories = new ArrayList<>();
+    public List<StyleRegistry.Category> categories = new ArrayList<>();
 
     public Style(Identifier styleId, Identifier modelID, Identifier textureID, @Nullable Identifier animationID, @Nullable HashMap<String, String> animationMap) {
         this.styleId = styleId;

@@ -2,13 +2,11 @@ package dev.bsmp.bouncestyles.client.screen.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.bsmp.bouncestyles.BounceStyles;
-import dev.bsmp.bouncestyles.StyleLoader;
+import dev.bsmp.bouncestyles.StyleRegistry;
 import dev.bsmp.bouncestyles.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.data.Style;
 import dev.bsmp.bouncestyles.data.StyleData;
 import dev.bsmp.bouncestyles.networking.packets.EquipStyleServerbound;
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -24,12 +22,15 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3f;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidget {
     private static final Identifier TEX_WIDGETS = new Identifier(BounceStyles.modId, "textures/gui/widgets.png");
 
     List<StyleButton> buttons = new ArrayList<>();
     StyleButton selectedButton;
-    StyleLoader.Category category;
+    StyleRegistry.Category category;
 
     float previewRotation = 0f;
     int buttonsPerRow = 6;
@@ -46,7 +47,7 @@ public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidg
         updateButtons(null, new ArrayList<Style>());
     }
 
-    public void updateButtons(StyleLoader.Category category, List<Style> styles) {
+    public void updateButtons(StyleRegistry.Category category, List<Style> styles) {
         this.scroll = 0;
         this.category = category;
         this.buttons.clear();

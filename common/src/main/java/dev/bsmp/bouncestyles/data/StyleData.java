@@ -1,20 +1,18 @@
 package dev.bsmp.bouncestyles.data;
 
-import dev.architectury.platform.Platform;
 import dev.bsmp.bouncestyles.BounceStyles;
-import dev.bsmp.bouncestyles.StyleLoader;
-import dev.bsmp.bouncestyles.networking.packets.SyncStyleDataClientbound;
-import net.minecraft.server.network.ServerPlayerEntity;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
+import dev.bsmp.bouncestyles.StyleRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class StyleData {
     private @Nullable Style headStyle;
@@ -91,7 +89,7 @@ public class StyleData {
         return this.hiddenParts;
     }
 
-    public Style getStyleForSlot(StyleLoader.Category category) {
+    public Style getStyleForSlot(StyleRegistry.Category category) {
         return switch (category) {
             case Head -> this.headStyle;
             case Body -> this.bodyStyle;
@@ -173,7 +171,7 @@ public class StyleData {
     private static @Nullable Style parseStyle(NbtCompound tag, String slot) {
         Style style = null;
         if(tag.contains(slot))
-            style = StyleLoader.REGISTRY.get(Identifier.tryParse(tag.getString(slot)));
+            style = StyleRegistry.REGISTRY.get(Identifier.tryParse(tag.getString(slot)));
         return style;
     }
 
@@ -185,10 +183,10 @@ public class StyleData {
 
     public static NbtCompound equippedToNBT(StyleData styleData) {
         NbtCompound tag = new NbtCompound();
-        convertStyle(tag, styleData.headStyle, StyleLoader.Category.Head.name());
-        convertStyle(tag, styleData.bodyStyle, StyleLoader.Category.Body.name());
-        convertStyle(tag, styleData.legStyle, StyleLoader.Category.Legs.name());
-        convertStyle(tag, styleData.feetStyle, StyleLoader.Category.Feet.name());
+        convertStyle(tag, styleData.headStyle, StyleRegistry.Category.Head.name());
+        convertStyle(tag, styleData.bodyStyle, StyleRegistry.Category.Body.name());
+        convertStyle(tag, styleData.legStyle, StyleRegistry.Category.Legs.name());
+        convertStyle(tag, styleData.feetStyle, StyleRegistry.Category.Feet.name());
         tag.putBoolean("armorVisible", styleData.isArmorVisible());
         return tag;
     }
@@ -211,10 +209,10 @@ public class StyleData {
 
     public static StyleData equippedFromNBT(NbtCompound tag) {
         StyleData styleData = new StyleData(
-                parseStyle(tag, StyleLoader.Category.Head.name()),
-                parseStyle(tag, StyleLoader.Category.Body.name()),
-                parseStyle(tag, StyleLoader.Category.Legs.name()),
-                parseStyle(tag, StyleLoader.Category.Feet.name())
+                parseStyle(tag, StyleRegistry.Category.Head.name()),
+                parseStyle(tag, StyleRegistry.Category.Body.name()),
+                parseStyle(tag, StyleRegistry.Category.Legs.name()),
+                parseStyle(tag, StyleRegistry.Category.Feet.name())
         );
         styleData.showArmor = tag.getBoolean("armorVisible");
         return styleData;

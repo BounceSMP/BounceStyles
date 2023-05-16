@@ -2,10 +2,8 @@ package dev.bsmp.bouncestyles.client.screen.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.bsmp.bouncestyles.BounceStyles;
-import dev.bsmp.bouncestyles.StyleLoader;
+import dev.bsmp.bouncestyles.StyleRegistry;
 import dev.bsmp.bouncestyles.client.screen.WardrobeScreen;
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -14,6 +12,9 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class WardrobeCategoryWidget extends ClickableWidget implements WardrobeWidget {
     final WardrobeScreen parentScreen;
@@ -25,10 +26,10 @@ public class WardrobeCategoryWidget extends ClickableWidget implements WardrobeW
         this.parentScreen = parentScreen;
         int i = 0;
         double guiScale = MinecraftClient.getInstance().getWindow().getScaleFactor();
-        for(StyleLoader.Category category : StyleLoader.Category.values()) {
+        for(StyleRegistry.Category category : StyleRegistry.Category.values()) {
             CategoryButton button = new CategoryButton(this, category, x + (int)(10 / guiScale) + (i * height) + (i * (int) (10 / guiScale)), y, height, height);
             this.buttonList.add(button);
-            if(category == StyleLoader.Category.Head)
+            if(category == StyleRegistry.Category.Head)
                 this.selectedButton = button;
             i++;
         }
@@ -61,9 +62,9 @@ public class WardrobeCategoryWidget extends ClickableWidget implements WardrobeW
     public class CategoryButton extends ButtonWidget {
         private static final Identifier TEX_CATEGORY_BG = new Identifier(BounceStyles.modId, "textures/icon/category_bg.png");
         WardrobeCategoryWidget parentWidget;
-        StyleLoader.Category category;
+        StyleRegistry.Category category;
 
-        public CategoryButton(WardrobeCategoryWidget parentWidget, StyleLoader.Category category, int x, int y, int width, int height) {
+        public CategoryButton(WardrobeCategoryWidget parentWidget, StyleRegistry.Category category, int x, int y, int width, int height) {
             super(x, y, width, height, new LiteralText(category.name()), null);
             this.parentWidget = parentWidget;
             this.category = category;
@@ -79,7 +80,7 @@ public class WardrobeCategoryWidget extends ClickableWidget implements WardrobeW
                     24, 24, 24, 72);
 
             RenderSystem.setShaderTexture(0, this.category.categoryIcon);
-            if(category == StyleLoader.Category.Body)
+            if(category == StyleRegistry.Category.Body)
                 drawTexture(poseStack, this.x + 3, this.y + 3, this.width - 6, this.height - 6, 0, 0, 16, 16, 16, 16);
             else
                 drawTexture(poseStack, this.x + 2, this.y + 2, this.width - 4, this.height - 4, 0, 0, 16, 16, 16, 16);

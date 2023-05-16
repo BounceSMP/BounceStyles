@@ -2,7 +2,7 @@ package dev.bsmp.bouncestyles.data;
 
 import com.google.gson.JsonObject;
 import dev.bsmp.bouncestyles.BounceStyles;
-import dev.bsmp.bouncestyles.StyleLoader;
+import dev.bsmp.bouncestyles.StyleRegistry;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +34,7 @@ public record StylePreset(Identifier presetId, String name, @Nullable Identifier
 
     public static boolean checkIds(Identifier... ids) {
         for(Identifier id : ids)
-            if(id != null && !StyleLoader.idExists(id))
+            if(id != null && !StyleRegistry.idExists(id))
                 return true;
 
         return false;

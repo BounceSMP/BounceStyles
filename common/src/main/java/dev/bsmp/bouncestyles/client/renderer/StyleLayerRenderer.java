@@ -1,6 +1,7 @@
 package dev.bsmp.bouncestyles.client.renderer;
 
-import dev.bsmp.bouncestyles.StyleLoader;
+import dev.bsmp.bouncestyles.BounceStyles;
+import dev.bsmp.bouncestyles.StyleRegistry;
 import dev.bsmp.bouncestyles.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.data.MissingStyle;
 import dev.bsmp.bouncestyles.data.Style;
@@ -65,32 +66,32 @@ public class StyleLayerRenderer extends FeatureRenderer<PlayerEntity, PlayerEnti
         poseStack.push();
 
         if(styleData.getHeadStyle() != null)
-            renderStyle(poseStack, styleData.getHeadStyle(), player, StyleLoader.Category.Head, buffer, limbSwing, limbSwingAmount, partialTick, packedLight);
+            renderStyle(poseStack, styleData.getHeadStyle(), player, StyleRegistry.Category.Head, buffer, limbSwing, limbSwingAmount, partialTick, packedLight);
         if(styleData.getBodyStyle() != null)
-            renderStyle(poseStack, styleData.getBodyStyle(), player, StyleLoader.Category.Body, buffer, limbSwing, limbSwingAmount, partialTick, packedLight);
+            renderStyle(poseStack, styleData.getBodyStyle(), player, StyleRegistry.Category.Body, buffer, limbSwing, limbSwingAmount, partialTick, packedLight);
         if(styleData.getLegStyle() != null)
-            renderStyle(poseStack, styleData.getLegStyle(), player, StyleLoader.Category.Legs, buffer, limbSwing, limbSwingAmount, partialTick, packedLight);
+            renderStyle(poseStack, styleData.getLegStyle(), player, StyleRegistry.Category.Legs, buffer, limbSwing, limbSwingAmount, partialTick, packedLight);
         if(styleData.getFeetStyle() != null)
-            renderStyle(poseStack, styleData.getFeetStyle(), player, StyleLoader.Category.Feet, buffer, limbSwing, limbSwingAmount, partialTick, packedLight);
+            renderStyle(poseStack, styleData.getFeetStyle(), player, StyleRegistry.Category.Feet, buffer, limbSwing, limbSwingAmount, partialTick, packedLight);
 
         poseStack.pop();
         poseStack.scale(-1.005F, -1.0F, 1.005F);
         poseStack.translate(0.0D, -1.497F, 0.0D);
     }
 
-    public void renderStyle(MatrixStack poseStack, Style style, PlayerEntity player, StyleLoader.Category category, VertexConsumerProvider buffer, float limbSwing, float limbSwingAmount, float partialTick, int packedLight) {
+    public void renderStyle(MatrixStack poseStack, Style style, PlayerEntity player, StyleRegistry.Category category, VertexConsumerProvider buffer, float limbSwing, float limbSwingAmount, float partialTick, int packedLight) {
         GeoModel model = getModel(style.modelID, style, player, limbSwing, limbSwingAmount, partialTick, poseStack, category, false);
         RenderLayer renderType = getRenderType(style, partialTick, poseStack, buffer, null, packedLight, getTextureLocation_geckolib(style));
         render(model, style, partialTick, renderType, poseStack, buffer, null, packedLight, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
     }
 
-    public void renderStyleForGUI(MatrixStack poseStack, Style style, StyleLoader.Category category, VertexConsumerProvider buffer, float partialTick, int packedLight) {
+    public void renderStyleForGUI(MatrixStack poseStack, Style style, StyleRegistry.Category category, VertexConsumerProvider buffer, float partialTick, int packedLight) {
         GeoModel model = getModel(style.modelID, style, MinecraftClient.getInstance().player, 0f, 0f, partialTick, poseStack, category, true);
         RenderLayer renderType = getRenderType(style, partialTick, poseStack, buffer, null, packedLight, getTextureLocation_geckolib(style));
         render(model, style, partialTick, renderType, poseStack, buffer, null, packedLight, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
     }
 
-    private void fit(MatrixStack poseStack, StyleLoader.Category category, boolean gui) {
+    private void fit(MatrixStack poseStack, StyleRegistry.Category category, boolean gui) {
         setBoneVisibility(headBone, false);
         setBoneVisibility(bodyBone, false);
         setBoneVisibility(rightArmBone, false);
@@ -171,8 +172,7 @@ public class StyleLayerRenderer extends FeatureRenderer<PlayerEntity, PlayerEnti
             this.modelProvider.getBone(bone).setHidden(!isVisible);
         }
         catch (RuntimeException e) {
-            //ToDo custom logger
-            System.out.println("Could not find bone ["+bone+"]");
+            BounceStyles.LOGGER.info("Could not find bone ["+bone+"]");
         }
     }
 
@@ -201,7 +201,7 @@ public class StyleLayerRenderer extends FeatureRenderer<PlayerEntity, PlayerEnti
         return textureID;
     }
 
-    private GeoModel getModel(Identifier modelID, Style style, PlayerEntity player, float limbSwing, float limbSwingAmount, float partialTick, MatrixStack poseStack, StyleLoader.Category category, boolean isGui) {
+    private GeoModel getModel(Identifier modelID, Style style, PlayerEntity player, float limbSwing, float limbSwingAmount, float partialTick, MatrixStack poseStack, StyleRegistry.Category category, boolean isGui) {
         missingModel = false;
         GeoModel model;
         try {

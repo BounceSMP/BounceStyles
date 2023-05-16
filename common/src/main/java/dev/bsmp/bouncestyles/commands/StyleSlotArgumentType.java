@@ -7,7 +7,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import dev.bsmp.bouncestyles.StyleLoader.Category;
+import dev.bsmp.bouncestyles.StyleRegistry;
+import dev.bsmp.bouncestyles.StyleRegistry.Category;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.TranslatableText;
@@ -33,7 +34,7 @@ public class StyleSlotArgumentType implements ArgumentType<Category> {
         String name = reader.readUnquotedString();
 
         try {
-            return Category.valueOf(name);
+            return StyleRegistry.Category.valueOf(name);
         } catch (IllegalArgumentException var4) {
             throw INVALID_ENUM.createWithContext(reader, name, Arrays.toString(Category.class.getEnumConstants()));
         }
@@ -41,7 +42,7 @@ public class StyleSlotArgumentType implements ArgumentType<Category> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        return CommandSource.suggestMatching(Stream.of(Category.class.getEnumConstants()).filter(category -> category != Category.Preset).map(Object::toString), builder);
+        return CommandSource.suggestMatching(Stream.of(Category.class.getEnumConstants()).filter(category -> category != StyleRegistry.Category.Preset).map(Object::toString), builder);
     }
 
     public Collection<String> getExamples() {
