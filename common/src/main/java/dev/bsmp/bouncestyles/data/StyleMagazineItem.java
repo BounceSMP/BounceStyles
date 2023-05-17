@@ -65,7 +65,7 @@ public class StyleMagazineItem extends Item {
         random.setSeed(styleId.toString().hashCode());
 
         NbtCompound nbt = new NbtCompound();
-        nbt.putInt("issue", random.nextInt(1, StyleRegistry.REGISTRY.size() + 1));
+        nbt.putInt("issue", random.nextInt(1, StyleRegistry.getAllStyleIds().size() + 1));
         nbt.putString("styleId", styleId.toString());
 
         itemStack.setNbt(nbt);

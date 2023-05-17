@@ -103,4 +103,12 @@ public class Style implements IAnimatable {
     public AnimationFactory getFactory() {
         return this.factory;
     }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "[styleId=%s, modelId=%s, textureId=%s, animationId=%s, animationMap=%s]",
+                styleId, modelID, textureID, animationID, animationMap
+        );
+    }
 }

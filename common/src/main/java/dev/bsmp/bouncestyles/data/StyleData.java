@@ -171,7 +171,7 @@ public class StyleData {
     private static @Nullable Style parseStyle(NbtCompound tag, String slot) {
         Style style = null;
         if(tag.contains(slot))
-            style = StyleRegistry.REGISTRY.get(Identifier.tryParse(tag.getString(slot)));
+            style = StyleRegistry.getStyle(Identifier.tryParse(tag.getString(slot)));
         return style;
     }
 

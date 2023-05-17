@@ -53,7 +53,7 @@ public class StyleCommand {
                 .build();
         ArgumentCommandNode<ServerCommandSource, Identifier> unlockIdNode = CommandManager
                 .argument("id", IdentifierArgumentType.identifier())
-                .suggests((context, builder) -> CommandSource.suggestIdentifiers(StyleRegistry.REGISTRY.keySet(), builder))
+                .suggests((context, builder) -> CommandSource.suggestIdentifiers(StyleRegistry.getAllStyleIds(), builder))
                 .executes(context -> unlock(EntityArgumentType.getPlayers(context, "players"), IdentifierArgumentType.getIdentifier(context, "id")))
                 .build();
 
@@ -76,7 +76,7 @@ public class StyleCommand {
                 .build();
         ArgumentCommandNode<ServerCommandSource, Identifier> unlockIdNode = CommandManager
                 .argument("id", IdentifierArgumentType.identifier())
-                .suggests((context, builder) -> CommandSource.suggestIdentifiers(StyleRegistry.REGISTRY.keySet(), builder))
+                .suggests((context, builder) -> CommandSource.suggestIdentifiers(StyleRegistry.getAllStyleIds(), builder))
                 .executes(context -> remove(context.getSource(), EntityArgumentType.getPlayers(context, "players"), IdentifierArgumentType.getIdentifier(context, "id")))
                 .build();
 
@@ -104,7 +104,7 @@ public class StyleCommand {
 
         ArgumentCommandNode<ServerCommandSource, Identifier> equipIdNode = CommandManager
                 .argument("id", IdentifierArgumentType.identifier())
-                .suggests((context, builder) -> CommandSource.suggestIdentifiers(StyleRegistry.REGISTRY.keySet(), builder))
+                .suggests((context, builder) -> CommandSource.suggestIdentifiers(StyleRegistry.getAllStyleIds(), builder))
                 .build();
         ArgumentCommandNode<ServerCommandSource, EntitySelector> equipPlayerNode = CommandManager
                 .argument("player", EntityArgumentType.player())
@@ -127,7 +127,7 @@ public class StyleCommand {
                 .build();
         ArgumentCommandNode<ServerCommandSource, Identifier> idNode = CommandManager
                 .argument("id", IdentifierArgumentType.identifier())
-                .suggests((context, builder) -> CommandSource.suggestIdentifiers(StyleRegistry.REGISTRY.keySet(), builder))
+                .suggests((context, builder) -> CommandSource.suggestIdentifiers(StyleRegistry.getAllStyleIds(), builder))
                 .executes(context -> itemize(Collections.singleton(context.getSource().getPlayer()), IdentifierArgumentType.getIdentifier(context, "id")))
                 .build();
         ArgumentCommandNode<ServerCommandSource, EntitySelector> playerNode = CommandManager
@@ -144,7 +144,7 @@ public class StyleCommand {
     private static int unlockAll(Collection<ServerPlayerEntity> players) {
         for(ServerPlayerEntity player : players) {
             StyleData styleData = StyleData.getOrCreateStyleData(player);
-            for(Identifier id : StyleRegistry.REGISTRY.keySet()) {
+            for(Identifier id : StyleRegistry.getAllStyleIds()) {
                 styleData.unlockStyle(id);
             }
             player.sendMessage(new LiteralText("You've unlocked all current styles, enjoy!").styled(style -> style.withColor(Formatting.GOLD)), false);
@@ -164,7 +164,7 @@ public class StyleCommand {
     private static int removeAll(ServerCommandSource source, Collection<ServerPlayerEntity> players) {
         for(ServerPlayerEntity player : players) {
             StyleData styleData = StyleData.getOrCreateStyleData(player);
-            for(Identifier id : StyleRegistry.REGISTRY.keySet()) {
+            for(Identifier id : StyleRegistry.getAllStyleIds()) {
                 styleData.removeStyle(id);
             }
             source.sendFeedback(new LiteralText("Removed all styles for " + player.getEntityName()), true);

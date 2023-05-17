@@ -45,7 +45,7 @@ public class StyleLoader {
     }
 
     public static void reload() {
-        StyleRegistry.REGISTRY.clear();
+        StyleRegistry.clearRegistry();
         init();
     }
 
@@ -101,7 +101,7 @@ public class StyleLoader {
                     }
                 }
 
-                StyleRegistry.REGISTRY.put(styleId, style);
+                StyleRegistry.registerStyle(styleId, style);
                 i++;
             }
 

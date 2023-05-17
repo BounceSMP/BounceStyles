@@ -1,8 +1,6 @@
 package dev.bsmp.bouncestyles.networking;
 
 import dev.architectury.networking.NetworkManager;
-import dev.bsmp.bouncestyles.StyleRegistry;
-import dev.bsmp.bouncestyles.data.Style;
 import dev.bsmp.bouncestyles.data.StyleData;
 import dev.bsmp.bouncestyles.networking.packets.*;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -16,13 +14,12 @@ public class ServerPacketHandler {
 
         ctx.queue(() -> {
             StyleData styleData = StyleData.getOrCreateStyleData(player);
-            Style style = packet.style() != null ? StyleRegistry.REGISTRY.get(packet.style().styleId) : null;
-            if(style == null || styleData.hasStyleUnlocked(style) || (player.isCreative() && player.hasPermissionLevel(2))) {
+            if(packet.style() == null || styleData.hasStyleUnlocked(packet.style()) || (player.isCreative() && player.hasPermissionLevel(2))) {
                 switch (packet.category()) {
-                    case Head -> styleData.setHeadStyle(style);
-                    case Body -> styleData.setBodyStyle(style);
-                    case Legs -> styleData.setLegStyle(style);
-                    case Feet -> styleData.setFeetStyle(style);
+                    case Head -> styleData.setHeadStyle(packet.style());
+                    case Body -> styleData.setBodyStyle(packet.style());
+                    case Legs -> styleData.setLegStyle(packet.style());
+                    case Feet -> styleData.setFeetStyle(packet.style());
                 }
 
                 SyncStyleDataClientbound packetOut = new SyncStyleDataClientbound(player.getId(), styleData);

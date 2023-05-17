@@ -135,7 +135,7 @@ public class WardrobeScreen extends Screen {
         else {
             this.activeWidget = this.styleWidget;
             this.styleWidget.updateButtons(
-                    category, StyleRegistry.REGISTRY.values().stream()
+                    category, StyleRegistry.getAllStyles().stream()
                             .filter(style -> style.categories.contains(category)
                                     && (this.unlockedStyles.contains(style.styleId) || (client.player.isCreative() && client.player.hasPermissionLevel(2)))
                             )
