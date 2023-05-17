@@ -288,10 +288,10 @@ public class StyleLoader {
     }
 
     public static CompletableFuture<Void> loadStylePacks(ResourceReloader.Synchronizer synchronizer, ResourceManager resourceManager, Profiler prepareProfiler, Profiler applyProfiler, Executor prepareExecutor, Executor applyExecutor) {
+        BounceStyles.LOGGER.info("Registering styles from Style Packs...");
         return CompletableFuture.supplyAsync(() -> {
             for(ResourcePack pack : resourceManager.streamResourcePacks().toList()) {
                 if(pack instanceof StylesResourcePack) {
-                    BounceStyles.LOGGER.info("Registering styles from Style Packs...");
                     ((StylesResourcePack) pack).registerPackStyles();
                 }
             }

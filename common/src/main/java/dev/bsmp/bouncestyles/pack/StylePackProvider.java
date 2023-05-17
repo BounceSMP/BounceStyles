@@ -44,13 +44,9 @@ public class StylePackProvider implements ResourcePackProvider {
             profiles.add(profile);
         }
 
-        if(Platform.getEnvironment() == Env.SERVER) {
-            for(ResourcePackProfile profile : profiles) profileAdder.accept(profile);
-            return;
-        }
-
         List<ResourcePack> packs = profiles.stream().map(ResourcePackProfile::createResourcePack).toList();
-        int version = SharedConstants.getGameVersion().getPackVersion(PackType.RESOURCE);
+        PackType packType = Platform.getEnvironment() == Env.CLIENT ? PackType.RESOURCE : PackType.DATA;
+        int version = SharedConstants.getGameVersion().getPackVersion(packType);
         PackResourceMetadata metadata = new PackResourceMetadata(new TranslatableText(BounceStyles.modId + ".resources.styles"), version);
         ResourcePackProfile mergedProfile = ResourcePackProfile.of("Styles", true, () -> new StylesResourcePack(stylePackDir, packs, metadata), factory, ResourcePackProfile.InsertionPosition.TOP, ResourcePackSource.PACK_SOURCE_NONE);
         if(mergedProfile != null) profileAdder.accept(mergedProfile);
