@@ -1,6 +1,5 @@
-package dev.bsmp.bouncestyles.networking.packets;
+package dev.bsmp.bouncestyles.networking;
 
-import dev.bsmp.bouncestyles.networking.BounceStylesNetwork;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 

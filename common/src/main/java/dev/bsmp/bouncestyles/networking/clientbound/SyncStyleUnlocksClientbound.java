@@ -1,6 +1,7 @@
-package dev.bsmp.bouncestyles.networking.packets;
+package dev.bsmp.bouncestyles.networking.clientbound;
 
 import dev.bsmp.bouncestyles.data.StyleData;
+import dev.bsmp.bouncestyles.networking.StylePacket;
 import net.minecraft.network.PacketByteBuf;
 
 public record SyncStyleUnlocksClientbound(StyleData styleData) implements StylePacket.ClientboundStylePacket {

@@ -2,7 +2,11 @@ package dev.bsmp.bouncestyles.networking;
 
 import dev.architectury.networking.NetworkManager;
 import dev.bsmp.bouncestyles.data.StyleData;
-import dev.bsmp.bouncestyles.networking.packets.*;
+import dev.bsmp.bouncestyles.networking.clientbound.SyncStyleDataClientbound;
+import dev.bsmp.bouncestyles.networking.clientbound.SyncStyleUnlocksClientbound;
+import dev.bsmp.bouncestyles.networking.serverbound.EquipStyleServerbound;
+import dev.bsmp.bouncestyles.networking.serverbound.OpenStyleScreenServerbound;
+import dev.bsmp.bouncestyles.networking.serverbound.ToggleArmorVisibilityServerbound;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.function.Supplier;

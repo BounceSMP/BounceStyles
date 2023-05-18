@@ -8,7 +8,7 @@ import dev.bsmp.bouncestyles.StyleRegistry;
 import dev.bsmp.bouncestyles.client.screen.WardrobeScreen;
 import dev.bsmp.bouncestyles.data.StyleData;
 import dev.bsmp.bouncestyles.data.StylePreset;
-import dev.bsmp.bouncestyles.networking.packets.EquipStyleServerbound;
+import dev.bsmp.bouncestyles.networking.serverbound.EquipStyleServerbound;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;

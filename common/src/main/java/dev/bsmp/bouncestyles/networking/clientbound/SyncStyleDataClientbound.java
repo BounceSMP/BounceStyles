@@ -1,10 +1,8 @@
-package dev.bsmp.bouncestyles.networking.packets;
+package dev.bsmp.bouncestyles.networking.clientbound;
 
 import dev.bsmp.bouncestyles.data.StyleData;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
+import dev.bsmp.bouncestyles.networking.StylePacket;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
 
 public record SyncStyleDataClientbound(int entityId, StyleData styleData) implements StylePacket.ClientboundStylePacket {
     public void encode(PacketByteBuf buf) {

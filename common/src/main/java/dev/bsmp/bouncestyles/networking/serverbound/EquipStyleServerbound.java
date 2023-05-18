@@ -1,7 +1,8 @@
-package dev.bsmp.bouncestyles.networking.packets;
+package dev.bsmp.bouncestyles.networking.serverbound;
 
 import dev.bsmp.bouncestyles.StyleRegistry;
 import dev.bsmp.bouncestyles.data.Style;
+import dev.bsmp.bouncestyles.networking.StylePacket;
 import net.minecraft.network.PacketByteBuf;
 import org.jetbrains.annotations.Nullable;
 

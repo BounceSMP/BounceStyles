@@ -2,7 +2,7 @@ package dev.bsmp.bouncestyles.mixin;
 
 import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.client.screen.widgets.WardrobeWidget;
-import dev.bsmp.bouncestyles.networking.packets.OpenStyleScreenServerbound;
+import dev.bsmp.bouncestyles.networking.serverbound.OpenStyleScreenServerbound;
 import net.minecraft.client.gui.screen.ingame.AbstractInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;

@@ -2,5 +2,10 @@
   "bounce_styles.resources.styles": "Style Pack merged resources",
   "item.bounce_styles.magazine": "Style Magazine",
   "key.bounce_styles.category": "BounceStyles",
-  "key.bounce_styles.wardrobe": "Open Wardrobe UI"
+  "key.bounce_styles.wardrobe": "Open Wardrobe UI",
+  "warning.bounce_styles.missing.line1": "Some Style IDs were not found on your client.",
+  "warning.bounce_styles.missing.line2": "This means you're missing Style Packs for this server.",
+  "warning.bounce_styles.missing.line3": "You can still play, but some styles won't appear properly!",
+  "warning.bounce_styles.missing.line4": "Check '%s' in your Styles folder to see which styles are missing.",
+  "gui.bounce_styles.missing.dont_show_again": "Don't Show until new changes happen"
 }

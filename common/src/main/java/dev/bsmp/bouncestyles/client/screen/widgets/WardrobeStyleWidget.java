@@ -6,7 +6,7 @@ import dev.bsmp.bouncestyles.StyleRegistry;
 import dev.bsmp.bouncestyles.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.data.Style;
 import dev.bsmp.bouncestyles.data.StyleData;
-import dev.bsmp.bouncestyles.networking.packets.EquipStyleServerbound;
+import dev.bsmp.bouncestyles.networking.serverbound.EquipStyleServerbound;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ButtonWidget;

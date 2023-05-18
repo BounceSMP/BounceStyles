@@ -14,7 +14,8 @@ import dev.bsmp.bouncestyles.data.StyleMagazineItem;
 import dev.bsmp.bouncestyles.mixin.ChunkStorageAccessor;
 import dev.bsmp.bouncestyles.mixin.EntityTrackerAccessor;
 import dev.bsmp.bouncestyles.networking.BounceStylesNetwork;
-import dev.bsmp.bouncestyles.networking.packets.SyncStyleDataClientbound;
+import dev.bsmp.bouncestyles.networking.clientbound.SyncRegisteredStylesClientbound;
+import dev.bsmp.bouncestyles.networking.clientbound.SyncStyleDataClientbound;
 import net.minecraft.command.argument.ArgumentTypes;
 import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
 import net.minecraft.entity.Entity;
@@ -64,6 +65,7 @@ public class BounceStyles {
     }
 
     static void playerJoin(ServerPlayerEntity player) {
+        new SyncRegisteredStylesClientbound(StyleRegistry.getAllStyleIds()).sendToPlayer(player);
         SyncStyleDataClientbound packet = new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player));
         packet.sendToPlayer(player);
         packet.sendToTrackingPlayers(player);

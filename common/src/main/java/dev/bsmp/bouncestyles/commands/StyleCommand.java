@@ -8,7 +8,7 @@ import dev.bsmp.bouncestyles.StyleRegistry;
 import dev.bsmp.bouncestyles.data.Style;
 import dev.bsmp.bouncestyles.data.StyleData;
 import dev.bsmp.bouncestyles.data.StyleMagazineItem;
-import dev.bsmp.bouncestyles.networking.packets.SyncStyleDataClientbound;
+import dev.bsmp.bouncestyles.networking.clientbound.SyncStyleDataClientbound;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.EntitySelector;
 import net.minecraft.command.argument.EntityArgumentType;
