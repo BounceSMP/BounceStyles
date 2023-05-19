@@ -66,10 +66,11 @@ public class StylesResourcePack extends AbstractFileResourcePack {
     public InputStream openRoot(String fileName) throws IOException {
         if (fileName.equals("pack.png")) {
             Mod mod = Platform.getMod(BounceStyles.modId);
-            Optional<InputStream> stream = mod.getLogoFile(512).flatMap(s -> mod.findResource().map(path -> {
+            Optional<InputStream> stream = mod.getLogoFile(480).flatMap(s -> mod.findResource(s).map(path -> {
                 try {
                     return Files.newInputStream(path);
-                } catch (IOException e) {
+                }
+                catch (IOException e) {
                     return null;
                 }
             }));

@@ -4,7 +4,7 @@
   "version": "${version}",
   "name": "BounceStyles",
   "description": "A Custom Outfits mod made for BounceSMP",
-  "icon": "bounce_styles_logo.png",
+  "icon": "bounce_logo.png",
   "authors": ["RyanV"],
   "contact": {
     "issues": "https://github.com/BounceSMP/BounceStyles/issues"
