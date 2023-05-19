@@ -195,8 +195,7 @@ public class StyleLayerRenderer extends FeatureRenderer<PlayerEntity, PlayerEnti
     public Identifier getTextureLocation_geckolib(Style style) {
         Identifier textureID = this.modelProvider.getTextureLocation(style);
 
-        if(missingModel || !MinecraftClient.getInstance().getResourceManager().containsResource(textureID))
-            textureID = MissingStyle.INSTANCE.textureID;
+        if(missingModel) textureID = MissingStyle.INSTANCE.textureID;
 
         return textureID;
     }
