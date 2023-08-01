@@ -32,8 +32,6 @@ public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidg
     StyleButton selectedButton;
     StyleRegistry.Category category;
 
-    VertexConsumerProvider.Immediate bufferSource;
-
     float previewRotation = 0f;
     int buttonsPerRow = 6;
     int rowsPerPage = 4;
@@ -138,7 +136,6 @@ public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidg
     public void renderButton(MatrixStack poseStack, int mouseX, int mouseY, float partialTick) {
         this.previewRotation = this.previewRotation >= 360 ? 0 : this.previewRotation + (partialTick * 2.5f);
 
-        bufferSource = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
         for(int row = scroll; row < scroll + rowsPerPage; row++) {
             for(int i = 0; i < this.buttonsPerRow; i++) {
                 int index = (row * this.buttonsPerRow) + i;
@@ -149,7 +146,6 @@ public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidg
                 }
             }
         }
-        bufferSource.draw();
 
         if(hovered) {
             for (int row = scroll; row < scroll + rowsPerPage; row++) {
@@ -234,6 +230,7 @@ public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidg
             quaternion.hamiltonProduct(quaternion2);
             poseStack2.multiply(quaternion);
             DiffuseLighting.method_34742(); //Setup Entity Lighting
+            VertexConsumerProvider.Immediate bufferSource = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
             RenderSystem.runAsFancy(() -> BounceStylesClient.STYLE_RENDERER.renderStyleForGUI(
                     poseStack2,
                     this.style,
@@ -242,6 +239,7 @@ public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidg
                     partialTick,
                     0xF000F0
             ));
+            bufferSource.draw();
             poseStack.pop();
             RenderSystem.applyModelViewMatrix();
             DiffuseLighting.enableGuiDepthLighting();

@@ -39,7 +39,6 @@ public class StylesResourcePack extends AbstractFileResourcePack {
     public void registerPackStyles() {
         for(ResourcePack pack : this.mergedPacks) {
             try(InputStream stream = pack.openRoot("styles.json")) {
-                StyleLoader.reload();
                 StyleLoader.loadStyles(pack.getName() + "/styles.json", stream);
             }
             catch (FileNotFoundException e) {
