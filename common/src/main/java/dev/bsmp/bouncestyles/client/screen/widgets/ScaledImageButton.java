@@ -2,6 +2,7 @@ package dev.bsmp.bouncestyles.client.screen.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -12,38 +13,25 @@ public class ScaledImageButton extends TexturedButtonWidget implements WardrobeW
     Identifier resourceLocation;
     int uWidth;
     int vHeight;
-    int xTexStart;
-    int yTexStart;
 
-    public ScaledImageButton(Text tooltip, int x, int y, int width, int height, int xTexStart, int yTexStart, int uWidth, int vHeight, Identifier resourceLocation, PressAction onPress) {
-        super(x, y, width, height, xTexStart, yTexStart, resourceLocation, onPress);
+    public ScaledImageButton(Text tooltip, int x, int y, int width, int height, int u, int v, int uWidth, int vHeight, Identifier resourceLocation, PressAction onPress) {
+        super(x, y, width, height, u, v, resourceLocation, onPress);
         this.resourceLocation = resourceLocation;
         this.uWidth = uWidth;
         this.vHeight = vHeight;
-        this.xTexStart = xTexStart;
-        this.yTexStart = yTexStart;
         setMessage(tooltip);
     }
 
     @Override
-    public void renderButton(MatrixStack poseStack, int mouseX, int mouseY, float partialTick) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, this.resourceLocation);
-        int i = this.yTexStart;
-        if (this.isHovered()) {
-            i += this.vHeight;
-        }
+    public void renderButton(DrawContext context, int mouseX, int mouseY, float partialTick) {
         RenderSystem.enableDepthTest();
-        TexturedButtonWidget.drawTexture(poseStack, this.x, this.y, this.width, this.height, this.xTexStart, i, this.uWidth, this.vHeight, 256, 256);
-        if (this.hovered) {
-            this.renderTooltip(poseStack, mouseX, mouseY);
-        }
+        context.drawTexture(this.resourceLocation, getX(), getY(), getWidth(), getHeight(), u, v, this.uWidth, this.vHeight,256, 256);
+        if (this.hovered)
+            this.renderTooltip(context, mouseX, mouseY);
     }
 
-    @Override
-    public void renderTooltip(MatrixStack poseStack, int mouseX, int mouseY) {
+    public void renderTooltip(DrawContext poseStack, int mouseX, int mouseY) {
         if(this.getMessage() != null)
             drawTooltip(getMessage(), mouseX, mouseY, MinecraftClient.getInstance().textRenderer, poseStack, MinecraftClient.getInstance().getWindow().getScaledWidth());
     }
-
 }

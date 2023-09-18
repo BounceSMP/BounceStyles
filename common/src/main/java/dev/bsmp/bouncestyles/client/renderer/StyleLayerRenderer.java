@@ -81,13 +81,13 @@ public class StyleLayerRenderer extends FeatureRenderer<PlayerEntity, PlayerEnti
 
     public void renderStyle(MatrixStack poseStack, Style style, PlayerEntity player, StyleRegistry.Category category, VertexConsumerProvider buffer, float limbSwing, float limbSwingAmount, float partialTick, int packedLight) {
         GeoModel model = getModel(style.modelID, style, player, limbSwing, limbSwingAmount, partialTick, poseStack, category, false);
-        RenderLayer renderType = getRenderType(style, partialTick, poseStack, buffer, null, packedLight, getTextureLocation_geckolib(style));
+        RenderLayer renderType = getRenderType(style, partialTick, poseStack, buffer, null, packedLight, getTextureLocation(style));
         render(model, style, partialTick, renderType, poseStack, buffer, null, packedLight, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
     }
 
     public void renderStyleForGUI(MatrixStack poseStack, Style style, StyleRegistry.Category category, VertexConsumerProvider buffer, float partialTick, int packedLight) {
         GeoModel model = getModel(style.modelID, style, MinecraftClient.getInstance().player, 0f, 0f, partialTick, poseStack, category, true);
-        RenderLayer renderType = getRenderType(style, partialTick, poseStack, buffer, null, packedLight, getTextureLocation_geckolib(style));
+        RenderLayer renderType = getRenderType(style, partialTick, poseStack, buffer, null, packedLight, getTextureLocation(style));
         render(model, style, partialTick, renderType, poseStack, buffer, null, packedLight, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
     }
 
@@ -192,7 +192,7 @@ public class StyleLayerRenderer extends FeatureRenderer<PlayerEntity, PlayerEnti
     }
 
     @Override
-    public Identifier getTextureLocation_geckolib(Style style) {
+    public Identifier getTextureLocation(Style style) {
         Identifier textureID = this.modelProvider.getTextureLocation(style);
 
         if(missingModel) textureID = MissingStyle.INSTANCE.textureID;

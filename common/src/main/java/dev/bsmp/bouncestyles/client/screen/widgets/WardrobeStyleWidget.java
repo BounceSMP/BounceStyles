@@ -8,6 +8,7 @@ import dev.bsmp.bouncestyles.data.Style;
 import dev.bsmp.bouncestyles.data.StyleData;
 import dev.bsmp.bouncestyles.networking.serverbound.EquipStyleServerbound;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -16,11 +17,10 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.math.Vec3f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +43,7 @@ public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidg
     int scaledYMargin;
 
     public WardrobeStyleWidget(int x, int y, int width, int height) {
-        super(x, y, width, height, new LiteralText("Wardrobe Selection"));
+        super(x, y, width, height, Text.literal("Wardrobe Selection"));
         updateButtons(null, new ArrayList<Style>());
     }
 
@@ -80,8 +80,8 @@ public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidg
         this.scaledXMargin = (int) (xMargin / guiScale);
         this.scaledYMargin = (int) (yMargin / guiScale);
 
-        this.left = x + this.scaledXMargin;
-        this.top = y + this.scaledYMargin;
+        this.left = getX() + this.scaledXMargin;
+        this.top = getY() + this.scaledYMargin;
 
         int index = 0;
         for(int row = 0; row < this.totalRows; row++) {
@@ -121,6 +121,9 @@ public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidg
     }
 
     @Override
+    protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
+
+    @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         if(this.totalRows <= rowsPerPage)
             return false;
@@ -133,7 +136,7 @@ public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidg
     }
 
     @Override
-    public void renderButton(MatrixStack poseStack, int mouseX, int mouseY, float partialTick) {
+    public void renderButton(DrawContext context, int mouseX, int mouseY, float partialTick) {
         this.previewRotation = this.previewRotation >= 360 ? 0 : this.previewRotation + (partialTick * 2.5f);
 
         for(int row = scroll; row < scroll + rowsPerPage; row++) {
@@ -141,8 +144,8 @@ public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidg
                 int index = (row * this.buttonsPerRow) + i;
                 if(index < this.buttons.size()) {
                     StyleButton button = this.buttons.get(index);
-                    button.y = top + ((row - scroll) * button.getHeight()) + ((row - scroll) * scaledYMargin);
-                    button.render(poseStack, mouseX, mouseY, partialTick);
+                    button.setY(top + ((row - scroll) * button.getHeight()) + ((row - scroll) * scaledYMargin));
+                    button.render(context, mouseX, mouseY, partialTick);
                 }
             }
         }
@@ -154,7 +157,7 @@ public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidg
                     if (index < this.buttons.size()) {
                         StyleButton button = this.buttons.get(index);
                         if (button.isHovered()) {
-                            button.renderTooltip(poseStack, mouseX, mouseY);
+                            button.renderTooltip(context, mouseX, mouseY);
                             break;
                         }
                     }
@@ -165,10 +168,10 @@ public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidg
         if(totalRows > rowsPerPage) {
             int totalScrolls = (totalRows - rowsPerPage) + 1;
             int scrollHeight = totalScrolls * 10;
-            int scrollTop = (y + (height / 2)) - (scrollHeight / 2);
+            int scrollTop = (getY() + (height / 2)) - (scrollHeight / 2);
             for(int i = 0; i < totalScrolls; i++) {
                 int colour = i == scroll ? 0xFF00cccc : 0xFF222222;
-                fill(poseStack, x + width - 6, scrollTop + (i * 10), x + width - 1, scrollTop + (i * 10) + 5, colour);
+                context.fill(getX() + width - 6, scrollTop + (i * 10), getX() + width - 1, scrollTop + (i * 10) + 5, colour);
             }
         }
     }
@@ -178,28 +181,27 @@ public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidg
         private Style style;
 
         public StyleButton(WardrobeStyleWidget parentWidget, int x, int y, int width, int height, Style style) {
-            super(x, y, width, height, new TranslatableText(style.styleId.getNamespace()+"."+style.styleId.getPath()+"."+parentWidget.category.name().toLowerCase()), null);
+            super(x, y, width, height, Text.translatable(style.styleId.getNamespace()+"."+style.styleId.getPath()+"."+parentWidget.category.name().toLowerCase()), null, DEFAULT_NARRATION_SUPPLIER);
             this.parentWidget = parentWidget;
             this.style = style;
         }
 
         @Override
-        public void renderButton(MatrixStack stack, int mouseX, int mouseY, float partialTick) {
+        public void renderButton(DrawContext context, int mouseX, int mouseY, float partialTick) {
             Window window = MinecraftClient.getInstance().getWindow();
             double guiScale = window.getScaleFactor();
 
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            RenderSystem.setShaderTexture(0, TEX_WIDGETS);
+            RenderSystem.setShader(GameRenderer::getPositionTexProgram);
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, this.alpha);
 
-            drawTexture(stack, this.x, this.y, this.width, this.height, 0, getYOffset() * 50, 50, 50, 256, 256);
+            drawTexture(context, TEX_WIDGETS, this.getX(), this.getY(), 50, 50, getYOffset() * 50,  this.width, this.height, 256, 256);
 
             if(!isHovered()) {
                 int sOffset = width / 6;
                 int sSize = sOffset * 2;
                 RenderSystem.enableScissor(
-                        (int) ((this.x + sOffset) * guiScale),
-                        (int) ((window.getScaledHeight() - y - height + sOffset) * guiScale),
+                        (int) ((getX() + sOffset) * guiScale),
+                        (int) ((window.getScaledHeight() - getY() - height + sOffset) * guiScale),
                         (int) ((width - sSize) * guiScale),
                         (int) (((height - sSize) * guiScale))
                 );
@@ -207,7 +209,7 @@ public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidg
 
             MatrixStack poseStack = RenderSystem.getModelViewStack();
             poseStack.push();
-            poseStack.translate(this.x + (this.width / 2), this.y + this.height, 1050.0);
+            poseStack.translate(getX() + (this.width / 2), getY() + this.height, 1050.0);
             poseStack.scale(1.0f, 1.0f, -1.0f);
             RenderSystem.applyModelViewMatrix();
             MatrixStack poseStack2 = new MatrixStack();
@@ -225,9 +227,8 @@ public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidg
                 poseStack2.scale((float) (height * 0.6), (float) (height * 0.6), 10f);
             }
             poseStack2.translate(0.0, offsetY, 0.0);
-            Quaternion quaternion = Vec3f.POSITIVE_Z.getDegreesQuaternion(180.0f);
-            Quaternion quaternion2 = Vec3f.POSITIVE_Y.getDegreesQuaternion(this.parentWidget.previewRotation);
-            quaternion.hamiltonProduct(quaternion2);
+            Quaternionf quaternion = new Quaternionf().rotateZ(180.0f);
+            Quaternionf quaternion2 = new Quaternionf().rotateY(this.parentWidget.previewRotation);
             poseStack2.multiply(quaternion);
             DiffuseLighting.method_34742(); //Setup Entity Lighting
             VertexConsumerProvider.Immediate bufferSource = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
@@ -260,20 +261,12 @@ public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidg
             }
         }
 
-        @Override
-        public void renderTooltip(MatrixStack poseStack, int mouseX, int mouseY) {
-            drawTooltip(getMessage(), mouseX, mouseY, MinecraftClient.getInstance().textRenderer, poseStack, parentWidget.x + parentWidget.width);
+        public void renderTooltip(DrawContext poseStack, int mouseX, int mouseY) {
+            drawTooltip(getMessage(), mouseX, mouseY, MinecraftClient.getInstance().textRenderer, poseStack, parentWidget.getX() + parentWidget.width);
         }
 
         private int getYOffset() {
             return this.parentWidget.selectedButton == this ? 2 : hovered ? 1 : 0;
         }
-
-        @Override
-        public void appendNarrations(NarrationMessageBuilder narrationElementOutput) {}
     }
-
-    @Override
-    public void appendNarrations(NarrationMessageBuilder narrationElementOutput) {}
-
 }

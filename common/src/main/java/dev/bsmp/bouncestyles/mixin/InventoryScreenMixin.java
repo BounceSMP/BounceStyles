@@ -5,12 +5,12 @@ import dev.bsmp.bouncestyles.client.screen.widgets.WardrobeWidget;
 import dev.bsmp.bouncestyles.networking.serverbound.OpenStyleScreenServerbound;
 import net.minecraft.client.gui.screen.ingame.AbstractInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.PlayerScreenHandler;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,13 +32,7 @@ public abstract class InventoryScreenMixin extends AbstractInventoryScreen<Playe
                 x + 78, y + 47, 13, 13,
                 0, 0, 13, TEX, 13, 26,
                 button -> new OpenStyleScreenServerbound().sendToServer(),
-                this::wardrobeTooltip,
-                new LiteralText("Open Wardrobe")
+                Text.literal("Open Wardrobe")
         ));
     }
-
-    private void wardrobeTooltip(ButtonWidget button, MatrixStack poseStack, int mouseX, int mouseY) {
-        WardrobeWidget.drawTooltipStatic(button.getMessage(), mouseX, mouseY, this.textRenderer, poseStack, 0);
-    }
-
 }

@@ -1,6 +1,5 @@
 package dev.bsmp.bouncestyles.pack;
 
-import com.mojang.bridge.game.PackType;
 import dev.architectury.platform.Platform;
 import dev.architectury.utils.Env;
 import dev.bsmp.bouncestyles.BounceStyles;
@@ -9,7 +8,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.resource.*;
 import net.minecraft.resource.metadata.PackResourceMetadata;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -25,30 +24,31 @@ public class StylePackProvider implements ResourcePackProvider {
     private static final FileFilter filter = file -> (file.isFile() && file.getName().endsWith(".zip")) || (file.isDirectory() && new File(file, "pack.mcmeta").isFile());
 
     @Override
-    public void register(Consumer<ResourcePackProfile> profileAdder, ResourcePackProfile.Factory factory) {
+    public void register(Consumer<ResourcePackProfile> profileAdder) {
         File[] files;
         if ((files = stylePackDir.listFiles(filter)) == null) return;
 
+        ResourceType packType = Platform.getEnvironment() == Env.CLIENT ? ResourceType.CLIENT_RESOURCES : ResourceType.SERVER_DATA;
         List<ResourcePackProfile> profiles = new ArrayList<>();
         for(File file : files) {
-            Supplier<ResourcePack> supplier = () -> file.isDirectory() ? new DirectoryResourcePack(file) : new ZipResourcePack(file);
-            ResourcePackProfile profile = ResourcePackProfile.of(
+            ResourcePackProfile.PackFactory factory = (name) -> file.isDirectory() ? new DirectoryResourcePack(file.getName(), file.toPath(), false) : new ZipResourcePack(file.getName(), file, false);
+            ResourcePackProfile profile = ResourcePackProfile.create(
                     BounceStyles.modId + ":" + file.getName(),
+                    Text.literal("Styles Packs"),
                     true,
-                    supplier,
                     factory,
-                    ResourcePackProfile.InsertionPosition.TOP,
-                    ResourcePackSource.PACK_SOURCE_NONE
+                    packType,
+                    ResourcePackProfile.InsertionPosition.BOTTOM,
+                    ResourcePackSource.NONE
             );
             if(profile == null) continue;
             profiles.add(profile);
         }
 
+        int version = SharedConstants.getGameVersion().getResourceVersion(packType);
         List<ResourcePack> packs = profiles.stream().map(ResourcePackProfile::createResourcePack).toList();
-        PackType packType = Platform.getEnvironment() == Env.CLIENT ? PackType.RESOURCE : PackType.DATA;
-        int version = SharedConstants.getGameVersion().getPackVersion(packType);
-        PackResourceMetadata metadata = new PackResourceMetadata(new TranslatableText(BounceStyles.modId + ".resources.styles"), version);
-        ResourcePackProfile mergedProfile = ResourcePackProfile.of("Styles", true, () -> new StylesResourcePack(stylePackDir, packs, metadata), factory, ResourcePackProfile.InsertionPosition.TOP, ResourcePackSource.PACK_SOURCE_NONE);
+        PackResourceMetadata metadata = new PackResourceMetadata(Text.translatable(BounceStyles.modId + ".resources.styles"), version);
+        ResourcePackProfile mergedProfile = ResourcePackProfile.create("Styles", Text.literal("Style Packs2"), true, (name) -> new StylesResourcePack(stylePackDir, packs, metadata), packType, ResourcePackProfile.InsertionPosition.BOTTOM, ResourcePackSource.NONE);
         if(mergedProfile != null) profileAdder.accept(mergedProfile);
     }
 

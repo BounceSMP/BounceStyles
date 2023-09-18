@@ -16,12 +16,7 @@ subprojects {
 
     dependencies {
         minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
-		mappings loom.layered() {
-			mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-			mappings(rootProject.file("geckolib-fix.mapping")) {
-				enigmaMappings()
-			}
-		}
+        mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     }
 }
 

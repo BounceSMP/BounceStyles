@@ -5,7 +5,7 @@ import dev.architectury.platform.Platform;
 import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleLoader;
 import net.minecraft.resource.AbstractFileResourcePack;
-import net.minecraft.resource.ResourceNotFoundException;
+import net.minecraft.resource.InputSupplier;
 import net.minecraft.resource.ResourcePack;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.resource.metadata.PackResourceMetadata;
@@ -18,6 +18,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -29,7 +30,7 @@ public class StylesResourcePack extends AbstractFileResourcePack {
     private final Map<String, List<ResourcePack>> resourceNamespaces;
 
     public StylesResourcePack(File base, List<ResourcePack> mergedPacks, PackResourceMetadata metadata) {
-        super(base);
+        super(BounceStyles.modId + ":stylePacks", false);
         this.mergedPacks = mergedPacks;
         this.metadata = metadata;
         dataNamespaces = buildPackMap(ResourceType.SERVER_DATA);
@@ -38,11 +39,14 @@ public class StylesResourcePack extends AbstractFileResourcePack {
 
     public void registerPackStyles() {
         for(ResourcePack pack : this.mergedPacks) {
-            try(InputStream stream = pack.openRoot("styles.json")) {
-                StyleLoader.loadStyles(pack.getName() + "/styles.json", stream);
-            }
-            catch (FileNotFoundException e) {
+            InputSupplier<InputStream> supplier = pack.openRoot("styles.json");
+            if (supplier == null) {
                 BounceStyles.LOGGER.warn("No styles.json file found for pack '" + pack.getName() + "'; Skipping...");
+                continue;
+            }
+
+            try(InputStream stream = supplier.get()) {
+                StyleLoader.loadStyles(pack.getName() + "/styles.json", stream);
             }
             catch (IOException e) {
                 BounceStyles.LOGGER.error("Exception occurred while processing styles.json for pack: " + pack.getName());
@@ -61,46 +65,41 @@ public class StylesResourcePack extends AbstractFileResourcePack {
         return map;
     }
 
+    @Nullable
     @Override
-    public InputStream openRoot(String fileName) throws IOException {
-        if (fileName.equals("pack.png")) {
-            Mod mod = Platform.getMod(BounceStyles.modId);
-            Optional<InputStream> stream = mod.getLogoFile(480).flatMap(s -> mod.findResource(s).map(path -> {
-                try {
-                    return Files.newInputStream(path);
-                }
-                catch (IOException e) {
-                    return null;
-                }
-            }));
-            if (stream.isPresent()) {
-                return stream.get();
+    public InputSupplier<InputStream> openRoot(String... segments) {
+        for (String fileName : segments) {
+            if (fileName.equals("pack.png")) {
+                Mod mod = Platform.getMod(BounceStyles.modId);
+                String logoPath = mod.getLogoFile(120).orElse("");
+                Path path = mod.findResource(logoPath).orElse(null);
+                if (path != null)
+                    return InputSupplier.create(path);
             }
         }
-        throw new ResourceNotFoundException(this.base, fileName);
+        return null;
     }
 
     @Override
-    public InputStream open(ResourceType type, Identifier id) throws IOException {
-        for(ResourcePack pack : this.mergedPacks)
-            if(pack.contains(type, id))
-                return pack.open(type, id);
+    public InputSupplier<InputStream> open(ResourceType type, Identifier id) {
+        Map<String, List<ResourcePack>> map = type == ResourceType.CLIENT_RESOURCES ? resourceNamespaces : dataNamespaces;
+        List<ResourcePack> matchingPacks = map.get(id.getNamespace());
+        if (matchingPacks == null)
+            matchingPacks = Collections.emptyList();
 
-        throw new ResourceNotFoundException(this.base, id.toString());
+        for(ResourcePack pack : matchingPacks) {
+            InputSupplier<InputStream> supplier = pack.open(type, id);
+            if (supplier != null)
+                return supplier;
+        }
+        return null;
     }
 
     @Override
-    public boolean contains(ResourceType type, Identifier id) {
-        for(ResourcePack pack : this.mergedPacks)
-            if(pack.contains(type, id))
-                return true;
-
-        return false;
-    }
-
-    @Override
-    public Collection<Identifier> findResources(ResourceType type, String namespace, String prefix, int maxDepth, Predicate<String> pathFilter) {
-        return this.mergedPacks.stream().flatMap(pack -> pack.findResources(type, namespace, prefix, maxDepth, pathFilter).stream()).collect(Collectors.toList());
+    public void findResources(ResourceType type, String namespace, String prefix, ResultConsumer consumer) {
+        for (ResourcePack pack : this.mergedPacks) {
+            pack.findResources(type, namespace, prefix, consumer);
+        }
     }
 
     @Nullable
@@ -128,21 +127,5 @@ public class StylesResourcePack extends AbstractFileResourcePack {
     public void close() {
         for(ResourcePack pack : this.mergedPacks)
             pack.close();
-    }
-
-    @Override
-    public String getName() {
-        return "BounceStyles";
-    }
-
-    //Unneeded Methods overwritten
-    @Override
-    protected InputStream openFile(String name) throws IOException {
-        throw new ResourceNotFoundException(this.base, name);
-    }
-
-    @Override
-    protected boolean containsFile(String name) {
-        return false;
     }
 }

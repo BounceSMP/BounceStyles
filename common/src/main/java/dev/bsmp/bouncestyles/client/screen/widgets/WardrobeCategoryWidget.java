@@ -5,12 +5,13 @@ import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleRegistry;
 import dev.bsmp.bouncestyles.client.screen.WardrobeScreen;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class WardrobeCategoryWidget extends ClickableWidget implements WardrobeW
     CategoryButton selectedButton = null;
 
     public WardrobeCategoryWidget(WardrobeScreen parentScreen, int x, int y, int width, int height) {
-        super(x, y, width, height, new LiteralText("Wardrobe Categories"));
+        super(x, y, width, height, Text.literal("Wardrobe Categories"));
         this.parentScreen = parentScreen;
         int i = 0;
         double guiScale = MinecraftClient.getInstance().getWindow().getScaleFactor();
@@ -36,14 +37,14 @@ public class WardrobeCategoryWidget extends ClickableWidget implements WardrobeW
     }
 
     @Override
-    public void renderButton(MatrixStack poseStack, int mouseX, int mouseY, float partialTick) {
+    public void renderButton(DrawContext context, int mouseX, int mouseY, float partialTick) {
         for (CategoryButton button : this.buttonList) {
-            button.render(poseStack, mouseX, mouseY, partialTick);
+            button.render(context, mouseX, mouseY, partialTick);
         }
         if(hovered) {
             for (CategoryButton button : this.buttonList) {
                 if(button.isHovered())
-                    button.renderTooltip(poseStack, mouseX, mouseY);
+                    button.renderTooltip(context, mouseX, mouseY);
             }
         }
     }
@@ -59,31 +60,32 @@ public class WardrobeCategoryWidget extends ClickableWidget implements WardrobeW
         return false;
     }
 
+    @Override
+    protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
+
     public class CategoryButton extends ButtonWidget {
         private static final Identifier TEX_CATEGORY_BG = new Identifier(BounceStyles.modId, "textures/icon/category_bg.png");
         WardrobeCategoryWidget parentWidget;
         StyleRegistry.Category category;
 
         public CategoryButton(WardrobeCategoryWidget parentWidget, StyleRegistry.Category category, int x, int y, int width, int height) {
-            super(x, y, width, height, new LiteralText(category.name()), null);
+            super(x, y, width, height, Text.literal(category.name()), null, DEFAULT_NARRATION_SUPPLIER);
             this.parentWidget = parentWidget;
             this.category = category;
         }
 
         @Override
-        public void renderButton(MatrixStack poseStack, int mouseX, int mouseY, float partialTick) {
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            RenderSystem.setShaderTexture(0, TEX_CATEGORY_BG);
+        public void renderButton(DrawContext poseStack, int mouseX, int mouseY, float partialTick) {
             RenderSystem.enableDepthTest();
-            drawTexture(poseStack, this.x, this.y, this.width, this.height, 0,
+            drawTexture(poseStack, TEX_CATEGORY_BG,  getX(), getY(), 24, 24,
                     this.parentWidget.selectedButton == this ? 48 : this.isHovered() ? 24 : 0,
-                    24, 24, 24, 72);
+                    this.width, this.height, 24, 72);
 
             RenderSystem.setShaderTexture(0, this.category.categoryIcon);
             if(category == StyleRegistry.Category.Body)
-                drawTexture(poseStack, this.x + 3, this.y + 3, this.width - 6, this.height - 6, 0, 0, 16, 16, 16, 16);
+                drawTexture(poseStack, TEX_CATEGORY_BG, getX() + 3, getY() + 3, 16, 16, 0, this.width - 6, this.height - 6, 16, 16);
             else
-                drawTexture(poseStack, this.x + 2, this.y + 2, this.width - 4, this.height - 4, 0, 0, 16, 16, 16, 16);
+                drawTexture(poseStack, TEX_CATEGORY_BG, getX() + 2, getY() + 2, 16, 16, 0, this.width - 4, this.height - 4, 16, 16);
         }
 
         @Override
@@ -94,12 +96,8 @@ public class WardrobeCategoryWidget extends ClickableWidget implements WardrobeW
             }
         }
 
-        @Override
-        public void renderTooltip(MatrixStack poseStack, int mouseX, int mouseY) {
+        public void renderTooltip(DrawContext poseStack, int mouseX, int mouseY) {
             drawTooltip(getMessage(), mouseX, mouseY, MinecraftClient.getInstance().textRenderer, poseStack, 0);
         }
     }
-
-    @Override
-    public void appendNarrations(NarrationMessageBuilder narrationElementOutput) {}
 }

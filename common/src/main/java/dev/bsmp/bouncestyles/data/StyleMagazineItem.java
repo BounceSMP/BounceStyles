@@ -7,9 +7,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -35,9 +33,9 @@ public class StyleMagazineItem extends Item {
         if(style == null)
             return;
 
-        tooltip.add(new LiteralText("Issue #" + nbt.getInt("issue")).styled(textStyle -> textStyle.withColor(Formatting.GRAY).withItalic(true).withUnderline(true)));
+        tooltip.add(Text.literal("Issue #" + nbt.getInt("issue")).styled(textStyle -> textStyle.withColor(Formatting.GRAY).withItalic(true).withUnderline(true)));
         for(StyleRegistry.Category category : style.categories) {
-            tooltip.add(new LiteralText("- ").append(new TranslatableText(style.styleId.getNamespace()+"."+style.styleId.getPath()+"."+category.name().toLowerCase())).styled(
+            tooltip.add(Text.literal("- ").append(Text.translatable(style.styleId.getNamespace()+"."+style.styleId.getPath()+"."+category.name().toLowerCase())).styled(
                     textStyle -> textStyle.withColor(Formatting.GRAY))
             );
         }

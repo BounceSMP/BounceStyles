@@ -10,7 +10,7 @@ import dev.bsmp.bouncestyles.data.StyleData;
 import dev.bsmp.bouncestyles.data.StylePreset;
 import dev.bsmp.bouncestyles.networking.serverbound.EquipStyleServerbound;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.EntryListWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -19,9 +19,9 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import java.util.List;
@@ -43,7 +43,7 @@ public class WardrobePresetsWidget extends EntryListWidget<WardrobePresetsWidget
 
         this.parentScreen = parentScreen;
 
-        this.presetNameEntry = new TextFieldWidget(client.textRenderer, x + 10 + buttonSize, y + height - buttonSize - 5, width - 20 - buttonSize, buttonSize, new LiteralText("Preset Name"));
+        this.presetNameEntry = new TextFieldWidget(client.textRenderer, x + 10 + buttonSize, y + height - buttonSize - 5, width - 20 - buttonSize, buttonSize, Text.literal("Preset Name"));
         this.presetNameEntry.visible = false;
         this.presetNameEntry.active = false;
 
@@ -79,7 +79,7 @@ public class WardrobePresetsWidget extends EntryListWidget<WardrobePresetsWidget
     }
 
     @Override
-    public void render(MatrixStack poseStack, int mouseX, int mouseY, float partialTick) {
+    public void render(DrawContext poseStack, int mouseX, int mouseY, float partialTick) {
         super.render(poseStack, mouseX, mouseY, partialTick);
 
         this.presetNameEntry.render(poseStack, mouseX, mouseY, partialTick);
@@ -93,7 +93,7 @@ public class WardrobePresetsWidget extends EntryListWidget<WardrobePresetsWidget
                     s = "Save";
             }
 
-            drawTooltip(new LiteralText(s), mouseX, mouseY, MinecraftClient.getInstance().textRenderer, poseStack, 0);
+            drawTooltip(Text.literal(s), mouseX, mouseY, MinecraftClient.getInstance().textRenderer, poseStack, 0);
         }
     }
 
@@ -155,37 +155,36 @@ public class WardrobePresetsWidget extends EntryListWidget<WardrobePresetsWidget
         }
 
         @Override
-        public void render(MatrixStack poseStack, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean isMouseOver, float partialTick) {
+        public void render(DrawContext context, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean isMouseOver, float partialTick) {
             isMouseOver = this.isHovered = mouseX >= left && mouseX <= left + width && mouseY >= top && mouseY <= top + height;
 
             int colorBg = isMouseOver ? 0xFF2E4C6B : 0xFF0D2C4C;
-            fill(poseStack, left, top, left + width, top + height, colorBg);
+            context.fill(left, top, left + width, top + height, colorBg);
 
             int colorOutline = isMouseOver ? 0xFF00cccc : 0xFF00A8A8;
-            fill(poseStack, left, top, left + width, top + 1, colorOutline); //Top Line
-            fill(poseStack, left, top + height, left + width, top + height - 1, colorOutline); //Bottom Line
+            context.fill(left, top, left + width, top + 1, colorOutline); //Top Line
+            context.fill(left, top + height, left + width, top + height - 1, colorOutline); //Bottom Line
 
-            fill(poseStack, left, top, left + 1, top + height, colorOutline); //Left Line
-            fill(poseStack, left + width - 1, top, left + width, top + height, colorOutline); //Right Line
+            context.fill(left, top, left + 1, top + height, colorOutline); //Left Line
+            context.fill(left + width - 1, top, left + width, top + height, colorOutline); //Right Line
 
-            drawStringWithShadow(poseStack, MinecraftClient.getInstance().textRenderer, this.preset.name(), left + 5, top + (height / 2) - 4, isMouseOver ? 0xb3fffe : 0xFFFFFF);
-            this.deleteButton.x = left + width + 5;
-            this.deleteButton.y = top + 1;
-            this.deleteButton.render(poseStack, mouseX, mouseY, partialTick);
+            context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, this.preset.name(), left + 5, top + (height / 2) - 4, isMouseOver ? 0xb3fffe : 0xFFFFFF);
+            this.deleteButton.setX(left + width + 5);
+            this.deleteButton.setY(top + 1);
+            this.deleteButton.render(context, mouseX, mouseY, partialTick);
 
             if(preset.error()) {
-                RenderSystem.setShader(GameRenderer::getPositionTexShader);
-                RenderSystem.setShaderTexture(0, TEX_WIDGETS);
-                RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-                DrawableHelper.drawTexture(poseStack, left + width - 22, top + 2, 50, 48, 22, 22, 256, 256);
+                MatrixStack poseStack = context.getMatrices();
+//                RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+                context.drawTexture(TEX_WIDGETS, left + width - 22, top + 2, 50, 48, 22, 22, 256, 256);
                 if(isMouseOver) {
                     poseStack.push();
                     GlStateManager._enableDepthTest();
                     poseStack.translate(0, 0, 100);
-                    WardrobeWidget.drawTooltipBackgroundStatic(poseStack, mouseX + 5, mouseY - 12, 168, (tooltipLines.size() * 10) + 7);
+                    WardrobeWidget.drawTooltipBackgroundStatic(context, mouseX + 5, mouseY - 12, 168, (tooltipLines.size() * 10) + 7);
                     int i = 0;
                     for(OrderedText text : tooltipLines) {
-                        MinecraftClient.getInstance().textRenderer.draw(poseStack, text, mouseX + 9, mouseY - 7 + (i * 10), 0xFFFFFF);
+                        context.drawText(MinecraftClient.getInstance().textRenderer, text, mouseX + 9, mouseY - 7 + (i * 10), 0xFFFFFF, false);
                         i++;
                     }
                     poseStack.pop();

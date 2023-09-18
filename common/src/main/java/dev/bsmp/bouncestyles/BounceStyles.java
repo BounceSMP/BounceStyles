@@ -5,7 +5,7 @@ import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.registry.ReloadListenerRegistry;
 import dev.architectury.registry.registries.Registrar;
-import dev.architectury.registry.registries.Registries;
+import dev.architectury.registry.registries.RegistrarManager;
 import dev.architectury.registry.registries.RegistrySupplier;
 import dev.bsmp.bouncestyles.commands.StyleCommand;
 import dev.bsmp.bouncestyles.commands.StyleSlotArgumentType;
@@ -17,16 +17,17 @@ import dev.bsmp.bouncestyles.networking.BounceStylesNetwork;
 import dev.bsmp.bouncestyles.networking.clientbound.SyncRegisteredStylesClientbound;
 import dev.bsmp.bouncestyles.networking.clientbound.SyncStyleDataClientbound;
 import net.minecraft.command.argument.ArgumentTypes;
+import net.minecraft.command.argument.serialize.ArgumentSerializer;
 import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.EntityTrackingListener;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.chunk.ChunkManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,7 +40,7 @@ import java.util.function.Supplier;
 public class BounceStyles {
     public static final String modId = "bounce_styles";
     public static final Logger LOGGER = LogManager.getLogger();
-    public static final Supplier<Registries> REGISTRIES = Suppliers.memoize(() -> Registries.get(modId));
+    public static final Supplier<RegistrarManager> REGISTRIES = Suppliers.memoize(() -> RegistrarManager.get(modId));
 
     public static RegistrySupplier<StyleMagazineItem> MAGAZINE_ITEM;
 
@@ -50,11 +51,13 @@ public class BounceStyles {
         BounceStylesNetwork.initServerbound();
         BounceStylesNetwork.initClientbound();
 
-        Registrar<Item> items = REGISTRIES.get().get(Registry.ITEM_KEY);
+        Registrar<Item> items = REGISTRIES.get().get(Registries.ITEM);
         MAGAZINE_ITEM = items.register(new Identifier(modId, "magazine"), StyleMagazineItem::new);
 
-        CommandRegistrationEvent.EVENT.register((dispatcher, dedicated) -> StyleCommand.register(dispatcher));
-        ArgumentTypes.register("style_slot", StyleSlotArgumentType.class, new ConstantArgumentSerializer<>(StyleSlotArgumentType::styleSlot));
+        CommandRegistrationEvent.EVENT.register((dispatcher, registry, dedicated) -> StyleCommand.register(dispatcher));
+
+//        Registrar<ArgumentSerializer<?, ?>> argTypes = REGISTRIES.get().get(Registries.COMMAND_ARGUMENT_TYPE);
+//        argTypes.register("style_slot", ConstantArgumentSerializer.of(StyleSlotArgumentType::styleSlot));
 
         PlayerEvent.PLAYER_JOIN.register(BounceStyles::playerJoin);
         PlayerEvent.PLAYER_CLONE.register(StyleData::copyFrom);
@@ -77,7 +80,7 @@ public class BounceStyles {
     }
 
     public static Set<EntityTrackingListener> getPlayersTracking(Entity entity) {
-        ChunkManager manager = entity.world.getChunkManager();
+        ChunkManager manager = entity.getWorld().getChunkManager();
         if (manager instanceof ServerChunkManager) {
             ThreadedAnvilChunkStorage storage = ((ServerChunkManager) manager).threadedAnvilChunkStorage;
             EntityTrackerAccessor tracker = ((ChunkStorageAccessor) storage).getEntityTrackers().get(entity.getId());

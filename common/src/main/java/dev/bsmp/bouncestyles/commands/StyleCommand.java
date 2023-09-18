@@ -18,7 +18,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
@@ -147,7 +147,7 @@ public class StyleCommand {
             for(Identifier id : StyleRegistry.getAllStyleIds()) {
                 styleData.unlockStyle(id);
             }
-            player.sendMessage(new LiteralText("You've unlocked all current styles, enjoy!").styled(style -> style.withColor(Formatting.GOLD)), false);
+            player.sendMessage(Text.literal("You've unlocked all current styles, enjoy!").styled(style -> style.withColor(Formatting.GOLD)), false);
         }
         return 1;
     }
@@ -156,7 +156,7 @@ public class StyleCommand {
         for(ServerPlayerEntity player : players)
             if (id != null && StyleRegistry.idExists(id)) {
                 StyleData.getOrCreateStyleData(player).unlockStyle(id);
-                player.sendMessage(new LiteralText("Style unlocked").styled(style -> style.withColor(Formatting.GOLD)), false);
+                player.sendMessage(Text.literal("Style unlocked").styled(style -> style.withColor(Formatting.GOLD)), false);
             }
         return 1;
     }
@@ -167,7 +167,7 @@ public class StyleCommand {
             for(Identifier id : StyleRegistry.getAllStyleIds()) {
                 styleData.removeStyle(id);
             }
-            source.sendFeedback(new LiteralText("Removed all styles for " + player.getEntityName()), true);
+            source.sendFeedback(() -> Text.literal("Removed all styles for " + player.getEntityName()), true);
         }
         return 1;
     }
@@ -176,7 +176,7 @@ public class StyleCommand {
         for(ServerPlayerEntity player : players)
             if (id != null && StyleRegistry.idExists(id)) {
                 StyleData.getOrCreateStyleData(player).removeStyle(id);
-                source.sendFeedback(new LiteralText("Removed style " + id + " from player " + player.getEntityName()), true);
+                source.sendFeedback(() -> Text.literal("Removed style " + id + " from player " + player.getEntityName()), true);
             }
         return 1;
     }
@@ -198,10 +198,10 @@ public class StyleCommand {
                 return 1;
             }
             else
-                context.getSource().sendError(new LiteralText("Given ID does not fit into " + slot.name() + " slot"));
+                context.getSource().sendError(Text.literal("Given ID does not fit into " + slot.name() + " slot"));
         }
         else
-            context.getSource().sendError(new LiteralText("Given ID not found"));
+            context.getSource().sendError(Text.literal("Given ID not found"));
         return 0;
     }
 

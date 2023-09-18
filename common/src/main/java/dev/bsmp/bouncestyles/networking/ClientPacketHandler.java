@@ -25,7 +25,7 @@ public class ClientPacketHandler {
         NetworkManager.PacketContext ctx = contextSupplier.get();
 
         ctx.queue(() -> {
-            Entity entity = MinecraftClient.getInstance().player.world.getEntityById(packet.entityId());
+            Entity entity = MinecraftClient.getInstance().player.getWorld().getEntityById(packet.entityId());
             if(entity instanceof PlayerEntity) {
                 StyleData.setPlayerData((PlayerEntity) entity, packet.styleData());
             }

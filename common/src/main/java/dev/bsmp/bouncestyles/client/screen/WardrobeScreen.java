@@ -6,10 +6,11 @@ import dev.bsmp.bouncestyles.client.screen.widgets.*;
 import dev.bsmp.bouncestyles.data.StylePreset;
 import dev.bsmp.bouncestyles.networking.serverbound.EquipStyleServerbound;
 import dev.bsmp.bouncestyles.networking.serverbound.ToggleArmorVisibilityServerbound;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import java.util.Comparator;
@@ -33,7 +34,7 @@ public class WardrobeScreen extends Screen {
     int topBarHeight;
 
     public WardrobeScreen(List<Identifier> unlocks) {
-        super(new LiteralText("Wardrobe Screen"));
+        super(Text.literal("Wardrobe Screen"));
         this.unlockedStyles = unlocks;
     }
 
@@ -50,8 +51,8 @@ public class WardrobeScreen extends Screen {
         this.presetsWidget = new WardrobePresetsWidget(client, this, previewRight, topBarHeight, width - previewRight, height - topBarHeight, 30, topBarHeight);
 
         int btnSize = topBarHeight;
-        this.clearButton = addDrawableChild(new ScaledImageButton(new LiteralText("Clear Equipped"), width - topBarHeight, 1, btnSize, btnSize, 98, 0, 24, 24, TEX_WIDGETS, button -> clearEquipped()));
-        this.armorVisibilityButton = addDrawableChild(new ScaledImageButton(new LiteralText("Toggle Armor Visibility"),width - (topBarHeight * 2), 1, btnSize, btnSize, 122, 0, 24, 24, TEX_WIDGETS, button -> toggleArmor()));
+        this.clearButton = addDrawableChild(new ScaledImageButton(Text.literal("Clear Equipped"), width - topBarHeight, 1, btnSize, btnSize, 98, 0, 24, 24, TEX_WIDGETS, button -> clearEquipped()));
+        this.armorVisibilityButton = addDrawableChild(new ScaledImageButton(Text.literal("Toggle Armor Visibility"),width - (topBarHeight * 2), 1, btnSize, btnSize, 122, 0, 24, 24, TEX_WIDGETS, button -> toggleArmor()));
 
         if(this.activeWidget instanceof WardrobeStyleWidget)
             this.activeWidget = this.styleWidget;
@@ -63,38 +64,38 @@ public class WardrobeScreen extends Screen {
     }
 
     @Override
-    public void render(MatrixStack poseStack, int mouseX, int mouseY, float partialTick) {
-        renderBackground(poseStack);
-        this.activeWidget.render(poseStack, mouseX, mouseY, partialTick);
-        super.render(poseStack, mouseX, mouseY, partialTick);
+    public void render(DrawContext context, int mouseX, int mouseY, float partialTick) {
+        renderBackground(context);
+        this.activeWidget.render(context, mouseX, mouseY, partialTick);
+        super.render(context, mouseX, mouseY, partialTick);
     }
 
     @Override
-    public void renderBackground(MatrixStack poseStack) {
-        super.renderBackground(poseStack);
+    public void renderBackground(DrawContext context) {
+        super.renderBackground(context);
 
-        fill(poseStack, 0, 0, width, height, 0xcc175796);
-        fillGradient(poseStack, previewRight, 0, width, height / 3, 0x5500cccc, 0x00000000);
-        fillGradient(poseStack, previewRight, height - (height / 4), width, height, 0x00000000, 0x55000000);
+        context.fill(0, 0, width, height, 0xcc175796);
+        context.fillGradient(previewRight, 0, width, height / 3, 0x5500cccc, 0x00000000);
+        context.fillGradient(previewRight, height - (height / 4), width, height, 0x00000000, 0x55000000);
 
-        fillGradient(poseStack, 0, 0, previewRight, height / 3, 0xcc00cccc, 0x00000000);
-        fillGradient(poseStack, 0, height - (height / 3), previewRight, height, 0x00000000, 0xcc000000);
+        context.fillGradient(0, 0, previewRight, height / 3, 0xcc00cccc, 0x00000000);
+        context.fillGradient(0, height - (height / 3), previewRight, height, 0x00000000, 0xcc000000);
 
-        drawVerticalLine(poseStack, previewRight - 2, -1, height, 0xFF005454);
-        drawVerticalLine(poseStack, previewRight - 1, -1, height, 0xFF00A8A8);
-        drawVerticalLine(poseStack, previewRight, -1, height, 0xFF005454);
+        context.drawVerticalLine(previewRight - 2, -1, height, 0xFF005454);
+        context.drawVerticalLine(previewRight - 1, -1, height, 0xFF00A8A8);
+        context.drawVerticalLine(previewRight, -1, height, 0xFF005454);
 
-        drawVerticalLine(poseStack, 0, -1, height, 0xFF005454);
-        drawVerticalLine(poseStack, 1, -1, height, 0xFF00A8A8);
-        drawVerticalLine(poseStack, 2, -1, height, 0xFF005454);
+        context.drawVerticalLine(0, -1, height, 0xFF005454);
+        context.drawVerticalLine(1, -1, height, 0xFF00A8A8);
+        context.drawVerticalLine(2, -1, height, 0xFF005454);
 
-        drawHorizontalLine(poseStack, 0, previewRight-1, 0, 0xFF005454);
-        drawHorizontalLine(poseStack, 2, previewRight - 2, 1, 0xFF00A8A8);
-        drawHorizontalLine(poseStack, 3, previewRight-3, 2, 0xFF005454);
+        context.drawHorizontalLine(0, previewRight-1, 0, 0xFF005454);
+        context.drawHorizontalLine(2, previewRight - 2, 1, 0xFF00A8A8);
+        context.drawHorizontalLine(3, previewRight-3, 2, 0xFF005454);
 
-        drawHorizontalLine(poseStack, 0, previewRight-1, height - 1, 0xFF005454);
-        drawHorizontalLine(poseStack, 2, previewRight - 2, height - 2, 0xFF00A8A8);
-        drawHorizontalLine(poseStack, 3, previewRight-3, height - 3, 0xFF005454);
+        context.drawHorizontalLine(0, previewRight-1, height - 1, 0xFF005454);
+        context.drawHorizontalLine(2, previewRight - 2, height - 2, 0xFF00A8A8);
+        context.drawHorizontalLine(3, previewRight-3, height - 3, 0xFF005454);
     }
 
     @Override

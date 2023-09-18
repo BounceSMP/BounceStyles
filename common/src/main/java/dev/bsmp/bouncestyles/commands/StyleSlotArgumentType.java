@@ -11,7 +11,7 @@ import dev.bsmp.bouncestyles.StyleRegistry;
 import dev.bsmp.bouncestyles.StyleRegistry.Category;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class StyleSlotArgumentType implements ArgumentType<Category> {
-    private static final Dynamic2CommandExceptionType INVALID_ENUM = new Dynamic2CommandExceptionType((found, constants) -> new TranslatableText("commands.forge.arguments.enum.invalid", new Object[]{constants, found}));
+    private static final Dynamic2CommandExceptionType INVALID_ENUM = new Dynamic2CommandExceptionType((found, constants) -> Text.translatable("commands.forge.arguments.enum.invalid", constants, found));
 
     private StyleSlotArgumentType() {}
     public static StyleSlotArgumentType styleSlot() { return new StyleSlotArgumentType(); }
