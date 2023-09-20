@@ -19,6 +19,7 @@ import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import org.apache.commons.lang3.builder.Diff;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -137,7 +138,7 @@ public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidg
 
     @Override
     public void renderButton(DrawContext context, int mouseX, int mouseY, float partialTick) {
-        this.previewRotation = this.previewRotation >= 360 ? 0 : this.previewRotation + (partialTick * 2.5f);
+        this.previewRotation = this.previewRotation + (partialTick * 0.05f);
 
         for(int row = scroll; row < scroll + rowsPerPage; row++) {
             for(int i = 0; i < this.buttonsPerRow; i++) {
@@ -191,10 +192,8 @@ public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidg
             Window window = MinecraftClient.getInstance().getWindow();
             double guiScale = window.getScaleFactor();
 
-            RenderSystem.setShader(GameRenderer::getPositionTexProgram);
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, this.alpha);
-
-            drawTexture(context, TEX_WIDGETS, this.getX(), this.getY(), 50, 50, getYOffset() * 50,  this.width, this.height, 256, 256);
+            context.drawTexture(TEX_WIDGETS, this.getX(), this.getY(), this.width, this.height, 0, getYOffset() * 50,  50, 50, 256, 256);
 
             if(!isHovered()) {
                 int sOffset = width / 6;
@@ -227,18 +226,20 @@ public class WardrobeStyleWidget extends ClickableWidget implements WardrobeWidg
                 poseStack2.scale((float) (height * 0.6), (float) (height * 0.6), 10f);
             }
             poseStack2.translate(0.0, offsetY, 0.0);
-            Quaternionf quaternion = new Quaternionf().rotateZ(180.0f);
-            Quaternionf quaternion2 = new Quaternionf().rotateY(this.parentWidget.previewRotation);
+            Quaternionf quaternion = new Quaternionf().rotateZ((float) Math.PI);
+            quaternion.rotateY(this.parentWidget.previewRotation);
             poseStack2.multiply(quaternion);
             DiffuseLighting.method_34742(); //Setup Entity Lighting
             VertexConsumerProvider.Immediate bufferSource = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
-            RenderSystem.runAsFancy(() -> BounceStylesClient.STYLE_RENDERER.renderStyleForGUI(
+            RenderSystem.runAsFancy(() -> BounceStylesClient.STYLE_RENDERER.renderStyle(
                     poseStack2,
                     this.style,
                     this.parentWidget.category,
                     bufferSource,
+                    0f,
                     partialTick,
-                    0xF000F0
+                    0xF000F0,
+                    true
             ));
             bufferSource.draw();
             poseStack.pop();

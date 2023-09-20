@@ -1,9 +1,13 @@
 package dev.bsmp.bouncestyles.pack;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import dev.architectury.platform.Mod;
 import dev.architectury.platform.Platform;
 import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleLoader;
+import dev.bsmp.bouncestyles.client.BounceStylesClient;
 import net.minecraft.resource.AbstractFileResourcePack;
 import net.minecraft.resource.InputSupplier;
 import net.minecraft.resource.ResourcePack;
@@ -11,17 +15,13 @@ import net.minecraft.resource.ResourceType;
 import net.minecraft.resource.metadata.PackResourceMetadata;
 import net.minecraft.resource.metadata.ResourceMetadataReader;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Language;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class StylesResourcePack extends AbstractFileResourcePack {
     private final List<ResourcePack> mergedPacks;
@@ -84,8 +84,11 @@ public class StylesResourcePack extends AbstractFileResourcePack {
     public InputSupplier<InputStream> open(ResourceType type, Identifier id) {
         Map<String, List<ResourcePack>> map = type == ResourceType.CLIENT_RESOURCES ? resourceNamespaces : dataNamespaces;
         List<ResourcePack> matchingPacks = map.get(id.getNamespace());
-        if (matchingPacks == null)
-            matchingPacks = Collections.emptyList();
+        if (matchingPacks == null) matchingPacks = Collections.emptyList();
+
+        if (type == ResourceType.CLIENT_RESOURCES && BounceStylesClient.isLookingForLang(id)) {
+            return BounceStylesClient.processPackLangs(matchingPacks, id);
+        }
 
         for(ResourcePack pack : matchingPacks) {
             InputSupplier<InputStream> supplier = pack.open(type, id);

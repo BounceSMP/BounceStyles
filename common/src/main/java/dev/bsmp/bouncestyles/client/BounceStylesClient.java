@@ -2,6 +2,7 @@ package dev.bsmp.bouncestyles.client;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.platform.Platform;
@@ -14,15 +15,19 @@ import dev.bsmp.bouncestyles.networking.serverbound.OpenStyleScreenServerbound;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.resource.InputSupplier;
+import net.minecraft.resource.ResourcePack;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
 
 public class BounceStylesClient {
@@ -104,5 +109,41 @@ public class BounceStylesClient {
         }
 
         return file;
+    }
+
+    public static boolean isLookingForLang(Identifier id) {
+        String langCode = MinecraftClient.getInstance().getLanguageManager().getLanguage();
+        return id.getPath().endsWith(String.format("lang/%s.json", langCode));
+    }
+
+    public static InputSupplier<InputStream> processPackLangs(List<ResourcePack> packs, Identifier id) {
+        ResourceType type = ResourceType.CLIENT_RESOURCES;
+        Gson gson = new Gson();
+
+        JsonObject translationMap = null;
+        for (ResourcePack pack : packs) {
+            InputSupplier<InputStream> supplier = pack.open(type, id);
+            if (supplier != null) {
+                try (InputStream inputStream = supplier.get()) {
+                    JsonObject obj = gson.fromJson(new InputStreamReader(inputStream, StandardCharsets.UTF_8), JsonObject.class);
+                    if (translationMap == null)
+                        translationMap = obj;
+                    else {
+                        for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+                            translationMap.add(entry.getKey(), entry.getValue());
+                        }
+                    }
+                }
+                catch (IOException e) {
+                    BounceStyles.LOGGER.info("Exception processing Lang file for Style Pack: " + pack.getName());
+                    BounceStyles.LOGGER.info(e);
+                }
+            }
+        }
+        if (translationMap != null) {
+            InputStream stream = new ByteArrayInputStream(gson.toJson(translationMap).getBytes());
+            return () -> stream;
+        }
+        return null;
     }
 }

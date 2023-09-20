@@ -31,7 +31,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.world.chunk.ChunkManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import software.bernie.geckolib3.GeckoLib;
+import software.bernie.geckolib.GeckoLib;
 
 import java.util.Collections;
 import java.util.Set;
@@ -54,7 +54,7 @@ public class BounceStyles {
         Registrar<Item> items = REGISTRIES.get().get(Registries.ITEM);
         MAGAZINE_ITEM = items.register(new Identifier(modId, "magazine"), StyleMagazineItem::new);
 
-        CommandRegistrationEvent.EVENT.register((dispatcher, registry, dedicated) -> StyleCommand.register(dispatcher));
+//        CommandRegistrationEvent.EVENT.register((dispatcher, registry, dedicated) -> StyleCommand.register(dispatcher));
 
 //        Registrar<ArgumentSerializer<?, ?>> argTypes = REGISTRIES.get().get(Registries.COMMAND_ARGUMENT_TYPE);
 //        argTypes.register("style_slot", ConstantArgumentSerializer.of(StyleSlotArgumentType::styleSlot));

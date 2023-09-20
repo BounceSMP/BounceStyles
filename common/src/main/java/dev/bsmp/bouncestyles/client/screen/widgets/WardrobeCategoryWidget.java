@@ -75,17 +75,13 @@ public class WardrobeCategoryWidget extends ClickableWidget implements WardrobeW
         }
 
         @Override
-        public void renderButton(DrawContext poseStack, int mouseX, int mouseY, float partialTick) {
+        public void renderButton(DrawContext drawContext, int mouseX, int mouseY, float partialTick) {
             RenderSystem.enableDepthTest();
-            drawTexture(poseStack, TEX_CATEGORY_BG,  getX(), getY(), 24, 24,
-                    this.parentWidget.selectedButton == this ? 48 : this.isHovered() ? 24 : 0,
-                    this.width, this.height, 24, 72);
-
-            RenderSystem.setShaderTexture(0, this.category.categoryIcon);
+            drawContext.drawTexture(TEX_CATEGORY_BG,  getX(), getY(), this.width, this.height, 0, this.parentWidget.selectedButton == this ? 48 : this.isHovered() ? 24 : 0, 24, 24, 24, 72);
             if(category == StyleRegistry.Category.Body)
-                drawTexture(poseStack, TEX_CATEGORY_BG, getX() + 3, getY() + 3, 16, 16, 0, this.width - 6, this.height - 6, 16, 16);
+                drawContext.drawTexture(this.category.categoryIcon, getX() + 3, getY() + 3, this.width - 6, this.height - 6, 0, 0, 16, 16, 16, 16);
             else
-                drawTexture(poseStack, TEX_CATEGORY_BG, getX() + 2, getY() + 2, 16, 16, 0, this.width - 4, this.height - 4, 16, 16);
+                drawContext.drawTexture(this.category.categoryIcon, getX() + 2, getY() + 2, this.width - 4, this.height - 4, 0, 0, 16, 16, 16, 16);
         }
 
         @Override

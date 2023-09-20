@@ -27,5 +27,4 @@ public class BounceStylesForgeClient {
             playerRenderer.addFeature(BounceStylesClient.STYLE_RENDERER = new StyleLayerRenderer(playerRenderer));
         }
     }
-
 }

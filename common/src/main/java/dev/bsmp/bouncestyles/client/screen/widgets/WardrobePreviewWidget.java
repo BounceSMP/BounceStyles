@@ -48,8 +48,9 @@ public class WardrobePreviewWidget extends ClickableWidget implements WardrobeWi
         MatrixStack poseStack2 = new MatrixStack();
         poseStack2.translate(0.0, getY(), 1000.0);
         poseStack2.scale((float) ((window.getFramebufferHeight() / 3) / guiScale), (float) ((window.getFramebufferHeight() / 3) / guiScale), 1);
-        Quaternionf quaternion = new Quaternionf().rotateZ(180F);
+        Quaternionf quaternion = new Quaternionf().rotateZ((float) Math.PI);
         Quaternionf quaternion2 = new Quaternionf().rotateY(previewRotation);
+        quaternion.mul(quaternion2);
         poseStack2.multiply(quaternion);
         float h = this.previewPlayer.bodyYaw;
         float i = this.previewPlayer.getYaw();
@@ -90,6 +91,6 @@ public class WardrobePreviewWidget extends ClickableWidget implements WardrobeWi
 
     @Override
     protected void onDrag(double mouseX, double mouseY, double dragX, double dragY) {
-        this.previewRotation += (float) (dragX * 0.5f);
+        this.previewRotation += (float) (dragX * 0.025f);
     }
 }

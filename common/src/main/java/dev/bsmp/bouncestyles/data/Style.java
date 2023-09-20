@@ -1,25 +1,29 @@
 package dev.bsmp.bouncestyles.data;
 
 import dev.bsmp.bouncestyles.StyleRegistry;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
-import software.bernie.geckolib3.util.GeckoLibUtil;
+import software.bernie.geckolib.constant.DataTickets;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.DataTicket;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Style implements IAnimatable {
-    private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
+public class Style implements GeoAnimatable {
+    public static final DataTicket<PlayerEntity> PLAYER = new DataTicket<>("player_entity", PlayerEntity.class);
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public final Identifier styleId;
     public final Identifier modelID;
@@ -40,39 +44,45 @@ public class Style implements IAnimatable {
     }
 
     @Override
-    public void registerControllers(AnimationData animationData) {
+    public void registerControllers(AnimatableManager.ControllerRegistrar registrar) {
         if(animationMap != null && !animationMap.isEmpty()) {
-            animationData.addAnimationController(
+            registrar.add(
                     new AnimationController<>(this, this.styleId.toString(), Math.max(transitionTicks, 1), this::predicate)
             );
         }
     }
 
-    private PlayState predicate(AnimationEvent<Style> animationEvent) {
-        PlayerEntity player = animationEvent.getExtraDataOfType(PlayerEntity.class).get(0);
-        AnimationController<?> controller = GeckoLibUtil.getControllerForID(this.getFactory(), player.getId(), this.styleId.toString());
+    @Override
+    public double getTick(Object o) {
+        return 0;
+    }
 
+    private PlayState predicate(AnimationState<Style> styleAnimationState) {
+        PlayerEntity entity = styleAnimationState.getData(PLAYER);
+        if (entity == null) return PlayState.STOP;
+
+        AnimationController<?> controller = styleAnimationState.getController();
         if(animationMap != null && !animationMap.isEmpty()) {
             String anim;
-            if(player.isSleeping() && (anim = animationMap.get("sleeping")) != null)
+            if(entity.isSleeping() && (anim = animationMap.get("sleeping")) != null)
                 return applyAnimation(controller, anim);
 
-            else if (player.isSwimming() && (anim = animationMap.get("swimming")) != null)
+            else if (entity.isSwimming() && (anim = animationMap.get("swimming")) != null)
                 return applyAnimation(controller, anim);
 
-            else if(player.isFallFlying() && (anim = animationMap.get("flying")) != null)
+            else if(entity.isFallFlying() && (anim = animationMap.get("flying")) != null)
                 return applyAnimation(controller, anim);
 
-            else if(!player.isOnGround() && (anim = animationMap.get("in_air")) != null)
+            else if(!entity.isOnGround() && (anim = animationMap.get("in_air")) != null)
                 return applyAnimation(controller, anim);
 
-            else if(player.isSneaking() && (anim = animationMap.get("sneaking")) != null)
+            else if(entity.isSneaking() && (anim = animationMap.get("sneaking")) != null)
                 return applyAnimation(controller, anim);
 
-            else if(player.isSprinting() && (anim = animationMap.get("sprinting")) != null)
+            else if(entity.isSprinting() && (anim = animationMap.get("sprinting")) != null)
                 return applyAnimation(controller, anim);
 
-            else if(isEntityMoving(player) && (anim = animationMap.get("walking")) != null)
+            else if(styleAnimationState.isMoving() && (anim = animationMap.get("walking")) != null)
                 return applyAnimation(controller, anim);
 
             else if((anim = animationMap.get("idle")) != null)
@@ -85,23 +95,17 @@ public class Style implements IAnimatable {
     private static PlayState applyAnimation(AnimationController<?> controller, String anim) {
         if(isCurrentAnimation(controller, anim))
             return PlayState.CONTINUE;
-        controller.setAnimation(new AnimationBuilder().addAnimation(anim));
+        controller.setAnimation(RawAnimation.begin().thenLoop(anim));
         return PlayState.CONTINUE;
     }
 
     private static boolean isCurrentAnimation(AnimationController<?> controller, String animation) {
-        return controller.getCurrentAnimation() != null && controller.getCurrentAnimation().animationName.equalsIgnoreCase(animation);
-    }
-
-    private static boolean isEntityMoving(PlayerEntity player) {
-        Vec3d lastPos = new Vec3d(player.lastRenderX, 0, player.lastRenderZ);
-        Vec3d currPos = new Vec3d(player.getX(), 0, player.getZ());
-        return lastPos.subtract(currPos).length() != 0;
+        return controller.getCurrentAnimation() != null && controller.getCurrentAnimation().animation().name().equalsIgnoreCase(animation);
     }
 
     @Override
-    public AnimationFactory getFactory() {
-        return this.factory;
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
     }
 
     @Override
