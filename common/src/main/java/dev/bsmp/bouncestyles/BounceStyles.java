@@ -11,6 +11,7 @@ import dev.bsmp.bouncestyles.commands.StyleCommand;
 import dev.bsmp.bouncestyles.commands.StyleSlotArgumentType;
 import dev.bsmp.bouncestyles.data.StyleData;
 import dev.bsmp.bouncestyles.data.StyleMagazineItem;
+import dev.bsmp.bouncestyles.mixin.ArgumentTypesAccessor;
 import dev.bsmp.bouncestyles.mixin.ChunkStorageAccessor;
 import dev.bsmp.bouncestyles.mixin.EntityTrackerAccessor;
 import dev.bsmp.bouncestyles.networking.BounceStylesNetwork;
@@ -22,6 +23,7 @@ import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.EntityTrackingListener;
@@ -51,13 +53,15 @@ public class BounceStyles {
         BounceStylesNetwork.initServerbound();
         BounceStylesNetwork.initClientbound();
 
-        Registrar<Item> items = REGISTRIES.get().get(Registries.ITEM);
+        Registrar<Item> items = REGISTRIES.get().get(RegistryKeys.ITEM);
         MAGAZINE_ITEM = items.register(new Identifier(modId, "magazine"), StyleMagazineItem::new);
 
-//        CommandRegistrationEvent.EVENT.register((dispatcher, registry, dedicated) -> StyleCommand.register(dispatcher));
+        CommandRegistrationEvent.EVENT.register((dispatcher, registry, dedicated) -> StyleCommand.register(dispatcher));
 
-//        Registrar<ArgumentSerializer<?, ?>> argTypes = REGISTRIES.get().get(Registries.COMMAND_ARGUMENT_TYPE);
-//        argTypes.register("style_slot", ConstantArgumentSerializer.of(StyleSlotArgumentType::styleSlot));
+        Registrar<ArgumentSerializer<?, ?>> argTypes = REGISTRIES.get().get(RegistryKeys.COMMAND_ARGUMENT_TYPE);
+        ArgumentSerializer<?, ?> serializer = ConstantArgumentSerializer.of(StyleSlotArgumentType::styleSlot);
+        argTypes.register(new Identifier(modId, "style_slot"), () -> serializer);
+        ArgumentTypesAccessor.getClassMap().put(StyleSlotArgumentType.class, serializer);
 
         PlayerEvent.PLAYER_JOIN.register(BounceStyles::playerJoin);
         PlayerEvent.PLAYER_CLONE.register(StyleData::copyFrom);
