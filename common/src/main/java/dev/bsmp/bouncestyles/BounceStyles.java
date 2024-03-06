@@ -17,20 +17,6 @@ import dev.bsmp.bouncestyles.mixin.EntityTrackerAccessor;
 import dev.bsmp.bouncestyles.networking.BounceStylesNetwork;
 import dev.bsmp.bouncestyles.networking.clientbound.SyncRegisteredStylesClientbound;
 import dev.bsmp.bouncestyles.networking.clientbound.SyncStyleDataClientbound;
-import net.minecraft.command.argument.ArgumentTypes;
-import net.minecraft.command.argument.serialize.ArgumentSerializer;
-import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.EntityTrackingListener;
-import net.minecraft.server.world.ServerChunkManager;
-import net.minecraft.server.world.ThreadedAnvilChunkStorage;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.chunk.ChunkManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import software.bernie.geckolib.GeckoLib;
@@ -38,6 +24,18 @@ import software.bernie.geckolib.GeckoLib;
 import java.util.Collections;
 import java.util.Set;
 import java.util.function.Supplier;
+import net.minecraft.commands.synchronization.ArgumentTypeInfo;
+import net.minecraft.commands.synchronization.SingletonArgumentInfo;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerPlayerConnection;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.chunk.ChunkSource;
 
 public class BounceStyles {
     public static final String modId = "bounce_styles";
@@ -48,19 +46,19 @@ public class BounceStyles {
 
     public static void init() {
         GeckoLib.initialize();
-        ReloadListenerRegistry.register(ResourceType.SERVER_DATA, StyleLoader::loadStylePacks);
+        ReloadListenerRegistry.register(PackType.SERVER_DATA, StyleLoader::loadStylePacks);
 
         BounceStylesNetwork.initServerbound();
         BounceStylesNetwork.initClientbound();
 
-        Registrar<Item> items = REGISTRIES.get().get(RegistryKeys.ITEM);
-        MAGAZINE_ITEM = items.register(new Identifier(modId, "magazine"), StyleMagazineItem::new);
+        Registrar<Item> items = REGISTRIES.get().get(Registries.ITEM);
+        MAGAZINE_ITEM = items.register(new ResourceLocation(modId, "magazine"), StyleMagazineItem::new);
 
         CommandRegistrationEvent.EVENT.register((dispatcher, registry, dedicated) -> StyleCommand.register(dispatcher));
 
-        Registrar<ArgumentSerializer<?, ?>> argTypes = REGISTRIES.get().get(RegistryKeys.COMMAND_ARGUMENT_TYPE);
-        ArgumentSerializer<?, ?> serializer = ConstantArgumentSerializer.of(StyleSlotArgumentType::styleSlot);
-        argTypes.register(new Identifier(modId, "style_slot"), () -> serializer);
+        Registrar<ArgumentTypeInfo<?, ?>> argTypes = REGISTRIES.get().get(Registries.COMMAND_ARGUMENT_TYPE);
+        ArgumentTypeInfo<?, ?> serializer = SingletonArgumentInfo.contextFree(StyleSlotArgumentType::styleSlot);
+        argTypes.register(new ResourceLocation(modId, "style_slot"), () -> serializer);
         ArgumentTypesAccessor.getClassMap().put(StyleSlotArgumentType.class, serializer);
 
         PlayerEvent.PLAYER_JOIN.register(BounceStyles::playerJoin);
@@ -71,22 +69,22 @@ public class BounceStyles {
         StyleLoader.init();
     }
 
-    static void playerJoin(ServerPlayerEntity player) {
+    static void playerJoin(ServerPlayer player) {
         new SyncRegisteredStylesClientbound(StyleRegistry.getAllStyleIds()).sendToPlayer(player);
         SyncStyleDataClientbound packet = new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player));
         packet.sendToPlayer(player);
         packet.sendToTrackingPlayers(player);
     }
 
-    public static void startTrackingPlayer(ServerPlayerEntity tracker, ServerPlayerEntity tracked) {
+    public static void startTrackingPlayer(ServerPlayer tracker, ServerPlayer tracked) {
         new SyncStyleDataClientbound(tracker.getId(), StyleData.getOrCreateStyleData(tracker)).sendToPlayer(tracked);
         new SyncStyleDataClientbound(tracked.getId(), StyleData.getOrCreateStyleData(tracked)).sendToPlayer(tracker);
     }
 
-    public static Set<EntityTrackingListener> getPlayersTracking(Entity entity) {
-        ChunkManager manager = entity.getWorld().getChunkManager();
-        if (manager instanceof ServerChunkManager) {
-            ThreadedAnvilChunkStorage storage = ((ServerChunkManager) manager).threadedAnvilChunkStorage;
+    public static Set<ServerPlayerConnection> getPlayersTracking(Entity entity) {
+        ChunkSource manager = entity.level().getChunkSource();
+        if (manager instanceof ServerChunkCache) {
+            ChunkMap storage = ((ServerChunkCache) manager).chunkMap;
             EntityTrackerAccessor tracker = ((ChunkStorageAccessor) storage).getEntityTrackers().get(entity.getId());
 
             if(tracker != null) {

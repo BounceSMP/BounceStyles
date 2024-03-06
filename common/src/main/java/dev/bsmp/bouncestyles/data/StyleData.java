@@ -2,17 +2,17 @@ package dev.bsmp.bouncestyles.data;
 
 import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleRegistry;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 
 public class StyleData {
     private @Nullable Style headStyle;
@@ -20,14 +20,14 @@ public class StyleData {
     private @Nullable Style legStyle;
     private @Nullable Style feetStyle;
     private boolean showArmor = true;
-    private List<Identifier> unlocks;
+    private List<ResourceLocation> unlocks;
     private final List<String> hiddenParts = new ArrayList<>();
 
     public StyleData(@Nullable Style headStyle, @Nullable Style bodyStyle, @Nullable Style legStyle, @Nullable Style feetStyle) {
         this(headStyle, bodyStyle, legStyle, feetStyle, new ArrayList<>());
     }
 
-    public StyleData(@Nullable Style headStyle, @Nullable Style bodyStyle, @Nullable Style legStyle, @Nullable Style feetStyle, List<Identifier> unlocks) {
+    public StyleData(@Nullable Style headStyle, @Nullable Style bodyStyle, @Nullable Style legStyle, @Nullable Style feetStyle, List<ResourceLocation> unlocks) {
         setHeadStyle(headStyle);
         setBodyStyle(bodyStyle);
         setLegStyle(legStyle);
@@ -99,11 +99,11 @@ public class StyleData {
         };
     }
 
-    public List<Identifier> getUnlocks() {
+    public List<ResourceLocation> getUnlocks() {
         return this.unlocks;
     }
 
-    public void setUnlocks(List<Identifier> unlocks) {
+    public void setUnlocks(List<ResourceLocation> unlocks) {
         this.unlocks = unlocks;
     }
 
@@ -112,7 +112,7 @@ public class StyleData {
             return false;
         return unlockStyle(style.styleId);
     }
-    public boolean unlockStyle(Identifier styleId) {
+    public boolean unlockStyle(ResourceLocation styleId) {
         if(styleId == null || unlocks.contains(styleId))
             return false;
         return unlocks.add(styleId);
@@ -123,7 +123,7 @@ public class StyleData {
             return false;
         return removeStyle(style.styleId);
     }
-    public boolean removeStyle(Identifier styleId) {
+    public boolean removeStyle(ResourceLocation styleId) {
         boolean b = unlocks.remove(styleId);
         if(b) {
             if(headStyle != null && headStyle.styleId == styleId)
@@ -141,48 +141,48 @@ public class StyleData {
     public boolean hasStyleUnlocked(Style style) {
         return hasStyleUnlocked(style.styleId);
     }
-    public boolean hasStyleUnlocked(Identifier id) {
+    public boolean hasStyleUnlocked(ResourceLocation id) {
         return unlocks.contains(id);
     }
 
     public StylePreset createPreset(String presetName) {
-        Identifier head = this.headStyle != null ? this.headStyle.styleId : null;
-        Identifier body = this.bodyStyle != null ? this.bodyStyle.styleId : null;
-        Identifier legs = this.legStyle != null ? this.legStyle.styleId : null;
-        Identifier feet = this.feetStyle != null ? this.feetStyle.styleId : null;
+        ResourceLocation head = this.headStyle != null ? this.headStyle.styleId : null;
+        ResourceLocation body = this.bodyStyle != null ? this.bodyStyle.styleId : null;
+        ResourceLocation legs = this.legStyle != null ? this.legStyle.styleId : null;
+        ResourceLocation feet = this.feetStyle != null ? this.feetStyle.styleId : null;
         boolean error = StylePreset.checkIds(head, body, legs, feet);
-        return new StylePreset(new Identifier(BounceStyles.modId, presetName.toLowerCase().replace(" ", "_")), presetName, head, body, legs, feet, error);
+        return new StylePreset(new ResourceLocation(BounceStyles.modId, presetName.toLowerCase().replace(" ", "_")), presetName, head, body, legs, feet, error);
     }
 
     //Static
-    public static void setPlayerData(PlayerEntity player, StyleData styleData) {
+    public static void setPlayerData(Player player, StyleData styleData) {
         ((StyleEntity)player).setStyleData(styleData);
     }
 
-    public static StyleData getOrCreateStyleData(PlayerEntity player) {
+    public static StyleData getOrCreateStyleData(Player player) {
         return ((StyleEntity)player).getOrCreateStyleData();
     }
 
-    private static void convertStyle(NbtCompound tag, Style style, String slot) {
+    private static void convertStyle(CompoundTag tag, Style style, String slot) {
         if(style != null)
             tag.putString(slot, style.styleId.toString());
     }
 
-    private static @Nullable Style parseStyle(NbtCompound tag, String slot) {
+    private static @Nullable Style parseStyle(CompoundTag tag, String slot) {
         Style style = null;
         if(tag.contains(slot))
-            style = StyleRegistry.getStyle(Identifier.tryParse(tag.getString(slot)));
+            style = StyleRegistry.getStyle(ResourceLocation.tryParse(tag.getString(slot)));
         return style;
     }
 
-    public static NbtCompound toNBT(StyleData styleData) {
-        NbtCompound tag = equippedToNBT(styleData);
+    public static CompoundTag toNBT(StyleData styleData) {
+        CompoundTag tag = equippedToNBT(styleData);
         tag.put("unlocks", unlocksToNBT(styleData));
         return tag;
     }
 
-    public static NbtCompound equippedToNBT(StyleData styleData) {
-        NbtCompound tag = new NbtCompound();
+    public static CompoundTag equippedToNBT(StyleData styleData) {
+        CompoundTag tag = new CompoundTag();
         convertStyle(tag, styleData.headStyle, StyleRegistry.Category.Head.name());
         convertStyle(tag, styleData.bodyStyle, StyleRegistry.Category.Body.name());
         convertStyle(tag, styleData.legStyle, StyleRegistry.Category.Legs.name());
@@ -191,23 +191,23 @@ public class StyleData {
         return tag;
     }
 
-    public static NbtList unlocksToNBT(StyleData styleData) {
-        NbtList list = new NbtList();
-        for(Identifier id : styleData.unlocks) {
+    public static ListTag unlocksToNBT(StyleData styleData) {
+        ListTag list = new ListTag();
+        for(ResourceLocation id : styleData.unlocks) {
             if(id == null)
                 continue;
-            list.add(NbtString.of(id.toString()));
+            list.add(StringTag.valueOf(id.toString()));
         }
         return list;
     }
 
-    public static StyleData fromNBT(NbtCompound tag) {
+    public static StyleData fromNBT(CompoundTag tag) {
         StyleData styleData = equippedFromNBT(tag);
-        styleData.unlocks = unlocksFromNBT(tag.getList("unlocks", NbtElement.STRING_TYPE));
+        styleData.unlocks = unlocksFromNBT(tag.getList("unlocks", Tag.TAG_STRING));
         return styleData;
     }
 
-    public static StyleData equippedFromNBT(NbtCompound tag) {
+    public static StyleData equippedFromNBT(CompoundTag tag) {
         StyleData styleData = new StyleData(
                 parseStyle(tag, StyleRegistry.Category.Head.name()),
                 parseStyle(tag, StyleRegistry.Category.Body.name()),
@@ -218,15 +218,15 @@ public class StyleData {
         return styleData;
     }
 
-    public static List<Identifier> unlocksFromNBT(NbtList unlocksTag) {
-        List<Identifier> list = new ArrayList<>();
-        for(NbtElement t : unlocksTag) {
-            list.add(Identifier.tryParse(t.asString()));
+    public static List<ResourceLocation> unlocksFromNBT(ListTag unlocksTag) {
+        List<ResourceLocation> list = new ArrayList<>();
+        for(Tag t : unlocksTag) {
+            list.add(ResourceLocation.tryParse(t.getAsString()));
         }
         return list;
     }
 
-    public static void copyFrom(ServerPlayerEntity oldPlayer, ServerPlayerEntity newPlayer, boolean b) {
+    public static void copyFrom(ServerPlayer oldPlayer, ServerPlayer newPlayer, boolean b) {
         //Pre-Architectury 4.11.91 Fix
 //        ServerPlayerEntity oldPlayer = Platform.isFabric() ? player2 : player1;
 //        ServerPlayerEntity newPlayer = Platform.isFabric() ? player1 : player2;

@@ -1,7 +1,7 @@
 package dev.bsmp.bouncestyles.networking;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 
 public interface StylePacket {
     interface ServerboundStylePacket extends StylePacket {
@@ -11,11 +11,11 @@ public interface StylePacket {
     }
 
     interface ClientboundStylePacket extends StylePacket {
-        default void sendToPlayer(ServerPlayerEntity player) {
+        default void sendToPlayer(ServerPlayer player) {
             BounceStylesNetwork.CHANNEL.sendToPlayer(player, this);
         }
 
-        default void sendToPlayers(Iterable<ServerPlayerEntity> players) {
+        default void sendToPlayers(Iterable<ServerPlayer> players) {
             BounceStylesNetwork.CHANNEL.sendToPlayers(players, this);
         }
 

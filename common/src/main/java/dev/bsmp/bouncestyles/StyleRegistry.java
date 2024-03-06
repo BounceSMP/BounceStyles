@@ -1,20 +1,20 @@
 package dev.bsmp.bouncestyles;
 
 import dev.bsmp.bouncestyles.data.*;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 public class StyleRegistry {
-    private static final HashMap<Identifier, Style> REGISTRY = new HashMap<>();
-    public static final HashMap<Identifier, StylePreset> PRESETS = new HashMap<>();
+    private static final HashMap<ResourceLocation, Style> REGISTRY = new HashMap<>();
+    public static final HashMap<ResourceLocation, StylePreset> PRESETS = new HashMap<>();
 
-    public static void registerStyle(Identifier id, Style style) {
+    public static void registerStyle(ResourceLocation id, Style style) {
         if(id == null || style == null) {
             BounceStyles.LOGGER.warn("Tried to register a Style with a null value. [id="+id+", style=" + style + "]");
             return;
@@ -22,7 +22,7 @@ public class StyleRegistry {
         REGISTRY.put(id, style);
     }
 
-    public static Style getStyle(Identifier id) {
+    public static Style getStyle(ResourceLocation id) {
         Style style = REGISTRY.get(id);
         if(style == null) style = MissingStyle.INSTANCE;
         return style;
@@ -39,14 +39,14 @@ public class StyleRegistry {
         REGISTRY.clear();
     }
 
-    @Nullable public static Identifier getStyleIdFromStack(ItemStack itemStack) {
-        NbtCompound nbt = itemStack.getNbt();
+    @Nullable public static ResourceLocation getStyleIdFromStack(ItemStack itemStack) {
+        CompoundTag nbt = itemStack.getTag();
         if(nbt == null || !nbt.contains("styleId"))
             return null;
-        return Identifier.tryParse(nbt.getString("styleId"));
+        return ResourceLocation.tryParse(nbt.getString("styleId"));
     }
 
-    public static Set<Identifier> getAllStyleIds() {
+    public static Set<ResourceLocation> getAllStyleIds() {
         return REGISTRY.keySet();
     }
 
@@ -61,22 +61,22 @@ public class StyleRegistry {
         return newPreset;
     }
 
-    public static boolean idExists(Identifier id) {
+    public static boolean idExists(ResourceLocation id) {
         return REGISTRY.containsKey(id);
     }
 
-    public static final Identifier HEAD_ICON = new Identifier(BounceStyles.modId, "textures/icon/bounce_head.png");
-    public static final Identifier BODY_ICON = new Identifier(BounceStyles.modId, "textures/icon/bounce_body.png");
-    public static final Identifier LEGS_ICON = new Identifier(BounceStyles.modId, "textures/icon/bounce_legs.png");
-    public static final Identifier FEET_ICON = new Identifier(BounceStyles.modId, "textures/icon/bounce_feet.png");
-    public static final Identifier PRESET_ICON = new Identifier(BounceStyles.modId, "textures/icon/bounce_preset.png");
+    public static final ResourceLocation HEAD_ICON = new ResourceLocation(BounceStyles.modId, "textures/icon/bounce_head.png");
+    public static final ResourceLocation BODY_ICON = new ResourceLocation(BounceStyles.modId, "textures/icon/bounce_body.png");
+    public static final ResourceLocation LEGS_ICON = new ResourceLocation(BounceStyles.modId, "textures/icon/bounce_legs.png");
+    public static final ResourceLocation FEET_ICON = new ResourceLocation(BounceStyles.modId, "textures/icon/bounce_feet.png");
+    public static final ResourceLocation PRESET_ICON = new ResourceLocation(BounceStyles.modId, "textures/icon/bounce_preset.png");
 
     public enum Category {
         Head(HEAD_ICON), Body(BODY_ICON), Legs(LEGS_ICON), Feet(FEET_ICON), Preset(PRESET_ICON);
 
-        public final Identifier categoryIcon;
+        public final ResourceLocation categoryIcon;
 
-        Category(Identifier categoryIcon) {
+        Category(ResourceLocation categoryIcon) {
             this.categoryIcon = categoryIcon;
         }
     }

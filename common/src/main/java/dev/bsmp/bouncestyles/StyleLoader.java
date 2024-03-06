@@ -6,13 +6,6 @@ import dev.architectury.platform.Platform;
 import dev.bsmp.bouncestyles.data.Style;
 import dev.bsmp.bouncestyles.data.StylePreset;
 import dev.bsmp.bouncestyles.pack.StylesResourcePack;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.ResourcePack;
-import net.minecraft.resource.ResourceReloader;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.JsonHelper;
-import net.minecraft.util.profiler.Profiler;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -20,6 +13,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackResources;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.util.profiling.ProfilerFiller;
 
 public class StyleLoader {
     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().create();
@@ -84,9 +83,9 @@ public class StyleLoader {
 
             int i = 0;
             for (JsonElement element : jsonArray) {
-                JsonObject item = JsonHelper.asObject(element, "item");
+                JsonObject item = GsonHelper.convertToJsonObject(element, "item");
                 String name = item.get("name").getAsString();
-                Identifier styleId = new Identifier(BounceStyles.modId, name);
+                ResourceLocation styleId = new ResourceLocation(BounceStyles.modId, name);
 
                 Style style = parseStyle(item, styleId);
 
@@ -113,7 +112,7 @@ public class StyleLoader {
         }
     }
 
-    private static Style parseStyle(JsonObject item, Identifier styleId) {
+    private static Style parseStyle(JsonObject item, ResourceLocation styleId) {
         Style style = new Style(
             styleId,
             parseModelId(item, styleId.getPath()),
@@ -140,7 +139,7 @@ public class StyleLoader {
 
     private static void checkAndConvertOld(File mainFile) throws IOException {
         Path parentDir = mainFile.getParentFile().toPath();
-        Map<Identifier, JsonObject> items = new HashMap<>();
+        Map<ResourceLocation, JsonObject> items = new HashMap<>();
 
         for(StyleRegistry.Category category : StyleRegistry.Category.values()) {
             if(category == StyleRegistry.Category.Preset)
@@ -152,9 +151,9 @@ public class StyleLoader {
                     JsonArray jsonArray = GSON.fromJson(reader, JsonArray.class);
 
                     for (JsonElement element : jsonArray) {
-                        JsonObject item = JsonHelper.asObject(element, "item");
+                        JsonObject item = GsonHelper.convertToJsonObject(element, "item");
                         String name = item.get("name").getAsString();
-                        Identifier styleId = new Identifier(BounceStyles.modId, name);
+                        ResourceLocation styleId = new ResourceLocation(BounceStyles.modId, name);
 
                         if (items.containsKey(styleId)) {
                             JsonObject obj = items.get(styleId);
@@ -201,7 +200,7 @@ public class StyleLoader {
                     return;
 
                 for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-                    Identifier presetId = Identifier.tryParse(BounceStyles.modId + ":" + entry.getKey());
+                    ResourceLocation presetId = ResourceLocation.tryParse(BounceStyles.modId + ":" + entry.getKey());
                     StylePreset preset = StylePreset.fromJson(presetId, entry.getValue().getAsJsonObject());
                     StyleRegistry.PRESETS.put(presetId, preset);
                 }
@@ -209,7 +208,7 @@ public class StyleLoader {
         }
     }
 
-    public static void removePreset(Identifier presetId) {
+    public static void removePreset(ResourceLocation presetId) {
         StyleRegistry.PRESETS.remove(presetId);
         writePresetsFile();
     }
@@ -239,25 +238,25 @@ public class StyleLoader {
         }
     }
 
-    private static Identifier parseModelId(JsonObject item, String name) {
+    private static ResourceLocation parseModelId(JsonObject item, String name) {
         String model;
         if(item.has("model_id"))
             model = item.get("model_id").getAsString();
         else
             model = name + ".geo.json";
-        return model.contains(":") ? new Identifier(model.split(":")[0], "geo/" + model.split(":")[1]) : new Identifier(BounceStyles.modId, "geo/" + model);
+        return model.contains(":") ? new ResourceLocation(model.split(":")[0], "geo/" + model.split(":")[1]) : new ResourceLocation(BounceStyles.modId, "geo/" + model);
     }
 
-    private static Identifier parseTextureId(JsonObject item, String name) {
+    private static ResourceLocation parseTextureId(JsonObject item, String name) {
         String texture;
         if(item.has("texture_id"))
             texture = item.get("texture_id").getAsString();
         else
             texture = name + ".png";
-        return texture.contains(":") ? new Identifier(texture.split(":")[0], "textures/" + texture.split(":")[1]) : new Identifier(BounceStyles.modId, "textures/" + texture);
+        return texture.contains(":") ? new ResourceLocation(texture.split(":")[0], "textures/" + texture.split(":")[1]) : new ResourceLocation(BounceStyles.modId, "textures/" + texture);
     }
 
-    private static Identifier parseAnimationId(JsonObject item, String name) {
+    private static ResourceLocation parseAnimationId(JsonObject item, String name) {
         if(!item.has("animations"))
             return null;
 
@@ -266,7 +265,7 @@ public class StyleLoader {
             anim = item.get("animation_id").getAsString();
         else
             anim = name + ".animation.json";
-        return anim.contains(":") ? new Identifier(anim.split(":")[0], "animations/" + anim.split(":")[1]) : new Identifier(BounceStyles.modId, "animations/" + anim);
+        return anim.contains(":") ? new ResourceLocation(anim.split(":")[0], "animations/" + anim.split(":")[1]) : new ResourceLocation(BounceStyles.modId, "animations/" + anim);
     }
 
     private static HashMap<String, String> parseAnimationMap(JsonObject item) {
@@ -287,18 +286,18 @@ public class StyleLoader {
         return item.has("transition_ticks") ? item.get("transition_ticks").getAsInt() : 5;
     }
 
-    public static CompletableFuture<Void> loadStylePacks(ResourceReloader.Synchronizer synchronizer, ResourceManager resourceManager, Profiler prepareProfiler, Profiler applyProfiler, Executor prepareExecutor, Executor applyExecutor) {
+    public static CompletableFuture<Void> loadStylePacks(PreparableReloadListener.PreparationBarrier synchronizer, ResourceManager resourceManager, ProfilerFiller prepareProfiler, ProfilerFiller applyProfiler, Executor prepareExecutor, Executor applyExecutor) {
         BounceStyles.LOGGER.info("Registering styles from Style Packs...");
         return CompletableFuture.supplyAsync(() -> {
             StyleLoader.reload();
-            for(ResourcePack pack : resourceManager.streamResourcePacks().toList()) {
+            for(PackResources pack : resourceManager.listPacks().toList()) {
                 if(pack instanceof StylesResourcePack) {
                     ((StylesResourcePack) pack).registerPackStyles();
                 }
             }
             return null;
         }, prepareExecutor)
-        .thenCompose(synchronizer::whenPrepared)
+        .thenCompose(synchronizer::wait)
         .thenAcceptAsync(o -> {}, applyExecutor);
     }
 }

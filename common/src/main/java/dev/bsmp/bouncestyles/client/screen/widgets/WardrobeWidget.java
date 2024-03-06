@@ -1,38 +1,38 @@
 package dev.bsmp.bouncestyles.client.screen.widgets;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Text;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.network.chat.Component;
 
-public interface WardrobeWidget extends Element, Drawable {
-    default void drawTooltip(Text text, int x, int y, TextRenderer font, DrawContext context, int right) {
+public interface WardrobeWidget extends GuiEventListener, Renderable {
+    default void drawTooltip(Component text, int x, int y, Font font, GuiGraphics context, int right) {
         drawTooltipStatic(text, x, y, font, context, right);
     }
 
-    default void drawTooltipBackground(DrawContext context, int x, int y, int width, int height) {
+    default void drawTooltipBackground(GuiGraphics context, int x, int y, int width, int height) {
         drawTooltipBackgroundStatic(context, x, y, width, height);
     }
 
-    static void drawTooltipStatic(Text text, int x, int y, TextRenderer font, DrawContext context, int right) {
-        if(right <= 0) right = MinecraftClient.getInstance().getWindow().getScaledWidth();
-        int textWidth = font.getWidth(text) + 3;
+    static void drawTooltipStatic(Component text, int x, int y, Font font, GuiGraphics context, int right) {
+        if(right <= 0) right = Minecraft.getInstance().getWindow().getGuiScaledWidth();
+        int textWidth = font.width(text) + 3;
         int textX = x + 4 + textWidth > right ? x + (right - (x + textWidth)) - 2 : x + 2;
 
-        MatrixStack poseStack = context.getMatrices();
-        poseStack.push();
+        PoseStack poseStack = context.pose();
+        poseStack.pushPose();
         GlStateManager._enableDepthTest();
         poseStack.translate(0, 0, 100);
         drawTooltipBackgroundStatic(context, textX, y - 13, textWidth + 1, 16);
-        context.drawTextWithShadow(font, text, textX + 3, y - 9, 0xFFFFFF);
-        poseStack.pop();
+        context.drawString(font, text, textX + 3, y - 9, 0xFFFFFF);
+        poseStack.popPose();
     }
 
-    static void drawTooltipBackgroundStatic(DrawContext context, int x, int y, int width, int height) {
+    static void drawTooltipBackgroundStatic(GuiGraphics context, int x, int y, int width, int height) {
         context.fill(x, y + height - 1, x + width, y + 1, 0xFF000000);
 
         context.fill(x, y + height - 2, x + width, y + height - 1, 0xFF00A8A8);

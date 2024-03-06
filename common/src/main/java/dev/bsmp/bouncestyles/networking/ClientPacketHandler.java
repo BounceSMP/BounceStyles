@@ -9,25 +9,24 @@ import dev.bsmp.bouncestyles.data.StyleData;
 import dev.bsmp.bouncestyles.networking.clientbound.SyncRegisteredStylesClientbound;
 import dev.bsmp.bouncestyles.networking.clientbound.SyncStyleDataClientbound;
 import dev.bsmp.bouncestyles.networking.clientbound.SyncStyleUnlocksClientbound;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Identifier;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 
 public class ClientPacketHandler {
     public static void handleSyncStyleData(SyncStyleDataClientbound packet, Supplier<NetworkManager.PacketContext> contextSupplier) {
         NetworkManager.PacketContext ctx = contextSupplier.get();
 
         ctx.queue(() -> {
-            Entity entity = MinecraftClient.getInstance().player.getWorld().getEntityById(packet.entityId());
-            if(entity instanceof PlayerEntity) {
-                StyleData.setPlayerData((PlayerEntity) entity, packet.styleData());
+            Entity entity = Minecraft.getInstance().player.level().getEntity(packet.entityId());
+            if(entity instanceof Player) {
+                StyleData.setPlayerData((Player) entity, packet.styleData());
             }
         });
     }
@@ -38,17 +37,17 @@ public class ClientPacketHandler {
 
         ctx.queue(() -> {
             StyleData.setPlayerData(ctx.getPlayer(), styleData);
-            MinecraftClient.getInstance().setScreen(new WardrobeScreen(styleData.getUnlocks()));
+            Minecraft.getInstance().setScreen(new WardrobeScreen(styleData.getUnlocks()));
         });
     }
 
     public static void handleSyncRegisteredStyles(SyncRegisteredStylesClientbound packet, Supplier<NetworkManager.PacketContext> contextSupplier) {
         NetworkManager.PacketContext ctx = contextSupplier.get();
-        Set<Identifier> registeredStyles = packet.identifiers();
+        Set<ResourceLocation> registeredStyles = packet.identifiers();
 
         ctx.queue(() -> {
-            List<Identifier> missingIds = new ArrayList<>();
-            for(Identifier serverId : registeredStyles) {
+            List<ResourceLocation> missingIds = new ArrayList<>();
+            for(ResourceLocation serverId : registeredStyles) {
                 if(!StyleRegistry.idExists(serverId)) missingIds.add(serverId);
             }
 
@@ -56,7 +55,7 @@ public class ClientPacketHandler {
 
             if(!missingIds.isEmpty() && BounceStylesClient.shouldShowWarningForServer(hash)) {
                 File logFile = BounceStylesClient.writeMissingStyleLog(missingIds);
-                MinecraftClient.getInstance().setScreen(new MissingWarningScreen(logFile, hash));
+                Minecraft.getInstance().setScreen(new MissingWarningScreen(logFile, hash));
             }
         });
     }

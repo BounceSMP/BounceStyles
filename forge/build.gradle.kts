@@ -25,7 +25,7 @@ configurations {
 dependencies {
     forge("net.minecraftforge:forge:${property("forge_version")}")
     modApi("dev.architectury:architectury-forge:${property("architectury_version")}")
-    modImplementation("software.bernie.geckolib:geckolib-forge-${property("geckolib_forge_version")}")
+    modImplementation("software.bernie.geckolib:geckolib-forge-${property("geckolib_version")}")
 
     common(project(":common", configuration = "namedElements")) { isTransitive = false }
     shadowCommon(project(":common", configuration = "transformProductionForge")) { isTransitive = false }

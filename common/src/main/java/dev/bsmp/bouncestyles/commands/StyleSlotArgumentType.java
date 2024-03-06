@@ -9,23 +9,22 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dev.bsmp.bouncestyles.StyleRegistry;
 import dev.bsmp.bouncestyles.StyleRegistry.Category;
-import net.minecraft.command.CommandSource;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.network.chat.Component;
 
 public class StyleSlotArgumentType implements ArgumentType<Category> {
-    private static final Dynamic2CommandExceptionType INVALID_ENUM = new Dynamic2CommandExceptionType((found, constants) -> Text.translatable("commands.forge.arguments.enum.invalid", constants, found));
+    private static final Dynamic2CommandExceptionType INVALID_ENUM = new Dynamic2CommandExceptionType((found, constants) -> Component.translatable("commands.forge.arguments.enum.invalid", constants, found));
 
     private StyleSlotArgumentType() {}
     public static StyleSlotArgumentType styleSlot() { return new StyleSlotArgumentType(); }
 
-    public static Category getCategory(CommandContext<ServerCommandSource> context, String name) {
+    public static Category getCategory(CommandContext<CommandSourceStack> context, String name) {
         return context.getArgument(name, Category.class);
     }
 
@@ -42,7 +41,7 @@ public class StyleSlotArgumentType implements ArgumentType<Category> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        return CommandSource.suggestMatching(Stream.of(Category.class.getEnumConstants()).filter(category -> category != StyleRegistry.Category.Preset).map(Object::toString), builder);
+        return SharedSuggestionProvider.suggest(Stream.of(Category.class.getEnumConstants()).filter(category -> category != StyleRegistry.Category.Preset).map(Object::toString), builder);
     }
 
     public Collection<String> getExamples() {

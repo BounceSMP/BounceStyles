@@ -1,7 +1,7 @@
 package dev.bsmp.bouncestyles.data;
 
 import dev.bsmp.bouncestyles.BounceStyles;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 
 public class MissingStyle extends Style {
@@ -9,9 +9,9 @@ public class MissingStyle extends Style {
 
     private MissingStyle() {
         super(
-                new Identifier(BounceStyles.modId, "missing_model"),
-                new Identifier(BounceStyles.modId, "geo/missing_model.geo.json"),
-                new Identifier(BounceStyles.modId, "textures/missing_model.png"),
+                new ResourceLocation(BounceStyles.modId, "missing_model"),
+                new ResourceLocation(BounceStyles.modId, "geo/missing_model.geo.json"),
+                new ResourceLocation(BounceStyles.modId, "textures/missing_model.png"),
                 null, null
         );
     }

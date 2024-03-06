@@ -12,13 +12,6 @@ import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleLoader;
 import dev.bsmp.bouncestyles.client.renderer.StyleLayerRenderer;
 import dev.bsmp.bouncestyles.networking.serverbound.OpenStyleScreenServerbound;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ServerInfo;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.resource.InputSupplier;
-import net.minecraft.resource.ResourcePack;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 import java.io.*;
@@ -29,19 +22,26 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackResources;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.IoSupplier;
 
 public class BounceStylesClient {
-    public static final KeyBinding KEY_WARDROBE = new KeyBinding("key.bounce_styles.wardrobe", GLFW.GLFW_KEY_C, "key.bounce_styles.category");
+    public static final KeyMapping KEY_WARDROBE = new KeyMapping("key.bounce_styles.wardrobe", GLFW.GLFW_KEY_C, "key.bounce_styles.category");
     public static StyleLayerRenderer STYLE_RENDERER;
 
     public static void init() {
         KeyMappingRegistry.register(KEY_WARDROBE);
-        ClientTickEvent.CLIENT_POST.register(instance -> { while (KEY_WARDROBE.wasPressed()) new OpenStyleScreenServerbound().sendToServer(); });
-        ReloadListenerRegistry.register(ResourceType.CLIENT_RESOURCES, StyleLoader::loadStylePacks);
+        ClientTickEvent.CLIENT_POST.register(instance -> { while (KEY_WARDROBE.consumeClick()) new OpenStyleScreenServerbound().sendToServer(); });
+        ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, StyleLoader::loadStylePacks);
     }
 
     public static boolean shouldShowWarningForServer(int hashCode) {
-        ServerInfo serverInfo = MinecraftClient.getInstance().getCurrentServerEntry();
+        ServerData serverInfo = Minecraft.getInstance().getCurrentServer();
         if(serverInfo != null) {
             File rememberServerFile = Platform.getConfigFolder().resolve("style_ignore_servers.json").toFile();
             if(!rememberServerFile.exists()) return true;
@@ -50,8 +50,8 @@ public class BounceStylesClient {
                 Gson gson = (new GsonBuilder()).setPrettyPrinting().create();
                 JsonObject json = gson.fromJson(reader, JsonObject.class);
 
-                if(!json.has(serverInfo.address)) return true;
-                return json.get(serverInfo.address).getAsInt() != hashCode;
+                if(!json.has(serverInfo.ip)) return true;
+                return json.get(serverInfo.ip).getAsInt() != hashCode;
             }
             catch (IOException e) {
                 BounceStyles.LOGGER.error("Exception reading server memory file.");
@@ -63,7 +63,7 @@ public class BounceStylesClient {
     }
 
     public static void addServerToIgnoreFile(int hashCode) {
-        ServerInfo serverInfo = MinecraftClient.getInstance().getCurrentServerEntry();
+        ServerData serverInfo = Minecraft.getInstance().getCurrentServer();
         if(serverInfo != null) {
             try {
                 File rememberServerFile = Platform.getConfigFolder().resolve("style_ignore_servers.json").toFile();
@@ -80,7 +80,7 @@ public class BounceStylesClient {
                     rememberServerFile.createNewFile();
                 }
 
-                jsonObject.addProperty(serverInfo.address, hashCode);
+                jsonObject.addProperty(serverInfo.ip, hashCode);
 
                 FileWriter writer = new FileWriter(rememberServerFile);
                 writer.write(gson.toJson(jsonObject));
@@ -93,14 +93,14 @@ public class BounceStylesClient {
         }
     }
 
-    public static File writeMissingStyleLog(List<Identifier> missingIds) {
+    public static File writeMissingStyleLog(List<ResourceLocation> missingIds) {
         Path dir = Platform.getGameFolder().resolve("styles").resolve("logs");
         dir.toFile().mkdirs();
         File file = dir.resolve("missing_styles_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH.mm.ss")) + ".log").toFile();
 
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             StringJoiner joiner = new StringJoiner("\n");
-            for(Identifier id : missingIds) joiner.add(id.toString());
+            for(ResourceLocation id : missingIds) joiner.add(id.toString());
             writer.write(joiner.toString());
         }
         catch (IOException e) {
@@ -111,18 +111,18 @@ public class BounceStylesClient {
         return file;
     }
 
-    public static boolean isLookingForLang(Identifier id) {
-        String langCode = MinecraftClient.getInstance().getLanguageManager().getLanguage();
+    public static boolean isLookingForLang(ResourceLocation id) {
+        String langCode = Minecraft.getInstance().getLanguageManager().getSelected();
         return id.getPath().endsWith(String.format("lang/%s.json", langCode));
     }
 
-    public static InputSupplier<InputStream> processPackLangs(List<ResourcePack> packs, Identifier id) {
-        ResourceType type = ResourceType.CLIENT_RESOURCES;
+    public static IoSupplier<InputStream> processPackLangs(List<PackResources> packs, ResourceLocation id) {
+        PackType type = PackType.CLIENT_RESOURCES;
         Gson gson = new Gson();
 
         JsonObject translationMap = null;
-        for (ResourcePack pack : packs) {
-            InputSupplier<InputStream> supplier = pack.open(type, id);
+        for (PackResources pack : packs) {
+            IoSupplier<InputStream> supplier = pack.getResource(type, id);
             if (supplier != null) {
                 try (InputStream inputStream = supplier.get()) {
                     JsonObject obj = gson.fromJson(new InputStreamReader(inputStream, StandardCharsets.UTF_8), JsonObject.class);
@@ -135,7 +135,7 @@ public class BounceStylesClient {
                     }
                 }
                 catch (IOException e) {
-                    BounceStyles.LOGGER.info("Exception processing Lang file for Style Pack: " + pack.getName());
+                    BounceStyles.LOGGER.info("Exception processing Lang file for Style Pack: " + pack.packId());
                     BounceStyles.LOGGER.info(e);
                 }
             }

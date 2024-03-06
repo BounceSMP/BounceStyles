@@ -3,7 +3,7 @@ import net.fabricmc.loom.api.LoomGradleExtensionAPI
 plugins {
     java
     id("architectury-plugin") version "3.4-SNAPSHOT"
-    id("dev.architectury.loom") version "1.2-SNAPSHOT" apply false
+    id("dev.architectury.loom") version "1.5.+" apply false
 }
 
 architectury {
@@ -13,13 +13,16 @@ architectury {
 subprojects {
     apply(plugin = "dev.architectury.loom")
 
-    extensions.getByName<LoomGradleExtensionAPI>("loom").apply {
-        silentMojangMappingsLicense()
-    }
+    val loom = extensions.getByName<LoomGradleExtensionAPI>("loom")
+    loom.silentMojangMappingsLicense()
 
     dependencies {
         "minecraft"("com.mojang:minecraft:${property("minecraft_version")}")
-        "mappings"("net.fabricmc:yarn:${property("yarn_mappings")}:v2")
+//        "mappings"("net.fabricmc:yarn:1.20.1+build.10:v2")
+        "mappings"(loom.layered {
+            officialMojangMappings()
+            parchment("org.parchmentmc.data:parchment-1.20.1:${property("parchment_version")}@zip")
+        })
     }
 }
 
@@ -36,6 +39,10 @@ allprojects {
             name = "GeckoLib"
             url = uri("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/")
 		}
+        maven {
+            name = "ParchmentMC"
+            url = uri("https://maven.parchmentmc.org")
+        }
 	}
 
     tasks.withType<JavaCompile> {

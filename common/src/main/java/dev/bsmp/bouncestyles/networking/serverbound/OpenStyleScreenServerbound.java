@@ -1,12 +1,12 @@
 package dev.bsmp.bouncestyles.networking.serverbound;
 
 import dev.bsmp.bouncestyles.networking.StylePacket;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 
 public record OpenStyleScreenServerbound() implements StylePacket.ServerboundStylePacket {
-    public void encode(PacketByteBuf buf) {}
+    public void encode(FriendlyByteBuf buf) {}
 
-    public static OpenStyleScreenServerbound decode(PacketByteBuf buf) {
+    public static OpenStyleScreenServerbound decode(FriendlyByteBuf buf) {
         return new OpenStyleScreenServerbound();
     }
 }

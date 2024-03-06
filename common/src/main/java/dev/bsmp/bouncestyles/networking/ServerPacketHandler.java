@@ -7,18 +7,17 @@ import dev.bsmp.bouncestyles.networking.clientbound.SyncStyleUnlocksClientbound;
 import dev.bsmp.bouncestyles.networking.serverbound.EquipStyleServerbound;
 import dev.bsmp.bouncestyles.networking.serverbound.OpenStyleScreenServerbound;
 import dev.bsmp.bouncestyles.networking.serverbound.ToggleArmorVisibilityServerbound;
-import net.minecraft.server.network.ServerPlayerEntity;
-
 import java.util.function.Supplier;
+import net.minecraft.server.level.ServerPlayer;
 
 public class ServerPacketHandler {
     public static void handleEquipStyle(EquipStyleServerbound packet, Supplier<NetworkManager.PacketContext> contextSupplier) {
         NetworkManager.PacketContext ctx = contextSupplier.get();
-        ServerPlayerEntity player = (ServerPlayerEntity) ctx.getPlayer();
+        ServerPlayer player = (ServerPlayer) ctx.getPlayer();
 
         ctx.queue(() -> {
             StyleData styleData = StyleData.getOrCreateStyleData(player);
-            if(packet.style() == null || styleData.hasStyleUnlocked(packet.style()) || (player.isCreative() && player.hasPermissionLevel(2))) {
+            if(packet.style() == null || styleData.hasStyleUnlocked(packet.style()) || (player.isCreative() && player.hasPermissions(2))) {
                 switch (packet.category()) {
                     case Head -> styleData.setHeadStyle(packet.style());
                     case Body -> styleData.setBodyStyle(packet.style());
@@ -35,7 +34,7 @@ public class ServerPacketHandler {
 
     public static void handleArmorVisibility(ToggleArmorVisibilityServerbound packet, Supplier<NetworkManager.PacketContext> contextSupplier) {
         NetworkManager.PacketContext ctx = contextSupplier.get();
-        ServerPlayerEntity player = (ServerPlayerEntity) ctx.getPlayer();
+        ServerPlayer player = (ServerPlayer) ctx.getPlayer();
 
         ctx.queue(() -> {
             StyleData styleData = StyleData.getOrCreateStyleData(player);
@@ -49,7 +48,7 @@ public class ServerPacketHandler {
 
     public static void handleOpenStyleScreen(OpenStyleScreenServerbound packet, Supplier<NetworkManager.PacketContext> contextSupplier) {
         NetworkManager.PacketContext ctx = contextSupplier.get();
-        ServerPlayerEntity player = (ServerPlayerEntity) ctx.getPlayer();
+        ServerPlayer player = (ServerPlayer) ctx.getPlayer();
 
         ctx.queue(() -> new SyncStyleUnlocksClientbound(StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
     }

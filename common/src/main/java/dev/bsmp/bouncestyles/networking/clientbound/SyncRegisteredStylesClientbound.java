@@ -1,22 +1,21 @@
 package dev.bsmp.bouncestyles.networking.clientbound;
 
 import dev.bsmp.bouncestyles.networking.StylePacket;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.Identifier;
-
 import java.util.HashSet;
 import java.util.Set;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 
-public record SyncRegisteredStylesClientbound(Set<Identifier> identifiers) implements StylePacket.ClientboundStylePacket {
-    public void encode(PacketByteBuf buf) {
+public record SyncRegisteredStylesClientbound(Set<ResourceLocation> identifiers) implements StylePacket.ClientboundStylePacket {
+    public void encode(FriendlyByteBuf buf) {
         buf.writeInt(identifiers.size());
-        for(Identifier id : identifiers) buf.writeIdentifier(id);
+        for(ResourceLocation id : identifiers) buf.writeResourceLocation(id);
     }
 
-    public static SyncRegisteredStylesClientbound decode(PacketByteBuf buf) {
-        Set<Identifier> identifiers = new HashSet<>();
+    public static SyncRegisteredStylesClientbound decode(FriendlyByteBuf buf) {
+        Set<ResourceLocation> identifiers = new HashSet<>();
         int count = buf.readInt();
-        for(int i = 0; i < count; i++) identifiers.add(buf.readIdentifier());
+        for(int i = 0; i < count; i++) identifiers.add(buf.readResourceLocation());
         return new SyncRegisteredStylesClientbound(identifiers);
     }
 }

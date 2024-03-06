@@ -6,18 +6,16 @@ import dev.bsmp.bouncestyles.client.screen.widgets.*;
 import dev.bsmp.bouncestyles.data.StylePreset;
 import dev.bsmp.bouncestyles.networking.serverbound.EquipStyleServerbound;
 import dev.bsmp.bouncestyles.networking.serverbound.ToggleArmorVisibilityServerbound;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.TexturedButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-
 import java.util.Comparator;
 import java.util.List;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 public class WardrobeScreen extends Screen {
-    private static final Identifier TEX_WIDGETS = new Identifier(BounceStyles.modId, "textures/gui/widgets.png");
+    private static final ResourceLocation TEX_WIDGETS = new ResourceLocation(BounceStyles.modId, "textures/gui/widgets.png");
     WardrobePreviewWidget previewWidget;
     WardrobeCategoryWidget categoryWidget;
 
@@ -25,16 +23,16 @@ public class WardrobeScreen extends Screen {
     WardrobePresetsWidget presetsWidget;
 
     WardrobeWidget activeWidget;
-    TexturedButtonWidget clearButton;
-    TexturedButtonWidget armorVisibilityButton;
+    ImageButton clearButton;
+    ImageButton armorVisibilityButton;
 
-    List<Identifier> unlockedStyles;
+    List<ResourceLocation> unlockedStyles;
     StyleRegistry.Category selectedCategory;
     int previewRight;
     int topBarHeight;
 
-    public WardrobeScreen(List<Identifier> unlocks) {
-        super(Text.literal("Wardrobe Screen"));
+    public WardrobeScreen(List<ResourceLocation> unlocks) {
+        super(Component.literal("Wardrobe Screen"));
         this.unlockedStyles = unlocks;
     }
 
@@ -44,15 +42,15 @@ public class WardrobeScreen extends Screen {
         this.previewRight = width / 3;
         this.topBarHeight = height / 10;
 
-        this.previewWidget = addDrawableChild(new WardrobePreviewWidget(0, 0, previewRight, height, client.player));
-        this.categoryWidget = addDrawableChild(new WardrobeCategoryWidget(this, previewRight, 1, width - previewRight - 48, topBarHeight));
+        this.previewWidget = addRenderableWidget(new WardrobePreviewWidget(0, 0, previewRight, height, minecraft.player));
+        this.categoryWidget = addRenderableWidget(new WardrobeCategoryWidget(this, previewRight, 1, width - previewRight - 48, topBarHeight));
 
         this.styleWidget = new WardrobeStyleWidget(previewRight, topBarHeight + 2, width - previewRight, height - topBarHeight);
-        this.presetsWidget = new WardrobePresetsWidget(client, this, previewRight, topBarHeight, width - previewRight, height - topBarHeight, 30, topBarHeight);
+        this.presetsWidget = new WardrobePresetsWidget(minecraft, this, previewRight, topBarHeight, width - previewRight, height - topBarHeight, 30, topBarHeight);
 
         int btnSize = topBarHeight;
-        this.clearButton = addDrawableChild(new ScaledImageButton(Text.literal("Clear Equipped"), width - topBarHeight, 1, btnSize, btnSize, 98, 0, 24, 24, TEX_WIDGETS, button -> clearEquipped()));
-        this.armorVisibilityButton = addDrawableChild(new ScaledImageButton(Text.literal("Toggle Armor Visibility"),width - (topBarHeight * 2), 1, btnSize, btnSize, 122, 0, 24, 24, TEX_WIDGETS, button -> toggleArmor()));
+        this.clearButton = addRenderableWidget(new ScaledImageButton(Component.literal("Clear Equipped"), width - topBarHeight, 1, btnSize, btnSize, 98, 0, 24, 24, TEX_WIDGETS, button -> clearEquipped()));
+        this.armorVisibilityButton = addRenderableWidget(new ScaledImageButton(Component.literal("Toggle Armor Visibility"),width - (topBarHeight * 2), 1, btnSize, btnSize, 122, 0, 24, 24, TEX_WIDGETS, button -> toggleArmor()));
 
         if(this.activeWidget instanceof WardrobeStyleWidget)
             this.activeWidget = this.styleWidget;
@@ -64,14 +62,14 @@ public class WardrobeScreen extends Screen {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
         renderBackground(context);
         this.activeWidget.render(context, mouseX, mouseY, partialTick);
         super.render(context, mouseX, mouseY, partialTick);
     }
 
     @Override
-    public void renderBackground(DrawContext context) {
+    public void renderBackground(GuiGraphics context) {
         super.renderBackground(context);
 
         context.fill(0, 0, width, height, 0xcc175796);
@@ -81,21 +79,21 @@ public class WardrobeScreen extends Screen {
         context.fillGradient(0, 0, previewRight, height / 3, 0xcc00cccc, 0x00000000);
         context.fillGradient(0, height - (height / 3), previewRight, height, 0x00000000, 0xcc000000);
 
-        context.drawVerticalLine(previewRight - 2, -1, height, 0xFF005454);
-        context.drawVerticalLine(previewRight - 1, -1, height, 0xFF00A8A8);
-        context.drawVerticalLine(previewRight, -1, height, 0xFF005454);
+        context.vLine(previewRight - 2, -1, height, 0xFF005454);
+        context.vLine(previewRight - 1, -1, height, 0xFF00A8A8);
+        context.vLine(previewRight, -1, height, 0xFF005454);
 
-        context.drawVerticalLine(0, -1, height, 0xFF005454);
-        context.drawVerticalLine(1, -1, height, 0xFF00A8A8);
-        context.drawVerticalLine(2, -1, height, 0xFF005454);
+        context.vLine(0, -1, height, 0xFF005454);
+        context.vLine(1, -1, height, 0xFF00A8A8);
+        context.vLine(2, -1, height, 0xFF005454);
 
-        context.drawHorizontalLine(0, previewRight-1, 0, 0xFF005454);
-        context.drawHorizontalLine(2, previewRight - 2, 1, 0xFF00A8A8);
-        context.drawHorizontalLine(3, previewRight-3, 2, 0xFF005454);
+        context.hLine(0, previewRight-1, 0, 0xFF005454);
+        context.hLine(2, previewRight - 2, 1, 0xFF00A8A8);
+        context.hLine(3, previewRight-3, 2, 0xFF005454);
 
-        context.drawHorizontalLine(0, previewRight-1, height - 1, 0xFF005454);
-        context.drawHorizontalLine(2, previewRight - 2, height - 2, 0xFF00A8A8);
-        context.drawHorizontalLine(3, previewRight-3, height - 3, 0xFF005454);
+        context.hLine(0, previewRight-1, height - 1, 0xFF005454);
+        context.hLine(2, previewRight - 2, height - 2, 0xFF00A8A8);
+        context.hLine(3, previewRight-3, height - 3, 0xFF005454);
     }
 
     @Override
@@ -124,7 +122,7 @@ public class WardrobeScreen extends Screen {
 
     @Override
     public void tick() {
-        if(this.presetsWidget != null && this.presetsWidget.isNarratable() && this.presetsWidget.needsRefreshing)
+        if(this.presetsWidget != null && this.presetsWidget.isActive() && this.presetsWidget.needsRefreshing)
             this.presetsWidget.refreshEntries();
     }
 
@@ -138,7 +136,7 @@ public class WardrobeScreen extends Screen {
             this.styleWidget.updateButtons(
                     category, StyleRegistry.getAllStyles().stream()
                             .filter(style -> style.categories.contains(category)
-                                    && (this.unlockedStyles.contains(style.styleId) || (client.player.isCreative() && client.player.hasPermissionLevel(2)))
+                                    && (this.unlockedStyles.contains(style.styleId) || (minecraft.player.isCreative() && minecraft.player.hasPermissions(2)))
                             )
                             .sorted(Comparator.comparing(o -> o.styleId.toString()))
                             .toList()

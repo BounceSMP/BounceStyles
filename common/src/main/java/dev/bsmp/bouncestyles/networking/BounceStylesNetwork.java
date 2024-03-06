@@ -8,14 +8,13 @@ import dev.bsmp.bouncestyles.networking.clientbound.SyncStyleUnlocksClientbound;
 import dev.bsmp.bouncestyles.networking.serverbound.EquipStyleServerbound;
 import dev.bsmp.bouncestyles.networking.serverbound.OpenStyleScreenServerbound;
 import dev.bsmp.bouncestyles.networking.serverbound.ToggleArmorVisibilityServerbound;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.world.EntityTrackingListener;
-import net.minecraft.util.Identifier;
-
 import java.util.Set;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.network.ServerPlayerConnection;
+import net.minecraft.world.entity.Entity;
 
 public class BounceStylesNetwork {
-    public static final NetworkChannel CHANNEL = NetworkChannel.create(new Identifier(BounceStyles.modId, "network"));
+    public static final NetworkChannel CHANNEL = NetworkChannel.create(new ResourceLocation(BounceStyles.modId, "network"));
 
     public static void initServerbound() {
         CHANNEL.register(EquipStyleServerbound.class, EquipStyleServerbound::encode, EquipStyleServerbound::decode, ServerPacketHandler::handleEquipStyle);
@@ -30,8 +29,8 @@ public class BounceStylesNetwork {
     }
 
     public static void sendToTrackingPlayers(StylePacket.ClientboundStylePacket packet, Entity entity) {
-        Set<EntityTrackingListener> trackingPlayers = BounceStyles.getPlayersTracking(entity);
-        for(EntityTrackingListener tracker : trackingPlayers) {
+        Set<ServerPlayerConnection> trackingPlayers = BounceStyles.getPlayersTracking(entity);
+        for(ServerPlayerConnection tracker : trackingPlayers) {
             packet.sendToPlayer(tracker.getPlayer());
         }
     }

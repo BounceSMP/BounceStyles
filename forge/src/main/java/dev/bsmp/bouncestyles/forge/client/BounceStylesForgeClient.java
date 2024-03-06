@@ -3,9 +3,9 @@ package dev.bsmp.bouncestyles.forge.client;
 import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.client.renderer.StyleLayerRenderer;
-import net.minecraft.client.render.entity.LivingEntityRenderer;
-import net.minecraft.client.render.entity.model.PlayerEntityModel;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -23,8 +23,8 @@ public class BounceStylesForgeClient {
     @SubscribeEvent
     static void registerLayer(EntityRenderersEvent.AddLayers event) {
         for (String s : event.getSkins()) {
-            LivingEntityRenderer<PlayerEntity, PlayerEntityModel<PlayerEntity>> playerRenderer = event.getSkin(s);
-            playerRenderer.addFeature(BounceStylesClient.STYLE_RENDERER = new StyleLayerRenderer(playerRenderer));
+            LivingEntityRenderer<Player, PlayerModel<Player>> playerRenderer = event.getSkin(s);
+            playerRenderer.addLayer(BounceStylesClient.STYLE_RENDERER = new StyleLayerRenderer(playerRenderer));
         }
     }
 }

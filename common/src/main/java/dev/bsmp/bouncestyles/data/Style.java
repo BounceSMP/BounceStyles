@@ -1,10 +1,6 @@
 package dev.bsmp.bouncestyles.data;
 
 import dev.bsmp.bouncestyles.StyleRegistry;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
@@ -20,22 +16,24 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 
 public class Style implements GeoAnimatable {
-    public static final DataTicket<PlayerEntity> PLAYER = new DataTicket<>("player_entity", PlayerEntity.class);
+    public static final DataTicket<Player> PLAYER = new DataTicket<>("player_entity", Player.class);
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-    public final Identifier styleId;
-    public final Identifier modelID;
-    public final Identifier textureID;
-    @Nullable public final Identifier animationID;
+    public final ResourceLocation styleId;
+    public final ResourceLocation modelID;
+    public final ResourceLocation textureID;
+    @Nullable public final ResourceLocation animationID;
 
     @Nullable public final HashMap<String, String> animationMap;
     public int transitionTicks;
     public List<String> hiddenParts = new ArrayList<>();
     public List<StyleRegistry.Category> categories = new ArrayList<>();
 
-    public Style(Identifier styleId, Identifier modelID, Identifier textureID, @Nullable Identifier animationID, @Nullable HashMap<String, String> animationMap) {
+    public Style(ResourceLocation styleId, ResourceLocation modelID, ResourceLocation textureID, @Nullable ResourceLocation animationID, @Nullable HashMap<String, String> animationMap) {
         this.styleId = styleId;
         this.modelID = modelID;
         this.textureID = textureID;
@@ -58,7 +56,7 @@ public class Style implements GeoAnimatable {
     }
 
     private PlayState predicate(AnimationState<Style> styleAnimationState) {
-        PlayerEntity entity = styleAnimationState.getData(PLAYER);
+        Player entity = styleAnimationState.getData(PLAYER);
         if (entity == null) return PlayState.STOP;
 
         AnimationController<?> controller = styleAnimationState.getController();
@@ -73,10 +71,10 @@ public class Style implements GeoAnimatable {
             else if(entity.isFallFlying() && (anim = animationMap.get("flying")) != null)
                 return applyAnimation(controller, anim);
 
-            else if(!entity.isOnGround() && (anim = animationMap.get("in_air")) != null)
+            else if(!entity.onGround() && (anim = animationMap.get("in_air")) != null)
                 return applyAnimation(controller, anim);
 
-            else if(entity.isSneaking() && (anim = animationMap.get("sneaking")) != null)
+            else if(entity.isShiftKeyDown() && (anim = animationMap.get("sneaking")) != null)
                 return applyAnimation(controller, anim);
 
             else if(entity.isSprinting() && (anim = animationMap.get("sprinting")) != null)
