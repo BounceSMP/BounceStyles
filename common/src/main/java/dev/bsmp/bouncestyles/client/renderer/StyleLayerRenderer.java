@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.bsmp.bouncestyles.BounceStyles;
 import dev.bsmp.bouncestyles.StyleRegistry;
-import dev.bsmp.bouncestyles.data.MissingStyle;
 import dev.bsmp.bouncestyles.data.Style;
 import dev.bsmp.bouncestyles.data.StyleData;
 import net.minecraft.client.model.PlayerModel;
@@ -13,15 +12,12 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3d;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.FastBoneFilterGeoLayer;
 import software.bernie.geckolib.util.RenderUtils;
 
 public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>> implements GeoRenderer<Style> {
@@ -73,10 +69,8 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
         if (!isReRender) {
             boolean isMoving = false;
             if (currentPlayer != null) {
-                float motionThreshold = getMotionAnimThreshold(style);
-                Vec3 velocity = currentPlayer.getDeltaMovement();
-                float averageVelocity = (float) (Math.abs(velocity.x) + Math.abs(velocity.z) / 2f);
-                isMoving = averageVelocity >= motionThreshold;
+                double i = Math.abs(currentPlayer.getX() - currentPlayer.xOld) + Math.abs(currentPlayer.getZ() - currentPlayer.zOld);
+                isMoving = i > 0.075 && currentPlayer.walkAnimation.isMoving();
             }
 
             AnimationState<Style> animationState = new AnimationState<>(style, 0, 0, partialTick, isMoving);
