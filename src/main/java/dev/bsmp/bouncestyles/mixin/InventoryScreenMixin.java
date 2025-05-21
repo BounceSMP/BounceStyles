@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(InventoryScreen.class)
 public abstract class InventoryScreenMixin extends EffectRenderingInventoryScreen<InventoryMenu> {
-    private static final ResourceLocation TEX = new ResourceLocation(BounceStyles.modId, "textures/icon/inv_btn.png");
+    private static final ResourceLocation TEX = BounceStyles.resourceLocation("textures/icon/inv_btn.png");
 
     private InventoryScreenMixin(InventoryMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);

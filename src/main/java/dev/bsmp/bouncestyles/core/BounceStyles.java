@@ -59,13 +59,13 @@ public class BounceStyles {
         BounceStylesNetwork.initClientbound();
 
         Registrar<Item> items = REGISTRIES.get().get(Registries.ITEM);
-        MAGAZINE_ITEM = items.register(new ResourceLocation(modId, "magazine"), StyleMagazineItem::new);
+        MAGAZINE_ITEM = items.register(resourceLocation("magazine"), StyleMagazineItem::new);
 
         CommandRegistrationEvent.EVENT.register((dispatcher, registry, dedicated) -> StyleCommand.register(dispatcher));
 
         Registrar<ArgumentTypeInfo<?, ?>> argTypes = REGISTRIES.get().get(Registries.COMMAND_ARGUMENT_TYPE);
         ArgumentTypeInfo<?, ?> serializer = SingletonArgumentInfo.contextFree(StyleSlotArgumentType::styleSlot);
-        argTypes.register(new ResourceLocation(modId, "style_slot"), () -> serializer);
+        argTypes.register(resourceLocation("style_slot"), () -> serializer);
         ArgumentTypesAccessor.getClassMap().put(StyleSlotArgumentType.class, serializer);
 
         PlayerEvent.PLAYER_JOIN.register(BounceStyles::playerJoin);

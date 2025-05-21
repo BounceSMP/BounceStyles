@@ -90,7 +90,7 @@ public class StyleLoader {
             for (JsonElement element : jsonArray) {
                 JsonObject item = GsonHelper.convertToJsonObject(element, "item");
                 String name = item.get("name").getAsString();
-                ResourceLocation styleId = new ResourceLocation(BounceStyles.modId, name);
+                ResourceLocation styleId = BounceStyles.resourceLocation(name);
 
 //                Style.CODEC.parse(JsonOps.INSTANCE, element).resultOrPartial(BounceStyles.LOGGER::error).ifPresent(style -> {
 //                    var registry = BounceStyles.getLevel().registryAccess().registry(BounceStyles.STYLE_REGISTRY_KEY);
@@ -125,7 +125,7 @@ public class StyleLoader {
                     for (JsonElement element : jsonArray) {
                         JsonObject item = GsonHelper.convertToJsonObject(element, "item");
                         String name = item.get("name").getAsString();
-                        ResourceLocation styleId = new ResourceLocation(BounceStyles.modId, name);
+                        ResourceLocation styleId = BounceStyles.resourceLocation(name);
 
                         if (items.containsKey(styleId)) {
                             JsonObject obj = items.get(styleId);
@@ -208,54 +208,6 @@ public class StyleLoader {
         catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private static ResourceLocation parseModelId(JsonObject item, String name) {
-        String model;
-        if(item.has("model_id"))
-            model = item.get("model_id").getAsString();
-        else
-            model = name + ".geo.json";
-        return model.contains(":") ? new ResourceLocation(model.split(":")[0], "geo/" + model.split(":")[1]) : new ResourceLocation(BounceStyles.modId, "geo/" + model);
-    }
-
-    private static ResourceLocation parseTextureId(JsonObject item, String name) {
-        String texture;
-        if(item.has("texture_id"))
-            texture = item.get("texture_id").getAsString();
-        else
-            texture = name + ".png";
-        return texture.contains(":") ? new ResourceLocation(texture.split(":")[0], "textures/" + texture.split(":")[1]) : new ResourceLocation(BounceStyles.modId, "textures/" + texture);
-    }
-
-    private static ResourceLocation parseAnimationId(JsonObject item, String name) {
-        if(!item.has("animations"))
-            return null;
-
-        String anim;
-        if(item.has("animation_id"))
-            anim = item.get("animation_id").getAsString();
-        else
-            anim = name + ".animation.json";
-        return anim.contains(":") ? new ResourceLocation(anim.split(":")[0], "animations/" + anim.split(":")[1]) : new ResourceLocation(BounceStyles.modId, "animations/" + anim);
-    }
-
-    private static HashMap<String, String> parseAnimationMap(JsonObject item) {
-        if(!item.has("animations"))
-            return null;
-
-        HashMap<String, String> animationMap = new HashMap<>();
-        JsonObject animations = item.getAsJsonObject("animations");
-        for(Map.Entry<String, JsonElement> entry : animations.entrySet()) {
-            String a = entry.getValue().getAsString();
-            if(!a.isEmpty())
-                animationMap.put(entry.getKey(), entry.getValue().getAsString());
-        }
-        return animationMap;
-    }
-
-    private static int parseTransitionTicks(JsonObject item) {
-        return item.has("transition_ticks") ? item.get("transition_ticks").getAsInt() : 5;
     }
 
     public static CompletableFuture<Void> loadStylePacks(PreparableReloadListener.PreparationBarrier synchronizer, ResourceManager resourceManager, ProfilerFiller prepareProfiler, ProfilerFiller applyProfiler, Executor prepareExecutor, Executor applyExecutor) {

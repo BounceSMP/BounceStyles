@@ -21,7 +21,7 @@ public record StylePreset(ResourceLocation presetId, String name, @Nullable Reso
     }
 
     private static ResourceLocation parseId(String string) {
-        return string.contains(":") ? new ResourceLocation(string) : new ResourceLocation(BounceStyles.modId, string);
+        return string.contains(":") ? new ResourceLocation(string) : BounceStyles.resourceLocation(string);
     }
 
     public boolean hasAllUnlocked(List<ResourceLocation> unlocks) {

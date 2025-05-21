@@ -14,7 +14,7 @@ import net.minecraft.world.entity.Entity;
 import java.util.Set;
 
 public class BounceStylesNetwork {
-    public static final NetworkChannel CHANNEL = NetworkChannel.create(new ResourceLocation(BounceStyles.modId, "network"));
+    public static final NetworkChannel CHANNEL = NetworkChannel.create(BounceStyles.resourceLocation("network"));
 
     public static void initServerbound() {
         CHANNEL.register(EquipStyleServerbound.class, EquipStyleServerbound::encode, EquipStyleServerbound::decode, ServerPacketHandler::handleEquipStyle);

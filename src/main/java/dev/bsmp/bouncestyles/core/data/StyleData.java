@@ -151,7 +151,7 @@ public class StyleData {
         ResourceLocation legs = this.legStyle != null ? this.legStyle.getStyleId() : null;
         ResourceLocation feet = this.feetStyle != null ? this.feetStyle.getStyleId() : null;
         boolean error = StylePreset.checkIds(head, body, legs, feet);
-        return new StylePreset(new ResourceLocation(BounceStyles.modId, presetName.toLowerCase().replace(" ", "_")), presetName, head, body, legs, feet, error);
+        return new StylePreset(BounceStyles.resourceLocation(presetName.toLowerCase().replace(" ", "_")), presetName, head, body, legs, feet, error);
     }
 
     //Static

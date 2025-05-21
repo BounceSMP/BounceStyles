@@ -170,7 +170,7 @@ public class Style implements GeoAnimatable {
     }
 
     private static ResourceLocation parseModelId(String styleName, String directory, String suffix) {
-        return new ResourceLocation(BounceStyles.modId, directory + "/" + styleName + suffix);
+        return BounceStyles.resourceLocation(directory + "/" + styleName + suffix);
     }
 
     public static final Codec<Style> CODEC = RecordCodecBuilder.create(instance -> instance.group(

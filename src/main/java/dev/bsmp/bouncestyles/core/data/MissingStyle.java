@@ -9,9 +9,9 @@ public class MissingStyle extends Style {
 
     private MissingStyle() {
         super(
-                new ResourceLocation(BounceStyles.modId, "missing_model"),
-                new ResourceLocation(BounceStyles.modId, "geo/missing_model.geo.json"),
-                new ResourceLocation(BounceStyles.modId, "textures/missing_model.png"),
+                BounceStyles.resourceLocation("missing_model"),
+                BounceStyles.resourceLocation("geo/missing_model.geo.json"),
+                BounceStyles.resourceLocation("textures/missing_model.png"),
                 null, null
         );
     }

@@ -24,7 +24,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class WardrobeStyleWidget extends AbstractWidget implements WardrobeWidget {
-    private static final ResourceLocation TEX_WIDGETS = new ResourceLocation(BounceStyles.modId, "textures/gui/widgets.png");
+    private static final ResourceLocation TEX_WIDGETS = BounceStyles.resourceLocation("textures/gui/widgets.png");
 
     List<StyleButton> buttons = new ArrayList<>();
     StyleButton selectedButton;

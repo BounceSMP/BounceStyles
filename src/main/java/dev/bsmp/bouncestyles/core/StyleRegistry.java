@@ -69,11 +69,11 @@ public class StyleRegistry {
         return REGISTRY.containsKey(id);
     }
 
-    public static final ResourceLocation HEAD_ICON = new ResourceLocation(BounceStyles.modId, "textures/icon/bounce_head.png");
-    public static final ResourceLocation BODY_ICON = new ResourceLocation(BounceStyles.modId, "textures/icon/bounce_body.png");
-    public static final ResourceLocation LEGS_ICON = new ResourceLocation(BounceStyles.modId, "textures/icon/bounce_legs.png");
-    public static final ResourceLocation FEET_ICON = new ResourceLocation(BounceStyles.modId, "textures/icon/bounce_feet.png");
-    public static final ResourceLocation PRESET_ICON = new ResourceLocation(BounceStyles.modId, "textures/icon/bounce_preset.png");
+    public static final ResourceLocation HEAD_ICON = BounceStyles.resourceLocation("textures/icon/bounce_head.png");
+    public static final ResourceLocation BODY_ICON = BounceStyles.resourceLocation("textures/icon/bounce_body.png");
+    public static final ResourceLocation LEGS_ICON = BounceStyles.resourceLocation("textures/icon/bounce_legs.png");
+    public static final ResourceLocation FEET_ICON = BounceStyles.resourceLocation("textures/icon/bounce_feet.png");
+    public static final ResourceLocation PRESET_ICON = BounceStyles.resourceLocation("textures/icon/bounce_preset.png");
 
     public enum Category implements StringRepresentable {
         Head(HEAD_ICON), Body(BODY_ICON), Legs(LEGS_ICON), Feet(FEET_ICON), Preset(PRESET_ICON);

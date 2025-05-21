@@ -61,7 +61,7 @@ public class WardrobeCategoryWidget extends AbstractWidget implements WardrobeWi
     protected void updateWidgetNarration(NarrationElementOutput builder) {}
 
     public class CategoryButton extends Button {
-        private static final ResourceLocation TEX_CATEGORY_BG = new ResourceLocation(BounceStyles.modId, "textures/icon/category_bg.png");
+        private static final ResourceLocation TEX_CATEGORY_BG = BounceStyles.resourceLocation("textures/icon/category_bg.png");
         WardrobeCategoryWidget parentWidget;
         StyleRegistry.Category category;
 
