@@ -1,0 +1,186 @@
+package dev.bsmp.bouncestyles.core.data;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.bsmp.bouncestyles.core.BounceStyles;
+import dev.bsmp.bouncestyles.core.StyleRegistry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.DataTicket;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
+
+import java.util.*;
+
+public class Style implements GeoAnimatable {
+    public static final DataTicket<Player> PLAYER = new DataTicket<>("player_entity", Player.class);
+
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+
+    private final ResourceLocation styleId;
+    private final ResourceLocation modelId;
+    private final ResourceLocation textureId;
+    private final ResourceLocation animationId;
+    private final Map<String, String> animationMap;
+    private final int transitionTicks;
+    private final List<String> hiddenParts;
+    private final List<StyleRegistry.Category> categories;
+
+    public Style(ResourceLocation styleId, ResourceLocation modelId, ResourceLocation textureId, ResourceLocation animationId, Map<String, String> animationMap) {
+        this(styleId, modelId, textureId, animationId, animationMap, 0, List.of(), List.of());
+    }
+
+    public Style(ResourceLocation styleId, ResourceLocation modelId, ResourceLocation textureId, ResourceLocation animationId, Map<String, String> animationMap, int transitionTicks, List<String> hiddenParts, List<StyleRegistry.Category> categories) {
+        this.styleId = styleId;
+        this.modelId = modelId;
+        this.textureId = textureId;
+        this.animationId = animationId;
+        this.animationMap = animationMap != null ? new HashMap<>(animationMap) : null;
+        this.transitionTicks = transitionTicks;
+        this.hiddenParts = hiddenParts;
+        this.categories = categories;
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar registrar) {
+        if(animationMap != null && !animationMap.isEmpty()) {
+            registrar.add(
+                    new AnimationController<>(this, this.styleId.toString(), Math.max(transitionTicks, 1), this::predicate)
+            );
+        }
+    }
+
+    @Override
+    public double getTick(Object o) {
+        return 0;
+    }
+
+    private PlayState predicate(AnimationState<Style> styleAnimationState) {
+        Player entity = styleAnimationState.getData(PLAYER);
+        if (entity == null) return PlayState.STOP;
+
+        AnimationController<?> controller = styleAnimationState.getController();
+        if(animationMap != null && !animationMap.isEmpty()) {
+            String anim;
+            if(entity.isSleeping() && (anim = animationMap.get("sleeping")) != null)
+                return applyAnimation(controller, anim);
+
+            else if (entity.isSwimming() && (anim = animationMap.get("swimming")) != null)
+                return applyAnimation(controller, anim);
+
+            else if(entity.isFallFlying() && (anim = animationMap.get("flying")) != null)
+                return applyAnimation(controller, anim);
+
+            else if(!entity.onGround() && (anim = animationMap.get("in_air")) != null)
+                return applyAnimation(controller, anim);
+
+            else if(entity.isShiftKeyDown() && (anim = animationMap.get("sneaking")) != null)
+                return applyAnimation(controller, anim);
+
+            else if(entity.isSprinting() && (anim = animationMap.get("sprinting")) != null)
+                return applyAnimation(controller, anim);
+
+            else if(styleAnimationState.isMoving() && (anim = animationMap.get("walking")) != null)
+                return applyAnimation(controller, anim);
+
+            else if((anim = animationMap.get("idle")) != null)
+                return applyAnimation(controller, anim);
+        }
+
+        return PlayState.STOP;
+    }
+
+    private static PlayState applyAnimation(AnimationController<?> controller, String anim) {
+        if(isCurrentAnimation(controller, anim))
+            return PlayState.CONTINUE;
+        controller.setAnimation(RawAnimation.begin().thenLoop(anim));
+        return PlayState.CONTINUE;
+    }
+
+    private static boolean isCurrentAnimation(AnimationController<?> controller, String animation) {
+        return controller.getCurrentAnimation() != null && controller.getCurrentAnimation().animation().name().equalsIgnoreCase(animation);
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
+    }
+
+    public int getTransitionTicks() {
+        return transitionTicks;
+    }
+
+    public ResourceLocation getTextureId() {
+        return textureId;
+    }
+
+    public ResourceLocation getStyleId() {
+        return styleId;
+    }
+
+    public ResourceLocation getModelId() {
+        return modelId;
+    }
+
+    public List<String> getHiddenParts() {
+        return hiddenParts;
+    }
+
+    public List<StyleRegistry.Category> getCategories() {
+        return categories;
+    }
+
+    public Optional<ResourceLocation> getAnimationId() {
+        return Optional.ofNullable(animationId);
+    }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "[styleId=%s, modelId=%s, textureId=%s, animationId=%s, animationMap=%s]",
+                styleId, modelId, textureId, animationId, animationMap
+        );
+    }
+
+    private static Style decode(String styleId, Optional<ResourceLocation> modelId, Optional<ResourceLocation> textureId, Optional<ResourceLocation> animationId, Optional<Map<String, String>> animationMap, Optional<Integer> transitionTicks, Optional<List<String>> hiddenParts, List<StyleRegistry.Category> categories) {
+        String name;
+        if (styleId.contains(":"))
+            name = styleId.split(":")[1];
+        else {
+            name = styleId;
+            styleId = BounceStyles.modId + ":" + name;
+        }
+
+        return new Style(
+                new ResourceLocation(styleId),
+                modelId.orElse(parseModelId(name, "geo", ".geo.json")),
+                textureId.orElse(parseModelId(name, "textures", ".png")),
+                animationId.orElse(parseModelId(name, "animations", ".animation.json")),
+                animationMap.orElse(null),
+                transitionTicks.orElse(0),
+                hiddenParts.orElse(List.of()),
+                categories
+        );
+    }
+
+    private static ResourceLocation parseModelId(String styleName, String directory, String suffix) {
+        return new ResourceLocation(BounceStyles.modId, directory + "/" + styleName + suffix);
+    }
+
+    public static final Codec<Style> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.STRING.fieldOf("name").forGetter(style -> style.getStyleId().toString()),
+            ResourceLocation.CODEC.optionalFieldOf("model_id").forGetter(style -> Optional.of(style.getModelId())),
+            ResourceLocation.CODEC.optionalFieldOf("texture_id").forGetter(style -> Optional.of(style.getTextureId())),
+            ResourceLocation.CODEC.optionalFieldOf("animation_id").forGetter(Style::getAnimationId),
+            Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("animations").forGetter(style -> Optional.ofNullable(style.animationMap)),
+            Codec.INT.optionalFieldOf("transition_ticks").forGetter(style -> Optional.of(style.getTransitionTicks())),
+            Codec.STRING.listOf().optionalFieldOf("hidden_parts").forGetter(style -> Optional.of(style.getHiddenParts())),
+            StyleRegistry.Category.CODEC.listOf().fieldOf("slots").forGetter(Style::getCategories)
+    ).apply(instance, Style::decode));
+}
