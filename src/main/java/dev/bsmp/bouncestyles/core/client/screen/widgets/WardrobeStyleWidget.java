@@ -5,7 +5,7 @@ import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.StyleRegistry;
+import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.core.data.Style;
 import dev.bsmp.bouncestyles.core.data.StyleData;
@@ -28,7 +28,7 @@ public class WardrobeStyleWidget extends AbstractWidget implements WardrobeWidge
 
     List<StyleButton> buttons = new ArrayList<>();
     StyleButton selectedButton;
-    StyleRegistry.Category category;
+    BounceStylesRegistries.Category category;
 
     float previewRotation = 0f;
     int buttonsPerRow = 6;
@@ -45,7 +45,7 @@ public class WardrobeStyleWidget extends AbstractWidget implements WardrobeWidge
         updateButtons(null, new ArrayList<Style>());
     }
 
-    public void updateButtons(StyleRegistry.Category category, List<Style> styles) {
+    public void updateButtons(BounceStylesRegistries.Category category, List<Style> styles) {
         this.scroll = 0;
         this.category = category;
         this.buttons.clear();

@@ -1,7 +1,7 @@
 package dev.bsmp.bouncestyles.core.data;
 
 import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.StyleRegistry;
+import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -89,7 +89,7 @@ public class StyleData {
         return this.hiddenParts;
     }
 
-    public Style getStyleForSlot(StyleRegistry.Category category) {
+    public Style getStyleForSlot(BounceStylesRegistries.Category category) {
         return switch (category) {
             case Head -> this.headStyle;
             case Body -> this.bodyStyle;
@@ -171,7 +171,7 @@ public class StyleData {
     private static @Nullable Style parseStyle(CompoundTag tag, String slot) {
         Style style = null;
         if(tag.contains(slot))
-            style = StyleRegistry.getStyle(ResourceLocation.tryParse(tag.getString(slot)));
+            style = BounceStylesRegistries.getStyle(ResourceLocation.tryParse(tag.getString(slot)));
         return style;
     }
 
@@ -183,10 +183,10 @@ public class StyleData {
 
     public static CompoundTag equippedToNBT(StyleData styleData) {
         CompoundTag tag = new CompoundTag();
-        convertStyle(tag, styleData.headStyle, StyleRegistry.Category.Head.name());
-        convertStyle(tag, styleData.bodyStyle, StyleRegistry.Category.Body.name());
-        convertStyle(tag, styleData.legStyle, StyleRegistry.Category.Legs.name());
-        convertStyle(tag, styleData.feetStyle, StyleRegistry.Category.Feet.name());
+        convertStyle(tag, styleData.headStyle, BounceStylesRegistries.Category.Head.name());
+        convertStyle(tag, styleData.bodyStyle, BounceStylesRegistries.Category.Body.name());
+        convertStyle(tag, styleData.legStyle, BounceStylesRegistries.Category.Legs.name());
+        convertStyle(tag, styleData.feetStyle, BounceStylesRegistries.Category.Feet.name());
         tag.putBoolean("armorVisible", styleData.isArmorVisible());
         return tag;
     }
@@ -209,10 +209,10 @@ public class StyleData {
 
     public static StyleData equippedFromNBT(CompoundTag tag) {
         StyleData styleData = new StyleData(
-                parseStyle(tag, StyleRegistry.Category.Head.name()),
-                parseStyle(tag, StyleRegistry.Category.Body.name()),
-                parseStyle(tag, StyleRegistry.Category.Legs.name()),
-                parseStyle(tag, StyleRegistry.Category.Feet.name())
+                parseStyle(tag, BounceStylesRegistries.Category.Head.name()),
+                parseStyle(tag, BounceStylesRegistries.Category.Body.name()),
+                parseStyle(tag, BounceStylesRegistries.Category.Legs.name()),
+                parseStyle(tag, BounceStylesRegistries.Category.Feet.name())
         );
         styleData.showArmor = tag.getBoolean("armorVisible");
         return styleData;

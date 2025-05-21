@@ -3,7 +3,7 @@ package dev.bsmp.bouncestyles.core.data;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.StyleRegistry;
+import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
@@ -30,13 +30,13 @@ public class Style implements GeoAnimatable {
     private final Map<String, String> animationMap;
     private final int transitionTicks;
     private final List<String> hiddenParts;
-    private final List<StyleRegistry.Category> categories;
+    private final List<BounceStylesRegistries.Category> categories;
 
     public Style(ResourceLocation styleId, ResourceLocation modelId, ResourceLocation textureId, ResourceLocation animationId, Map<String, String> animationMap) {
         this(styleId, modelId, textureId, animationId, animationMap, 0, List.of(), List.of());
     }
 
-    public Style(ResourceLocation styleId, ResourceLocation modelId, ResourceLocation textureId, ResourceLocation animationId, Map<String, String> animationMap, int transitionTicks, List<String> hiddenParts, List<StyleRegistry.Category> categories) {
+    public Style(ResourceLocation styleId, ResourceLocation modelId, ResourceLocation textureId, ResourceLocation animationId, Map<String, String> animationMap, int transitionTicks, List<String> hiddenParts, List<BounceStylesRegistries.Category> categories) {
         this.styleId = styleId;
         this.modelId = modelId;
         this.textureId = textureId;
@@ -132,7 +132,7 @@ public class Style implements GeoAnimatable {
         return hiddenParts;
     }
 
-    public List<StyleRegistry.Category> getCategories() {
+    public List<BounceStylesRegistries.Category> getCategories() {
         return categories;
     }
 
@@ -148,7 +148,7 @@ public class Style implements GeoAnimatable {
         );
     }
 
-    private static Style decode(String styleId, Optional<ResourceLocation> modelId, Optional<ResourceLocation> textureId, Optional<ResourceLocation> animationId, Optional<Map<String, String>> animationMap, Optional<Integer> transitionTicks, Optional<List<String>> hiddenParts, List<StyleRegistry.Category> categories) {
+    private static Style decode(String styleId, Optional<ResourceLocation> modelId, Optional<ResourceLocation> textureId, Optional<ResourceLocation> animationId, Optional<Map<String, String>> animationMap, Optional<Integer> transitionTicks, Optional<List<String>> hiddenParts, List<BounceStylesRegistries.Category> categories) {
         String name;
         if (styleId.contains(":"))
             name = styleId.split(":")[1];
@@ -181,6 +181,6 @@ public class Style implements GeoAnimatable {
             Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("animations").forGetter(style -> Optional.ofNullable(style.animationMap)),
             Codec.INT.optionalFieldOf("transition_ticks").forGetter(style -> Optional.of(style.getTransitionTicks())),
             Codec.STRING.listOf().optionalFieldOf("hidden_parts").forGetter(style -> Optional.of(style.getHiddenParts())),
-            StyleRegistry.Category.CODEC.listOf().fieldOf("slots").forGetter(Style::getCategories)
+            BounceStylesRegistries.Category.CODEC.listOf().fieldOf("slots").forGetter(Style::getCategories)
     ).apply(instance, Style::decode));
 }

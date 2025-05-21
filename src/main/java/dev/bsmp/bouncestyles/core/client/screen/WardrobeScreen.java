@@ -1,7 +1,7 @@
 package dev.bsmp.bouncestyles.core.client.screen;
 
 import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.StyleRegistry;
+import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.*;
 import dev.bsmp.bouncestyles.core.data.StylePreset;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
@@ -27,7 +27,7 @@ public class WardrobeScreen extends Screen {
     ImageButton armorVisibilityButton;
 
     List<ResourceLocation> unlockedStyles;
-    StyleRegistry.Category selectedCategory;
+    BounceStylesRegistries.Category selectedCategory;
     int previewRight;
     int topBarHeight;
 
@@ -58,7 +58,7 @@ public class WardrobeScreen extends Screen {
             this.activeWidget = this.presetsWidget;
 
         if(this.selectedCategory == null)
-            this.setSelectedCategory(StyleRegistry.Category.Head);
+            this.setSelectedCategory(BounceStylesRegistries.Category.Head);
     }
 
     @Override
@@ -126,15 +126,15 @@ public class WardrobeScreen extends Screen {
             this.presetsWidget.refreshEntries();
     }
 
-    public void setSelectedCategory(StyleRegistry.Category category) {
+    public void setSelectedCategory(BounceStylesRegistries.Category category) {
         this.selectedCategory = category;
 
-        if (category == StyleRegistry.Category.Preset)
+        if (category == BounceStylesRegistries.Category.Preset)
             this.activeWidget = this.presetsWidget;
         else {
             this.activeWidget = this.styleWidget;
             this.styleWidget.updateButtons(
-                    category, StyleRegistry.getAllStyles().stream()
+                    category, BounceStylesRegistries.getAllStyles().stream()
                             .filter(style -> style.getCategories().contains(category)
                                     && (this.unlockedStyles.contains(style.getStyleId()) || (minecraft.player.isCreative() && minecraft.player.hasPermissions(2)))
                             )
@@ -145,14 +145,14 @@ public class WardrobeScreen extends Screen {
     }
 
     public List<StylePreset> requestPresets() {
-        return StyleRegistry.PRESETS.values().stream().toList();
+        return BounceStylesRegistries.PRESETS.values().stream().toList();
     }
 
     private void clearEquipped() {
-        new EquipStyleServerbound(StyleRegistry.Category.Head, null).sendToServer();
-        new EquipStyleServerbound(StyleRegistry.Category.Body, null).sendToServer();
-        new EquipStyleServerbound(StyleRegistry.Category.Legs, null).sendToServer();
-        new EquipStyleServerbound(StyleRegistry.Category.Feet, null).sendToServer();
+        new EquipStyleServerbound(BounceStylesRegistries.Category.Head, null).sendToServer();
+        new EquipStyleServerbound(BounceStylesRegistries.Category.Body, null).sendToServer();
+        new EquipStyleServerbound(BounceStylesRegistries.Category.Legs, null).sendToServer();
+        new EquipStyleServerbound(BounceStylesRegistries.Category.Feet, null).sendToServer();
     }
 
     private void toggleArmor() {

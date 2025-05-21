@@ -2,13 +2,9 @@ package dev.bsmp.bouncestyles.core;
 
 import com.google.common.io.Files;
 import com.google.gson.*;
-import com.mojang.serialization.JsonOps;
-import dev.bsmp.bouncestyles.core.data.Style;
 import dev.bsmp.bouncestyles.core.data.StylePreset;
 import dev.bsmp.bouncestyles.core.pack.StylesResourcePack;
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -20,7 +16,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -49,7 +44,7 @@ public class StyleLoader {
     }
 
     public static void reload() {
-        StyleRegistry.clearRegistry();
+        BounceStylesRegistries.clearRegistry();
         init();
     }
 
@@ -113,8 +108,8 @@ public class StyleLoader {
         Path parentDir = mainFile.getParentFile().toPath();
         Map<ResourceLocation, JsonObject> items = new HashMap<>();
 
-        for(StyleRegistry.Category category : StyleRegistry.Category.values()) {
-            if(category == StyleRegistry.Category.Preset)
+        for(BounceStylesRegistries.Category category : BounceStylesRegistries.Category.values()) {
+            if(category == BounceStylesRegistries.Category.Preset)
                 continue;
 
             File file = parentDir.resolve(category.name()+".json").toFile();
@@ -174,14 +169,14 @@ public class StyleLoader {
                 for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
                     ResourceLocation presetId = ResourceLocation.tryParse(BounceStyles.modId + ":" + entry.getKey());
                     StylePreset preset = StylePreset.fromJson(presetId, entry.getValue().getAsJsonObject());
-                    StyleRegistry.PRESETS.put(presetId, preset);
+                    BounceStylesRegistries.PRESETS.put(presetId, preset);
                 }
             }
         }
     }
 
     public static void removePreset(ResourceLocation presetId) {
-        StyleRegistry.PRESETS.remove(presetId);
+        BounceStylesRegistries.PRESETS.remove(presetId);
         writePresetsFile();
     }
 
@@ -192,7 +187,7 @@ public class StyleLoader {
             BufferedWriter bufferedWriter = Files.newWriter(file, StandardCharsets.UTF_8);
             JsonObject jsonObject = new JsonObject();
 
-            for(StylePreset preset : StyleRegistry.PRESETS.values()) {
+            for(StylePreset preset : BounceStylesRegistries.PRESETS.values()) {
                 JsonObject obj = new JsonObject();
                 obj.addProperty("name", preset.name());
                 obj.addProperty("head", preset.headId() != null ? preset.headId().toString() : "");

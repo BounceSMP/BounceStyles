@@ -1,12 +1,12 @@
 package dev.bsmp.bouncestyles.core.networking.serverbound;
 
-import dev.bsmp.bouncestyles.core.StyleRegistry;
+import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.data.Style;
 import dev.bsmp.bouncestyles.core.networking.StylePacket;
 import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.Nullable;
 
-public record EquipStyleServerbound(StyleRegistry.Category category, @Nullable Style style) implements StylePacket.ServerboundStylePacket {
+public record EquipStyleServerbound(BounceStylesRegistries.Category category, @Nullable Style style) implements StylePacket.ServerboundStylePacket {
     public void encode(FriendlyByteBuf buf) {
         buf.writeEnum(this.category);
         if(this.style != null)
@@ -14,8 +14,8 @@ public record EquipStyleServerbound(StyleRegistry.Category category, @Nullable S
     }
     public static EquipStyleServerbound decode(FriendlyByteBuf buf) {
         return new EquipStyleServerbound(
-                buf.readEnum(StyleRegistry.Category.class),
-                buf.readableBytes() > 0 ? StyleRegistry.getStyle(buf.readResourceLocation()) : null
+                buf.readEnum(BounceStylesRegistries.Category.class),
+                buf.readableBytes() > 0 ? BounceStylesRegistries.getStyle(buf.readResourceLocation()) : null
         );
     }
 }

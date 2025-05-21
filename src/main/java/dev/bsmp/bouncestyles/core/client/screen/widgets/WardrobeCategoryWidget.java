@@ -2,7 +2,7 @@ package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.StyleRegistry;
+import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.screen.WardrobeScreen;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +24,10 @@ public class WardrobeCategoryWidget extends AbstractWidget implements WardrobeWi
         this.parentScreen = parentScreen;
         int i = 0;
         double guiScale = Minecraft.getInstance().getWindow().getGuiScale();
-        for(StyleRegistry.Category category : StyleRegistry.Category.values()) {
+        for(BounceStylesRegistries.Category category : BounceStylesRegistries.Category.values()) {
             CategoryButton button = new CategoryButton(this, category, x + (int)(10 / guiScale) + (i * height) + (i * (int) (10 / guiScale)), y, height, height);
             this.buttonList.add(button);
-            if(category == StyleRegistry.Category.Head)
+            if(category == BounceStylesRegistries.Category.Head)
                 this.selectedButton = button;
             i++;
         }
@@ -63,9 +63,9 @@ public class WardrobeCategoryWidget extends AbstractWidget implements WardrobeWi
     public class CategoryButton extends Button {
         private static final ResourceLocation TEX_CATEGORY_BG = BounceStyles.resourceLocation("textures/icon/category_bg.png");
         WardrobeCategoryWidget parentWidget;
-        StyleRegistry.Category category;
+        BounceStylesRegistries.Category category;
 
-        public CategoryButton(WardrobeCategoryWidget parentWidget, StyleRegistry.Category category, int x, int y, int width, int height) {
+        public CategoryButton(WardrobeCategoryWidget parentWidget, BounceStylesRegistries.Category category, int x, int y, int width, int height) {
             super(x, y, width, height, Component.literal(category.name()), null, DEFAULT_NARRATION);
             this.parentWidget = parentWidget;
             this.category = category;
@@ -75,7 +75,7 @@ public class WardrobeCategoryWidget extends AbstractWidget implements WardrobeWi
         public void renderWidget(GuiGraphics drawContext, int mouseX, int mouseY, float partialTick) {
             RenderSystem.enableDepthTest();
             drawContext.blit(TEX_CATEGORY_BG,  getX(), getY(), this.width, this.height, 0, this.parentWidget.selectedButton == this ? 48 : this.isHovered() ? 24 : 0, 24, 24, 24, 72);
-            if(category == StyleRegistry.Category.Body)
+            if(category == BounceStylesRegistries.Category.Body)
                 drawContext.blit(this.category.categoryIcon, getX() + 3, getY() + 3, this.width - 6, this.height - 6, 0, 0, 16, 16, 16, 16);
             else
                 drawContext.blit(this.category.categoryIcon, getX() + 2, getY() + 2, this.width - 4, this.height - 4, 0, 0, 16, 16, 16, 16);

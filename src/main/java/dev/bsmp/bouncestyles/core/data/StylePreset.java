@@ -2,7 +2,7 @@ package dev.bsmp.bouncestyles.core.data;
 
 import com.google.gson.JsonObject;
 import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.StyleRegistry;
+import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public record StylePreset(ResourceLocation presetId, String name, @Nullable Reso
 
     public static boolean checkIds(ResourceLocation... ids) {
         for(ResourceLocation id : ids)
-            if(id != null && !StyleRegistry.idExists(id))
+            if(id != null && !BounceStylesRegistries.idExists(id))
                 return true;
 
         return false;

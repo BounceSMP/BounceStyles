@@ -1,7 +1,7 @@
 package dev.bsmp.bouncestyles.core.data;
 
 import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.StyleRegistry;
+import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -32,12 +32,12 @@ public class StyleMagazineItem extends Item {
         ResourceLocation styleId = ResourceLocation.tryParse(nbt.getString("styleId"));
         if(styleId == null)
             return;
-        Style style = StyleRegistry.getStyle(styleId);
+        Style style = BounceStylesRegistries.getStyle(styleId);
         if(style == null)
             return;
 
         tooltip.add(Component.literal("Issue #" + nbt.getInt("issue")).withStyle(textStyle -> textStyle.withColor(ChatFormatting.GRAY).withItalic(true).withUnderlined(true)));
-        for(StyleRegistry.Category category : style.getCategories()) {
+        for(BounceStylesRegistries.Category category : style.getCategories()) {
             tooltip.add(Component.literal("- ").append(Component.translatable(style.getStyleId().getNamespace()+"."+style.getStyleId().getPath()+"."+category.name().toLowerCase())).withStyle(
                     textStyle -> textStyle.withColor(ChatFormatting.GRAY))
             );
@@ -48,7 +48,7 @@ public class StyleMagazineItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
         ItemStack itemStack = user.getItemInHand(hand);
         if(!world.isClientSide) {
-            if(StyleData.getOrCreateStyleData(user).unlockStyle(StyleRegistry.getStyleIdFromStack(itemStack)) && !user.getAbilities().instabuild)
+            if(StyleData.getOrCreateStyleData(user).unlockStyle(BounceStylesRegistries.getStyleIdFromStack(itemStack)) && !user.getAbilities().instabuild)
                 itemStack.shrink(1);
         }
         return InteractionResultHolder.sidedSuccess(itemStack, world.isClientSide);
@@ -66,7 +66,7 @@ public class StyleMagazineItem extends Item {
         random.setSeed(styleId.toString().hashCode());
 
         CompoundTag nbt = new CompoundTag();
-        nbt.putInt("issue", random.nextInt(1, StyleRegistry.getAllStyleIds().size() + 1));
+        nbt.putInt("issue", random.nextInt(1, BounceStylesRegistries.getAllStyleIds().size() + 1));
         nbt.putString("styleId", styleId.toString());
 
         itemStack.setTag(nbt);
