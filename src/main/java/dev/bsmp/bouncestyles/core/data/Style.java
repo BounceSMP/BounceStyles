@@ -168,11 +168,16 @@ public class Style implements GeoAnimatable {
         return new ResourceLocation(id.getNamespace(), directory + "/" + path);
     }
 
+    private static final Codec<ResourceLocation> ID_CODEC = Codec.STRING.xmap(s -> {
+        if (s.contains(":")) return ResourceLocation.tryParse(s);
+        return BounceStyles.resourceLocation(s);
+    }, ResourceLocation::toString);
+
     public static final Codec<Style> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("name").forGetter(style -> style.getStyleId().toString()),
-            ResourceLocation.CODEC.optionalFieldOf("model_id").forGetter(style -> Optional.of(style.getModelId())),
-            ResourceLocation.CODEC.optionalFieldOf("texture_id").forGetter(style -> Optional.of(style.getTextureId())),
-            ResourceLocation.CODEC.optionalFieldOf("animation_id").forGetter(Style::getAnimationId),
+            ID_CODEC.optionalFieldOf("model_id").forGetter(style -> Optional.of(style.getModelId())),
+            ID_CODEC.optionalFieldOf("texture_id").forGetter(style -> Optional.of(style.getTextureId())),
+            ID_CODEC.optionalFieldOf("animation_id").forGetter(Style::getAnimationId),
             Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("animations").forGetter(style -> Optional.ofNullable(style.animationMap)),
             Codec.INT.optionalFieldOf("transition_ticks").forGetter(style -> Optional.of(style.getTransitionTicks())),
             Codec.STRING.listOf().optionalFieldOf("hidden_parts").forGetter(style -> Optional.of(style.getHiddenParts())),
