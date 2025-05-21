@@ -148,20 +148,13 @@ public class Style implements GeoAnimatable {
         );
     }
 
-    private static Style decode(String styleId, Optional<ResourceLocation> modelId, Optional<ResourceLocation> textureId, Optional<ResourceLocation> animationId, Optional<Map<String, String>> animationMap, Optional<Integer> transitionTicks, Optional<List<String>> hiddenParts, List<BounceStylesRegistries.Category> categories) {
-        String name;
-        if (styleId.contains(":"))
-            name = styleId.split(":")[1];
-        else {
-            name = styleId;
-            styleId = BounceStyles.modId + ":" + name;
-        }
-
+    private static Style decode(String styleName, Optional<ResourceLocation> modelId, Optional<ResourceLocation> textureId, Optional<ResourceLocation> animationId, Optional<Map<String, String>> animationMap, Optional<Integer> transitionTicks, Optional<List<String>> hiddenParts, List<BounceStylesRegistries.Category> categories) {
+        var styleId = styleName.contains(":") ? new ResourceLocation(styleName) : BounceStyles.resourceLocation(styleName);
         return new Style(
-                new ResourceLocation(styleId),
-                modelId.orElse(parseModelId(name, "geo", ".geo.json")),
-                textureId.orElse(parseModelId(name, "textures", ".png")),
-                animationId.orElse(parseModelId(name, "animations", ".animation.json")),
+                styleId,
+                parseId(styleId, modelId, "geo", ".geo.json"),
+                parseId(styleId, textureId, "textures", ".png"),
+                parseId(styleId, animationId, "animations", ".animation.json"),
                 animationMap.orElse(null),
                 transitionTicks.orElse(0),
                 hiddenParts.orElse(List.of()),
@@ -169,8 +162,10 @@ public class Style implements GeoAnimatable {
         );
     }
 
-    private static ResourceLocation parseModelId(String styleName, String directory, String suffix) {
-        return BounceStyles.resourceLocation(directory + "/" + styleName + suffix);
+    private static ResourceLocation parseId(ResourceLocation styleName, Optional<ResourceLocation> resourceId, String directory, String suffix) {
+        var id = resourceId.orElse(styleName);
+        var path = id.getPath().endsWith(suffix) ? id.getPath() : id.getPath() + suffix;
+        return new ResourceLocation(id.getNamespace(), directory + "/" + path);
     }
 
     public static final Codec<Style> CODEC = RecordCodecBuilder.create(instance -> instance.group(

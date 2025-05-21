@@ -2,6 +2,8 @@ package dev.bsmp.bouncestyles.core;
 
 import com.google.common.io.Files;
 import com.google.gson.*;
+import com.mojang.serialization.JsonOps;
+import dev.bsmp.bouncestyles.core.data.Style;
 import dev.bsmp.bouncestyles.core.data.StylePreset;
 import dev.bsmp.bouncestyles.core.pack.StylesResourcePack;
 import net.minecraft.resources.ResourceLocation;
@@ -87,12 +89,12 @@ public class StyleLoader {
                 String name = item.get("name").getAsString();
                 ResourceLocation styleId = BounceStyles.resourceLocation(name);
 
-//                Style.CODEC.parse(JsonOps.INSTANCE, element).resultOrPartial(BounceStyles.LOGGER::error).ifPresent(style -> {
+                Style.CODEC.parse(JsonOps.INSTANCE, element).resultOrPartial(BounceStyles.LOGGER::error).ifPresent(style -> {
 //                    var registry = BounceStyles.getLevel().registryAccess().registry(BounceStyles.STYLE_REGISTRY_KEY);
 //                    Registry.register(registry.get(), new ResourceLocation("tets"), style);
-//                });
+                    BounceStylesRegistries.registerStyle(styleId, style);
+                });
 
-//                StyleRegistry.registerStyle(styleId, style);
                 i++;
             }
 
@@ -225,10 +227,10 @@ public class StyleLoader {
         //? if neoforge {
         /*dir = net.neoforged.fml.loading.FMLPaths.GAMEDIR.get().resolve("styles");
          *///?} else if forge {
-        dir = net.minecraftforge.fml.loading.FMLPaths.GAMEDIR.get().resolve("styles");
-         //?} else if fabric {
-        /*dir = net.fabricmc.loader.api.FabricLoader.getInstance().getGameDir().resolve("styles");
-        *///?}
+        /*dir = net.minecraftforge.fml.loading.FMLPaths.GAMEDIR.get().resolve("styles");
+         *///?} else if fabric {
+        dir = net.fabricmc.loader.api.FabricLoader.getInstance().getGameDir().resolve("styles");
+        //?}
         return dir;
     }
 }

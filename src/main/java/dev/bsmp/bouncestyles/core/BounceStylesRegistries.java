@@ -51,17 +51,17 @@ public class BounceStylesRegistries {
     private static final HashMap<ResourceLocation, Style> REGISTRY = new HashMap<>();
     public static final HashMap<ResourceLocation, StylePreset> PRESETS = new HashMap<>();
 
-//    public static void registerStyle(ResourceLocation id, Style style) {
-//        if(id == null || style == null) {
-//            BounceStyles.LOGGER.warn("Tried to register a Style with a null value. [id="+id+", style=" + style + "]");
-//            return;
-//        }
-//        REGISTRY.put(id, style);
-//    }
+    public static void registerStyle(ResourceLocation id, Style style) {
+        if(id == null || style == null) {
+            BounceStyles.LOGGER.warn("Tried to register a Style with a null value. [id="+id+", style=" + style + "]");
+            return;
+        }
+        REGISTRY.put(id, style);
+    }
 
     public static Style getStyle(ResourceLocation id) {
         Style style = REGISTRY.get(id);
-        if(style == null) style = MissingStyle.INSTANCE;
+//        if(style == null) style = MissingStyle.INSTANCE;
         return style;
     }
 

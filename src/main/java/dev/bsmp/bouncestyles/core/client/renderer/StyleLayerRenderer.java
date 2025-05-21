@@ -23,7 +23,7 @@ import software.bernie.geckolib.util.RenderUtils;
 
 public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>> implements GeoRenderer<Style> {
     private Player currentPlayer;
-    private StyleModel model = new StyleModel();
+    private static final StyleGeoModel model = new StyleGeoModel();
 
     public static String headBone = "armorHead";
     public static String bodyBone = "armorBody";

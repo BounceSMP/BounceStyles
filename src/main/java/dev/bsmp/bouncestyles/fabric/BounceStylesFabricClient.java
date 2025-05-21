@@ -1,5 +1,5 @@
 //? if fabric {
-/*package dev.bsmp.bouncestyles.fabric;
+package dev.bsmp.bouncestyles.fabric;
 
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer;
@@ -29,4 +29,4 @@ public class BounceStylesFabricClient implements ClientModInitializer {
             registrationHelper.register(BounceStylesClient.STYLE_RENDERER = new StyleLayerRenderer((RenderLayerParent<Player, PlayerModel<Player>>) livingEntityRenderer));
     }
 }
-*///?}
+//?}

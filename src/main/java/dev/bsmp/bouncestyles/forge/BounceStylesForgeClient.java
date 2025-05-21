@@ -1,5 +1,5 @@
 //? if forge {
-package dev.bsmp.bouncestyles.forge;
+/*package dev.bsmp.bouncestyles.forge;
 
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
@@ -29,4 +29,4 @@ public class BounceStylesForgeClient {
         }
     }
 }
-//?}
+*///?}

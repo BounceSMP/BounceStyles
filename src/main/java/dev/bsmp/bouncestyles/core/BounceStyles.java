@@ -38,10 +38,12 @@ public class BounceStyles {
         GeckoLib.initialize();
         ReloadListenerRegistry.register(PackType.SERVER_DATA, StyleLoader::loadStylePacks);
 
-        BounceStylesNetwork.initServerbound();
-        BounceStylesNetwork.initClientbound();
+        BounceStylesRegistries.init();
 
         MAGAZINE_ITEM = BounceStylesRegistries.register(Registries.ITEM, resourceLocation("magazine"), StyleMagazineItem::new);
+
+        BounceStylesNetwork.initServerbound();
+        BounceStylesNetwork.initClientbound();
 
         LifecycleEvent.SERVER_LEVEL_LOAD.register(level -> BounceStyles.level = level);
         PlayerEvent.PLAYER_JOIN.register(BounceStyles::playerJoin);
@@ -49,7 +51,7 @@ public class BounceStyles {
         PlayerEvent.PLAYER_RESPAWN.register((player, conqueredEnd) -> new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
         PlayerEvent.CHANGE_DIMENSION.register((player, oldLevel, newLevel) -> new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
 
-        StyleLoader.init();
+//        StyleLoader.init();
     }
 
     public static ServerLevel getLevel() {

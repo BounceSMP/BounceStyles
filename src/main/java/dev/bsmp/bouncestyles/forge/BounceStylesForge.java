@@ -1,13 +1,16 @@
 //? if forge {
-package dev.bsmp.bouncestyles.forge;
+/*package dev.bsmp.bouncestyles.forge;
 
 import dev.architectury.platform.forge.EventBuses;
 import dev.bsmp.bouncestyles.core.BounceStyles;
+import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
+import dev.bsmp.bouncestyles.core.data.Style;
 import dev.bsmp.bouncestyles.core.pack.StylePackProvider;
 import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.DataPackRegistryEvent;
 
 @Mod(BounceStyles.modId)
 @Mod.EventBusSubscriber(modid = BounceStyles.modId, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -23,5 +26,10 @@ public class BounceStylesForge {
         event.addRepositorySource(StylePackProvider.INSTANCE);
     }
 
+    @SubscribeEvent
+    public static void registerDynamicRegistries(DataPackRegistryEvent.NewRegistry event) {
+        event.dataPackRegistry(BounceStylesRegistries.STYLE_REGISTRY_KEY, Style.CODEC);
+    }
+
 }
-//?}
+*///?}
