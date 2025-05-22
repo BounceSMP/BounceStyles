@@ -25,10 +25,7 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 
 public class BounceStylesRegistries {
@@ -83,8 +80,7 @@ public class BounceStylesRegistries {
     }
 
     public static Collection<Style> getAllStyles() {
-        return Set.of();//ToDo find a good replacement for getting all registered values
-//        return getRegistry().map(registry -> registry).orElse(Set.of());
+        return getRegistry().map(registry -> registry.stream().toList()).orElse(List.of());
     }
 
     public static StylePreset createPreset(StyleData styleData, String presetName) {

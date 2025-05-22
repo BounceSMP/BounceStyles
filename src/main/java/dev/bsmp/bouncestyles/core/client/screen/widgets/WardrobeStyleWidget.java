@@ -251,7 +251,7 @@ public class WardrobeStyleWidget extends AbstractWidget implements WardrobeWidge
         @Override
         public void onPress() {
             if(this.parentWidget.selectedButton == this) {
-                new EquipStyleServerbound(this.parentWidget.category, null).sendToServer();
+                new EquipStyleServerbound(this.parentWidget.category, Optional.empty()).sendToServer();
                 this.parentWidget.selectedButton = null;
             }
             else {

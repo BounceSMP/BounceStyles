@@ -19,10 +19,10 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.*;
 
 public class Style implements GeoAnimatable {
-    public static final DataTicket<Player> PLAYER = new DataTicket<>("player_entity", Player.class);
-
     public static final ResourceLocation MISSING_MODEL_ID = BounceStyles.resourceLocation("geo/missing_model.geo.json");
     public static final ResourceLocation MISSING_TEXTURE_ID = BounceStyles.resourceLocation("textures/missing_model.png");
+
+    public static final DataTicket<Player> PLAYER = new DataTicket<>("player_entity", Player.class);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -168,7 +168,8 @@ public class Style implements GeoAnimatable {
     private static ResourceLocation parseId(ResourceLocation styleName, Optional<ResourceLocation> resourceId, String directory, String suffix) {
         var id = resourceId.orElse(styleName);
         var path = id.getPath().endsWith(suffix) ? id.getPath() : id.getPath() + suffix;
-        return new ResourceLocation(id.getNamespace(), directory + "/" + path);
+        if (!path.startsWith(directory)) path = directory + "/" + path;
+        return new ResourceLocation(id.getNamespace(), path);
     }
 
     private static final Codec<ResourceLocation> ID_CODEC = Codec.STRING.xmap(s -> {

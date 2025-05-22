@@ -16,7 +16,7 @@ public record EquipStyleServerbound(BounceStylesRegistries.Category category, Op
     public static EquipStyleServerbound decode(FriendlyByteBuf buf) {
         return new EquipStyleServerbound(
                 buf.readEnum(BounceStylesRegistries.Category.class),
-                buf.readableBytes() > 0 ? BounceStylesRegistries.getStyle(buf.readResourceLocation()) : null
+                buf.readableBytes() > 0 ? BounceStylesRegistries.getStyle(buf.readResourceLocation()) : Optional.empty()
         );
     }
 }

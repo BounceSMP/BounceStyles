@@ -6,13 +6,15 @@ import dev.bsmp.bouncestyles.core.client.screen.widgets.*;
 import dev.bsmp.bouncestyles.core.data.StylePreset;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
 import dev.bsmp.bouncestyles.core.networking.serverbound.ToggleArmorVisibilityServerbound;
-import java.util.Comparator;
-import java.util.List;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 public class WardrobeScreen extends Screen {
     private static final ResourceLocation TEX_WIDGETS = BounceStyles.resourceLocation("textures/gui/widgets.png");
@@ -149,10 +151,10 @@ public class WardrobeScreen extends Screen {
     }
 
     private void clearEquipped() {
-        new EquipStyleServerbound(BounceStylesRegistries.Category.Head, null).sendToServer();
-        new EquipStyleServerbound(BounceStylesRegistries.Category.Body, null).sendToServer();
-        new EquipStyleServerbound(BounceStylesRegistries.Category.Legs, null).sendToServer();
-        new EquipStyleServerbound(BounceStylesRegistries.Category.Feet, null).sendToServer();
+        new EquipStyleServerbound(BounceStylesRegistries.Category.Head, Optional.empty()).sendToServer();
+        new EquipStyleServerbound(BounceStylesRegistries.Category.Body, Optional.empty()).sendToServer();
+        new EquipStyleServerbound(BounceStylesRegistries.Category.Legs, Optional.empty()).sendToServer();
+        new EquipStyleServerbound(BounceStylesRegistries.Category.Feet, Optional.empty()).sendToServer();
     }
 
     private void toggleArmor() {
