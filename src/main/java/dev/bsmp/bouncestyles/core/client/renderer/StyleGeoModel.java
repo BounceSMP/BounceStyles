@@ -1,6 +1,6 @@
 package dev.bsmp.bouncestyles.core.client.renderer;
 
-import dev.bsmp.bouncestyles.core.data.Style;
+import dev.bsmp.bouncestyles.api.style.Style;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.cache.GeckoLibCache;
 import software.bernie.geckolib.cache.object.BakedGeoModel;

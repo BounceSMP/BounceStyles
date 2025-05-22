@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
-import dev.bsmp.bouncestyles.core.data.Style;
+import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;

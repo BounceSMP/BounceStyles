@@ -2,23 +2,14 @@ package dev.bsmp.bouncestyles.core;
 
 import com.google.common.io.Files;
 import com.google.gson.*;
-import com.mojang.serialization.JsonOps;
 import dev.architectury.platform.Platform;
-import dev.bsmp.bouncestyles.core.data.Style;
-import dev.bsmp.bouncestyles.core.data.StylePreset;
-import dev.bsmp.bouncestyles.core.pack.StylesResourcePack;
+import dev.bsmp.bouncestyles.api.style.StylePreset;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.PackResources;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.profiling.ProfilerFiller;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -49,6 +40,12 @@ public class StyleLoader {
                                 BounceStyles.LOGGER.warn("Failed to delete or rename styles.json file post-conversion in pack '{}'", dir.getName());
                 }
             }
+        }
+
+        File rootStyles = new File(stylesDirectory, "styles.json");
+        if (rootStyles.exists()) {
+            rootStyles.renameTo(new File("styles.json.old"));
+            BounceStyles.LOGGER.warn("styles.json file found in the Styles folder, but this method is no longer functional. Please make an actual Style Pack!");
         }
     }
 
@@ -117,21 +114,20 @@ public class StyleLoader {
 
     private static boolean convertStyleJsonToData(File directory, File jsonFile) {
         try (BufferedReader reader = Files.newReader(jsonFile, StandardCharsets.UTF_8)) {
-            Style.CODEC.listOf().parse(JsonOps.INSTANCE, GSON.fromJson(reader, JsonArray.class)).resultOrPartial(BounceStyles.LOGGER::error).ifPresent(styles -> {
-                for (Style style : styles) {
-                    File styleFile = new File(directory, "data/"+styleIdToPath(style.getStyleId()));
-                    styleFile.getParentFile().mkdirs();
+            var jsonArray = GSON.fromJson(reader, JsonArray.class);
+            for (JsonElement obj : jsonArray) {
+                JsonObject styleObj = obj.getAsJsonObject();
+                String name = styleObj.get("name").getAsString();
+                File styleFile = new File(directory, "data/" + styleIdToPath(name));
+                styleFile.getParentFile().mkdirs();
 
-                    Style.CODEC.encodeStart(JsonOps.INSTANCE, style).resultOrPartial(BounceStyles.LOGGER::error).ifPresent(jsonElement -> {
-                        try (Writer writer = new FileWriter(styleFile)) {
-                            GSON.toJson(jsonElement, writer);
-                        }
-                        catch (Exception e) {
-                            BounceStyles.LOGGER.error("Exception Occurred trying to write json for Style: '{}' in pack: '{}'", style.getStyleId().getPath(), directory.getName(), e);
-                        }
-                    });
+                try (Writer writer = new FileWriter(styleFile)) {
+                    GSON.toJson(styleObj, writer);
                 }
-            });
+                catch (Exception e) {
+                    BounceStyles.LOGGER.error("Exception Occurred trying to write json for Style: '{}' in pack: '{}'", name, directory.getName(), e);
+                }
+            }
         }
         catch (Exception e) {
             BounceStyles.LOGGER.error("Exception Occurred trying to convert old styles.json format for pack: {}", directory.getName(), e);
@@ -139,9 +135,11 @@ public class StyleLoader {
         return false;
     }
 
-    private static String styleIdToPath(ResourceLocation styleId) {
+    private static String styleIdToPath(String name) {
         ResourceLocation registryId = BounceStylesRegistries.STYLE_REGISTRY_KEY.location();
-        return styleId.getNamespace() + "/" + registryId.getNamespace() + "/" + registryId.getPath() + "/" + styleId.getPath() + ".json";
+        String nameSpace = name.contains(":") ? name.split(":")[0] : BounceStyles.modId;
+        String path = name.contains(":") ? name.split(":")[1] : name;
+        return nameSpace + "/" + registryId.getNamespace() + "/" + registryId.getPath() + "/" + path + ".json";
     }
 
     //ToDo Move Preset loading to somewhere new
@@ -196,19 +194,6 @@ public class StyleLoader {
         catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static CompletableFuture<Void> loadStylePacks(PreparableReloadListener.PreparationBarrier synchronizer, ResourceManager resourceManager, ProfilerFiller prepareProfiler, ProfilerFiller applyProfiler, Executor prepareExecutor, Executor applyExecutor) {
-        return CompletableFuture.supplyAsync(() -> {
-            for(PackResources pack : resourceManager.listPacks().toList()) {
-                if(pack instanceof StylesResourcePack) {
-                    BounceStyles.LOGGER.info(pack);
-                }
-            }
-            return null;
-        }, prepareExecutor)
-        .thenCompose(synchronizer::wait)
-        .thenAcceptAsync(o -> {}, applyExecutor);
     }
 
     public static File getStylesDirectory() {

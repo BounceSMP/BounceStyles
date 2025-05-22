@@ -4,7 +4,7 @@
 import dev.architectury.platform.forge.EventBuses;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
-import dev.bsmp.bouncestyles.core.data.Style;
+import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.pack.StylePackProvider;
 import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

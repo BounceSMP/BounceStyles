@@ -1,8 +1,9 @@
-package dev.bsmp.bouncestyles.core.data;
+package dev.bsmp.bouncestyles.api.style;
 
 import com.google.gson.JsonObject;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
+import dev.bsmp.bouncestyles.core.data.StyleData;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;

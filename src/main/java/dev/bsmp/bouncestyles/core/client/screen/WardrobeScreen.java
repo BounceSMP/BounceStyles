@@ -3,7 +3,7 @@ package dev.bsmp.bouncestyles.core.client.screen;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.*;
-import dev.bsmp.bouncestyles.core.data.StylePreset;
+import dev.bsmp.bouncestyles.api.style.StylePreset;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
 import dev.bsmp.bouncestyles.core.networking.serverbound.ToggleArmorVisibilityServerbound;
 import net.minecraft.client.gui.GuiGraphics;

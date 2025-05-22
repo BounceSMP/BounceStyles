@@ -7,7 +7,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
-import dev.bsmp.bouncestyles.core.data.Style;
+import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
 import net.minecraft.client.Minecraft;

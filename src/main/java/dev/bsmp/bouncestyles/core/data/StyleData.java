@@ -1,5 +1,7 @@
 package dev.bsmp.bouncestyles.core.data;
 
+import dev.bsmp.bouncestyles.api.style.Style;
+import dev.bsmp.bouncestyles.api.style.StylePreset;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -56,6 +58,7 @@ public class StyleData {
     public void setArmorVisibility(boolean showArmor) {
         this.showArmor = showArmor;
     }
+
     public void toggleArmorVisibility() {
         this.showArmor = !this.showArmor;
     }

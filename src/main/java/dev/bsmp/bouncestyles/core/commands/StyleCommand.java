@@ -5,7 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
-import dev.bsmp.bouncestyles.core.data.Style;
+import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.data.StyleMagazineItem;
 import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientbound;

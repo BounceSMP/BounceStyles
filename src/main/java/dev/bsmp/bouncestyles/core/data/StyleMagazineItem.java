@@ -1,5 +1,6 @@
 package dev.bsmp.bouncestyles.core.data;
 
+import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import net.minecraft.ChatFormatting;

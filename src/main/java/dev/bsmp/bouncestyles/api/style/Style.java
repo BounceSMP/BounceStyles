@@ -1,4 +1,4 @@
-package dev.bsmp.bouncestyles.core.data;
+package dev.bsmp.bouncestyles.api.style;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

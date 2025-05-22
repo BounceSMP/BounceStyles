@@ -1,7 +1,7 @@
 package dev.bsmp.bouncestyles.core.networking.serverbound;
 
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
-import dev.bsmp.bouncestyles.core.data.Style;
+import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.networking.StylePacket;
 import net.minecraft.network.FriendlyByteBuf;
 

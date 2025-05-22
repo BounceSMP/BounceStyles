@@ -7,7 +7,7 @@ import dev.bsmp.bouncestyles.core.StyleLoader;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.screen.WardrobeScreen;
 import dev.bsmp.bouncestyles.core.data.StyleData;
-import dev.bsmp.bouncestyles.core.data.StylePreset;
+import dev.bsmp.bouncestyles.api.style.StylePreset;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
 import java.util.List;
 import net.minecraft.client.Minecraft;
