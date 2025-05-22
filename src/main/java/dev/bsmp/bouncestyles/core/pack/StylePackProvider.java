@@ -3,6 +3,7 @@ package dev.bsmp.bouncestyles.core.pack;
 import dev.architectury.platform.Platform;
 import dev.architectury.utils.Env;
 import dev.bsmp.bouncestyles.core.BounceStyles;
+import dev.bsmp.bouncestyles.core.StyleLoader;
 import dev.bsmp.bouncestyles.mixin.ResourcePackManagerAccessor;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
@@ -25,13 +26,12 @@ import java.util.function.Consumer;
 
 public class StylePackProvider implements RepositorySource {
     public static final StylePackProvider INSTANCE = new StylePackProvider();
-    private static final File stylePackDir = Platform.getGameFolder().resolve("styles").toFile();
     private static final FileFilter filter = file -> (file.isFile() && file.getName().endsWith(".zip")) || (file.isDirectory() && new File(file, "pack.mcmeta").isFile());
 
     @Override
     public void loadPacks(Consumer<Pack> profileAdder) {
         File[] files;
-        if ((files = stylePackDir.listFiles(filter)) == null) return;
+        if ((files = StyleLoader.getStylesDirectory().listFiles(filter)) == null) return;
 
         PackType packType = Platform.getEnvironment() == Env.CLIENT ? PackType.CLIENT_RESOURCES : PackType.SERVER_DATA;
         List<Pack> profiles = new ArrayList<>();
@@ -53,7 +53,7 @@ public class StylePackProvider implements RepositorySource {
         int version = SharedConstants.getCurrentVersion().getPackVersion(packType);
         List<PackResources> packs = profiles.stream().map(Pack::open).toList();
         PackMetadataSection metadata = new PackMetadataSection(Component.translatable(BounceStyles.modId + ".resources.styles"), version);
-        Pack mergedProfile = Pack.readMetaAndCreate("Styles", Component.literal("Style Packs"), true, (name) -> new StylesResourcePack(stylePackDir, packs, metadata), packType, Pack.Position.BOTTOM, PackSource.DEFAULT);
+        Pack mergedProfile = Pack.readMetaAndCreate("Styles", Component.literal("Style Packs"), true, (name) -> new StylesResourcePack(StyleLoader.getStylesDirectory(), packs, metadata), packType, Pack.Position.BOTTOM, PackSource.DEFAULT);
         if(mergedProfile != null) profileAdder.accept(mergedProfile);
     }
 

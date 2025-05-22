@@ -9,8 +9,6 @@ import dev.bsmp.bouncestyles.core.data.Style;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.data.StyleMagazineItem;
 import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientbound;
-import java.util.Collection;
-import java.util.Collections;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -23,6 +21,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+
+import java.util.Collection;
+import java.util.Collections;
 
 public class StyleCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -182,7 +183,7 @@ public class StyleCommand {
 
     private static int equip(CommandContext<CommandSourceStack> context, ServerPlayer player, BounceStylesRegistries.Category slot, ResourceLocation id) {
         if(id == null || BounceStylesRegistries.idExists(id)) {
-            Style style = id != null ? BounceStylesRegistries.getStyle(id) : null;
+            Style style = id != null ? BounceStylesRegistries.getStyle(id).orElse(null) : null;
             if(style == null || style.getCategories().contains(slot)) {
                 StyleData styleData = StyleData.getOrCreateStyleData(player);
                 switch (slot) {

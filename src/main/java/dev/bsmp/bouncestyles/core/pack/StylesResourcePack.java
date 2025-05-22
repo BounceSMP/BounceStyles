@@ -1,7 +1,6 @@
 package dev.bsmp.bouncestyles.core.pack;
 
 import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.StyleLoader;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.AbstractPackResources;
@@ -28,24 +27,6 @@ public class StylesResourcePack extends AbstractPackResources {
         this.metadata = metadata;
         dataNamespaces = buildPackMap(PackType.SERVER_DATA);
         resourceNamespaces = buildPackMap(PackType.CLIENT_RESOURCES);
-    }
-
-    public void registerPackStyles() {
-        for(PackResources pack : this.mergedPacks) {
-            IoSupplier<InputStream> supplier = pack.getRootResource("styles.json");
-            if (supplier == null) {
-                BounceStyles.LOGGER.warn("No styles.json file found for pack '" + pack.packId() + "'; Skipping...");
-                continue;
-            }
-
-            try(InputStream stream = supplier.get()) {
-                StyleLoader.loadStyles(pack.packId() + "/styles.json", stream);
-            }
-            catch (IOException e) {
-                BounceStyles.LOGGER.error("Exception occurred while processing styles.json for pack: " + pack.packId());
-                BounceStyles.LOGGER.error(e);
-            }
-        }
     }
 
     private Map<String, List<PackResources>> buildPackMap(PackType type) {

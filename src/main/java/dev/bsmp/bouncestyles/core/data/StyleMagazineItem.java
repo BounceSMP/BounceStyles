@@ -26,22 +26,19 @@ public class StyleMagazineItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag context) {
         CompoundTag nbt = stack.getTag();
-        if(nbt == null || !nbt.contains("styleId"))
-            return;
+        if(nbt == null || !nbt.contains("styleId")) return;
 
         ResourceLocation styleId = ResourceLocation.tryParse(nbt.getString("styleId"));
-        if(styleId == null)
-            return;
-        Style style = BounceStylesRegistries.getStyle(styleId);
-        if(style == null)
-            return;
+        if(styleId == null) return;
 
-        tooltip.add(Component.literal("Issue #" + nbt.getInt("issue")).withStyle(textStyle -> textStyle.withColor(ChatFormatting.GRAY).withItalic(true).withUnderlined(true)));
-        for(BounceStylesRegistries.Category category : style.getCategories()) {
-            tooltip.add(Component.literal("- ").append(Component.translatable(style.getStyleId().getNamespace()+"."+style.getStyleId().getPath()+"."+category.name().toLowerCase())).withStyle(
-                    textStyle -> textStyle.withColor(ChatFormatting.GRAY))
-            );
-        }
+        BounceStylesRegistries.getStyle(styleId).ifPresent(style -> {
+            tooltip.add(Component.literal("Issue #" + nbt.getInt("issue")).withStyle(textStyle -> textStyle.withColor(ChatFormatting.GRAY).withItalic(true).withUnderlined(true)));
+            for(BounceStylesRegistries.Category category : style.getCategories()) {
+                tooltip.add(Component.literal("- ").append(Component.translatable(style.getStyleId().getNamespace()+"."+style.getStyleId().getPath()+"."+category.name().toLowerCase())).withStyle(
+                        textStyle -> textStyle.withColor(ChatFormatting.GRAY))
+                );
+            }
+        });
     }
 
     @Override

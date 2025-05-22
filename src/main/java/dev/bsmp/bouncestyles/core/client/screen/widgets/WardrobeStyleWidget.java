@@ -10,10 +10,6 @@ import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.core.data.Style;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
-import org.joml.Quaternionf;
-
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -22,6 +18,11 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.joml.Quaternionf;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class WardrobeStyleWidget extends AbstractWidget implements WardrobeWidget {
     private static final ResourceLocation TEX_WIDGETS = BounceStyles.resourceLocation("textures/gui/widgets.png");
@@ -254,7 +255,7 @@ public class WardrobeStyleWidget extends AbstractWidget implements WardrobeWidge
                 this.parentWidget.selectedButton = null;
             }
             else {
-                new EquipStyleServerbound(this.parentWidget.category, this.style).sendToServer();
+                new EquipStyleServerbound(this.parentWidget.category, Optional.of(this.style)).sendToServer();
                 this.parentWidget.selectedButton = this;
             }
         }

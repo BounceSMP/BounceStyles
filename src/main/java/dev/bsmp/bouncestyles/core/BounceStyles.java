@@ -14,7 +14,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.server.packs.PackType;
@@ -31,31 +30,26 @@ public class BounceStyles {
     public static final String modId = "bounce_styles";
     public static final Logger LOGGER = LogManager.getLogger();
 
-    private static ServerLevel level;
     private static RegistrySupplier<StyleMagazineItem> MAGAZINE_ITEM;
 
     public static void init() {
         GeckoLib.initialize();
-        ReloadListenerRegistry.register(PackType.SERVER_DATA, StyleLoader::loadStylePacks);
+
+        StyleLoader.checkAndConvertPackFormat();
 
         BounceStylesRegistries.init();
-
         MAGAZINE_ITEM = BounceStylesRegistries.register(Registries.ITEM, resourceLocation("magazine"), StyleMagazineItem::new);
 
         BounceStylesNetwork.initServerbound();
         BounceStylesNetwork.initClientbound();
 
-        LifecycleEvent.SERVER_LEVEL_LOAD.register(level -> BounceStyles.level = level);
+        LifecycleEvent.SERVER_STARTING.register(server -> BounceStylesRegistries.setRegistryAccess(server.registryAccess()));
         PlayerEvent.PLAYER_JOIN.register(BounceStyles::playerJoin);
         PlayerEvent.PLAYER_CLONE.register(StyleData::copyFrom);
         PlayerEvent.PLAYER_RESPAWN.register((player, conqueredEnd) -> new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
         PlayerEvent.CHANGE_DIMENSION.register((player, oldLevel, newLevel) -> new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
 
-//        StyleLoader.init();
-    }
-
-    public static ServerLevel getLevel() {
-        return level;
+        ReloadListenerRegistry.register(PackType.SERVER_DATA, StyleLoader::loadStylePacks);
     }
 
     public static StyleMagazineItem magazineItem() {

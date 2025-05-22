@@ -8,11 +8,15 @@ import dev.architectury.registry.registries.RegistrarManager;
 import dev.architectury.registry.registries.RegistrySupplier;
 import dev.bsmp.bouncestyles.core.commands.StyleCommand;
 import dev.bsmp.bouncestyles.core.commands.StyleSlotArgumentType;
-import dev.bsmp.bouncestyles.core.data.*;
+import dev.bsmp.bouncestyles.core.data.Style;
+import dev.bsmp.bouncestyles.core.data.StyleData;
+import dev.bsmp.bouncestyles.core.data.StyleMagazineItem;
+import dev.bsmp.bouncestyles.core.data.StylePreset;
 import dev.bsmp.bouncestyles.mixin.ArgumentTypesAccessor;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
@@ -23,13 +27,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
 public class BounceStylesRegistries {
     public static final Supplier<RegistrarManager> REGISTRIES = Suppliers.memoize(() -> RegistrarManager.get(BounceStyles.modId));
-
     public static final ResourceKey<Registry<Style>> STYLE_REGISTRY_KEY = ResourceKey.createRegistryKey(BounceStyles.resourceLocation("styles"));
+
+    private static RegistryAccess registryAccess;
 
     public static void init() {
         //Register Commands
@@ -47,33 +53,22 @@ public class BounceStylesRegistries {
         return registry.register(BounceStyles.resourceLocation("magazine"), supplier);
     }
 
-    //ToDo: This Stuff will likely get replaced once Styles are migrated to a Dynamic/Datapack Registry
-    private static final HashMap<ResourceLocation, Style> REGISTRY = new HashMap<>();
-    public static final HashMap<ResourceLocation, StylePreset> PRESETS = new HashMap<>();
+    public static final HashMap<ResourceLocation, StylePreset> PRESETS = new HashMap<>(); //ToDo Move Presets and maybe add server->client syncing?
 
-    public static void registerStyle(ResourceLocation id, Style style) {
-        if(id == null || style == null) {
-            BounceStyles.LOGGER.warn("Tried to register a Style with a null value. [id="+id+", style=" + style + "]");
-            return;
-        }
-        REGISTRY.put(id, style);
+    public static Optional<Registry<Style>> getRegistry() {
+        if (registryAccess == null) return Optional.empty();
+        return registryAccess.registry(STYLE_REGISTRY_KEY);
     }
 
-    public static Style getStyle(ResourceLocation id) {
-        Style style = REGISTRY.get(id);
-//        if(style == null) style = MissingStyle.INSTANCE;
-        return style;
+    public static Optional<Style> getStyle(ResourceLocation id) {
+        return getRegistry().map(styles -> styles.get(id));
     }
 
     @Nullable
-    public static Style getStyleFromStack(ItemStack itemStack) {
+    public static Optional<Style> getStyleFromStack(ItemStack itemStack) {
         if(!(itemStack.getItem() instanceof StyleMagazineItem))
             return null;
         return getStyle(getStyleIdFromStack(itemStack));
-    }
-
-    static void clearRegistry() {
-        REGISTRY.clear();
     }
 
     @Nullable public static ResourceLocation getStyleIdFromStack(ItemStack itemStack) {
@@ -84,11 +79,12 @@ public class BounceStylesRegistries {
     }
 
     public static Set<ResourceLocation> getAllStyleIds() {
-        return REGISTRY.keySet();
+        return getRegistry().map(registry -> registry.keySet()).orElse(Set.of());
     }
 
     public static Collection<Style> getAllStyles() {
-        return REGISTRY.values();
+        return Set.of();//ToDo find a good replacement for getting all registered values
+//        return getRegistry().map(registry -> registry).orElse(Set.of());
     }
 
     public static StylePreset createPreset(StyleData styleData, String presetName) {
@@ -97,9 +93,12 @@ public class BounceStylesRegistries {
         StyleLoader.writePresetsFile();
         return newPreset;
     }
-
     public static boolean idExists(ResourceLocation id) {
-        return REGISTRY.containsKey(id);
+        return getRegistry().map(registry -> registry.containsKey(id)).orElse(false);
+    }
+
+    public static void setRegistryAccess(RegistryAccess access) {
+        if (registryAccess == null) registryAccess = access;
     }
 
     public static final ResourceLocation HEAD_ICON = BounceStyles.resourceLocation("textures/icon/bounce_head.png");

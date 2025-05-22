@@ -2,10 +2,6 @@ package dev.bsmp.bouncestyles.core.data;
 
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -13,6 +9,11 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class StyleData {
     private @Nullable Style headStyle;
@@ -168,11 +169,10 @@ public class StyleData {
             tag.putString(slot, style.getStyleId().toString());
     }
 
-    private static @Nullable Style parseStyle(CompoundTag tag, String slot) {
-        Style style = null;
+    private static Optional<Style> parseStyle(CompoundTag tag, String slot) {
         if(tag.contains(slot))
-            style = BounceStylesRegistries.getStyle(ResourceLocation.tryParse(tag.getString(slot)));
-        return style;
+            return BounceStylesRegistries.getStyle(ResourceLocation.tryParse(tag.getString(slot)));
+        return Optional.empty();
     }
 
     public static CompoundTag toNBT(StyleData styleData) {
@@ -209,10 +209,10 @@ public class StyleData {
 
     public static StyleData equippedFromNBT(CompoundTag tag) {
         StyleData styleData = new StyleData(
-                parseStyle(tag, BounceStylesRegistries.Category.Head.name()),
-                parseStyle(tag, BounceStylesRegistries.Category.Body.name()),
-                parseStyle(tag, BounceStylesRegistries.Category.Legs.name()),
-                parseStyle(tag, BounceStylesRegistries.Category.Feet.name())
+                parseStyle(tag, BounceStylesRegistries.Category.Head.name()).orElse(null),
+                parseStyle(tag, BounceStylesRegistries.Category.Body.name()).orElse(null),
+                parseStyle(tag, BounceStylesRegistries.Category.Legs.name()).orElse(null),
+                parseStyle(tag, BounceStylesRegistries.Category.Feet.name()).orElse(null)
         );
         styleData.showArmor = tag.getBoolean("armorVisible");
         return styleData;

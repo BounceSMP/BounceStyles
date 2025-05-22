@@ -7,8 +7,9 @@ import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleUnlocksClientb
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
 import dev.bsmp.bouncestyles.core.networking.serverbound.OpenStyleScreenServerbound;
 import dev.bsmp.bouncestyles.core.networking.serverbound.ToggleArmorVisibilityServerbound;
-import java.util.function.Supplier;
 import net.minecraft.server.level.ServerPlayer;
+
+import java.util.function.Supplier;
 
 public class ServerPacketHandler {
     public static void handleEquipStyle(EquipStyleServerbound packet, Supplier<NetworkManager.PacketContext> contextSupplier) {
@@ -17,12 +18,12 @@ public class ServerPacketHandler {
 
         ctx.queue(() -> {
             StyleData styleData = StyleData.getOrCreateStyleData(player);
-            if(packet.style() == null || styleData.hasStyleUnlocked(packet.style()) || (player.isCreative() && player.hasPermissions(2))) {
+            if(packet.style().isEmpty() || styleData.hasStyleUnlocked(packet.style().get()) || (player.isCreative() && player.hasPermissions(2))) {
                 switch (packet.category()) {
-                    case Head -> styleData.setHeadStyle(packet.style());
-                    case Body -> styleData.setBodyStyle(packet.style());
-                    case Legs -> styleData.setLegStyle(packet.style());
-                    case Feet -> styleData.setFeetStyle(packet.style());
+                    case Head -> styleData.setHeadStyle(packet.style().orElse(null));
+                    case Body -> styleData.setBodyStyle(packet.style().orElse(null));
+                    case Legs -> styleData.setLegStyle(packet.style().orElse(null));
+                    case Feet -> styleData.setFeetStyle(packet.style().orElse(null));
                 }
 
                 SyncStyleDataClientbound packetOut = new SyncStyleDataClientbound(player.getId(), styleData);

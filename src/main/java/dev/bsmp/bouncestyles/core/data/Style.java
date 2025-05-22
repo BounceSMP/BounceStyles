@@ -21,6 +21,9 @@ import java.util.*;
 public class Style implements GeoAnimatable {
     public static final DataTicket<Player> PLAYER = new DataTicket<>("player_entity", Player.class);
 
+    public static final ResourceLocation MISSING_MODEL_ID = BounceStyles.resourceLocation("geo/missing_model.geo.json");
+    public static final ResourceLocation MISSING_TEXTURE_ID = BounceStyles.resourceLocation("textures/missing_model.png");
+
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     private final ResourceLocation styleId;

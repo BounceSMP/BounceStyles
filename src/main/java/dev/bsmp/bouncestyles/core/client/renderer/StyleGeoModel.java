@@ -1,6 +1,5 @@
 package dev.bsmp.bouncestyles.core.client.renderer;
 
-import dev.bsmp.bouncestyles.core.data.MissingStyle;
 import dev.bsmp.bouncestyles.core.data.Style;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.cache.GeckoLibCache;
@@ -15,7 +14,7 @@ public class StyleGeoModel extends GeoModel<Style> {
 
     @Override
     public BakedGeoModel getBakedModel(ResourceLocation location) {
-        if (!GeckoLibCache.getBakedModels().containsKey(location)) location = MissingStyle.MODEL_ID;
+        if (!GeckoLibCache.getBakedModels().containsKey(location)) location = Style.MISSING_MODEL_ID;
         return super.getBakedModel(location);
     }
 
