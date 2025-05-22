@@ -3,11 +3,8 @@ package dev.bsmp.bouncestyles.fabric;
 
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer;
-import dev.bsmp.bouncestyles.core.pack.StylePackProvider;
-import dev.bsmp.bouncestyles.mixin.ResourcePackManagerAccessor;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -20,7 +17,6 @@ public class BounceStylesFabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         BounceStylesClient.init();
-        ((ResourcePackManagerAccessor) Minecraft.getInstance().getResourcePackRepository()).getProviders().add(StylePackProvider.INSTANCE);
         LivingEntityFeatureRendererRegistrationCallback.EVENT.register(this::registerLayer);
     }
 

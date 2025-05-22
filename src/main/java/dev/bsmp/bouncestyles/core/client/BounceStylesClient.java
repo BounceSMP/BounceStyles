@@ -4,25 +4,25 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.architectury.event.events.client.ClientTickEvent;
-import dev.architectury.registry.ReloadListenerRegistry;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.StyleLoader;
 import dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer;
 import dev.bsmp.bouncestyles.core.networking.serverbound.OpenStyleScreenServerbound;
-import org.lwjgl.glfw.GLFW;
-
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.IoSupplier;
+import org.lwjgl.glfw.GLFW;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
 
 public class BounceStylesClient {
     public static final KeyMapping KEY_WARDROBE = new KeyMapping("key.bounce_styles.wardrobe", GLFW.GLFW_KEY_C, "key.bounce_styles.category");
@@ -31,7 +31,7 @@ public class BounceStylesClient {
     public static void init() {
         KeyMappingRegistry.register(KEY_WARDROBE);
         ClientTickEvent.CLIENT_POST.register(instance -> { while (KEY_WARDROBE.consumeClick()) new OpenStyleScreenServerbound().sendToServer(); });
-        ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, StyleLoader::loadStylePacks);
+//        ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, StyleLoader::loadStylePacks);
     }
 
     public static boolean isLookingForLang(ResourceLocation id) {

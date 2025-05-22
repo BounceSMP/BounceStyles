@@ -8,6 +8,7 @@
     "ChunkStorageAccessor",
     "EntityMixin",
     "EntityTrackerAccessor",
+    "PackRepoMixin",
     "PlayerMixin",
     "ResourcePackManagerAccessor"
   ],

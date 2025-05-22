@@ -4,24 +4,21 @@ import dev.architectury.platform.Platform;
 import dev.architectury.utils.Env;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.StyleLoader;
-import dev.bsmp.bouncestyles.mixin.ResourcePackManagerAccessor;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.FilePackResources;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.server.packs.repository.Pack;
-import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.repository.RepositorySource;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 public class StylePackProvider implements RepositorySource {
@@ -30,6 +27,7 @@ public class StylePackProvider implements RepositorySource {
 
     @Override
     public void loadPacks(Consumer<Pack> profileAdder) {
+        BounceStyles.LOGGER.info("Loading Style Packs...");
         File[] files;
         if ((files = StyleLoader.getStylesDirectory().listFiles(filter)) == null) return;
 
@@ -55,17 +53,5 @@ public class StylePackProvider implements RepositorySource {
         PackMetadataSection metadata = new PackMetadataSection(Component.translatable(BounceStyles.modId + ".resources.styles"), version);
         Pack mergedProfile = Pack.readMetaAndCreate("Styles", Component.literal("Style Packs"), true, (name) -> new StylesResourcePack(StyleLoader.getStylesDirectory(), packs, metadata), packType, Pack.Position.BOTTOM, PackSource.DEFAULT);
         if(mergedProfile != null) profileAdder.accept(mergedProfile);
-    }
-
-    public static void registerToDataPacks(MinecraftServer server) {
-        try {
-            PackRepository rpManager = server.getPackRepository();
-            ((ResourcePackManagerAccessor) rpManager).getProviders().add(INSTANCE);
-            rpManager.reload();
-            server.reloadResources(rpManager.getSelectedIds()).get();
-        }
-        catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

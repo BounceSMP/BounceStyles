@@ -22,11 +22,6 @@ public class BounceStylesForge {
     }
 
     @SubscribeEvent
-    public static void addPackProvider(AddPackFindersEvent event) {
-        event.addRepositorySource(StylePackProvider.INSTANCE);
-    }
-
-    @SubscribeEvent
     public static void registerDynamicRegistries(DataPackRegistryEvent.NewRegistry event) {
         event.dataPackRegistry(BounceStylesRegistries.STYLE_REGISTRY_KEY, Style.CODEC);
     }

@@ -2,7 +2,6 @@ package dev.bsmp.bouncestyles.core;
 
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
-import dev.architectury.registry.ReloadListenerRegistry;
 import dev.architectury.registry.registries.RegistrySupplier;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.data.StyleMagazineItem;
@@ -16,7 +15,6 @@ import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerPlayerConnection;
-import net.minecraft.server.packs.PackType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.chunk.ChunkSource;
 import org.apache.logging.log4j.LogManager;
@@ -44,12 +42,12 @@ public class BounceStyles {
         BounceStylesNetwork.initClientbound();
 
         LifecycleEvent.SERVER_STARTING.register(server -> BounceStylesRegistries.setRegistryAccess(server.registryAccess()));
+
         PlayerEvent.PLAYER_JOIN.register(BounceStyles::playerJoin);
         PlayerEvent.PLAYER_CLONE.register(StyleData::copyFrom);
         PlayerEvent.PLAYER_RESPAWN.register((player, conqueredEnd) -> new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
         PlayerEvent.CHANGE_DIMENSION.register((player, oldLevel, newLevel) -> new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
-
-        ReloadListenerRegistry.register(PackType.SERVER_DATA, StyleLoader::loadStylePacks);
+//        ReloadListenerRegistry.register(PackType.SERVER_DATA, StyleLoader::loadStylePacks);
     }
 
     public static StyleMagazineItem magazineItem() {
