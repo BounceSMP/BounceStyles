@@ -47,7 +47,6 @@ public class BounceStyles {
         PlayerEvent.PLAYER_CLONE.register(StyleData::copyFrom);
         PlayerEvent.PLAYER_RESPAWN.register((player, conqueredEnd) -> new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
         PlayerEvent.CHANGE_DIMENSION.register((player, oldLevel, newLevel) -> new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
-//        ReloadListenerRegistry.register(PackType.SERVER_DATA, StyleLoader::loadStylePacks);
     }
 
     public static StyleMagazineItem magazineItem() {

@@ -35,6 +35,7 @@ bin/
 /nbdist/
 /.nb-gradle/
 */run
+*/run-server
 
 ### VS Code ###
 .vscode/
@@ -44,8 +45,10 @@ bin/
 .idea/runConfigurations/
 
 /run
+/run-server
 /run/saves
 /run/**
+/run-server/**
 */run
 /run/saves
 .idea/workspace.xml

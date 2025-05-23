@@ -127,6 +127,7 @@ public class StyleData {
             return false;
         return removeStyle(style.getStyleId());
     }
+
     public boolean removeStyle(ResourceLocation styleId) {
         boolean b = unlocks.remove(styleId);
         if(b) {

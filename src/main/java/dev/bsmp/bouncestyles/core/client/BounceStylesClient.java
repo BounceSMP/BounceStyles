@@ -31,7 +31,6 @@ public class BounceStylesClient {
     public static void init() {
         KeyMappingRegistry.register(KEY_WARDROBE);
         ClientTickEvent.CLIENT_POST.register(instance -> { while (KEY_WARDROBE.consumeClick()) new OpenStyleScreenServerbound().sendToServer(); });
-//        ReloadListenerRegistry.register(PackType.CLIENT_RESOURCES, StyleLoader::loadStylePacks);
     }
 
     public static boolean isLookingForLang(ResourceLocation id) {

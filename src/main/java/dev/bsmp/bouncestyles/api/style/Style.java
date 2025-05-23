@@ -6,6 +6,7 @@ import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
@@ -24,13 +25,13 @@ public class Style implements GeoAnimatable {
 
     public static final DataTicket<Player> PLAYER = new DataTicket<>("player_entity", Player.class);
 
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this, true);
 
     private final ResourceLocation styleId;
     private final ResourceLocation modelId;
     private final ResourceLocation textureId;
     private final ResourceLocation animationId;
-    private final Map<String, String> animationMap;
+    private final @Nullable Map<String, RawAnimation> animationMap;
     private final int transitionTicks;
     private final List<String> hiddenParts;
     private final List<BounceStylesRegistries.Category> categories;
@@ -44,7 +45,7 @@ public class Style implements GeoAnimatable {
         this.modelId = modelId;
         this.textureId = textureId;
         this.animationId = animationId;
-        this.animationMap = animationMap != null ? new HashMap<>(animationMap) : null;
+        this.animationMap = animationMap != null ? buildAnimationMap(animationMap) : null;
         this.transitionTicks = transitionTicks;
         this.hiddenParts = hiddenParts;
         this.categories = categories;
@@ -54,7 +55,7 @@ public class Style implements GeoAnimatable {
     public void registerControllers(AnimatableManager.ControllerRegistrar registrar) {
         if(animationMap != null && !animationMap.isEmpty()) {
             registrar.add(
-                    new AnimationController<>(this, this.styleId.toString(), Math.max(transitionTicks, 1), this::predicate)
+                    new AnimationController<>(this, this.styleId.toString(), Math.max(transitionTicks, 0), this::predicate)
             );
         }
     }
@@ -70,7 +71,8 @@ public class Style implements GeoAnimatable {
 
         AnimationController<?> controller = styleAnimationState.getController();
         if(animationMap != null && !animationMap.isEmpty()) {
-            String anim;
+            RawAnimation anim;
+            //ToDo Consider supporting EmoteCraft emote-specific animations, if specified as something like "emote.emote_name"
             if(entity.isSleeping() && (anim = animationMap.get("sleeping")) != null)
                 return applyAnimation(controller, anim);
 
@@ -99,15 +101,9 @@ public class Style implements GeoAnimatable {
         return PlayState.STOP;
     }
 
-    private static PlayState applyAnimation(AnimationController<?> controller, String anim) {
-        if(isCurrentAnimation(controller, anim))
-            return PlayState.CONTINUE;
-        controller.setAnimation(RawAnimation.begin().thenLoop(anim));
+    private static PlayState applyAnimation(AnimationController<?> controller, RawAnimation anim) {
+        controller.setAnimation(anim);
         return PlayState.CONTINUE;
-    }
-
-    private static boolean isCurrentAnimation(AnimationController<?> controller, String animation) {
-        return controller.getCurrentAnimation() != null && controller.getCurrentAnimation().animation().name().equalsIgnoreCase(animation);
     }
 
     @Override
@@ -139,6 +135,21 @@ public class Style implements GeoAnimatable {
         return categories;
     }
 
+    public Optional<Map<String, RawAnimation>> getAnimationMap() {
+        return Optional.ofNullable(this.animationMap);
+    }
+
+    public Optional<Map<String, String>> getAnimationStringMap() {
+        if (this.animationMap == null) return Optional.empty();
+
+        Map<String, String> stringMap = new HashMap<>();
+        this.animationMap.forEach((s, rawAnimation) -> {
+            //ToDo If animation sequences are implemented, join them together with ';' or something, matching the input string
+            stringMap.put(s, rawAnimation.getAnimationStages().getLast().animationName());
+        });
+        return Optional.of(stringMap);
+    }
+
     public Optional<ResourceLocation> getAnimationId() {
         return Optional.ofNullable(animationId);
     }
@@ -149,6 +160,15 @@ public class Style implements GeoAnimatable {
                 "[styleId=%s, modelId=%s, textureId=%s, animationId=%s, animationMap=%s]",
                 styleId, modelId, textureId, animationId, animationMap
         );
+    }
+
+    //ToDo Consider adding a way to define a sequence of animations to play, separated by ';' or something
+    private static Map<String, RawAnimation> buildAnimationMap(Map<String, String> map) {
+        Map<String, RawAnimation> animMap = new HashMap<>();
+        map.forEach((state, anim) -> {
+            animMap.put(state, RawAnimation.begin().thenLoop(anim));
+        });
+        return animMap;
     }
 
     private static Style decode(String styleName, Optional<ResourceLocation> modelId, Optional<ResourceLocation> textureId, Optional<ResourceLocation> animationId, Optional<Map<String, String>> animationMap, Optional<Integer> transitionTicks, Optional<List<String>> hiddenParts, List<BounceStylesRegistries.Category> categories) {
@@ -182,7 +202,7 @@ public class Style implements GeoAnimatable {
             ID_CODEC.optionalFieldOf("model_id").forGetter(style -> Optional.of(style.getModelId())),
             ID_CODEC.optionalFieldOf("texture_id").forGetter(style -> Optional.of(style.getTextureId())),
             ID_CODEC.optionalFieldOf("animation_id").forGetter(Style::getAnimationId),
-            Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("animations").forGetter(style -> Optional.ofNullable(style.animationMap)),
+            Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("animations").forGetter(Style::getAnimationStringMap),
             Codec.INT.optionalFieldOf("transition_ticks").forGetter(style -> Optional.of(style.getTransitionTicks())),
             Codec.STRING.listOf().optionalFieldOf("hidden_parts").forGetter(style -> Optional.of(style.getHiddenParts())),
             BounceStylesRegistries.Category.CODEC.listOf().fieldOf("slots").forGetter(Style::getCategories)
