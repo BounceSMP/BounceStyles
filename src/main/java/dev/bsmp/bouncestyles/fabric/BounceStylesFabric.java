@@ -1,6 +1,7 @@
 //? if fabric {
 package dev.bsmp.bouncestyles.fabric;
 
+import com.mojang.serialization.Lifecycle;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.api.style.Style;
@@ -12,7 +13,7 @@ public class BounceStylesFabric implements ModInitializer {
     @Override
     public void onInitialize() {
         BounceStyles.init();
-        DynamicRegistries.registerSynced(BounceStylesRegistries.STYLE_REGISTRY_KEY, Style.CODEC);
+        DynamicRegistries.registerSynced(BounceStylesRegistries.STYLE_REGISTRY_KEY, Style.CODEC.withLifecycle(Lifecycle.stable()));
     }
 
 }
