@@ -3,9 +3,11 @@ package dev.bsmp.bouncestyles.core.client;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import dev.architectury.event.events.client.ClientLifecycleEvent;
 import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import dev.bsmp.bouncestyles.core.BounceStyles;
+import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer;
 import dev.bsmp.bouncestyles.core.networking.serverbound.OpenStyleScreenServerbound;
 import net.minecraft.client.KeyMapping;
@@ -31,6 +33,7 @@ public class BounceStylesClient {
     public static void init() {
         KeyMappingRegistry.register(KEY_WARDROBE);
         ClientTickEvent.CLIENT_POST.register(instance -> { while (KEY_WARDROBE.consumeClick()) new OpenStyleScreenServerbound().sendToServer(); });
+        ClientLifecycleEvent.CLIENT_LEVEL_LOAD.register(world -> BounceStylesRegistries.setRegistryAccess(world.registryAccess()));
     }
 
     public static boolean isLookingForLang(ResourceLocation id) {

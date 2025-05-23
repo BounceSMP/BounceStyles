@@ -42,6 +42,9 @@ public class BounceStyles {
         BounceStylesNetwork.initClientbound();
 
         LifecycleEvent.SERVER_STARTING.register(server -> BounceStylesRegistries.setRegistryAccess(server.registryAccess()));
+        LifecycleEvent.SERVER_STARTED.register(server -> BounceStylesRegistries.getRegistry().ifPresent(styles -> {
+            BounceStyles.LOGGER.info("Server Started with {} styles registered", styles.size());
+        }));
 
         PlayerEvent.PLAYER_JOIN.register(BounceStyles::playerJoin);
         PlayerEvent.PLAYER_CLONE.register(StyleData::copyFrom);
