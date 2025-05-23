@@ -69,7 +69,7 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
     public void actuallyRender(PoseStack poseStack, Style style, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         if (!isReRender) {
             boolean isMoving = false;
-            long instanceId = getInstanceId(style);
+            long instanceId = -1;
 
             if (currentPlayer != null) {
                 double i = Math.abs(currentPlayer.getX() - currentPlayer.xOld) + Math.abs(currentPlayer.getZ() - currentPlayer.zOld);
