@@ -24,6 +24,10 @@ repositories {
         forRepository { maven("https://api.modrinth.com/maven") { name = "Modrinth" } }
         filter { includeGroup("maven.modrinth") }
     }
+    exclusiveContent {
+		forRepository { maven("https://maven.parchmentmc.org") { name = "ParchmentMC" } }
+        filter { includeGroup("org.parchmentmc.data") }
+    }
     maven("https://maven.neoforged.net/releases/")
     maven("https://maven.architectury.dev/")
     maven("https://modmaven.dev/")
@@ -153,6 +157,7 @@ class Env {
     // TODO: if MC requires higher JVMs in future updates change this controller.
     val javaVer = if(atMost("1.16.5")) 8 else if(atMost("1.20.4")) 17 else 21
 
+    val parmentVersion = property("deps.mappings.parchment.${mcVersion.min}")
     val fabricLoaderVersion = versionProperty("deps.core.fabric.loader.version_range")
     val forgeMavenVersion = versionProperty("deps.core.forge.version_range")
     val forgeVersion = VersionRange(extractForgeVer(forgeMavenVersion.min),extractForgeVer(forgeMavenVersion.max))
@@ -508,7 +513,11 @@ base { archivesName.set(env.archivesBaseName) }
 
 dependencies {
     minecraft("com.mojang:minecraft:${env.mcVersion.min}")
-    mappings(loom.officialMojangMappings())
+
+    mappings(loom.layered {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${env.mcVersion.min}:${env.parmentVersion}@zip")
+    })
 
     if(env.isFabric) {
         modImplementation("net.fabricmc:fabric-loader:${env.fabricLoaderVersion.min}")
