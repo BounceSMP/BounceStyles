@@ -15,6 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public class WardrobeScreen extends Screen {
     private static final ResourceLocation TEX_WIDGETS = BounceStyles.resourceLocation("textures/gui/widgets.png");
@@ -66,7 +67,8 @@ public class WardrobeScreen extends Screen {
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
         renderBackground(context);
-        this.activeWidget.render(context, mouseX, mouseY, partialTick);
+        if (this.activeWidget != null)
+            this.activeWidget.render(context, mouseX, mouseY, partialTick);
         super.render(context, mouseX, mouseY, partialTick);
     }
 
@@ -134,15 +136,18 @@ public class WardrobeScreen extends Screen {
         if (category == BounceStylesRegistries.Category.Preset)
             this.activeWidget = this.presetsWidget;
         else {
-            this.activeWidget = this.styleWidget;
-            this.styleWidget.updateButtons(
-                    category, BounceStylesRegistries.getAllStyles().stream()
-                            .filter(style -> style.getCategories().contains(category)
-                                    && (this.unlockedStyles.contains(style.getStyleId()) || (minecraft.player.isCreative() && minecraft.player.hasPermissions(2)))
-                            )
-                            .sorted(Comparator.comparing(o -> o.getStyleId().toString()))
-                            .toList()
-            );
+            CompletableFuture.supplyAsync(() -> BounceStylesRegistries.getAllStyles().stream()
+                .filter(style -> style.getCategories().contains(category) &&
+                        (this.unlockedStyles.contains(style.getStyleId()) || (minecraft.player.isCreative() && minecraft.player.hasPermissions(2)))
+                )
+                //ToDo Throw in a filter based on search bar when that's implemented
+                .sorted(Comparator.comparing(o -> o.getStyleId().toString()))
+                .toList()
+            ).thenApply(styles -> {
+                this.activeWidget = this.styleWidget;
+                this.styleWidget.updateButtons(category, styles);
+                return null;
+            });
         }
     }
 

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.architectury.platform.Platform;
 import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries.Category;
@@ -19,6 +20,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
 import java.util.ArrayList;
@@ -28,79 +30,104 @@ import java.util.Optional;
 public class WardrobeStyleWidget extends AbstractWidget implements WardrobeWidget {
     private static final ResourceLocation TEX_WIDGETS = BounceStyles.resourceLocation("textures/gui/widgets.png");
 
-    List<StyleButton> buttons = new ArrayList<>();
-    StyleButton selectedButton;
     Category category;
+    @Nullable StyleButton selectedStyleButton;
+    List<Style> styles = new ArrayList<>();
+    List<StyleButton> buttons = new ArrayList<>();
 
-    float previewRotation = 0f;
-    int buttonsPerRow = 6;
-    int rowsPerPage = 4;
-    int totalRows;
+    boolean updateButtons = false;
+    boolean updateVisible = false;
+    List<StyleButton> visibleButtons = new ArrayList<>();
+
+    int buttonSize = 50;
+    int margin = 3;
+    float previewRotation = -30f;
     int scroll = 0;
+
     int left;
     int top;
-    int scaledXMargin;
-    int scaledYMargin;
+
+    int rows;
+    int columns;
 
     public WardrobeStyleWidget(int x, int y, int width, int height) {
         super(x, y, width, height, Component.literal("Wardrobe Selection"));
-        updateButtons(null, new ArrayList<Style>());
+        this.left = x + 5;
+        this.top = y + 2;
+        this.rows = this.height / (buttonSize + margin);
+        this.columns = (this.width - 5) / (buttonSize + margin);
+
+        updateButtons(Category.Head, new ArrayList<>());
     }
 
     public void updateButtons(Category category, List<Style> styles) {
         this.scroll = 0;
         this.category = category;
         this.buttons.clear();
-        this.previewRotation = -30f;
+        this.styles = new ArrayList<>(styles);
+
+        this.updateButtons = true;
+    }
+
+    private void updateButtons() {
         StyleData styleData = StyleData.getOrCreateStyleData(Minecraft.getInstance().player);
 
-        Window window = Minecraft.getInstance().getWindow();
-        double guiScale = window.getGuiScale();
-        int actualWidth = (int) (width * guiScale);
-        int actualHeight = (int) (height * guiScale);
+        for (Style style : styles) {
+            StyleButton button = new StyleButton(this, 0, 0, buttonSize, buttonSize, style);
 
-        int xMarginCount = this.buttonsPerRow + 1;
-        int yMarginCount = this.rowsPerPage + 1;
-        int xMargin = 10;
-        int yMargin = 10;
-
-        int workingWidth = actualWidth - (xMarginCount * xMargin);
-        int workingHeight = actualHeight - (yMarginCount * yMargin);
-
-        int btnSize = workingWidth / this.buttonsPerRow;
-        int scaledBtnSize = (int) (btnSize / guiScale);
-
-        this.totalRows = (styles.size() / this.buttonsPerRow) + 1;
-
-        int heightOverflow = ((rowsPerPage * xMargin) + (rowsPerPage * btnSize)) - actualHeight;
-        if(heightOverflow > 0) {
-            btnSize -= heightOverflow;
-            scaledBtnSize = (int) (btnSize / guiScale);
-        }
-        this.scaledXMargin = (int) (xMargin / guiScale);
-        this.scaledYMargin = (int) (yMargin / guiScale);
-
-        this.left = getX() + this.scaledXMargin;
-        this.top = getY() + this.scaledYMargin;
-
-        int index = 0;
-        for(int row = 0; row < this.totalRows; row++) {
-            for(int i = 0; i < this.buttonsPerRow; i++) {
-                if(index < styles.size()) {
-                    Style style = styles.get(index);
-                    StyleButton button = new StyleButton(
-                            this, this.left + (i * this.scaledXMargin) + (i * scaledBtnSize), this.top + (row * this.scaledYMargin) + (row * scaledBtnSize),
-                            scaledBtnSize, scaledBtnSize, style);
-                    this.buttons.add(button);
-                    if(styleData != null) {
-                        var equippedStyle = styleData.getStyleForSlot(category);
-                        //ToDo Select the specific Texture Variant that is equipped
-                        if (equippedStyle.isPresent() && equippedStyle.get().getFirst() == style)
-                            this.selectedButton = button;
-                    }
-                }
-                index++;
+            var equippedStyle = styleData.getStyleForSlot(category);
+            if (equippedStyle.isPresent() && equippedStyle.get().getFirst() == style) {
+                if (style.getTextureVariants().isPresent()) button.textureId = equippedStyle.get().getSecond();
+                this.selectedStyleButton = button;
             }
+
+            this.buttons.add(button);
+        }
+
+        this.updateVisibleButtons();
+        this.updateButtons = false;
+    }
+
+    @Override
+    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
+        if (Platform.isDevelopmentEnvironment())
+            context.drawString(Minecraft.getInstance().font, Minecraft.getInstance().fpsString, 5, 5, 0xFFFFFF);
+
+        if (this.updateButtons)
+            this.updateButtons();
+        if (this.updateVisible)
+            this.updateVisibleButtons();
+
+        this.previewRotation = this.previewRotation + (partialTick * 0.05f);
+
+        StyleButton tooltipButton = null;
+
+        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+        for (StyleButton button : this.visibleButtons) {
+            button.renderWidget(context, bufferSource, mouseX, mouseY, partialTick);
+            if (button.isHovered())
+                tooltipButton = button;
+        }
+
+        if (tooltipButton != null) {
+            tooltipButton.renderTooltip(context, mouseX, mouseY);
+        }
+
+        int maxScroll = getTotalRows() - rows;
+        int maxPosition = maxScroll * (buttonSize + margin);
+        int barWidth = 6;
+        int barLeft = getX() + width - barWidth - 3;
+        int barTop = getY() + 10;
+        int barHeight = height - 20;
+        int barBottom = barTop + barHeight;
+
+        if (this.buttons.size() > this.rows * this.columns) {
+            int scrollHeight = (int) ((float) (barHeight * barHeight) / (float) maxPosition);
+            int scrollTop = this.scroll * (barBottom - barTop - scrollHeight) / maxScroll + barTop;
+
+            context.fill(barLeft - 1, barTop - 1, barLeft + barWidth + 1, barTop + barHeight + 1, 0xFF00a8a8);
+            context.fill(barLeft, barTop, barLeft + barWidth, barTop + barHeight, 0xFF212121);
+            context.fill(barLeft + 1, scrollTop + 1, barLeft + barWidth - 1, scrollTop + scrollHeight - 1, 0xFF0092c5);
         }
     }
 
@@ -110,16 +137,9 @@ public class WardrobeStyleWidget extends AbstractWidget implements WardrobeWidge
             return false;
         }
         if (this.isValidClickButton(mouseButton) && this.clicked(mouseX, mouseY)) {
-            for(int row = scroll; row < scroll + rowsPerPage; row++) {
-                for(int i = 0; i < this.buttonsPerRow; i++) {
-                    int index = (row * this.buttonsPerRow) + i;
-                    if(index < this.buttons.size()) {
-                        StyleButton button = this.buttons.get(index);
-                        if(button.mouseClicked(mouseX, mouseY, mouseButton))
-                            return true;
-                    }
-                }
-            }
+            for (StyleButton button : this.visibleButtons)
+                if(button.mouseClicked(mouseX, mouseY, mouseButton))
+                    return true;
         }
         return false;
     }
@@ -129,72 +149,57 @@ public class WardrobeStyleWidget extends AbstractWidget implements WardrobeWidge
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        if(this.totalRows <= rowsPerPage)
-            return false;
-        if(this.scroll - delta < 0)
-            return false;
-        if(this.scroll - delta > (totalRows - rowsPerPage))
-            return false;
-        this.scroll -= delta;
+        this.scroll = Math.min(Math.max(this.scroll - (int) delta, 0), getTotalRows() - this.rows);
+        this.updateVisible = true;
         return true;
     }
 
-    @Override
-    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
-        this.previewRotation = this.previewRotation + (partialTick * 0.05f);
+    private void updateVisibleButtons() {
+        this.visibleButtons.clear();
 
-        for(int row = scroll; row < scroll + rowsPerPage; row++) {
-            for(int i = 0; i < this.buttonsPerRow; i++) {
-                int index = (row * this.buttonsPerRow) + i;
-                if(index < this.buttons.size()) {
-                    StyleButton button = this.buttons.get(index);
-                    button.setY(top + ((row - scroll) * button.getHeight()) + ((row - scroll) * scaledYMargin));
-                    button.render(context, mouseX, mouseY, partialTick);
-                }
+        int index = 0;
+        int startingIndex = this.scroll * this.columns;
+        int endIndex = startingIndex + (this.rows * this.columns);
+
+        for (int i = Math.max(this.scroll * this.columns, 0); i < endIndex; i++) {
+            if (i < this.buttons.size()) {
+                StyleButton button = this.buttons.get(i);
+                setButtonPosition(button, index);
+                this.visibleButtons.add(button);
             }
+            index++;
         }
 
-        if(isHovered) {
-            for (int row = scroll; row < scroll + rowsPerPage; row++) {
-                for (int i = 0; i < this.buttonsPerRow; i++) {
-                    int index = (row * this.buttonsPerRow) + i;
-                    if (index < this.buttons.size()) {
-                        StyleButton button = this.buttons.get(index);
-                        if (button.isHovered()) {
-                            button.renderTooltip(context, mouseX, mouseY);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        if(totalRows > rowsPerPage) {
-            int totalScrolls = (totalRows - rowsPerPage) + 1;
-            int scrollHeight = totalScrolls * 10;
-            int scrollTop = (getY() + (height / 2)) - (scrollHeight / 2);
-            for(int i = 0; i < totalScrolls; i++) {
-                int colour = i == scroll ? 0xFF00cccc : 0xFF222222;
-                context.fill(getX() + width - 6, scrollTop + (i * 10), getX() + width - 1, scrollTop + (i * 10) + 5, colour);
-            }
-        }
+        this.updateVisible = false;
     }
 
-    public class StyleButton extends Button {
+    private void setButtonPosition(StyleButton button, int index) {
+        int col = index % columns;
+        int row = index / columns;
+        button.setPosition(this.left + (col * (buttonSize + margin)), this.top + (row * (buttonSize + margin)));
+    }
+
+    private int getTotalRows() {
+        return (this.buttons.size() / this.columns) + 1;
+    }
+
+    public static class StyleButton extends Button {
         private WardrobeStyleWidget parentWidget;
-        private Style style;
         private List<Component> tooltip;
+        private Style style;
+        private int textureId = -1;
 
         public StyleButton(WardrobeStyleWidget parentWidget, int x, int y, int width, int height, Style style) {
             super(x, y, width, height, Component.empty(), null, DEFAULT_NARRATION);
             this.parentWidget = parentWidget;
-            this.style = style;
             this.tooltip = createTooltip(style, parentWidget.category);
+            this.style = style;
         }
 
         private static List<Component> createTooltip(Style style, Category category) {
             List<Component> list = new ArrayList<>();
             list.add(Component.translatable(style.getStyleId().getNamespace()+"."+style.getStyleId().getPath()+"."+category.name().toLowerCase()).withStyle(ChatFormatting.BOLD));
+//            style.getTextureVariants().ifPresent(variants -> list.add(Component.literal(variants.size() + " Variants Available")));
             style.getCredits().ifPresent(credits -> {
                 list.add(Component.literal("-Made By-").withStyle(ChatFormatting.GRAY));
                 credits.forEach(s -> list.add(Component.literal(s).withStyle(ChatFormatting.GRAY)));
@@ -202,12 +207,14 @@ public class WardrobeStyleWidget extends AbstractWidget implements WardrobeWidge
             return list;
         }
 
-        @Override
-        public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
+        public void renderWidget(GuiGraphics context, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
             Window window = Minecraft.getInstance().getWindow();
             double guiScale = window.getGuiScale();
 
+            this.isHovered = this.isMouseOver(mouseX, mouseY);
+
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, this.alpha);
+            context.blit(TEX_WIDGETS, this.getX(), this.getY(), this.width, this.height, 0, getYOffset() * 50,  50, 50, 256, 256);
             context.blit(TEX_WIDGETS, this.getX(), this.getY(), this.width, this.height, 0, getYOffset() * 50,  50, 50, 256, 256);
 
             if(!isHovered()) {
@@ -244,19 +251,18 @@ public class WardrobeStyleWidget extends AbstractWidget implements WardrobeWidge
             Quaternionf quaternion = new Quaternionf().rotateZ((float) Math.PI);
             quaternion.rotateY(this.parentWidget.previewRotation);
             poseStack2.mulPose(quaternion);
-            Lighting.setupForEntityInInventory(); //Setup Entity Lighting
-            MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-            RenderSystem.runAsFancy(() -> BounceStylesClient.STYLE_RENDERER.renderStyle(
+            Lighting.setupForEntityInInventory();
+            BounceStylesClient.STYLE_RENDERER.renderStyle(
                     poseStack2,
                     this.style,
-                    0, //ToDo Figure out this whole rendering situation with Texture Variants
+                    this.textureId,
                     this.parentWidget.category,
                     bufferSource,
                     0f,
                     partialTick,
                     0xF000F0,
                     true
-            ));
+            );
             bufferSource.endBatch();
             poseStack.popPose();
             RenderSystem.applyModelViewMatrix();
@@ -268,13 +274,13 @@ public class WardrobeStyleWidget extends AbstractWidget implements WardrobeWidge
 
         @Override
         public void onPress() {
-            if(this.parentWidget.selectedButton == this) {
+            if(this.parentWidget.selectedStyleButton == this) {
                 new EquipStyleServerbound(this.parentWidget.category, Optional.empty()).sendToServer();
-                this.parentWidget.selectedButton = null;
+                this.parentWidget.selectedStyleButton = null;
             }
             else {
                 new EquipStyleServerbound(this.parentWidget.category, this.style != null ? Optional.of(this.style.getStyleId()) : Optional.empty()).sendToServer();
-                this.parentWidget.selectedButton = this;
+                this.parentWidget.selectedStyleButton = this;
             }
         }
 
@@ -283,7 +289,7 @@ public class WardrobeStyleWidget extends AbstractWidget implements WardrobeWidge
         }
 
         private int getYOffset() {
-            return this.parentWidget.selectedButton == this ? 2 : isHovered ? 1 : 0;
+            return this.parentWidget.selectedStyleButton == this ? 2 : isHovered ? 1 : 0;
         }
     }
 }
