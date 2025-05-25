@@ -159,8 +159,7 @@ public class StyleLoader {
 
                 for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
                     ResourceLocation presetId = ResourceLocation.tryParse(BounceStyles.modId + ":" + entry.getKey());
-                    StylePreset preset = StylePreset.fromJson(presetId, entry.getValue().getAsJsonObject());
-                    BounceStylesRegistries.PRESETS.put(presetId, preset);
+                    StylePreset.fromJson(presetId, entry.getValue().getAsJsonObject()).ifPresent(stylePreset -> BounceStylesRegistries.PRESETS.put(presetId, stylePreset));
                 }
             }
         }
@@ -181,10 +180,10 @@ public class StyleLoader {
             for(StylePreset preset : BounceStylesRegistries.PRESETS.values()) {
                 JsonObject obj = new JsonObject();
                 obj.addProperty("name", preset.name());
-                obj.addProperty("head", preset.headId() != null ? preset.headId().toString() : "");
-                obj.addProperty("body", preset.bodyId() != null ? preset.bodyId().toString() : "");
-                obj.addProperty("legs", preset.legsId() != null ? preset.legsId().toString() : "");
-                obj.addProperty("feet", preset.feetId() != null ? preset.feetId().toString() : "");
+                obj.addProperty("head", preset.head() != null ? preset.head().toString() : "");
+                obj.addProperty("body", preset.body() != null ? preset.body().toString() : "");
+                obj.addProperty("legs", preset.legs() != null ? preset.legs().toString() : "");
+                obj.addProperty("feet", preset.feet() != null ? preset.feet().toString() : "");
                 jsonObject.add(preset.presetId().getPath(), obj);
             }
 

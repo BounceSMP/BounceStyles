@@ -4,12 +4,13 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
-import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.api.style.Style;
+import dev.bsmp.bouncestyles.core.BounceStyles;
+import dev.bsmp.bouncestyles.core.BounceStylesRegistries.Category;
+import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -29,7 +30,7 @@ public class WardrobeStyleWidget extends AbstractWidget implements WardrobeWidge
 
     List<StyleButton> buttons = new ArrayList<>();
     StyleButton selectedButton;
-    BounceStylesRegistries.Category category;
+    Category category;
 
     float previewRotation = 0f;
     int buttonsPerRow = 6;
@@ -46,7 +47,7 @@ public class WardrobeStyleWidget extends AbstractWidget implements WardrobeWidge
         updateButtons(null, new ArrayList<Style>());
     }
 
-    public void updateButtons(BounceStylesRegistries.Category category, List<Style> styles) {
+    public void updateButtons(Category category, List<Style> styles) {
         this.scroll = 0;
         this.category = category;
         this.buttons.clear();
@@ -91,8 +92,12 @@ public class WardrobeStyleWidget extends AbstractWidget implements WardrobeWidge
                             this, this.left + (i * this.scaledXMargin) + (i * scaledBtnSize), this.top + (row * this.scaledYMargin) + (row * scaledBtnSize),
                             scaledBtnSize, scaledBtnSize, style);
                     this.buttons.add(button);
-                    if(styleData != null && styleData.getStyleForSlot(category) == style)
-                        this.selectedButton = button;
+                    if(styleData != null) {
+                        var equippedStyle = styleData.getStyleForSlot(category);
+                        //ToDo Select the specific Texture Variant that is equipped
+                        if (equippedStyle.isPresent() && equippedStyle.get().getFirst() == style)
+                            this.selectedButton = button;
+                    }
                 }
                 index++;
             }
@@ -178,11 +183,23 @@ public class WardrobeStyleWidget extends AbstractWidget implements WardrobeWidge
     public class StyleButton extends Button {
         private WardrobeStyleWidget parentWidget;
         private Style style;
+        private List<Component> tooltip;
 
         public StyleButton(WardrobeStyleWidget parentWidget, int x, int y, int width, int height, Style style) {
-            super(x, y, width, height, Component.translatable(style.getStyleId().getNamespace()+"."+style.getStyleId().getPath()+"."+parentWidget.category.name().toLowerCase()), null, DEFAULT_NARRATION);
+            super(x, y, width, height, Component.empty(), null, DEFAULT_NARRATION);
             this.parentWidget = parentWidget;
             this.style = style;
+            this.tooltip = createTooltip(style, parentWidget.category);
+        }
+
+        private static List<Component> createTooltip(Style style, Category category) {
+            List<Component> list = new ArrayList<>();
+            list.add(Component.translatable(style.getStyleId().getNamespace()+"."+style.getStyleId().getPath()+"."+category.name().toLowerCase()).withStyle(ChatFormatting.BOLD));
+            style.getCredits().ifPresent(credits -> {
+                list.add(Component.literal("-Made By-").withStyle(ChatFormatting.GRAY));
+                credits.forEach(s -> list.add(Component.literal(s).withStyle(ChatFormatting.GRAY)));
+            });
+            return list;
         }
 
         @Override
@@ -232,6 +249,7 @@ public class WardrobeStyleWidget extends AbstractWidget implements WardrobeWidge
             RenderSystem.runAsFancy(() -> BounceStylesClient.STYLE_RENDERER.renderStyle(
                     poseStack2,
                     this.style,
+                    0, //ToDo Figure out this whole rendering situation with Texture Variants
                     this.parentWidget.category,
                     bufferSource,
                     0f,
@@ -255,13 +273,13 @@ public class WardrobeStyleWidget extends AbstractWidget implements WardrobeWidge
                 this.parentWidget.selectedButton = null;
             }
             else {
-                new EquipStyleServerbound(this.parentWidget.category, Optional.of(this.style)).sendToServer();
+                new EquipStyleServerbound(this.parentWidget.category, this.style != null ? Optional.of(this.style.getStyleId()) : Optional.empty()).sendToServer();
                 this.parentWidget.selectedButton = this;
             }
         }
 
         public void renderTooltip(GuiGraphics poseStack, int mouseX, int mouseY) {
-            drawTooltip(getMessage(), mouseX, mouseY, Minecraft.getInstance().font, poseStack, parentWidget.getX() + parentWidget.width);
+            WardrobeWidget.drawTooltipStatic(poseStack, Minecraft.getInstance().font, this.tooltip, mouseX + 3, mouseY, parentWidget.getX() + parentWidget.width);
         }
 
         private int getYOffset() {

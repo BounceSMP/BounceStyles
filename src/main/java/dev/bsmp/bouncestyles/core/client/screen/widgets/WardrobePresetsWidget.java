@@ -2,14 +2,14 @@ package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.datafixers.util.Pair;
+import dev.bsmp.bouncestyles.api.style.StylePreset;
 import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.StyleLoader;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
+import dev.bsmp.bouncestyles.core.StyleLoader;
 import dev.bsmp.bouncestyles.core.client.screen.WardrobeScreen;
 import dev.bsmp.bouncestyles.core.data.StyleData;
-import dev.bsmp.bouncestyles.api.style.StylePreset;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
-import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSelectionList;
@@ -22,6 +22,8 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
+
+import java.util.List;
 
 public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresetsWidget.PresetEntry> implements WardrobeWidget {
     private static final ResourceLocation TEX_WIDGETS = BounceStyles.resourceLocation("textures/gui/widgets.png");
@@ -44,7 +46,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
         this.presetNameEntry.visible = false;
         this.presetNameEntry.active = false;
 
-        this.createPresetButton = new ScaledImageButton(null, x + 5, y + height - buttonSize - 5, buttonSize, buttonSize, 74, 0, 24, 24, TEX_WIDGETS, button -> {
+        this.createPresetButton = new ScaledImageButton(Component.literal("Presets"), x + 5, y + height - buttonSize - 5, buttonSize, buttonSize, 74, 0, 24, 24, TEX_WIDGETS, button -> {
             if(!this.namingPreset) {
                 this.presetNameEntry.visible = true;
                 this.presetNameEntry.active = true;
@@ -90,7 +92,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
                     s = "Save";
             }
 
-            drawTooltip(Component.literal(s), mouseX, mouseY, Minecraft.getInstance().font, poseStack, 0);
+            drawTooltip(poseStack, Minecraft.getInstance().font, Component.literal(s), mouseX, mouseY, 0);
         }
     }
 
@@ -197,10 +199,10 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if(this.isHovered) {
-                new EquipStyleServerbound(BounceStylesRegistries.Category.Head, BounceStylesRegistries.getStyle(preset.headId())).sendToServer();
-                new EquipStyleServerbound(BounceStylesRegistries.Category.Body, BounceStylesRegistries.getStyle(preset.bodyId())).sendToServer();
-                new EquipStyleServerbound(BounceStylesRegistries.Category.Legs, BounceStylesRegistries.getStyle(preset.legsId())).sendToServer();
-                new EquipStyleServerbound(BounceStylesRegistries.Category.Feet, BounceStylesRegistries.getStyle(preset.feetId())).sendToServer();
+                new EquipStyleServerbound(BounceStylesRegistries.Category.Head, preset.head().map(Pair::getFirst)).sendToServer();
+                new EquipStyleServerbound(BounceStylesRegistries.Category.Body, preset.body().map(Pair::getFirst)).sendToServer();
+                new EquipStyleServerbound(BounceStylesRegistries.Category.Legs, preset.legs().map(Pair::getFirst)).sendToServer();
+                new EquipStyleServerbound(BounceStylesRegistries.Category.Feet, preset.feet().map(Pair::getFirst)).sendToServer();
                 Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f));
                 return true;
             }

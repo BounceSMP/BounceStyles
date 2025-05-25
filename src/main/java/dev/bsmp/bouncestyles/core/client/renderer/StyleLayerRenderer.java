@@ -2,9 +2,10 @@ package dev.bsmp.bouncestyles.core.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.datafixers.util.Pair;
+import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
-import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -20,6 +21,8 @@ import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.util.RenderUtils;
+
+import java.util.Optional;
 
 public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>> implements GeoRenderer<Style> {
     private Player currentPlayer;
@@ -57,10 +60,19 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
         poseStack.translate(0.0D, -1.497F, 0.0D);
     }
 
-    public void renderStyle(PoseStack poseStack, Style style, BounceStylesRegistries.Category category, MultiBufferSource vertexConsumers, float headYaw, float partialTick, int light, boolean isGui) {
-        if (style == null) return;
-        
-        RenderType renderLayer = getRenderType(style, getTextureLocation(style), vertexConsumers, partialTick);
+    public void renderStyle(PoseStack poseStack, Optional<Pair<Style, Integer>> equippedStyle, BounceStylesRegistries.Category category, MultiBufferSource vertexConsumers, float headYaw, float partialTick, int light, boolean isGui) {
+        if (equippedStyle.isEmpty()) return;
+        renderStyle(poseStack, equippedStyle.get().getFirst(), equippedStyle.get().getSecond(), category, vertexConsumers, headYaw, partialTick, light, isGui);
+    }
+
+    public void renderStyle(PoseStack poseStack, Style style, int textureId, BounceStylesRegistries.Category category, MultiBufferSource vertexConsumers, float headYaw, float partialTick, int light, boolean isGui) {
+        ResourceLocation texture = style.getTextureId();
+        if (textureId >= 0 && style.getTextureVariants().isPresent()) {
+            var textures = style.getTextureVariants().get();
+            if (textures.size() > textureId) texture = textures.get(textureId);
+        }
+
+        RenderType renderLayer = getRenderType(style, texture, vertexConsumers, partialTick);
         fit(poseStack, model.getBakedModel(style.getModelId()), category, isGui);
         defaultRender(poseStack, style, vertexConsumers, renderLayer, null, headYaw, partialTick, light);
     }

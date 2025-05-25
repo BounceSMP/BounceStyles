@@ -176,7 +176,7 @@ public class StyleCommand {
         for(ServerPlayer player : players)
             if (id != null && BounceStylesRegistries.idExists(id)) {
                 StyleData.getOrCreateStyleData(player).removeStyle(id);
-                source.sendSuccess(() -> Component.literal("Removed style " + id + " from player " + player.getScoreboardName()), true);
+                source.sendSuccess(() -> Component.literal("Removed styleId " + id + " from player " + player.getScoreboardName()), true);
             }
         return 1;
     }

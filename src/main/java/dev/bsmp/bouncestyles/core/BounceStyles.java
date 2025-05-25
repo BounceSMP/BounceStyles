@@ -47,7 +47,7 @@ public class BounceStyles {
         }));
 
         PlayerEvent.PLAYER_JOIN.register(BounceStyles::playerJoin);
-        PlayerEvent.PLAYER_CLONE.register(StyleData::copyFrom);
+        PlayerEvent.PLAYER_CLONE.register((oldPlayer, newPlayer, wonGame) -> StyleData.copyFrom(oldPlayer, newPlayer));
         PlayerEvent.PLAYER_RESPAWN.register((player, conqueredEnd) -> new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
         PlayerEvent.CHANGE_DIMENSION.register((player, oldLevel, newLevel) -> new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
     }

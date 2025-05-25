@@ -30,25 +30,34 @@ public class Style implements GeoAnimatable {
     private final ResourceLocation styleId;
     private final ResourceLocation modelId;
     private final ResourceLocation textureId;
-    private final ResourceLocation animationId;
+    private final @Nullable List<ResourceLocation> textureVariants;
+    private final @Nullable ResourceLocation animationId;
     private final @Nullable Map<String, RawAnimation> animationMap;
-    private final int transitionTicks;
-    private final List<String> hiddenParts;
-    private final List<BounceStylesRegistries.Category> categories;
 
-    public Style(ResourceLocation styleId, ResourceLocation modelId, ResourceLocation textureId, ResourceLocation animationId, Map<String, String> animationMap) {
-        this(styleId, modelId, textureId, animationId, animationMap, 0, List.of(), List.of());
+    private final int transitionTicks;
+    private final List<BounceStylesRegistries.Category> categories;
+    private final @Nullable List<String> hiddenParts;
+    private final @Nullable List<String> credits;
+
+    public Style(ResourceLocation styleId, ResourceLocation modelId, ResourceLocation textureId, @Nullable ResourceLocation animationId, @Nullable Map<String, String> animationMap, List<BounceStylesRegistries.Category> categories) {
+        this(styleId, modelId, textureId, null, animationId, animationMap, 1, null, categories, null);
     }
 
-    public Style(ResourceLocation styleId, ResourceLocation modelId, ResourceLocation textureId, ResourceLocation animationId, Map<String, String> animationMap, int transitionTicks, List<String> hiddenParts, List<BounceStylesRegistries.Category> categories) {
+    public Style(ResourceLocation styleId, ResourceLocation modelId, ResourceLocation textureId, @Nullable List<ResourceLocation> textureVariants, @Nullable ResourceLocation animationId, @Nullable Map<String, String> animationMap, int transitionTicks, List<BounceStylesRegistries.Category> categories) {
+        this(styleId, modelId, textureId, textureVariants, animationId, animationMap, transitionTicks, null, categories, null);
+    }
+
+    public Style(ResourceLocation styleId, ResourceLocation modelId, ResourceLocation textureId, @Nullable List<ResourceLocation> textureVariants, @Nullable ResourceLocation animationId, @Nullable Map<String, String> animationMap, int transitionTicks, @Nullable List<String> hiddenParts, List<BounceStylesRegistries.Category> categories, @Nullable List<String> credits) {
         this.styleId = styleId;
         this.modelId = modelId;
         this.textureId = textureId;
+        this.textureVariants = textureVariants;
         this.animationId = animationId;
         this.animationMap = animationMap != null ? buildAnimationMap(animationMap) : null;
         this.transitionTicks = transitionTicks;
-        this.hiddenParts = hiddenParts;
         this.categories = categories;
+        this.hiddenParts = hiddenParts;
+        this.credits = credits;
     }
 
     @Override
@@ -119,6 +128,10 @@ public class Style implements GeoAnimatable {
         return textureId;
     }
 
+    public Optional<List<ResourceLocation>> getTextureVariants() {
+        return Optional.ofNullable(this.textureVariants);
+    }
+
     public ResourceLocation getStyleId() {
         return styleId;
     }
@@ -127,12 +140,16 @@ public class Style implements GeoAnimatable {
         return modelId;
     }
 
-    public List<String> getHiddenParts() {
-        return hiddenParts;
+    public Optional<List<String>> getHiddenParts() {
+        return Optional.ofNullable(hiddenParts);
     }
 
     public List<BounceStylesRegistries.Category> getCategories() {
         return categories;
+    }
+
+    public Optional<ResourceLocation> getAnimationId() {
+        return Optional.ofNullable(animationId);
     }
 
     public Optional<Map<String, RawAnimation>> getAnimationMap() {
@@ -150,8 +167,8 @@ public class Style implements GeoAnimatable {
         return Optional.of(stringMap);
     }
 
-    public Optional<ResourceLocation> getAnimationId() {
-        return Optional.ofNullable(animationId);
+    public Optional<List<String>> getCredits() {
+        return Optional.ofNullable(this.credits);
     }
 
     @Override
@@ -171,17 +188,26 @@ public class Style implements GeoAnimatable {
         return animMap;
     }
 
-    private static Style decode(String styleName, Optional<ResourceLocation> modelId, Optional<ResourceLocation> textureId, Optional<ResourceLocation> animationId, Optional<Map<String, String>> animationMap, Optional<Integer> transitionTicks, Optional<List<String>> hiddenParts, List<BounceStylesRegistries.Category> categories) {
+    private static Style decode(String styleName, Optional<ResourceLocation> modelId, Optional<ResourceLocation> textureId, Optional<List<ResourceLocation>> textureVariants, Optional<ResourceLocation> animationId, Optional<Map<String, String>> animationMap, Optional<Integer> transitionTicks, Optional<List<String>> hiddenParts, List<BounceStylesRegistries.Category> categories, Optional<List<String>> credits) {
         var styleId = styleName.contains(":") ? new ResourceLocation(styleName) : BounceStyles.resourceLocation(styleName);
+        if (textureVariants.isPresent()) {
+            List<ResourceLocation> list = new ArrayList<>();
+            for (ResourceLocation id : textureVariants.get()) {
+                list.add(parseId(styleId, Optional.of(id), "textures", ".png"));
+            }
+            textureVariants = Optional.of(list);
+        }
         return new Style(
                 styleId,
                 parseId(styleId, modelId, "geo", ".geo.json"),
                 parseId(styleId, textureId, "textures", ".png"),
+                textureVariants.orElse(null),
                 parseId(styleId, animationId, "animations", ".animation.json"),
                 animationMap.orElse(null),
                 transitionTicks.orElse(0),
-                hiddenParts.orElse(List.of()),
-                categories
+                hiddenParts.orElse(null),
+                categories,
+                credits.orElse(null)
         );
     }
 
@@ -201,10 +227,12 @@ public class Style implements GeoAnimatable {
             Codec.STRING.fieldOf("name").forGetter(style -> style.getStyleId().toString()),
             ID_CODEC.optionalFieldOf("model_id").forGetter(style -> Optional.of(style.getModelId())),
             ID_CODEC.optionalFieldOf("texture_id").forGetter(style -> Optional.of(style.getTextureId())),
+            ID_CODEC.listOf().optionalFieldOf("texture_variants").forGetter(Style::getTextureVariants),
             ID_CODEC.optionalFieldOf("animation_id").forGetter(Style::getAnimationId),
             Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("animations").forGetter(Style::getAnimationStringMap),
             Codec.INT.optionalFieldOf("transition_ticks").forGetter(style -> Optional.of(style.getTransitionTicks())),
-            Codec.STRING.listOf().optionalFieldOf("hidden_parts").forGetter(style -> Optional.of(style.getHiddenParts())),
-            BounceStylesRegistries.Category.CODEC.listOf().fieldOf("slots").forGetter(Style::getCategories)
+            Codec.STRING.listOf().optionalFieldOf("hidden_parts").forGetter(Style::getHiddenParts),
+            BounceStylesRegistries.Category.CODEC.listOf().fieldOf("slots").forGetter(Style::getCategories),
+            Codec.STRING.listOf().optionalFieldOf("credits").forGetter(Style::getCredits)
     ).apply(instance, Style::decode));
 }

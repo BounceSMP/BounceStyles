@@ -4,8 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.screen.WardrobeScreen;
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -13,6 +11,9 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class WardrobeCategoryWidget extends AbstractWidget implements WardrobeWidget {
     final WardrobeScreen parentScreen;
@@ -90,7 +91,7 @@ public class WardrobeCategoryWidget extends AbstractWidget implements WardrobeWi
         }
 
         public void renderTooltip(GuiGraphics poseStack, int mouseX, int mouseY) {
-            drawTooltip(getMessage(), mouseX, mouseY, Minecraft.getInstance().font, poseStack, 0);
+            drawTooltip(poseStack, Minecraft.getInstance().font, getMessage(), mouseX, mouseY, 0);
         }
     }
 }
