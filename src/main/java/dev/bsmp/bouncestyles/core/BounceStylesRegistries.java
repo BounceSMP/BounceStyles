@@ -70,9 +70,9 @@ public class BounceStylesRegistries {
 
     @Nullable public static ResourceLocation getStyleIdFromStack(ItemStack itemStack) {
         CompoundTag nbt = itemStack.getTag();
-        if(nbt == null || !nbt.contains("styleId"))
+        if(nbt == null || !nbt.contains("style"))
             return null;
-        return ResourceLocation.tryParse(nbt.getString("styleId"));
+        return ResourceLocation.tryParse(nbt.getString("style"));
     }
 
     public static Set<ResourceLocation> getAllStyleIds() {

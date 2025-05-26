@@ -174,7 +174,7 @@ public class Style implements GeoAnimatable {
     @Override
     public String toString() {
         return String.format(
-                "[styleId=%s, modelId=%s, textureId=%s, animationId=%s, animationMap=%s]",
+                "[style=%s, modelId=%s, textureId=%s, animationId=%s, animationMap=%s]",
                 styleId, modelId, textureId, animationId, animationMap
         );
     }
@@ -191,11 +191,15 @@ public class Style implements GeoAnimatable {
     private static Style decode(String styleName, Optional<ResourceLocation> modelId, Optional<ResourceLocation> textureId, Optional<List<ResourceLocation>> textureVariants, Optional<ResourceLocation> animationId, Optional<Map<String, String>> animationMap, Optional<Integer> transitionTicks, Optional<List<String>> hiddenParts, List<BounceStylesRegistries.Category> categories, Optional<List<String>> credits) {
         var styleId = styleName.contains(":") ? new ResourceLocation(styleName) : BounceStyles.resourceLocation(styleName);
         if (textureVariants.isPresent()) {
-            List<ResourceLocation> list = new ArrayList<>();
-            for (ResourceLocation id : textureVariants.get()) {
-                list.add(parseId(styleId, Optional.of(id), "textures", ".png"));
+            if (!textureVariants.get().isEmpty()) {
+                List<ResourceLocation> list = new ArrayList<>();
+                for (ResourceLocation id : textureVariants.get()) {
+                    list.add(parseId(styleId, Optional.of(id), "textures", ".png"));
+                }
+                textureVariants = Optional.of(list);
             }
-            textureVariants = Optional.of(list);
+            else
+                textureVariants = Optional.empty();
         }
         return new Style(
                 styleId,

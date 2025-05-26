@@ -27,9 +27,9 @@ public class StyleMagazineItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag context) {
         CompoundTag nbt = stack.getTag();
-        if(nbt == null || !nbt.contains("styleId")) return;
+        if(nbt == null || !nbt.contains("style")) return;
 
-        ResourceLocation styleId = ResourceLocation.tryParse(nbt.getString("styleId"));
+        ResourceLocation styleId = ResourceLocation.tryParse(nbt.getString("style"));
         if(styleId == null) return;
 
         BounceStylesRegistries.getStyle(styleId).ifPresent(style -> {
@@ -65,7 +65,7 @@ public class StyleMagazineItem extends Item {
 
         CompoundTag nbt = new CompoundTag();
         nbt.putInt("issue", random.nextInt(1, BounceStylesRegistries.getAllStyleIds().size() + 1));
-        nbt.putString("styleId", styleId.toString());
+        nbt.putString("style", styleId.toString());
 
         itemStack.setTag(nbt);
         return itemStack;

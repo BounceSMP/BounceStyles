@@ -2,7 +2,6 @@ package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.datafixers.util.Pair;
 import dev.bsmp.bouncestyles.api.style.StylePreset;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
@@ -24,6 +23,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 
 import java.util.List;
+import java.util.Map;
 
 public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresetsWidget.PresetEntry> implements WardrobeWidget {
     private static final ResourceLocation TEX_WIDGETS = BounceStyles.resourceLocation("textures/gui/widgets.png");
@@ -149,8 +149,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
                 this.parentWidget.needsRefreshing = true;
             });
 
-//            if(tooltipLines == null)
-                tooltipLines = Minecraft.getInstance().font.split(FormattedText.of("One or more items in this preset are not unlocked or invalid!"), 165);
+            tooltipLines = Minecraft.getInstance().font.split(FormattedText.of("One or more items in this preset are not unlocked or invalid!"), 165);
         }
 
         @Override
@@ -174,7 +173,6 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
 
             if(preset.error()) {
                 PoseStack poseStack = context.pose();
-//                RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
                 context.blit(TEX_WIDGETS, left + width - 22, top + 2, 50, 48, 22, 22, 256, 256);
                 if(isMouseOver) {
                     poseStack.pushPose();
@@ -199,10 +197,12 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if(this.isHovered) {
-                new EquipStyleServerbound(BounceStylesRegistries.Category.Head, preset.head().map(Pair::getFirst)).sendToServer();
-                new EquipStyleServerbound(BounceStylesRegistries.Category.Body, preset.body().map(Pair::getFirst)).sendToServer();
-                new EquipStyleServerbound(BounceStylesRegistries.Category.Legs, preset.legs().map(Pair::getFirst)).sendToServer();
-                new EquipStyleServerbound(BounceStylesRegistries.Category.Feet, preset.feet().map(Pair::getFirst)).sendToServer();
+                new EquipStyleServerbound(Map.of(
+                        BounceStylesRegistries.Category.Head, preset.head(),
+                        BounceStylesRegistries.Category.Body, preset.body(),
+                        BounceStylesRegistries.Category.Legs, preset.legs(),
+                        BounceStylesRegistries.Category.Feet, preset.feet()
+                )).sendToServer();
                 Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f));
                 return true;
             }

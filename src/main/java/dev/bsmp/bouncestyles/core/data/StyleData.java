@@ -129,6 +129,15 @@ public class StyleData {
         };
     }
 
+    public void setStyleForSlot(Category category, Style style, int textureId) {
+        switch (category) {
+            case Head -> setHeadStyle(style, textureId);
+            case Body -> setBodyStyle(style, textureId);
+            case Legs -> setLegStyle(style, textureId);
+            case Feet -> setFeetStyle(style, textureId);
+        };
+    }
+
     public List<ResourceLocation> getUnlocks() {
         return this.unlocks;
     }

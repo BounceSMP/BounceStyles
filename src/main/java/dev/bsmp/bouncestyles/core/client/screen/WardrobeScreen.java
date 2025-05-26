@@ -1,9 +1,9 @@
 package dev.bsmp.bouncestyles.core.client.screen;
 
+import dev.bsmp.bouncestyles.api.style.StylePreset;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.*;
-import dev.bsmp.bouncestyles.api.style.StylePreset;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
 import dev.bsmp.bouncestyles.core.networking.serverbound.ToggleArmorVisibilityServerbound;
 import net.minecraft.client.gui.GuiGraphics;
@@ -14,7 +14,6 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class WardrobeScreen extends Screen {
@@ -114,7 +113,8 @@ public class WardrobeScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        this.activeWidget.keyPressed(keyCode, scanCode, modifiers);
+        if (this.activeWidget.keyPressed(keyCode, scanCode, modifiers))
+            return true;
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
@@ -156,10 +156,10 @@ public class WardrobeScreen extends Screen {
     }
 
     private void clearEquipped() {
-        new EquipStyleServerbound(BounceStylesRegistries.Category.Head, Optional.empty()).sendToServer();
-        new EquipStyleServerbound(BounceStylesRegistries.Category.Body, Optional.empty()).sendToServer();
-        new EquipStyleServerbound(BounceStylesRegistries.Category.Legs, Optional.empty()).sendToServer();
-        new EquipStyleServerbound(BounceStylesRegistries.Category.Feet, Optional.empty()).sendToServer();
+        new EquipStyleServerbound(BounceStylesRegistries.Category.Head).sendToServer();
+        new EquipStyleServerbound(BounceStylesRegistries.Category.Body).sendToServer();
+        new EquipStyleServerbound(BounceStylesRegistries.Category.Legs).sendToServer();
+        new EquipStyleServerbound(BounceStylesRegistries.Category.Feet).sendToServer();
     }
 
     private void toggleArmor() {
