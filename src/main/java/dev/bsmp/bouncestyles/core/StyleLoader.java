@@ -128,6 +128,8 @@ public class StyleLoader {
                     BounceStyles.LOGGER.error("Exception Occurred trying to write json for Style: '{}' in pack: '{}'", name, directory.getName(), e);
                 }
             }
+
+            return true;
         }
         catch (Exception e) {
             BounceStyles.LOGGER.error("Exception Occurred trying to convert old styles.json format for pack: {}", directory.getName(), e);
