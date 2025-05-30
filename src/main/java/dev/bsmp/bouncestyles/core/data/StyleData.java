@@ -8,6 +8,7 @@ import dev.bsmp.bouncestyles.api.style.StylePreset;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries.Category;
+import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 import net.minecraft.nbt.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -198,7 +199,9 @@ public class StyleData {
 
     //Static
     public static void setPlayerData(Player player, StyleData styleData) {
-        ((StyleEntity)player).setStyleData(styleData);
+        ((StyleEntity) player).setStyleData(styleData);
+        if (player.level().isClientSide)
+            BounceStylesClient.onStyleUpdate();
     }
 
     public static StyleData getOrCreateStyleData(Player player) {

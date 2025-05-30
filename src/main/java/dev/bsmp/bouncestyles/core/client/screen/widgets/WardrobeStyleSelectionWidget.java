@@ -13,11 +13,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WardrobeStyleWidget extends WardrobeScrollWidget implements WardrobeWidget {
+public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implements WardrobeWidget {
     Category category;
     @Nullable SelectionPopup popup = null;
 
-    public WardrobeStyleWidget(int x, int y, int width, int height) {
+    public WardrobeStyleSelectionWidget(int x, int y, int width, int height) {
         super(x, y, width, height, Component.literal("Wardrobe Selection"));
         this.left = x + 5;
         this.top = y + 2;
@@ -65,16 +65,22 @@ public class WardrobeStyleWidget extends WardrobeScrollWidget implements Wardrob
         this.updateButtons = true;
     }
 
+    public void refresh() {
+        this.updateButtons = true;
+    }
+
     @Override
     protected void updateButtons() {
+        this.buttons.clear();
         StyleData styleData = StyleData.getOrCreateStyleData(Minecraft.getInstance().player);
 
         for (Style style : styles) {
-            WardrobeStyleWidget.StyleButton button = new WardrobeStyleWidget.StyleButton(this, 0, 0, buttonSize, buttonSize, category, style);
+            WardrobeStyleSelectionWidget.StyleButton button = new WardrobeStyleSelectionWidget.StyleButton(this, 0, 0, buttonSize, buttonSize, category, style);
 
             var equippedStyle = styleData.getStyleForSlot(category);
             if (equippedStyle.isPresent() && equippedStyle.get().getFirst() == style) {
-                if (style.getTextureVariants().isPresent()) button.setTextureId(equippedStyle.get().getSecond());
+                if (style.getTextureVariants().isPresent())
+                    button.setTextureId(equippedStyle.get().getSecond());
                 this.selectedStyleButton = button;
             }
 
@@ -103,12 +109,13 @@ public class WardrobeStyleWidget extends WardrobeScrollWidget implements Wardrob
             else
                 return super.mouseClicked(mouseX, mouseY, mouseButton);
         }
+        this.popup = null;
         return false;
     }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (this.popup != null) {
+        if (keyCode == 256 && this.popup != null) {
             this.popup = null;
             return true;
         }
@@ -116,11 +123,11 @@ public class WardrobeStyleWidget extends WardrobeScrollWidget implements Wardrob
     }
 
     private static class SelectionPopup extends WardrobeScrollWidget {
-        private final WardrobeStyleWidget parent;
+        private final WardrobeStyleSelectionWidget parent;
         private final Category category;
         private final Style style;
 
-        public SelectionPopup(WardrobeStyleWidget parent, Category category, Style style, int x, int y, int width, int height) {
+        public SelectionPopup(WardrobeStyleSelectionWidget parent, Category category, Style style, int x, int y, int width, int height) {
             super(x, y, width, height, Component.empty());
             this.parent = parent;
             this.category = category;
@@ -132,7 +139,9 @@ public class WardrobeStyleWidget extends WardrobeScrollWidget implements Wardrob
 
         @Override
         protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
-            context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0xFFFFFFFF);
+            context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0xFF0092c5);
+            context.fill(getX() + 1, getY() + 1, getX() + getWidth() - 1, getY() + getHeight() - 1, 0xFF004c69);
+            context.fill(getX() + 2, getY() + 2, getX() + getWidth() - 2, getY() + getHeight() - 2, 0xFF212121);
             super.renderWidget(context, mouseX, mouseY, partialTick);
         }
 
@@ -156,7 +165,7 @@ public class WardrobeStyleWidget extends WardrobeScrollWidget implements Wardrob
             StyleData styleData = StyleData.getOrCreateStyleData(Minecraft.getInstance().player);
 
             for (int textureId = -1; textureId < textureVariants.size(); textureId++) {
-                WardrobeStyleWidget.StyleButton button = new WardrobeStyleWidget.StyleButton(this, 0, 0, buttonSize, buttonSize, category, style);
+                WardrobeStyleSelectionWidget.StyleButton button = new WardrobeStyleSelectionWidget.StyleButton(this, 0, 0, buttonSize, buttonSize, category, style);
                 button.setTextureId(textureId);
 
                 var equippedStyle = styleData.getStyleForSlot(category);

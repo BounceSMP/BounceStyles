@@ -46,7 +46,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
         this.presetNameEntry.visible = false;
         this.presetNameEntry.active = false;
 
-        this.createPresetButton = new ScaledImageButton(Component.literal("Presets"), x + 5, y + height - buttonSize - 5, buttonSize, buttonSize, 74, 0, 24, 24, TEX_WIDGETS, button -> {
+        this.createPresetButton = new ScaledImageButton(Component.empty(), x + 5, y + height - buttonSize - 5, buttonSize, buttonSize, 74, 0, 24, 24, TEX_WIDGETS, button -> {
             if(!this.namingPreset) {
                 this.presetNameEntry.visible = true;
                 this.presetNameEntry.active = true;

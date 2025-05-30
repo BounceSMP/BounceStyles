@@ -21,7 +21,7 @@ public class WardrobeScreen extends Screen {
     WardrobePreviewWidget previewWidget;
     WardrobeCategoryWidget categoryWidget;
 
-    WardrobeStyleWidget styleWidget;
+    WardrobeStyleSelectionWidget styleWidget;
     WardrobePresetsWidget presetsWidget;
 
     WardrobeWidget activeWidget;
@@ -47,20 +47,19 @@ public class WardrobeScreen extends Screen {
         this.previewWidget = addRenderableWidget(new WardrobePreviewWidget(0, 0, previewRight, height, minecraft.player));
         this.categoryWidget = addRenderableWidget(new WardrobeCategoryWidget(this, previewRight, 1, width - previewRight - 48, topBarHeight));
 
-        this.styleWidget = new WardrobeStyleWidget(previewRight, topBarHeight + 2, width - previewRight, height - topBarHeight);
+        this.styleWidget = new WardrobeStyleSelectionWidget(previewRight, topBarHeight + 2, width - previewRight, height - topBarHeight);
         this.presetsWidget = new WardrobePresetsWidget(minecraft, this, previewRight, topBarHeight, width - previewRight, height - topBarHeight, 30, topBarHeight);
 
         int btnSize = topBarHeight;
         this.clearButton = addRenderableWidget(new ScaledImageButton(Component.literal("Clear Equipped"), width - topBarHeight, 1, btnSize, btnSize, 98, 0, 24, 24, TEX_WIDGETS, button -> clearEquipped()));
         this.armorVisibilityButton = addRenderableWidget(new ScaledImageButton(Component.literal("Toggle Armor Visibility"),width - (topBarHeight * 2), 1, btnSize, btnSize, 122, 0, 24, 24, TEX_WIDGETS, button -> toggleArmor()));
 
-        if(this.activeWidget instanceof WardrobeStyleWidget)
+        if(this.activeWidget instanceof WardrobeStyleSelectionWidget)
             this.activeWidget = this.styleWidget;
         else if(this.activeWidget instanceof WardrobePresetsWidget)
             this.activeWidget = this.presetsWidget;
 
-        if(this.selectedCategory == null)
-            this.setSelectedCategory(BounceStylesRegistries.Category.Head);
+        this.setSelectedCategory(this.selectedCategory != null ? this.selectedCategory : BounceStylesRegistries.Category.Head);
     }
 
     @Override
@@ -97,6 +96,11 @@ public class WardrobeScreen extends Screen {
         context.hLine(0, previewRight-1, height - 1, 0xFF005454);
         context.hLine(2, previewRight - 2, height - 2, 0xFF00A8A8);
         context.hLine(3, previewRight-3, height - 3, 0xFF005454);
+    }
+
+    public void refresh() {
+        if (this.activeWidget instanceof WardrobeStyleSelectionWidget widget)
+            widget.refresh();
     }
 
     @Override

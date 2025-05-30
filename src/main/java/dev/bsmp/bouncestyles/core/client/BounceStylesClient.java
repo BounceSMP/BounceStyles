@@ -9,6 +9,7 @@ import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer;
+import dev.bsmp.bouncestyles.core.client.screen.WardrobeScreen;
 import dev.bsmp.bouncestyles.core.networking.serverbound.OpenStyleScreenServerbound;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -39,6 +40,12 @@ public class BounceStylesClient {
     public static boolean isLookingForLang(ResourceLocation id) {
         String langCode = Minecraft.getInstance().getLanguageManager().getSelected();
         return id.getPath().endsWith(String.format("lang/%s.json", langCode));
+    }
+
+    public static void onStyleUpdate() {
+        if (Minecraft.getInstance().screen instanceof WardrobeScreen screen) {
+            screen.refresh();
+        }
     }
 
     public static IoSupplier<InputStream> processPackLangs(List<PackResources> packs, ResourceLocation id) {

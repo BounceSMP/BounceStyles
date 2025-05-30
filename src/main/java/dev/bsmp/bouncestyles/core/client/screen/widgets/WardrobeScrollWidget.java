@@ -35,13 +35,13 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
     protected int left;
     protected int top;
     float previewRotation = -30f;
-    protected @Nullable WardrobeStyleWidget.StyleButton selectedStyleButton;
+    protected @Nullable StyleButton selectedStyleButton;
 
     protected boolean updateButtons = false;
     protected boolean updateVisible = false;
     protected List<Style> styles = new ArrayList<>();
-    protected List<WardrobeStyleWidget.StyleButton> buttons = new ArrayList<>();
-    protected List<WardrobeStyleWidget.StyleButton> visibleButtons = new ArrayList<>();
+    protected List<StyleButton> buttons = new ArrayList<>();
+    protected List<StyleButton> visibleButtons = new ArrayList<>();
 
     public WardrobeScrollWidget(int x, int y, int width, int height, Component message) {
         super(x, y, width, height, message);
@@ -71,16 +71,16 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
             tooltipButton.renderTooltip(context, mouseX, mouseY);
         }
 
-        int maxScroll = getTotalRows() - rows;
-        int maxPosition = maxScroll * (buttonSize + margin);
-        int barWidth = 6;
-        int barLeft = getX() + width - barWidth - 3;
-        int barTop = getY() + 10;
-        int barHeight = height - 20;
-        int barBottom = barTop + barHeight;
 
         if (this.buttons.size() > this.rows * this.columns) {
-            int scrollHeight = (int) ((float) (barHeight * barHeight) / (float) maxPosition);
+            int barWidth = 6;
+            int barLeft = getX() + width - barWidth - 3;
+            int barTop = getY() + 10;
+            int barHeight = height - 20;
+            int barBottom = barTop + barHeight;
+
+            int maxScroll = getTotalRows() - rows;
+            int scrollHeight = barHeight / maxScroll;
             int scrollTop = this.scroll * (barBottom - barTop - scrollHeight) / maxScroll + barTop;
 
             context.fill(barLeft - 1, barTop - 1, barLeft + barWidth + 1, barTop + barHeight + 1, 0xFF00a8a8);
@@ -101,7 +101,7 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
 
         for (int i = Math.max(this.scroll * this.columns, 0); i < endIndex; i++) {
             if (i < this.buttons.size()) {
-                WardrobeStyleWidget.StyleButton button = this.buttons.get(i);
+                StyleButton button = this.buttons.get(i);
                 setButtonPosition(button, index);
                 this.visibleButtons.add(button);
             }
@@ -111,7 +111,7 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
         this.updateVisible = false;
     }
 
-    private void setButtonPosition(WardrobeStyleWidget.StyleButton button, int index) {
+    private void setButtonPosition(StyleButton button, int index) {
         int col = index % columns;
         int row = index / columns;
         button.setPosition(this.left + (col * (buttonSize + margin)), this.top + (row * (buttonSize + margin)));
