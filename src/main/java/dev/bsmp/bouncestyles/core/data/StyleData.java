@@ -18,7 +18,9 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class StyleData {
     private @Nullable Pair<Style, Integer> headStyle;
@@ -26,21 +28,21 @@ public class StyleData {
     private @Nullable Pair<Style, Integer> legStyle;
     private @Nullable Pair<Style, Integer> feetStyle;
 
-    private boolean[] armorVisiblity;
-    private List<String> hiddenParts = new ArrayList<>();
+    private final boolean[] armorVisiblity;
+    private final List<String> hiddenParts = new ArrayList<>();
     private List<ResourceLocation> unlocks = new ArrayList<>();
 
     public StyleData(Optional<Pair<Style, Integer>> head, Optional<Pair<Style, Integer>> body, Optional<Pair<Style, Integer>> legs, Optional<Pair<Style, Integer>> feet) {
-        this(head, body, legs, feet, new boolean[] {true, true, true, true}, Optional.empty(), Optional.empty());
+        this(head, body, legs, feet, new boolean[] {true, true, true, true}, new ArrayList<>(), Optional.empty());
     }
 
-    public StyleData(Optional<Pair<Style, Integer>> head, Optional<Pair<Style, Integer>> body, Optional<Pair<Style, Integer>> legs, Optional<Pair<Style, Integer>> feet,  boolean[] armorVisibility, Optional<List<String>> hiddenParts, Optional<List<ResourceLocation>> unlocks) {
+    public StyleData(Optional<Pair<Style, Integer>> head, Optional<Pair<Style, Integer>> body, Optional<Pair<Style, Integer>> legs, Optional<Pair<Style, Integer>> feet,  boolean[] armorVisibility, List<String> hiddenParts, Optional<List<ResourceLocation>> unlocks) {
         head.ifPresent(pair -> this.setHeadStyle(pair.getFirst(), pair.getSecond()));
         body.ifPresent(pair -> this.setBodyStyle(pair.getFirst(), pair.getSecond()));
         legs.ifPresent(pair -> this.setLegStyle(pair.getFirst(), pair.getSecond()));
         feet.ifPresent(pair -> this.setFeetStyle(pair.getFirst(), pair.getSecond()));
         this.armorVisiblity = armorVisibility;
-        hiddenParts.ifPresent(list -> this.hiddenParts = new ArrayList<>(list));
+        this.hiddenParts.addAll(hiddenParts);
         unlocks.ifPresent(list -> this.unlocks = new ArrayList<>(list));
     }
 
@@ -139,6 +141,7 @@ public class StyleData {
 
     public boolean isArmorVisible(EquipmentSlot slot) {
         if (!slot.isArmor()) return true;
+        if (this.hiddenParts.contains("armor.*") || this.hiddenParts.contains("armor."+slot.getName().toLowerCase())) return false;
         return isArmorVisible(slot.getIndex());
     }
 
@@ -265,13 +268,19 @@ public class StyleData {
     }
 
     private static StyleData decode(Optional<Pair<ResourceLocation, Integer>> head, Optional<Pair<ResourceLocation, Integer>> body, Optional<Pair<ResourceLocation, Integer>> legs, Optional<Pair<ResourceLocation, Integer>> feet, Optional<List<Pair<Integer, Boolean>>> armorVisibility, Optional<List<String>> hiddenParts, Optional<List<ResourceLocation>> unlocks) {
-        return new StyleData(idToStyle(head), idToStyle(body), idToStyle(legs), idToStyle(feet), decodeArmorVisibility(armorVisibility), hiddenParts, unlocks);
+        return new StyleData(idToStyle(head), idToStyle(body), idToStyle(legs), idToStyle(feet), decodeArmorVisibility(armorVisibility), decodeHiddenParts(hiddenParts), unlocks);
     }
 
     private static boolean[] decodeArmorVisibility(Optional<List<Pair<Integer, Boolean>>> armorVisibility) {
-        boolean[] array = new boolean[4];
+        boolean[] array = new boolean[] {true, true, true, true};
         armorVisibility.ifPresent(list -> list.forEach(pair -> array[pair.getFirst()] = pair.getSecond()));
         return array;
+    }
+
+    private static List<String> decodeHiddenParts(Optional<List<String>> hiddenParts) {
+        List<String> list = new ArrayList<>();
+        hiddenParts.ifPresent(strings -> strings.forEach(s -> list.add(s.toLowerCase())));
+        return list;
     }
 
     private static Optional<Pair<Style, Integer>> idToStyle(Optional<Pair<ResourceLocation, Integer>> slot) {
