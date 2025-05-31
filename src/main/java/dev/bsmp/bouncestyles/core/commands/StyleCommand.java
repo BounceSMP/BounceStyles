@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.data.StyleData;
@@ -90,7 +91,7 @@ public class StyleCommand {
         LiteralCommandNode<CommandSourceStack> equipNode = Commands
                 .literal("equip")
                 .build();
-        ArgumentCommandNode<CommandSourceStack, BounceStylesRegistries.Category> slotNode = Commands
+        ArgumentCommandNode<CommandSourceStack, Category> slotNode = Commands
                 .argument("slot", StyleSlotArgumentType.styleSlot())
                 .build();
 
@@ -181,7 +182,7 @@ public class StyleCommand {
         return 1;
     }
 
-    private static int equip(CommandContext<CommandSourceStack> context, ServerPlayer player, BounceStylesRegistries.Category slot, ResourceLocation id) {
+    private static int equip(CommandContext<CommandSourceStack> context, ServerPlayer player, Category slot, ResourceLocation id) {
         if(id == null || BounceStylesRegistries.idExists(id)) {
             Style style = id != null ? BounceStylesRegistries.getStyle(id).orElse(null) : null;
             if(style == null || style.getCategories().contains(slot)) {

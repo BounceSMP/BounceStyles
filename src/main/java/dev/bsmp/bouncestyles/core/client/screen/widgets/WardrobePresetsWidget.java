@@ -2,6 +2,7 @@ package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.api.style.StylePreset;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
@@ -92,7 +93,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
                     s = "Save";
             }
 
-            drawTooltip(poseStack, Minecraft.getInstance().font, Component.literal(s), mouseX, mouseY, 0);
+            drawTooltip(poseStack, Minecraft.getInstance().font, Component.literal(s), mouseX, mouseY);
         }
     }
 
@@ -198,10 +199,10 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if(this.isHovered) {
                 new EquipStyleServerbound(Map.of(
-                        BounceStylesRegistries.Category.Head, preset.head(),
-                        BounceStylesRegistries.Category.Body, preset.body(),
-                        BounceStylesRegistries.Category.Legs, preset.legs(),
-                        BounceStylesRegistries.Category.Feet, preset.feet()
+                        Category.Head, preset.head(),
+                        Category.Body, preset.body(),
+                        Category.Legs, preset.legs(),
+                        Category.Feet, preset.feet()
                 )).sendToServer();
                 Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f));
                 return true;

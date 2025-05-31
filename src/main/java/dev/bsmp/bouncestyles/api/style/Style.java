@@ -3,7 +3,6 @@ package dev.bsmp.bouncestyles.api.style;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
@@ -23,6 +22,12 @@ public class Style implements GeoAnimatable {
     public static final ResourceLocation MISSING_MODEL_ID = BounceStyles.resourceLocation("geo/missing_model.geo.json");
     public static final ResourceLocation MISSING_TEXTURE_ID = BounceStyles.resourceLocation("textures/missing_model.png");
 
+    public static final ResourceLocation HEAD_ICON = BounceStyles.resourceLocation("textures/icon/bounce_head.png");
+    public static final ResourceLocation BODY_ICON = BounceStyles.resourceLocation("textures/icon/bounce_body.png");
+    public static final ResourceLocation LEGS_ICON = BounceStyles.resourceLocation("textures/icon/bounce_legs.png");
+    public static final ResourceLocation FEET_ICON = BounceStyles.resourceLocation("textures/icon/bounce_feet.png");
+    public static final ResourceLocation PRESET_ICON = BounceStyles.resourceLocation("textures/icon/bounce_preset.png");
+
     public static final DataTicket<Player> PLAYER = new DataTicket<>("player_entity", Player.class);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this, true);
@@ -35,19 +40,19 @@ public class Style implements GeoAnimatable {
     private final @Nullable Map<String, RawAnimation> animationMap;
 
     private final int transitionTicks;
-    private final List<BounceStylesRegistries.Category> categories;
+    private final List<Category> categories;
     private final @Nullable List<String> hiddenParts;
     private final @Nullable List<String> credits;
 
-    public Style(ResourceLocation styleId, ResourceLocation modelId, ResourceLocation textureId, @Nullable ResourceLocation animationId, @Nullable Map<String, String> animationMap, List<BounceStylesRegistries.Category> categories) {
+    public Style(ResourceLocation styleId, ResourceLocation modelId, ResourceLocation textureId, @Nullable ResourceLocation animationId, @Nullable Map<String, String> animationMap, List<Category> categories) {
         this(styleId, modelId, textureId, null, animationId, animationMap, 1, null, categories, null);
     }
 
-    public Style(ResourceLocation styleId, ResourceLocation modelId, ResourceLocation textureId, @Nullable List<ResourceLocation> textureVariants, @Nullable ResourceLocation animationId, @Nullable Map<String, String> animationMap, int transitionTicks, List<BounceStylesRegistries.Category> categories) {
+    public Style(ResourceLocation styleId, ResourceLocation modelId, ResourceLocation textureId, @Nullable List<ResourceLocation> textureVariants, @Nullable ResourceLocation animationId, @Nullable Map<String, String> animationMap, int transitionTicks, List<Category> categories) {
         this(styleId, modelId, textureId, textureVariants, animationId, animationMap, transitionTicks, null, categories, null);
     }
 
-    public Style(ResourceLocation styleId, ResourceLocation modelId, ResourceLocation textureId, @Nullable List<ResourceLocation> textureVariants, @Nullable ResourceLocation animationId, @Nullable Map<String, String> animationMap, int transitionTicks, @Nullable List<String> hiddenParts, List<BounceStylesRegistries.Category> categories, @Nullable List<String> credits) {
+    public Style(ResourceLocation styleId, ResourceLocation modelId, ResourceLocation textureId, @Nullable List<ResourceLocation> textureVariants, @Nullable ResourceLocation animationId, @Nullable Map<String, String> animationMap, int transitionTicks, @Nullable List<String> hiddenParts, List<Category> categories, @Nullable List<String> credits) {
         this.styleId = styleId;
         this.modelId = modelId;
         this.textureId = textureId;
@@ -144,7 +149,7 @@ public class Style implements GeoAnimatable {
         return Optional.ofNullable(hiddenParts);
     }
 
-    public List<BounceStylesRegistries.Category> getCategories() {
+    public List<Category> getCategories() {
         return categories;
     }
 
@@ -188,7 +193,7 @@ public class Style implements GeoAnimatable {
         return animMap;
     }
 
-    private static Style decode(String styleName, Optional<ResourceLocation> modelId, Optional<ResourceLocation> textureId, Optional<List<ResourceLocation>> textureVariants, Optional<ResourceLocation> animationId, Optional<Map<String, String>> animationMap, Optional<Integer> transitionTicks, Optional<List<String>> hiddenParts, List<BounceStylesRegistries.Category> categories, Optional<List<String>> credits) {
+    private static Style decode(String styleName, Optional<ResourceLocation> modelId, Optional<ResourceLocation> textureId, Optional<List<ResourceLocation>> textureVariants, Optional<ResourceLocation> animationId, Optional<Map<String, String>> animationMap, Optional<Integer> transitionTicks, Optional<List<String>> hiddenParts, List<Category> categories, Optional<List<String>> credits) {
         var styleId = styleName.contains(":") ? new ResourceLocation(styleName) : BounceStyles.resourceLocation(styleName);
         if (textureVariants.isPresent()) {
             if (!textureVariants.get().isEmpty()) {
@@ -236,7 +241,8 @@ public class Style implements GeoAnimatable {
             Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("animations").forGetter(Style::getAnimationStringMap),
             Codec.INT.optionalFieldOf("transition_ticks").forGetter(style -> Optional.of(style.getTransitionTicks())),
             Codec.STRING.listOf().optionalFieldOf("hidden_parts").forGetter(Style::getHiddenParts),
-            BounceStylesRegistries.Category.CODEC.listOf().fieldOf("slots").forGetter(Style::getCategories),
+            Category.CODEC.listOf().fieldOf("slots").forGetter(Style::getCategories),
             Codec.STRING.listOf().optionalFieldOf("credits").forGetter(Style::getCredits)
     ).apply(instance, Style::decode));
+
 }

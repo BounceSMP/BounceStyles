@@ -1,5 +1,6 @@
 package dev.bsmp.bouncestyles.core.client.screen;
 
+import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.api.style.StylePreset;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
@@ -11,6 +12,7 @@ import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
 
 import java.util.Comparator;
 import java.util.List;
@@ -18,18 +20,20 @@ import java.util.concurrent.CompletableFuture;
 
 public class WardrobeScreen extends Screen {
     private static final ResourceLocation TEX_WIDGETS = BounceStyles.resourceLocation("textures/gui/widgets.png");
+    private static final ResourceLocation TEX_CATEGORY = BounceStyles.resourceLocation("textures/gui/selection_category.png");
+    private static final ResourceLocation TEX_ARMOR = BounceStyles.resourceLocation("textures/gui/selection_armor.png");
     WardrobePreviewWidget previewWidget;
-    WardrobeCategoryWidget categoryWidget;
+    IconSelectionButton categoryWidget;
 
     WardrobeStyleSelectionWidget styleWidget;
     WardrobePresetsWidget presetsWidget;
 
     WardrobeWidget activeWidget;
     ImageButton clearButton;
-    ImageButton armorVisibilityButton;
+    IconSelectionButton armorVisibilityButton;
 
     List<ResourceLocation> unlockedStyles;
-    BounceStylesRegistries.Category selectedCategory;
+    Category selectedCategory;
     int previewRight;
     int topBarHeight;
 
@@ -45,21 +49,28 @@ public class WardrobeScreen extends Screen {
         this.topBarHeight = height / 10;
 
         this.previewWidget = addRenderableWidget(new WardrobePreviewWidget(0, 0, previewRight, height, minecraft.player));
-        this.categoryWidget = addRenderableWidget(new WardrobeCategoryWidget(this, previewRight, 1, width - previewRight - 48, topBarHeight));
+        this.categoryWidget = addRenderableOnly(new IconSelectionButton(previewRight + 5, 2, 24, 24, TEX_CATEGORY, 96, 72, false, Component.literal("Category")));
+        for (Category category : Category.values()) {
+            if (category == Category.Preset) continue;
+            this.categoryWidget.addItem(Component.literal(category.name()), () -> this.setSelectedCategory(category));
+        }
 
         this.styleWidget = new WardrobeStyleSelectionWidget(previewRight, topBarHeight + 2, width - previewRight, height - topBarHeight);
         this.presetsWidget = new WardrobePresetsWidget(minecraft, this, previewRight, topBarHeight, width - previewRight, height - topBarHeight, 30, topBarHeight);
 
         int btnSize = topBarHeight;
-        this.clearButton = addRenderableWidget(new ScaledImageButton(Component.literal("Clear Equipped"), width - topBarHeight, 1, btnSize, btnSize, 98, 0, 24, 24, TEX_WIDGETS, button -> clearEquipped()));
-        this.armorVisibilityButton = addRenderableWidget(new ScaledImageButton(Component.literal("Toggle Armor Visibility"),width - (topBarHeight * 2), 1, btnSize, btnSize, 122, 0, 24, 24, TEX_WIDGETS, button -> toggleArmor()));
+        this.clearButton = addRenderableWidget(new ScaledImageButton(Component.literal("Clear Equipped"), width - topBarHeight, 2, btnSize, btnSize, 98, 0, 24, 24, TEX_WIDGETS, button -> clearEquipped()));
+        this.armorVisibilityButton = addRenderableOnly(new IconSelectionButton(width - 50, 2, 24, 24, TEX_ARMOR, 120, 72, true, Component.literal("Toggle Armor Visibility")));
+        for (EquipmentSlot slot : List.of(EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
+            this.armorVisibilityButton.addItem(Component.literal(slot.getName()), () -> this.toggleArmor(slot.getIndex()));
+        }
 
         if(this.activeWidget instanceof WardrobeStyleSelectionWidget)
             this.activeWidget = this.styleWidget;
         else if(this.activeWidget instanceof WardrobePresetsWidget)
             this.activeWidget = this.presetsWidget;
 
-        this.setSelectedCategory(this.selectedCategory != null ? this.selectedCategory : BounceStylesRegistries.Category.Head);
+        this.setSelectedCategory(this.selectedCategory != null ? this.selectedCategory : Category.Head);
     }
 
     @Override
@@ -105,7 +116,9 @@ public class WardrobeScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        this.activeWidget.mouseClicked(mouseX, mouseY, button);
+        if (!this.categoryWidget.mouseClicked(mouseX, mouseY, button))
+            if (!this.armorVisibilityButton.mouseClicked(mouseX, mouseY, button))
+                this.activeWidget.mouseClicked(mouseX, mouseY, button);
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
@@ -134,10 +147,10 @@ public class WardrobeScreen extends Screen {
             this.presetsWidget.refreshEntries();
     }
 
-    public void setSelectedCategory(BounceStylesRegistries.Category category) {
+    public void setSelectedCategory(Category category) {
         this.selectedCategory = category;
 
-        if (category == BounceStylesRegistries.Category.Preset)
+        if (category == Category.Preset)
             this.activeWidget = this.presetsWidget;
         else {
             CompletableFuture.supplyAsync(() -> BounceStylesRegistries.getAllStyles().stream()
@@ -160,13 +173,13 @@ public class WardrobeScreen extends Screen {
     }
 
     private void clearEquipped() {
-        new EquipStyleServerbound(BounceStylesRegistries.Category.Head).sendToServer();
-        new EquipStyleServerbound(BounceStylesRegistries.Category.Body).sendToServer();
-        new EquipStyleServerbound(BounceStylesRegistries.Category.Legs).sendToServer();
-        new EquipStyleServerbound(BounceStylesRegistries.Category.Feet).sendToServer();
+        new EquipStyleServerbound(Category.Head).sendToServer();
+        new EquipStyleServerbound(Category.Body).sendToServer();
+        new EquipStyleServerbound(Category.Legs).sendToServer();
+        new EquipStyleServerbound(Category.Feet).sendToServer();
     }
 
-    private void toggleArmor() {
-        new ToggleArmorVisibilityServerbound().sendToServer();
+    private void toggleArmor(int index) {
+        new ToggleArmorVisibilityServerbound(index).sendToServer();
     }
 }

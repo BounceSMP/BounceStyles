@@ -7,8 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
-import dev.bsmp.bouncestyles.core.BounceStylesRegistries.Category;
+import dev.bsmp.bouncestyles.api.style.Category;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -36,7 +35,7 @@ public class StyleSlotArgumentType implements ArgumentType<Category> {
         String name = reader.readUnquotedString();
 
         try {
-            return BounceStylesRegistries.Category.valueOf(name);
+            return Category.valueOf(name);
         } catch (IllegalArgumentException var4) {
             throw INVALID_ENUM.createWithContext(reader, name, Arrays.toString(Category.class.getEnumConstants()));
         }
@@ -44,7 +43,7 @@ public class StyleSlotArgumentType implements ArgumentType<Category> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        return SharedSuggestionProvider.suggest(Stream.of(Category.class.getEnumConstants()).filter(category -> category != BounceStylesRegistries.Category.Preset).map(Object::toString), builder);
+        return SharedSuggestionProvider.suggest(Stream.of(Category.class.getEnumConstants()).filter(category -> category != Category.Preset).map(Object::toString), builder);
     }
 
     public Collection<String> getExamples() {

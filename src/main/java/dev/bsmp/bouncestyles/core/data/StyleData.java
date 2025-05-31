@@ -3,21 +3,22 @@ package dev.bsmp.bouncestyles.core.data;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.api.style.StylePreset;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
-import dev.bsmp.bouncestyles.core.BounceStylesRegistries.Category;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
-import net.minecraft.nbt.*;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class StyleData {
     private @Nullable Pair<Style, Integer> headStyle;
@@ -25,20 +26,20 @@ public class StyleData {
     private @Nullable Pair<Style, Integer> legStyle;
     private @Nullable Pair<Style, Integer> feetStyle;
 
-    private boolean showArmor = true;
+    private boolean[] armorVisiblity;
     private List<String> hiddenParts = new ArrayList<>();
     private List<ResourceLocation> unlocks = new ArrayList<>();
 
     public StyleData(Optional<Pair<Style, Integer>> head, Optional<Pair<Style, Integer>> body, Optional<Pair<Style, Integer>> legs, Optional<Pair<Style, Integer>> feet) {
-        this(head, body, legs, feet, Optional.empty(), Optional.empty(), Optional.empty());
+        this(head, body, legs, feet, new boolean[] {true, true, true, true}, Optional.empty(), Optional.empty());
     }
 
-    public StyleData(Optional<Pair<Style, Integer>> head, Optional<Pair<Style, Integer>> body, Optional<Pair<Style, Integer>> legs, Optional<Pair<Style, Integer>> feet,  Optional<Boolean> armorVisible, Optional<List<String>> hiddenParts, Optional<List<ResourceLocation>> unlocks) {
+    public StyleData(Optional<Pair<Style, Integer>> head, Optional<Pair<Style, Integer>> body, Optional<Pair<Style, Integer>> legs, Optional<Pair<Style, Integer>> feet,  boolean[] armorVisibility, Optional<List<String>> hiddenParts, Optional<List<ResourceLocation>> unlocks) {
         head.ifPresent(pair -> this.setHeadStyle(pair.getFirst(), pair.getSecond()));
         body.ifPresent(pair -> this.setBodyStyle(pair.getFirst(), pair.getSecond()));
         legs.ifPresent(pair -> this.setLegStyle(pair.getFirst(), pair.getSecond()));
         feet.ifPresent(pair -> this.setFeetStyle(pair.getFirst(), pair.getSecond()));
-        this.setArmorVisibility(armorVisible.orElse(true));
+        this.armorVisiblity = armorVisibility;
         hiddenParts.ifPresent(list -> this.hiddenParts = new ArrayList<>(list));
         unlocks.ifPresent(list -> this.unlocks = new ArrayList<>(list));
     }
@@ -49,7 +50,7 @@ public class StyleData {
 
     public void setHeadStyle(Style headStyle, int textureVariant) {
         this.headStyle = Pair.of(headStyle, textureVariant);
-        updateVisibility(headStyle);
+        updatePartVisibility(headStyle);
     }
 
     public void setBodyStyle(Style bodyStyle) {
@@ -58,7 +59,7 @@ public class StyleData {
 
     public void setBodyStyle(Style bodyStyle, int textureVariant) {
         this.bodyStyle = Pair.of(bodyStyle, textureVariant);
-        updateVisibility(bodyStyle);
+        updatePartVisibility(bodyStyle);
     }
 
     public void setLegStyle(Style legStyle) {
@@ -67,7 +68,7 @@ public class StyleData {
 
     public void setLegStyle(Style legStyle, int textureVariant) {
         this.legStyle = Pair.of(legStyle, textureVariant);
-        updateVisibility(legStyle);
+        updatePartVisibility(legStyle);
     }
 
     public void setFeetStyle(Style feetStyle) {
@@ -76,18 +77,30 @@ public class StyleData {
 
     public void setFeetStyle(Style feetStyle, int textureVariant) {
         this.feetStyle = Pair.of(feetStyle, textureVariant);
-        updateVisibility(feetStyle);
+        updatePartVisibility(feetStyle);
     }
 
-    public void setArmorVisibility(boolean showArmor) {
-        this.showArmor = showArmor;
+    public void setArmorVisiblity(EquipmentSlot slot, boolean showArmor) {
+        if (!slot.isArmor()) return;
+        this.setArmorVisibility(slot.getIndex(), showArmor);
     }
 
-    public void toggleArmorVisibility() {
-        this.showArmor = !this.showArmor;
+    public void setArmorVisibility(int index, boolean showArmor) {
+        if (index >= this.armorVisiblity.length) return;
+        this.armorVisiblity[index] = showArmor;
     }
 
-    private void updateVisibility(Style style) {
+    public void toggleArmorVisibility(EquipmentSlot slot) {
+        if (!slot.isArmor()) return;
+        this.toggleArmorVisibility(slot.getIndex());
+    }
+
+    public void toggleArmorVisibility(int index) {
+        if (index >= this.armorVisiblity.length) return;
+        this.armorVisiblity[index] = !this.armorVisiblity[index];
+    }
+
+    private void updatePartVisibility(Style style) {
         if(style == null || style.getHiddenParts().isEmpty())
             return;
         for(String s : style.getHiddenParts().get()) {
@@ -112,8 +125,26 @@ public class StyleData {
         return Optional.ofNullable(this.feetStyle);
     }
 
-    public boolean isArmorVisible() {
-        return this.showArmor;
+    public boolean[] getArmorVisiblity() {
+        return this.armorVisiblity;
+    }
+
+    private List<Pair<Integer, Boolean>> getArmorVisibilty() {
+        List<Pair<Integer, Boolean>> map = new ArrayList<>();
+        for (int i = 0; i < this.armorVisiblity.length; i++) {
+            map.add(Pair.of(i, this.armorVisiblity[i]));
+        }
+        return map;
+    }
+
+    public boolean isArmorVisible(EquipmentSlot slot) {
+        if (!slot.isArmor()) return true;
+        return isArmorVisible(slot.getIndex());
+    }
+
+    public boolean isArmorVisible(int index) {
+        if (index >= this.armorVisiblity.length) return true;
+        return this.armorVisiblity[index];
     }
 
     public List<String> getHiddenParts() {
@@ -229,12 +260,18 @@ public class StyleData {
         StyleData.setPlayerData(newPlayer, styleData);
     }
 
-    private static StyleData decode(Optional<Pair<ResourceLocation, Integer>> head, Optional<Pair<ResourceLocation, Integer>> body, Optional<Pair<ResourceLocation, Integer>> legs, Optional<Pair<ResourceLocation, Integer>> feet, Optional<Boolean> armorVisible) {
-        return decode(head, body, legs, feet, armorVisible, Optional.empty(), Optional.empty());
+    private static StyleData decode(Optional<Pair<ResourceLocation, Integer>> head, Optional<Pair<ResourceLocation, Integer>> body, Optional<Pair<ResourceLocation, Integer>> legs, Optional<Pair<ResourceLocation, Integer>> feet, Optional<List<Pair<Integer, Boolean>>> armorVisibility) {
+        return decode(head, body, legs, feet, armorVisibility, Optional.empty(), Optional.empty());
     }
 
-    private static StyleData decode(Optional<Pair<ResourceLocation, Integer>> head, Optional<Pair<ResourceLocation, Integer>> body, Optional<Pair<ResourceLocation, Integer>> legs, Optional<Pair<ResourceLocation, Integer>> feet, Optional<Boolean> armorVisible, Optional<List<String>> hiddenParts, Optional<List<ResourceLocation>> unlocks) {
-        return new StyleData(idToStyle(head), idToStyle(body), idToStyle(legs), idToStyle(feet), armorVisible, hiddenParts, unlocks);
+    private static StyleData decode(Optional<Pair<ResourceLocation, Integer>> head, Optional<Pair<ResourceLocation, Integer>> body, Optional<Pair<ResourceLocation, Integer>> legs, Optional<Pair<ResourceLocation, Integer>> feet, Optional<List<Pair<Integer, Boolean>>> armorVisibility, Optional<List<String>> hiddenParts, Optional<List<ResourceLocation>> unlocks) {
+        return new StyleData(idToStyle(head), idToStyle(body), idToStyle(legs), idToStyle(feet), decodeArmorVisibility(armorVisibility), hiddenParts, unlocks);
+    }
+
+    private static boolean[] decodeArmorVisibility(Optional<List<Pair<Integer, Boolean>>> armorVisibility) {
+        boolean[] array = new boolean[4];
+        armorVisibility.ifPresent(list -> list.forEach(pair -> array[pair.getFirst()] = pair.getSecond()));
+        return array;
     }
 
     private static Optional<Pair<Style, Integer>> idToStyle(Optional<Pair<ResourceLocation, Integer>> slot) {
@@ -254,7 +291,7 @@ public class StyleData {
             CODEC_PAIR.optionalFieldOf("body").forGetter(styleData -> getIdIntPair(styleData, Category.Body)),
             CODEC_PAIR.optionalFieldOf("legs").forGetter(styleData -> getIdIntPair(styleData, Category.Legs)),
             CODEC_PAIR.optionalFieldOf("feet").forGetter(styleData -> getIdIntPair(styleData, Category.Feet)),
-            Codec.BOOL.optionalFieldOf("show_armor").forGetter(styleData -> Optional.of(styleData.isArmorVisible())),
+            Codec.pair(Codec.INT.fieldOf("index").codec(), Codec.BOOL.fieldOf("value").codec()).listOf().optionalFieldOf("armor_visibility").forGetter(styleData -> Optional.of(styleData.getArmorVisibilty())),
             Codec.STRING.listOf().optionalFieldOf("hidden_parts").forGetter(styleData -> Optional.of(styleData.getHiddenParts())),
             ResourceLocation.CODEC.listOf().optionalFieldOf("unlocks").forGetter(styleData -> Optional.of(styleData.unlocks))
     ).apply(instance, StyleData::decode));
@@ -264,7 +301,7 @@ public class StyleData {
             CODEC_PAIR.optionalFieldOf("body").forGetter(styleData -> getIdIntPair(styleData, Category.Body)),
             CODEC_PAIR.optionalFieldOf("legs").forGetter(styleData -> getIdIntPair(styleData, Category.Legs)),
             CODEC_PAIR.optionalFieldOf("feet").forGetter(styleData -> getIdIntPair(styleData, Category.Feet)),
-            Codec.BOOL.optionalFieldOf("show_armor").forGetter(styleData -> Optional.of(styleData.isArmorVisible()))
+            Codec.pair(Codec.INT.fieldOf("index").codec(), Codec.BOOL.fieldOf("value").codec()).listOf().optionalFieldOf("armor_visibility").forGetter(styleData -> Optional.of(styleData.getArmorVisibilty()))
     ).apply(instance, StyleData::decode));
 
     private static Optional<Pair<ResourceLocation, Integer>> getIdIntPair(StyleData styleData, Category slot) {

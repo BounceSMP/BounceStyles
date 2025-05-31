@@ -3,9 +3,9 @@ package dev.bsmp.bouncestyles.core.client.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Pair;
+import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -50,22 +50,22 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
         poseStack.scale(-1.005F, -1.0F, 1.005F);
         poseStack.pushPose();
 
-        renderStyle(poseStack, styleData.getHeadStyle(), BounceStylesRegistries.Category.Head, vertexConsumers, headYaw, partialTick, light, false);
-        renderStyle(poseStack, styleData.getBodyStyle(), BounceStylesRegistries.Category.Body, vertexConsumers, headYaw, partialTick, light, false);
-        renderStyle(poseStack, styleData.getLegStyle(), BounceStylesRegistries.Category.Legs, vertexConsumers, headYaw, partialTick, light, false);
-        renderStyle(poseStack, styleData.getFeetStyle(), BounceStylesRegistries.Category.Feet, vertexConsumers, headYaw, partialTick, light, false);
+        renderStyle(poseStack, styleData.getHeadStyle(), Category.Head, vertexConsumers, headYaw, partialTick, light, false);
+        renderStyle(poseStack, styleData.getBodyStyle(), Category.Body, vertexConsumers, headYaw, partialTick, light, false);
+        renderStyle(poseStack, styleData.getLegStyle(), Category.Legs, vertexConsumers, headYaw, partialTick, light, false);
+        renderStyle(poseStack, styleData.getFeetStyle(), Category.Feet, vertexConsumers, headYaw, partialTick, light, false);
 
         poseStack.popPose();
         poseStack.scale(-1.005F, -1.0F, 1.005F);
         poseStack.translate(0.0D, -1.497F, 0.0D);
     }
 
-    public void renderStyle(PoseStack poseStack, Optional<Pair<Style, Integer>> equippedStyle, BounceStylesRegistries.Category category, MultiBufferSource vertexConsumers, float headYaw, float partialTick, int light, boolean isGui) {
+    public void renderStyle(PoseStack poseStack, Optional<Pair<Style, Integer>> equippedStyle, Category category, MultiBufferSource vertexConsumers, float headYaw, float partialTick, int light, boolean isGui) {
         if (equippedStyle.isEmpty()) return;
         renderStyle(poseStack, equippedStyle.get().getFirst(), equippedStyle.get().getSecond(), category, vertexConsumers, headYaw, partialTick, light, isGui);
     }
 
-    public void renderStyle(PoseStack poseStack, Style style, int textureId, BounceStylesRegistries.Category category, MultiBufferSource vertexConsumers, float headYaw, float partialTick, int light, boolean isGui) {
+    public void renderStyle(PoseStack poseStack, Style style, int textureId, Category category, MultiBufferSource vertexConsumers, float headYaw, float partialTick, int light, boolean isGui) {
         ResourceLocation texture = style.getTextureId();
         if (textureId >= 0 && style.getTextureVariants().isPresent()) {
             var textures = style.getTextureVariants().get();
@@ -98,7 +98,7 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
         GeoRenderer.super.actuallyRender(poseStack, style, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
     }
 
-    private void fit(PoseStack poseStack, BakedGeoModel model, BounceStylesRegistries.Category category, boolean gui) {
+    private void fit(PoseStack poseStack, BakedGeoModel model, Category category, boolean gui) {
         setBoneVisibility(headBone, model, false);
         setBoneVisibility(bodyBone, model, false);
         setBoneVisibility(rightArmBone, model, false);

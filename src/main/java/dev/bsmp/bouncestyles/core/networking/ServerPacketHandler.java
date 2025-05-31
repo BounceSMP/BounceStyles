@@ -45,7 +45,7 @@ public class ServerPacketHandler {
 
         ctx.queue(() -> {
             StyleData styleData = StyleData.getOrCreateStyleData(player);
-            styleData.toggleArmorVisibility();
+            styleData.toggleArmorVisibility(packet.index());
 
             SyncStyleDataClientbound outPacket = new SyncStyleDataClientbound(player.getId(), styleData);
             outPacket.sendToPlayer(player);

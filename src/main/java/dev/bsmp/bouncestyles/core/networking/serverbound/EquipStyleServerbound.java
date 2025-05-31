@@ -2,7 +2,7 @@ package dev.bsmp.bouncestyles.core.networking.serverbound;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
-import dev.bsmp.bouncestyles.core.BounceStylesRegistries.Category;
+import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.core.networking.StylePacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;

@@ -1,7 +1,7 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
 import dev.bsmp.bouncestyles.api.style.Style;
-import dev.bsmp.bouncestyles.core.BounceStylesRegistries.Category;
+import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
 import net.minecraft.client.Minecraft;
@@ -28,7 +28,7 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
     @Override
     public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
         if (this.popup != null) {
-            context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x99000000);
+//            context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x99000000);
             this.popup.renderWidget(context, mouseX, mouseY, partialTick);
         }
         else
@@ -40,7 +40,7 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
         Style style = button.getStyle();
         if (style.getTextureVariants().isPresent()) {
             int popupWidth = this.width - 10;
-            int popupHeight = this.height - (this.height / 6);
+            int popupHeight = this.height - 10;
             int popupX = getX() + (this.width / 2) - (popupWidth / 2);
             int popupY = getY() + (this.height / 2) - (popupHeight / 2);
             this.popup = new SelectionPopup(this, this.category, style, popupX, popupY, popupWidth, popupHeight);

@@ -6,7 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.BounceStylesRegistries.Category;
+import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -250,7 +250,7 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
         }
 
         public void renderTooltip(GuiGraphics poseStack, int mouseX, int mouseY) {
-            WardrobeWidget.drawTooltipStatic(poseStack, Minecraft.getInstance().font, this.tooltip, mouseX + 3, mouseY, parentWidget.getX() + parentWidget.width);
+            WardrobeWidget.drawTooltipStatic(poseStack, Minecraft.getInstance().font, this.tooltip, mouseX + 3, mouseY);
         }
 
         private int getYOffset() {

@@ -29,6 +29,6 @@ public class ScaledImageButton extends ImageButton implements WardrobeWidget {
     }
 
     public void renderTooltip(GuiGraphics poseStack, int mouseX, int mouseY) {
-        drawTooltip(poseStack, Minecraft.getInstance().font, getMessage(), mouseX, mouseY, Minecraft.getInstance().getWindow().getGuiScaledWidth());
+        drawTooltip(poseStack, Minecraft.getInstance().font, getMessage(), mouseX, mouseY);
     }
 }

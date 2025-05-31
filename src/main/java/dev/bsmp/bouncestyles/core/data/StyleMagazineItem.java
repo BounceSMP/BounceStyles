@@ -1,5 +1,6 @@
 package dev.bsmp.bouncestyles.core.data;
 
+import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
@@ -34,7 +35,7 @@ public class StyleMagazineItem extends Item {
 
         BounceStylesRegistries.getStyle(styleId).ifPresent(style -> {
             tooltip.add(Component.literal("Issue #" + nbt.getInt("issue")).withStyle(textStyle -> textStyle.withColor(ChatFormatting.GRAY).withItalic(true).withUnderlined(true)));
-            for(BounceStylesRegistries.Category category : style.getCategories()) {
+            for(Category category : style.getCategories()) {
                 tooltip.add(Component.literal("- ").append(Component.translatable(style.getStyleId().getNamespace()+"."+style.getStyleId().getPath()+"."+category.name().toLowerCase())).withStyle(
                         textStyle -> textStyle.withColor(ChatFormatting.GRAY))
                 );
