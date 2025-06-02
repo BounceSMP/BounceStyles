@@ -89,7 +89,7 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
         }
     }
 
-    protected abstract void onSelectionClicked(StyleButton button);
+    protected abstract void onSelectionClicked(StyleButton button, int mouseButton);
     protected abstract void updateButtons();
 
     protected void updateVisibleButtons() {
@@ -233,8 +233,13 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
         }
 
         @Override
-        public void onPress() {
-            this.parentWidget.onSelectionClicked(this);
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            if (this.active && this.visible && this.clicked(mouseX, mouseY)) {
+                this.playDownSound(Minecraft.getInstance().getSoundManager());
+                this.parentWidget.onSelectionClicked(this, button);
+                return true;
+            }
+            return false;
         }
 
         public Style getStyle() {

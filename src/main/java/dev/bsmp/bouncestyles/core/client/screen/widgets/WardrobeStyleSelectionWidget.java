@@ -28,7 +28,6 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
     @Override
     public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
         if (this.popup != null) {
-//            context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x99000000);
             this.popup.renderWidget(context, mouseX, mouseY, partialTick);
         }
         else
@@ -36,9 +35,9 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
     }
 
     @Override
-    protected void onSelectionClicked(StyleButton button) {
+    protected void onSelectionClicked(StyleButton button, int mouseButton) {
         Style style = button.getStyle();
-        if (style.getTextureVariants().isPresent()) {
+        if (style.getTextureVariants().isPresent() && mouseButton != 1) {
             int popupWidth = this.width - 10;
             int popupHeight = this.height - 10;
             int popupX = getX() + (this.width / 2) - (popupWidth / 2);
@@ -46,7 +45,7 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
             this.popup = new SelectionPopup(this, this.category, style, popupX, popupY, popupWidth, popupHeight);
         }
         else {
-            if (this.selectedStyleButton == button) {
+            if (this.selectedStyleButton == button || mouseButton == 1) {
                 new EquipStyleServerbound(this.category).sendToServer();
                 this.selectedStyleButton = null;
             } else {
@@ -103,7 +102,7 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
         if (!this.active || !this.visible) {
             return false;
         }
-        if (this.isValidClickButton(mouseButton) && this.clicked(mouseX, mouseY)) {
+        if (this.clicked(mouseX, mouseY)) {
             if (this.popup != null)
                 return this.popup.mouseClicked(mouseX, mouseY, mouseButton);
             else
@@ -146,7 +145,7 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
         }
 
         @Override
-        protected void onSelectionClicked(StyleButton button) {
+        protected void onSelectionClicked(StyleButton button, int mouseButton) {
             if (this.selectedStyleButton == button) {
                 new EquipStyleServerbound(this.category).sendToServer();
                 this.selectedStyleButton = null;
