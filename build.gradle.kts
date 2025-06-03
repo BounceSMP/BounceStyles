@@ -31,7 +31,7 @@ repositories {
     maven("https://maven.neoforged.net/releases/")
     maven("https://maven.architectury.dev/")
     maven("https://modmaven.dev/")
-    maven("https://panel.ryuutech.com/nexus/repository/maven-releases/")
+//    maven("https://panel.ryuutech.com/nexus/repository/maven-releases/")
     maven {
         name = "GeckoLib"
         url = uri("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/")
@@ -39,6 +39,18 @@ repositories {
             includeGroupByRegex("software\\.bernie.*")
             includeGroup("com.eliotlash.mclib")
         }
+    }
+    maven {
+        name = "Illusive Soulworks maven"
+        url = uri("https://maven.theillusivec4.top/")
+    }
+    maven {
+        name = "TerraformersMC"
+        url = uri("https://maven.terraformersmc.com/")
+    }
+    maven {
+        name = "Ladysnake Libs"
+        url = uri("https://maven.ladysnake.org/releases/")
     }
 }
 
@@ -193,6 +205,11 @@ enum class DepType {
     },
     // Implementation
     IMPL,
+    IMPL_OPTIONAL {
+        override fun isOptional(): Boolean {
+            return true
+        }
+    },
     // Forge Runtime Library
     FRL{
         override fun includeInDepsList(): Boolean {
@@ -232,7 +249,6 @@ class APISource(val type: DepType, val modInfo: APIModInfo, val mavenLocation: S
 /**
  * APIs with hardcoded support for convenience. These are optional.
  */
-//TODO add any hardcoded apis here. Hardcoded APIs should be used in most if not all your versions.
 val apis = arrayListOf(
     APISource(DepType.API, APIModInfo(if(env.atMost("1.16.5")) "fabric" else "fabric-api","fabric-api"), "net.fabricmc.fabric-api:fabric-api",optionalVersionProperty("deps.api.fabric")) { src ->
         src.versionRange.isPresent && env.isFabric
@@ -246,6 +262,16 @@ val apis = arrayListOf(
         optionalVersionProperty("deps.api.geckolib"))
     { src ->
         src.versionRange.isPresent
+    },
+    APISource(DepType.IMPL_OPTIONAL, APIModInfo("curios", "curios"), "top.theillusivec4.curios:curios-${env.loader}",
+        optionalVersionProperty("deps.api.curios"))
+    { src ->
+        src.versionRange.isPresent && !env.isFabric
+    },
+    APISource(DepType.IMPL_OPTIONAL, APIModInfo("trinkets", "trinkets"), "dev.emi:trinkets",
+        optionalVersionProperty("deps.api.trinkets"))
+    { src ->
+        src.versionRange.isPresent && env.isFabric
     }
 )
 
@@ -536,7 +562,7 @@ dependencies {
                 if(src.type == DepType.API || src.type == DepType.API_OPTIONAL) {
                     modApi("${src.mavenLocation}:${ver.min}")
                 }
-                if(src.type == DepType.IMPL) {
+                if(src.type == DepType.IMPL || src.type == DepType.IMPL_OPTIONAL) {
                     modImplementation("${src.mavenLocation}:${ver.min}")
                 }
                 if(src.type == DepType.FRL && env.isForge){
