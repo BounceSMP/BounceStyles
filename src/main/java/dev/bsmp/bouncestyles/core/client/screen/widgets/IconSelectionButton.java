@@ -3,33 +3,40 @@ package dev.bsmp.bouncestyles.core.client.screen.widgets;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class IconSelectionButton extends ImageButton implements WardrobeWidget {
+public class IconSelectionButton extends Button implements WardrobeWidget {
     private final List<Pair<Component, Runnable>> items = new ArrayList<>();
     private final boolean staticIcon;
     private int selectedIndex = 0;
     private boolean expanded = false;
 
+    private final ResourceLocation texture;
+    private final int textureWidth, textureHeight;
+
     public IconSelectionButton(int x, int y, int width, int height, ResourceLocation resourceLocation, int textureWidth, int textureHeight, boolean staticIcon, Component message) {
-        super(x, y, width, height, 0, 0, height, resourceLocation, textureWidth, textureHeight, null, message);
+        super(x, y, width, height, message, null, supplier -> Component.empty());
+
         this.staticIcon = staticIcon;
+        this.texture = resourceLocation;
+        this.textureWidth = textureWidth;
+        this.textureHeight = textureHeight;
     }
 
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         int hoverIndex = (mouseY - this.getY()) / this.height;
-        guiGraphics.blit(resourceLocation, getX(), getY(), this.staticIcon ? 0 : this.selectedIndex * width, (this.isMouseOver(mouseX, mouseY) && hoverIndex == 0) ? height : this.expanded ? 2 * height : 0, width, height, textureWidth, textureHeight);
+        guiGraphics.blit(this.texture, getX(), getY(), this.staticIcon ? 0 : this.selectedIndex * width, (this.isMouseOver(mouseX, mouseY) && hoverIndex == 0) ? height : this.expanded ? 2 * height : 0, width, height, textureWidth, textureHeight);
 
         if (this.expanded) {
             int startY = getY() + height;
             for (int i = 0; i < this.items.size(); i++) {
-                guiGraphics.blit(resourceLocation, getX(), startY + (i * height), (this.staticIcon ? (i + 1) : i) * width, (this.isMouseOver(mouseX, mouseY) && hoverIndex == i + 1) ? height : 0, width, height, textureWidth, textureHeight);
+                guiGraphics.blit(this.texture, getX(), startY + (i * height), (this.staticIcon ? (i + 1) : i) * width, (this.isMouseOver(mouseX, mouseY) && hoverIndex == i + 1) ? height : 0, width, height, textureWidth, textureHeight);
             }
         }
 

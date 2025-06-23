@@ -14,7 +14,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
@@ -28,18 +27,30 @@ import java.util.Map;
 
 public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresetsWidget.PresetEntry> implements WardrobeWidget {
     private static final ResourceLocation TEX_WIDGETS = BounceStyles.resourceLocation("textures/gui/widgets.png");
+    private static final ResourceLocation TEX_BTN_DELETE = BounceStyles.resourceLocation("textures/gui/btn_delete.png");
+    private static final ResourceLocation TEX_BTN_DELETE_HOVER = BounceStyles.resourceLocation("textures/gui/btn_delete_hover.png");
+    private static final ResourceLocation TEX_BTN_CREATE = BounceStyles.resourceLocation("textures/gui/btn_create.png");
+    private static final ResourceLocation TEX_BTN_CREATE_HOVER = BounceStyles.resourceLocation("textures/gui/btn_create_hover.png");
 
     private final WardrobeScreen parentScreen;
-    private final ScaledImageButton createPresetButton;
+    private final WardrobeIconButton createPresetButton;
     public EditBox presetNameEntry;
 
     boolean namingPreset;
     public boolean needsRefreshing;
 
     public WardrobePresetsWidget(Minecraft minecraft, WardrobeScreen parentScreen, int x, int y, int width, int height, int itemHeight, int buttonSize) {
-        super(minecraft, width, height, y, y + height, itemHeight);
+        //? if <= 1.20.1 {
+        /*super(minecraft, width, height, y, y + height, itemHeight);
         this.x0 = x;
         this.x1 = x + width;
+
+        setRenderBackground(false);
+        setRenderTopAndBottom(false);
+        *///?} else if >= 1.21.1 {
+        super(minecraft, width, height, y, itemHeight);
+        this.setX(x);
+        //?}
 
         this.parentScreen = parentScreen;
 
@@ -47,16 +58,15 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
         this.presetNameEntry.visible = false;
         this.presetNameEntry.active = false;
 
-        this.createPresetButton = new ScaledImageButton(Component.empty(), x + 5, y + height - buttonSize - 5, buttonSize, buttonSize, 74, 0, 24, 24, TEX_WIDGETS, button -> {
-            if(!this.namingPreset) {
+        this.createPresetButton = new WardrobeIconButton(x + 5, y + height - buttonSize - 5, buttonSize, buttonSize, TEX_BTN_CREATE, TEX_BTN_CREATE_HOVER, button -> {
+            if (!this.namingPreset) {
                 this.presetNameEntry.visible = true;
                 this.presetNameEntry.active = true;
-            }
-            else {
+            } else {
                 this.presetNameEntry.visible = false;
                 this.presetNameEntry.active = false;
                 String name = this.presetNameEntry.getValue();
-                if(!name.isBlank()) {
+                if (!name.isBlank()) {
                     BounceStylesRegistries.createPreset(StyleData.getOrCreateStyleData(minecraft.player), name);
                     refreshEntries();
                 }
@@ -65,25 +75,34 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
             this.namingPreset = !this.namingPreset;
         });
 
-        setRenderBackground(false);
-        setRenderTopAndBottom(false);
         refreshEntries();
     }
 
     public void refreshEntries() {
         this.needsRefreshing = false;
         clearEntries();
-        for(StylePreset preset : this.parentScreen.requestPresets()) {
+        for (StylePreset preset : this.parentScreen.requestPresets()) {
             addEntry(new PresetEntry(this, preset));
         }
     }
 
+    //? if <= 1.20.1 {
+    /*@Override
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        renderPresetList(guiGraphics, mouseX, mouseY, partialTick);
+    }
+    *///?} else if >= 1.21.1 {
     @Override
-    public void render(GuiGraphics poseStack, int mouseX, int mouseY, float partialTick) {
-        super.render(poseStack, mouseX, mouseY, partialTick);
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+        renderPresetList(guiGraphics, mouseX, mouseY, partialTick);
+    }
+    //?}
 
-        this.presetNameEntry.render(poseStack, mouseX, mouseY, partialTick);
-        this.createPresetButton.render(poseStack, mouseX, mouseY, partialTick);
+    private void renderPresetList(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        this.presetNameEntry.render(guiGraphics, mouseX, mouseY, partialTick);
+        this.createPresetButton.render(guiGraphics, mouseX, mouseY, partialTick);
         if(this.createPresetButton.isMouseOver(mouseX, mouseY)) {
             String s = "Create Preset";
             if (this.namingPreset) {
@@ -93,7 +112,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
                     s = "Save";
             }
 
-            drawTooltip(poseStack, Minecraft.getInstance().font, Component.literal(s), mouseX, mouseY);
+            drawTooltip(guiGraphics, Minecraft.getInstance().font, Component.literal(s), mouseX, mouseY);
         }
     }
 
@@ -121,12 +140,20 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
 
     @Override
     protected int getScrollbarPosition() {
-        return this.x1 - 5;
+        //? if <= 1.20.1 {
+        /*return this.x1 - 5;
+        *///?} else if >= 1.21.1 {
+        return this.getX() + this.getWidth() - 5;
+        //?}
     }
 
     @Override
     public int getRowLeft() {
-        return this.x0 + 5;
+        //? if <= 1.20.1 {
+        /*return this.x0 + 5;
+        *///?} else if >= 1.21.1 {
+        return this.getX() + 5;
+        //?}
     }
 
     @Override
@@ -138,14 +165,14 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
         private static List<FormattedCharSequence> tooltipLines;
         WardrobePresetsWidget parentWidget;
         StylePreset preset;
-        ImageButton deleteButton;
+        WardrobeIconButton deleteButton;
 
         boolean isHovered = false;
 
         public PresetEntry(WardrobePresetsWidget parentWidget, StylePreset preset) {
             this.parentWidget = parentWidget;
             this.preset = preset;
-            this.deleteButton = new ImageButton(0,0,24,24,50,0, TEX_WIDGETS, button -> {
+            this.deleteButton = new WardrobeIconButton(0,0, 24,24, TEX_BTN_DELETE, TEX_BTN_DELETE_HOVER, button -> {
                 StyleLoader.removePreset(this.preset.presetId());
                 this.parentWidget.needsRefreshing = true;
             });
@@ -211,6 +238,11 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
         }
     }
 
-    @Override
+    //? if <= 1.20.1 {
+    /*@Override
     public void updateNarration(NarrationElementOutput narrationElementOutput) {}
+    *///?} else if >= 1.21.1 {
+    @Override
+    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {}
+    //?}
 }

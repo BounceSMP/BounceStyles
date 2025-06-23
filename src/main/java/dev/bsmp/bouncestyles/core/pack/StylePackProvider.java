@@ -6,19 +6,21 @@ import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.StyleLoader;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.packs.FilePackResources;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
+import net.minecraft.server.packs.repository.FolderRepositorySource;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.repository.RepositorySource;
+import net.minecraft.world.level.validation.DirectoryValidator;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class StylePackProvider implements RepositorySource {
@@ -28,30 +30,64 @@ public class StylePackProvider implements RepositorySource {
     @Override
     public void loadPacks(Consumer<Pack> profileAdder) {
         BounceStyles.LOGGER.info("Loading Style Packs...");
-        File[] files;
-        if ((files = StyleLoader.getStylesDirectory().listFiles(filter)) == null) return;
-
         PackType packType = Platform.getEnvironment() == Env.CLIENT ? PackType.CLIENT_RESOURCES : PackType.SERVER_DATA;
         List<Pack> profiles = new ArrayList<>();
-        for(File file : files) {
-            Pack.ResourcesSupplier factory = (name) -> file.isDirectory() ? new PathPackResources(file.getName(), file.toPath(), false) : new FilePackResources(file.getName(), file, false);
-            Pack profile = Pack.readMetaAndCreate(
-                    BounceStyles.modId + ":" + file.getName(),
-                    Component.literal("Styles Packs"),
-                    true,
-                    factory,
-                    packType,
-                    Pack.Position.BOTTOM,
-                    PackSource.DEFAULT
-            );
-            if(profile == null) continue;
-            profiles.add(profile);
+        try {
+            //? if <= 1.20.1 {
+            /*boolean secondArg = false;
+            *///?} else if >= 1.21.1 {
+            DirectoryValidator secondArg = new DirectoryValidator(path -> filter.accept(path.toFile()));
+            //?}
+            FolderRepositorySource.discoverPacks(StyleLoader.getStylesDirectory().toPath(), secondArg, (path, resourcesSupplier) -> {
+                //? if <= 1.20.1 {
+                /*Pack profile = Pack.readMetaAndCreate(
+                        BounceStyles.modId + ":" + path.toFile().getName(),
+                        Component.literal("Styles Packs"),
+                        true,
+                        resourcesSupplier,
+                        packType,
+                        Pack.Position.BOTTOM,
+                        PackSource.DEFAULT
+                );
+                *///?} else if >= 1.21.1 {
+                Pack profile = Pack.readMetaAndCreate(
+                        new net.minecraft.server.packs.PackLocationInfo(path.toFile().getName(), Component.empty(), PackSource.DEFAULT, Optional.empty()),
+                        resourcesSupplier,
+                        packType,
+                        new net.minecraft.server.packs.PackSelectionConfig(true, Pack.Position.BOTTOM, false)
+                );
+                //?}
+
+                if (profile != null) profiles.add(profile);
+            });
+        } catch (IOException e) {
+            BounceStyles.LOGGER.error("Exception Occurred trying to read Style Packs", e);
         }
 
         int version = SharedConstants.getCurrentVersion().getPackVersion(packType);
         List<PackResources> packs = profiles.stream().map(Pack::open).toList();
-        PackMetadataSection metadata = new PackMetadataSection(Component.translatable(BounceStyles.modId + ".resources.styles"), version);
-        Pack mergedProfile = Pack.readMetaAndCreate("Styles", Component.literal("Style Packs"), true, (name) -> new StylesResourcePack(StyleLoader.getStylesDirectory(), packs, metadata), packType, Pack.Position.BOTTOM, PackSource.DEFAULT);
+
+        //? if <= 1.20.1 {
+        /*PackMetadataSection metadata = new PackMetadataSection(Component.translatable(BounceStyles.modId + ".resources.styles"), version);
+        Pack mergedProfile = Pack.readMetaAndCreate(
+                "Styles",
+                Component.literal("Style Packs"),
+                true,
+                new StylesResourcePack(StyleLoader.getStylesDirectory(), packs, metadata),
+                packType,
+                Pack.Position.BOTTOM,
+                PackSource.DEFAULT
+        );
+        *///?} else if >= 1.21.1 {
+        PackMetadataSection metadata = new PackMetadataSection(Component.translatable(BounceStyles.modId + ".resources.styles"), version, Optional.empty());
+        Pack mergedProfile = Pack.readMetaAndCreate(
+                new net.minecraft.server.packs.PackLocationInfo("style_packs", Component.literal("Style Packs"), PackSource.DEFAULT, Optional.empty()),
+                new StylesResourcePack(StyleLoader.getStylesDirectory(), packs, metadata),
+                packType,
+                new net.minecraft.server.packs.PackSelectionConfig(true, Pack.Position.BOTTOM, false)
+        );
+        //?}
+
         if(mergedProfile != null) profileAdder.accept(mergedProfile);
     }
 }

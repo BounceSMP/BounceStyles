@@ -117,12 +117,21 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
         button.setPosition(this.left + (col * (buttonSize + margin)), this.top + (row * (buttonSize + margin)));
     }
 
-    @Override
+    //? if <= 1.20.1 {
+    /*@Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         this.scroll = Math.min(Math.max(this.scroll - (int) delta, 0), getTotalRows() - this.rows);
         this.updateVisible = true;
         return true;
     }
+    *///?} else if >= 1.21.1 {
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        this.scroll = Math.min(Math.max(this.scroll - (int) scrollY, 0), getTotalRows() - this.rows);
+        this.updateVisible = true;
+        return true;
+    }
+    //?}
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
@@ -187,9 +196,9 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
                 );
             }
 
-            PoseStack poseStack = RenderSystem.getModelViewStack();
-            poseStack.pushPose();
-            poseStack.translate(getX() + (this.width / 2), getY() + this.height, 1050.0);
+            var poseStack = RenderSystem.getModelViewStack();
+            /*? if <= 1.20.1 {*/  /*poseStack.pushPose();  *//*?} else if >= 1.21.1 {*/ poseStack.pushMatrix(); /*?}*/
+            poseStack.translate(getX() + (this.width / 2), getY() + this.height, 1050);
             poseStack.scale(1.0f, 1.0f, -1.0f);
             RenderSystem.applyModelViewMatrix();
             PoseStack poseStack2 = new PoseStack();
@@ -224,7 +233,7 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
                     true
             );
             bufferSource.endBatch();
-            poseStack.popPose();
+            /*? if <= 1.20.1 {*/  /*poseStack.popPose();  *//*?} else if >= 1.21.1 {*/ poseStack.popMatrix(); /*?}*/
             RenderSystem.applyModelViewMatrix();
             Lighting.setupFor3DItems();
 

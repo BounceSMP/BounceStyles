@@ -2,12 +2,15 @@ package dev.bsmp.bouncestyles.core.pack;
 
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.AbstractPackResources;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.resources.IoSupplier;
 
 import java.io.File;
@@ -15,14 +18,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-public class StylesResourcePack extends AbstractPackResources {
+public class StylesResourcePack extends AbstractPackResources implements Pack.ResourcesSupplier {
     private final List<PackResources> mergedPacks;
     private final PackMetadataSection metadata;
     private final Map<String, List<PackResources>> dataNamespaces;
     private final Map<String, List<PackResources>> resourceNamespaces;
 
     public StylesResourcePack(File base, List<PackResources> mergedPacks, PackMetadataSection metadata) {
-        super(BounceStyles.modId + ":stylePacks", false);
+        //? if <= 1.20.1 {
+        /*super(BounceStyles.modId + ":stylePacks", false);
+        *///?} else if >= 1.21.1 {
+        super(new net.minecraft.server.packs.PackLocationInfo(BounceStyles.modId + ":stylePacks", Component.empty(), PackSource.BUILT_IN, Optional.empty()));
+        //?}
         this.mergedPacks = mergedPacks;
         this.metadata = metadata;
         dataNamespaces = buildPackMap(PackType.SERVER_DATA);
@@ -103,4 +110,21 @@ public class StylesResourcePack extends AbstractPackResources {
         for(PackResources pack : this.mergedPacks)
             pack.close();
     }
+
+    //? if <= 1.20.1 {
+    /*@Override
+    public PackResources open(String string) {
+        return this;
+    }
+    *///?} else if >= 1.21.1 {
+    @Override
+    public PackResources openPrimary(net.minecraft.server.packs.PackLocationInfo location) {
+        return this;
+    }
+
+    @Override
+    public PackResources openFull(net.minecraft.server.packs.PackLocationInfo location, Pack.Metadata metadata) {
+        return this;
+    }
+    //?}
 }

@@ -8,7 +8,6 @@ import dev.bsmp.bouncestyles.core.client.screen.widgets.*;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
 import dev.bsmp.bouncestyles.core.networking.serverbound.ToggleArmorVisibilityServerbound;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -19,9 +18,11 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class WardrobeScreen extends Screen {
-    private static final ResourceLocation TEX_WIDGETS = BounceStyles.resourceLocation("textures/gui/widgets.png");
+    private static final ResourceLocation TEX_CLEAR = BounceStyles.resourceLocation("textures/gui/btn_clear.png");
+    private static final ResourceLocation TEX_CLEAR_HOVER = BounceStyles.resourceLocation("textures/gui/btn_clear_hover.png");
     private static final ResourceLocation TEX_CATEGORY = BounceStyles.resourceLocation("textures/gui/selection_category.png");
     private static final ResourceLocation TEX_ARMOR = BounceStyles.resourceLocation("textures/gui/selection_armor.png");
+
     WardrobePreviewWidget previewWidget;
     IconSelectionButton categoryWidget;
 
@@ -29,7 +30,7 @@ public class WardrobeScreen extends Screen {
     WardrobePresetsWidget presetsWidget;
 
     WardrobeWidget activeWidget;
-    ImageButton clearButton;
+    WardrobeIconButton clearButton;
     IconSelectionButton armorVisibilityButton;
 
     List<ResourceLocation> unlockedStyles;
@@ -59,7 +60,7 @@ public class WardrobeScreen extends Screen {
         this.presetsWidget = new WardrobePresetsWidget(minecraft, this, previewRight, topBarHeight, width - previewRight, height - topBarHeight, 30, topBarHeight);
 
         int btnSize = topBarHeight;
-        this.clearButton = addRenderableWidget(new ScaledImageButton(Component.literal("Clear Equipped"), width - topBarHeight, 2, btnSize, btnSize, 98, 0, 24, 24, TEX_WIDGETS, button -> clearEquipped()));
+        this.clearButton = addRenderableWidget(new WardrobeIconButton(width - topBarHeight, 2, btnSize, btnSize, TEX_CLEAR, TEX_CLEAR_HOVER, Component.literal("Clear Equipped"), button -> clearEquipped()));
         this.armorVisibilityButton = addRenderableOnly(new IconSelectionButton(width - 50, 2, 24, 24, TEX_ARMOR, 120, 72, true, Component.literal("Toggle Armor Visibility")));
         for (EquipmentSlot slot : List.of(EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
             this.armorVisibilityButton.addItem(Component.literal(slot.getName()), () -> this.toggleArmor(slot.getIndex()));
@@ -75,16 +76,23 @@ public class WardrobeScreen extends Screen {
 
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
-        renderBackground(context);
+        renderWardrobeBackground(context);
         if (this.activeWidget != null)
             this.activeWidget.render(context, mouseX, mouseY, partialTick);
         super.render(context, mouseX, mouseY, partialTick);
     }
 
-    @Override
+    //? if <= 1.20.1 {
+    /*@Override
     public void renderBackground(GuiGraphics context) {
-        super.renderBackground(context);
+    }
+    *///?} else if >= 1.21.1 {
+    @Override
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    }
+    //?}
 
+    private void renderWardrobeBackground(GuiGraphics context) {
         context.fill(0, 0, width, height, 0xcc175796);
         context.fillGradient(previewRight, 0, width, height / 3, 0x5500cccc, 0x00000000);
         context.fillGradient(previewRight, height - (height / 4), width, height, 0x00000000, 0x55000000);
@@ -122,11 +130,19 @@ public class WardrobeScreen extends Screen {
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
-    @Override
+    //? if <= 1.20.1 {
+    /*@Override
     public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
         this.activeWidget.mouseScrolled(mouseX, mouseY, amount);
         return super.mouseScrolled(mouseX, mouseY, amount);
     }
+    *///?} else if >= 1.21.1 {
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        this.activeWidget.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
+    //?}
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {

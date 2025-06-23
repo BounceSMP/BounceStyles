@@ -17,8 +17,13 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
+//? if >= 1.21.1 {
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
+//?}
+
 import java.util.List;
-import java.util.Random;
 
 public class StyleMagazineItem extends Item {
     public StyleMagazineItem() {
@@ -26,28 +31,10 @@ public class StyleMagazineItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag context) {
-        CompoundTag nbt = stack.getTag();
-        if(nbt == null || !nbt.contains("style")) return;
-
-        ResourceLocation styleId = ResourceLocation.tryParse(nbt.getString("style"));
-        if(styleId == null) return;
-
-        BounceStylesRegistries.getStyle(styleId).ifPresent(style -> {
-            tooltip.add(Component.literal("Issue #" + nbt.getInt("issue")).withStyle(textStyle -> textStyle.withColor(ChatFormatting.GRAY).withItalic(true).withUnderlined(true)));
-            for(Category category : style.getCategories()) {
-                tooltip.add(Component.literal("- ").append(Component.translatable(style.getStyleId().getNamespace()+"."+style.getStyleId().getPath()+"."+category.name().toLowerCase())).withStyle(
-                        textStyle -> textStyle.withColor(ChatFormatting.GRAY))
-                );
-            }
-        });
-    }
-
-    @Override
     public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
         ItemStack itemStack = user.getItemInHand(hand);
         if(!world.isClientSide) {
-            if(StyleData.getOrCreateStyleData(user).unlockStyle(BounceStylesRegistries.getStyleIdFromStack(itemStack)) && !user.getAbilities().instabuild)
+            if(StyleData.getOrCreateStyleData(user).unlockStyle(getStyleIdFromStack(itemStack)) && !user.getAbilities().instabuild)
                 itemStack.shrink(1);
         }
         return InteractionResultHolder.sidedSuccess(itemStack, world.isClientSide);
@@ -61,14 +48,52 @@ public class StyleMagazineItem extends Item {
 
     public static ItemStack createStackForStyle(ResourceLocation styleId) {
         ItemStack itemStack = new ItemStack(BounceStyles.magazineItem());
-        Random random = new Random();
-        random.setSeed(styleId.toString().hashCode());
-
-        CompoundTag nbt = new CompoundTag();
-        nbt.putInt("issue", random.nextInt(1, BounceStylesRegistries.getAllStyleIds().size() + 1));
-        nbt.putString("style", styleId.toString());
-
-        itemStack.setTag(nbt);
+        //? if <= 1.20.1 {
+        /*itemStack.getOrCreateTag().putString("style", styleId.toString());
+        *///?} else if >= 1.21.1 {
+        CustomData.update(DataComponents.CUSTOM_DATA, itemStack, compoundTag -> compoundTag.putString("style", styleId.toString()));
+        //?}
         return itemStack;
+    }
+
+    public static ResourceLocation getStyleIdFromStack(ItemStack itemStack) {
+        //? if <= 1.20.1 {
+        /*CompoundTag tag = itemStack.getTag();
+        *///?} else if >= 1.21.1 {
+        CompoundTag tag = null;
+        var customData = itemStack.get(DataComponents.CUSTOM_DATA);
+        if (customData != null) {
+            tag = customData.copyTag();
+        }
+        //?}
+
+        if (tag != null && tag.contains("style"))
+            return ResourceLocation.tryParse(tag.getString("style"));
+        return null;
+    }
+
+    //? if <= 1.20.1 {
+    /*@Override
+    public void appendHoverText(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag context) {
+        appendTooltip(stack, tooltip);
+    }
+    *///?} else if >= 1.21.1 {
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag tooltipFlag) {
+        appendTooltip(stack, tooltip);
+    }
+    //?}
+
+    private static void appendTooltip(ItemStack stack, List<Component> tooltip) {
+        ResourceLocation styleId = getStyleIdFromStack(stack);
+        if (styleId == null) return;
+
+        BounceStylesRegistries.getStyle(styleId).ifPresent(style -> {
+            for (Category category : style.getCategories()) {
+                tooltip.add(Component.literal("- ").append(Component.translatable(style.getStyleId().getNamespace() + "." + style.getStyleId().getPath() + "." + category.name().toLowerCase())).withStyle(
+                        textStyle -> textStyle.withColor(ChatFormatting.GRAY))
+                );
+            }
+        });
     }
 }

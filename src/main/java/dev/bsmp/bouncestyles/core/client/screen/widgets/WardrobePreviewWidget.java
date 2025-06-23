@@ -24,7 +24,7 @@ public class WardrobePreviewWidget extends AbstractWidget implements WardrobeWid
     }
 
     @Override
-    public void renderWidget(GuiGraphics poseStack, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         Window window = Minecraft.getInstance().getWindow();
         double scale = window.getGuiScale();
         RenderSystem.enableScissor(
@@ -40,9 +40,9 @@ public class WardrobePreviewWidget extends AbstractWidget implements WardrobeWid
     private void renderPlayer() {
         Window window = Minecraft.getInstance().getWindow();
         double guiScale = window.getGuiScale();
-        PoseStack poseStack = RenderSystem.getModelViewStack();
-        poseStack.pushPose();
-        poseStack.translate(getX() + (width / 2), getY() + height - (height / 6), 1050.0);
+        var poseStack = RenderSystem.getModelViewStack();
+        /*? if <= 1.20.1 {*/  /*poseStack.pushPose();  *//*?} else if >= 1.21.1 {*/ poseStack.pushMatrix(); /*?}*/
+        poseStack.translate(getX() + (width / 2), getY() + height - (height / 6), 1050);
         poseStack.scale(1f, 1f, -1f);
         RenderSystem.applyModelViewMatrix();
         PoseStack poseStack2 = new PoseStack();
@@ -76,7 +76,7 @@ public class WardrobePreviewWidget extends AbstractWidget implements WardrobeWid
         this.previewPlayer.setXRot(j);
         this.previewPlayer.yHeadRotO = k;
         this.previewPlayer.yHeadRot = l;
-        poseStack.popPose();
+        /*? if <= 1.20.1 {*/  /*poseStack.popPose();  *//*?} else if >= 1.21.1 {*/ poseStack.popMatrix(); /*?}*/
         RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
     }

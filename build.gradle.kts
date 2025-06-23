@@ -171,7 +171,8 @@ class Env {
 
     val parmentVersion = property("deps.mappings.parchment.${mcVersion.min}")
     val fabricLoaderVersion = versionProperty("deps.core.fabric.loader.version_range")
-    val forgeMavenVersion = versionProperty("deps.core.forge.version_range")
+    val forgeLoaderVersion = versionProperty("deps.core.forge.loader_version")
+    val forgeMavenVersion = versionProperty("deps.core.forge.api_version_range")
     val forgeVersion = VersionRange(extractForgeVer(forgeMavenVersion.min),extractForgeVer(forgeMavenVersion.max))
     val neoforgeVersion = versionProperty("deps.core.neoforge.version_range")
     // The modloader system is separate from the API in Neo
@@ -407,7 +408,7 @@ class SpecialMultiversionedConstants {
     private val mandatoryIndicator = if(env.isNeo) "required" else "mandatory"
     val mixinField = if(env.atMost("1.20.4") && env.isNeo) neoForgeMixinField() else if(env.isFabric) fabricMixinField() else ""
 
-    val forgelikeLoaderVer =  if(env.isForge) env.forgeVersion.asForgelike() else env.neoforgeLoaderVersion.asForgelike()
+    val forgelikeLoaderVer =  if(env.isForge) env.forgeLoaderVersion.asForgelike() else env.neoforgeLoaderVersion.asForgelike()
     val forgelikeAPIVer = if(env.isForge) env.forgeVersion.asForgelike() else env.neoforgeVersion.asForgelike()
     val dependenciesField = if(env.isFabric) fabricDependencyList() else forgelikeDependencyField()
     val excludes = excludes0()
@@ -660,6 +661,13 @@ tasks.processResources {
     modMixins.getMixins(env.type).forEach { str->
         filesMatching(str) { expand(map) }
     }
+}
+
+tasks.register<Copy>("buildAndCollect") {
+    group = "build"
+    from(tasks.remapJar.get().archiveFile)
+    into(rootProject.layout.buildDirectory.file("libs/${mod.version}"))
+    dependsOn("build")
 }
 
 //TODO: Enable auto-publishing.

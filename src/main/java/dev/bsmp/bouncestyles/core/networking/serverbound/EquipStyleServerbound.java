@@ -36,5 +36,5 @@ public record EquipStyleServerbound(Map<Category, Optional<Pair<ResourceLocation
     private static final Codec<Map<Category, Optional<Pair<ResourceLocation, Integer>>>> CODEC = Codec.unboundedMap(Category.CODEC, Codec.optionalField("value", Codec.pair(
             ResourceLocation.CODEC.fieldOf("style_id").codec(),
             Codec.INT.optionalFieldOf("texture_variant", -1).codec()
-    )).codec());
+    ), true).codec());
 }

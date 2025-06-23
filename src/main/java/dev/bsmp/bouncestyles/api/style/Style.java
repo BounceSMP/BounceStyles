@@ -1,12 +1,15 @@
 package dev.bsmp.bouncestyles.api.style;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.util.GeckoLibUtil;
+//? if <= 1.20.1 {
+/*import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
@@ -14,7 +17,12 @@ import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.DataTicket;
 import software.bernie.geckolib.core.object.PlayState;
-import software.bernie.geckolib.util.GeckoLibUtil;
+*///?} else if >= 1.21.1 {
+import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.*;
+import software.bernie.geckolib.constant.dataticket.DataTicket;
+//?}
 
 import java.util.*;
 
@@ -194,7 +202,7 @@ public class Style implements GeoAnimatable {
     }
 
     private static Style decode(String styleName, Optional<ResourceLocation> modelId, Optional<ResourceLocation> textureId, Optional<List<ResourceLocation>> textureVariants, Optional<ResourceLocation> animationId, Optional<Map<String, String>> animationMap, Optional<Integer> transitionTicks, Optional<List<String>> hiddenParts, List<Category> categories, Optional<List<String>> credits) {
-        var styleId = styleName.contains(":") ? new ResourceLocation(styleName) : BounceStyles.resourceLocation(styleName);
+        var styleId = BounceStyles.resourceLocation(styleName);
         if (textureVariants.isPresent()) {
             if (!textureVariants.get().isEmpty()) {
                 List<ResourceLocation> list = new ArrayList<>();
@@ -224,7 +232,11 @@ public class Style implements GeoAnimatable {
         var id = resourceId.orElse(styleName);
         var path = id.getPath().endsWith(suffix) ? id.getPath() : id.getPath() + suffix;
         if (!path.startsWith(directory)) path = directory + "/" + path;
-        return new ResourceLocation(id.getNamespace(), path);
+        //? if <= 1.20.1 {
+        /*return new ResourceLocation(id.getNamespace(), path);
+        *///?} else if >= 1.21.1 {
+        return ResourceLocation.fromNamespaceAndPath(id.getNamespace(), path);
+        //?}
     }
 
     private static final Codec<ResourceLocation> ID_CODEC = Codec.STRING.xmap(s -> {

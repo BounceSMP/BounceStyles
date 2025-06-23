@@ -90,12 +90,21 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
         this.updateButtons = false;
     }
 
-    @Override
+    //? if <= 1.20.1 {
+    /*@Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         if (this.popup != null)
             return this.popup.mouseScrolled(mouseX, mouseY, delta);
         return super.mouseScrolled(mouseX, mouseY, delta);
     }
+    *///?} else if >= 1.21.1 {
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (this.popup != null)
+            return this.popup.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
+    //?}
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {

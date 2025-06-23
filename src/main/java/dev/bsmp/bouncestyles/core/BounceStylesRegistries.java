@@ -63,14 +63,7 @@ public class BounceStylesRegistries {
     public static Optional<Style> getStyleFromStack(ItemStack itemStack) {
         if(!(itemStack.getItem() instanceof StyleMagazineItem))
             return null;
-        return getStyle(getStyleIdFromStack(itemStack));
-    }
-
-    @Nullable public static ResourceLocation getStyleIdFromStack(ItemStack itemStack) {
-        CompoundTag nbt = itemStack.getTag();
-        if(nbt == null || !nbt.contains("style"))
-            return null;
-        return ResourceLocation.tryParse(nbt.getString("style"));
+        return getStyle(StyleMagazineItem.getStyleIdFromStack(itemStack));
     }
 
     public static Set<ResourceLocation> getAllStyleIds() {

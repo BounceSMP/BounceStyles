@@ -19,7 +19,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.chunk.ChunkSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import software.bernie.geckolib.GeckoLib;
 
 import java.util.Collections;
 import java.util.Set;
@@ -31,7 +30,9 @@ public class BounceStyles {
     private static RegistrySupplier<StyleMagazineItem> MAGAZINE_ITEM;
 
     public static void init() {
-        GeckoLib.initialize();
+        //? if <= 1.20.1 {
+         /*software.bernie.geckolib.GeckoLib.initialize();
+        *///?}
 
         StyleLoader.checkAndConvertPackFormat();
 
@@ -48,8 +49,13 @@ public class BounceStyles {
 
         PlayerEvent.PLAYER_JOIN.register(BounceStyles::playerJoin);
         PlayerEvent.PLAYER_CLONE.register((oldPlayer, newPlayer, wonGame) -> StyleData.copyFrom(oldPlayer, newPlayer));
-        PlayerEvent.PLAYER_RESPAWN.register((player, conqueredEnd) -> new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
         PlayerEvent.CHANGE_DIMENSION.register((player, oldLevel, newLevel) -> new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
+
+        //? if <= 1.20.1 {
+        /*PlayerEvent.PLAYER_RESPAWN.register((player, conqueredEnd) -> new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
+        *///?} else if >= 1.21.1 {
+        PlayerEvent.PLAYER_RESPAWN.register((player, conqueredEnd, reason) -> new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
+        //?}
     }
 
     public static StyleMagazineItem magazineItem() {
@@ -57,7 +63,8 @@ public class BounceStyles {
     }
 
     public static ResourceLocation resourceLocation(String path) {
-        return new ResourceLocation(modId, path);
+        if (!path.contains(":")) path = "%s:%s".formatted(modId, path);
+        return ResourceLocation.tryParse(path);
     }
 
     public static void playerJoin(ServerPlayer player) {
