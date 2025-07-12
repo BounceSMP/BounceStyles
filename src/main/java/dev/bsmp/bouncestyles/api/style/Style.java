@@ -30,12 +30,6 @@ public class Style implements GeoAnimatable {
     public static final ResourceLocation MISSING_MODEL_ID = BounceStyles.resourceLocation("geo/missing_model.geo.json");
     public static final ResourceLocation MISSING_TEXTURE_ID = BounceStyles.resourceLocation("textures/missing_model.png");
 
-    public static final ResourceLocation HEAD_ICON = BounceStyles.resourceLocation("textures/icon/bounce_head.png");
-    public static final ResourceLocation BODY_ICON = BounceStyles.resourceLocation("textures/icon/bounce_body.png");
-    public static final ResourceLocation LEGS_ICON = BounceStyles.resourceLocation("textures/icon/bounce_legs.png");
-    public static final ResourceLocation FEET_ICON = BounceStyles.resourceLocation("textures/icon/bounce_feet.png");
-    public static final ResourceLocation PRESET_ICON = BounceStyles.resourceLocation("textures/icon/bounce_preset.png");
-
     public static final DataTicket<Player> PLAYER = new DataTicket<>("player_entity", Player.class);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this, true);
@@ -89,7 +83,7 @@ public class Style implements GeoAnimatable {
 
     private PlayState predicate(AnimationState<Style> styleAnimationState) {
         Player entity = styleAnimationState.getData(PLAYER);
-        if (entity == null) return PlayState.STOP;
+        if (entity == null) return PlayState.CONTINUE;
 
         AnimationController<?> controller = styleAnimationState.getController();
         if(animationMap != null && !animationMap.isEmpty()) {

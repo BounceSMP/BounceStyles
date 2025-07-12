@@ -2,12 +2,14 @@ package dev.bsmp.bouncestyles.core;
 
 import com.google.common.io.Files;
 import com.google.gson.*;
+import com.mojang.serialization.JsonOps;
 import dev.architectury.platform.Platform;
 import dev.bsmp.bouncestyles.api.style.StylePreset;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -144,25 +146,20 @@ public class StyleLoader {
         return nameSpace + "/" + registryId.getNamespace() + "/" + registryId.getPath() + "/" + path + ".json";
     }
 
-    //ToDo Move Preset loading to somewhere new
-    private static void createPresetFile(File presetsFile) throws IOException {
-        if(!presetsFile.exists())
-            try(BufferedWriter writer = Files.newWriter(presetsFile, StandardCharsets.UTF_8)) {
-                GSON.toJson(new JsonObject(), writer);
-            }
-    }
-
-    private static void loadPresets(File file) throws IOException {
+    public static void loadPresets() {
+        File dir = getStylesDirectory();
+        File file = new File(dir, "presets.json");
         if(file.exists()) {
             try(BufferedReader reader = Files.newReader(file, StandardCharsets.UTF_8)) {
-                JsonObject jsonObject = GSON.fromJson(reader, JsonObject.class);
-                if(jsonObject == null)
-                    return;
-
-                for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-                    ResourceLocation presetId = ResourceLocation.tryParse(BounceStyles.modId + ":" + entry.getKey());
-                    StylePreset.fromJson(presetId, entry.getValue().getAsJsonObject()).ifPresent(stylePreset -> BounceStylesRegistries.PRESETS.put(presetId, stylePreset));
-                }
+                JsonArray jsonArray = GSON.fromJson(reader, JsonArray.class);
+                StylePreset.CODEC.listOf().parse(JsonOps.INSTANCE, jsonArray)
+                    .resultOrPartial(BounceStyles.LOGGER::error)
+                    .ifPresent(stylePresets ->
+                            stylePresets.forEach(stylePreset -> BounceStylesRegistries.PRESETS.put(stylePreset.presetId(), stylePreset))
+                    );
+            }
+            catch (IOException e) {
+                BounceStyles.LOGGER.error("Exception Occurred reading Presets file", e);
             }
         }
     }
@@ -175,25 +172,14 @@ public class StyleLoader {
     public static void writePresetsFile() {
         File dir = getStylesDirectory();
         File file = new File(dir, "presets.json");
-        try {
-            BufferedWriter bufferedWriter = Files.newWriter(file, StandardCharsets.UTF_8);
-            JsonObject jsonObject = new JsonObject();
-
-            for(StylePreset preset : BounceStylesRegistries.PRESETS.values()) {
-                JsonObject obj = new JsonObject();
-                obj.addProperty("name", preset.name());
-                obj.addProperty("head", preset.head() != null ? preset.head().toString() : "");
-                obj.addProperty("body", preset.body() != null ? preset.body().toString() : "");
-                obj.addProperty("legs", preset.legs() != null ? preset.legs().toString() : "");
-                obj.addProperty("feet", preset.feet() != null ? preset.feet().toString() : "");
-                jsonObject.add(preset.presetId().getPath(), obj);
-            }
-
-            GSON.toJson(jsonObject, bufferedWriter);
-            bufferedWriter.close();
+        try(BufferedWriter bufferedWriter = Files.newWriter(file, StandardCharsets.UTF_8)) {
+            StylePreset.CODEC.listOf()
+                .encodeStart(JsonOps.INSTANCE, new ArrayList<>(BounceStylesRegistries.PRESETS.values()))
+                .resultOrPartial(BounceStyles.LOGGER::error)
+                .ifPresent(jsonElement -> GSON.toJson(jsonElement, bufferedWriter));
         }
         catch (IOException e) {
-            throw new RuntimeException(e);
+            BounceStyles.LOGGER.error("Exception Occurred writing Presets file", e);
         }
     }
 

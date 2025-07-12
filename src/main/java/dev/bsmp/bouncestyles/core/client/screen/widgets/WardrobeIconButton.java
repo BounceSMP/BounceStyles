@@ -23,6 +23,10 @@ public class WardrobeIconButton extends Button {
 
     @Override
     protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        guiGraphics.blitSprite(this.isHovered() ? this.textureHovered : this.texture, this.getX(), this.getY(), this.width, this.height);
+        //? if <= 1.20.1 {
+        /*guiGraphics.blit(this.isHovered() ? this.textureHovered : this.texture, this.getX(), this.getY(), 0, 0, 0, this.width, this.height, this.width, this.height);
+        *///?} else if >= 1.21.1 {
+        guiGraphics.blit(this.isHovered() ? this.textureHovered : this.texture, this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
+        //?}
     }
 }

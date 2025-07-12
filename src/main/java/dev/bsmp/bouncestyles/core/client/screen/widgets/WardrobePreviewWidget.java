@@ -1,18 +1,15 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.Window;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class WardrobePreviewWidget extends AbstractWidget implements WardrobeWidget {
     private Player previewPlayer;
@@ -26,59 +23,43 @@ public class WardrobePreviewWidget extends AbstractWidget implements WardrobeWid
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         Window window = Minecraft.getInstance().getWindow();
-        double scale = window.getGuiScale();
-        RenderSystem.enableScissor(
-                (int) ((getX() + 3) * scale),
-                (int) (getY() * scale),
-                (int) ((width - 5) * scale),
-                (int) (height * scale)
-        );
-        renderPlayer();
-        RenderSystem.disableScissor();
-    }
-
-    private void renderPlayer() {
-        Window window = Minecraft.getInstance().getWindow();
         double guiScale = window.getGuiScale();
-        var poseStack = RenderSystem.getModelViewStack();
-        /*? if <= 1.20.1 {*/  /*poseStack.pushPose();  *//*?} else if >= 1.21.1 {*/ poseStack.pushMatrix(); /*?}*/
-        poseStack.translate(getX() + (width / 2), getY() + height - (height / 6), 1050);
-        poseStack.scale(1f, 1f, -1f);
-        RenderSystem.applyModelViewMatrix();
-        PoseStack poseStack2 = new PoseStack();
-        poseStack2.translate(0.0, getY(), 1000.0);
-        poseStack2.scale((float) ((window.getHeight() / 3) / guiScale), (float) ((window.getHeight() / 3) / guiScale), 1);
-        Quaternionf quaternion = new Quaternionf().rotateZ((float) Math.PI);
-        Quaternionf quaternion2 = new Quaternionf().rotateY(previewRotation);
-        quaternion.mul(quaternion2);
-        poseStack2.mulPose(quaternion);
-        float h = this.previewPlayer.yBodyRot;
-        float i = this.previewPlayer.getYRot();
-        float j = this.previewPlayer.getXRot();
-        float k = this.previewPlayer.yHeadRotO;
-        float l = this.previewPlayer.yHeadRot;
-        this.previewPlayer.yBodyRot = 160f;
-        this.previewPlayer.setYRot(160.0f);
-        this.previewPlayer.setXRot(0f);
-        this.previewPlayer.yHeadRot = this.previewPlayer.getYRot();
-        this.previewPlayer.yHeadRotO = this.previewPlayer.getYRot();
-        Lighting.setupForEntityInInventory(); //Setup Entity Lighting
-        EntityRenderDispatcher renderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
-        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-        quaternion2.conjugate();
-        renderDispatcher.overrideCameraOrientation(quaternion2);
-        renderDispatcher.setRenderShadow(false);
-        RenderSystem.runAsFancy(() -> renderDispatcher.render(this.previewPlayer, 0, 0, 0, 0, 1f, poseStack2, bufferSource, 0xF000F0));
-        bufferSource.endBatch();
-        renderDispatcher.setRenderShadow(true);
-        this.previewPlayer.yBodyRot = h;
-        this.previewPlayer.setYRot(i);
-        this.previewPlayer.setXRot(j);
-        this.previewPlayer.yHeadRotO = k;
-        this.previewPlayer.yHeadRot = l;
-        /*? if <= 1.20.1 {*/  /*poseStack.popPose();  *//*?} else if >= 1.21.1 {*/ poseStack.popMatrix(); /*?}*/
-        RenderSystem.applyModelViewMatrix();
-        Lighting.setupFor3DItems();
+        float scale = (float) ((getHeight() / 3f));
+
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0, 0, 1050);
+        guiGraphics.enableScissor(this.getX() + 3, this.getY() + 3, this.getX() + getWidth() - 2, this.getY() + getHeight() - 3);
+
+        float yBodyRot = previewPlayer.yBodyRot;
+        float yRot = previewPlayer.getYRot();
+        float xRot = previewPlayer.getXRot();
+        float yHeadRot0 = previewPlayer.yHeadRotO;
+        float yHeadRot = previewPlayer.yHeadRot;
+
+        previewPlayer.yBodyRot = 180.0F;
+        previewPlayer.setYRot(180.0F);
+        previewPlayer.setXRot(0f);
+        previewPlayer.yHeadRot = previewPlayer.getYRot();
+        previewPlayer.yHeadRotO = previewPlayer.getYRot();
+
+        //? if <= 1.20.1 {
+        /*guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0, (this.height / 3f), 0);
+        InventoryScreen.renderEntityInInventory(guiGraphics, getX() + (getWidth() / 2), getY() + (getHeight() / 2), (int) (scale / previewPlayer.getScale()), new Quaternionf().rotateZ((float) Math.PI).rotateY(previewRotation), new Quaternionf(), previewPlayer);
+        guiGraphics.pose().popPose();
+        *///?} else if >= 1.21.1 {
+        Vector3f translate = new Vector3f(0.0F,  (previewPlayer.getBbHeight() / 2.0F) + 0.1f, 0.0F);
+        InventoryScreen.renderEntityInInventory(guiGraphics, getX() + (getWidth() / 2), getY() + (getHeight() / 2), scale / previewPlayer.getScale(), translate, new Quaternionf().rotateZ((float) Math.PI).rotateY(previewRotation), new Quaternionf(), previewPlayer);
+        //?}
+
+        previewPlayer.yBodyRot = yBodyRot;
+        previewPlayer.setYRot(yRot);
+        previewPlayer.setXRot(xRot);
+        previewPlayer.yHeadRotO = yHeadRot0;
+        previewPlayer.yHeadRot = yHeadRot;
+
+        guiGraphics.disableScissor();
+        guiGraphics.pose().popPose();
     }
 
     @Override
@@ -91,6 +72,6 @@ public class WardrobePreviewWidget extends AbstractWidget implements WardrobeWid
 
     @Override
     protected void onDrag(double mouseX, double mouseY, double dragX, double dragY) {
-        this.previewRotation += (float) (dragX * 0.025f);
+        this.previewRotation += (float) (dragX / (getWidth() / 3f));
     }
 }

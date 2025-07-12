@@ -45,10 +45,10 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
             this.popup = new SelectionPopup(this, this.category, style, popupX, popupY, popupWidth, popupHeight);
         }
         else {
-            if (this.selectedStyleButton == button || mouseButton == 1) {
+            if (this.selectedStyleButton == button) {
                 new EquipStyleServerbound(this.category).sendToServer();
                 this.selectedStyleButton = null;
-            } else {
+            } else if (mouseButton != 1) {
                 new EquipStyleServerbound(this.category, style.getStyleId()).sendToServer();
                 this.selectedStyleButton = button;
             }
@@ -73,8 +73,8 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
         this.buttons.clear();
         StyleData styleData = StyleData.getOrCreateStyleData(Minecraft.getInstance().player);
 
-        for (Style style : styles) {
-            WardrobeStyleSelectionWidget.StyleButton button = new WardrobeStyleSelectionWidget.StyleButton(this, 0, 0, buttonSize, buttonSize, category, style);
+        for (Style style : this.styles) {
+            WardrobeStyleSelectionWidget.StyleButton button = new WardrobeStyleSelectionWidget.StyleButton(this, 0, 0, buttonSize, buttonSize, category, style, true);
 
             var equippedStyle = styleData.getStyleForSlot(category);
             if (equippedStyle.isPresent() && equippedStyle.get().getFirst() == style) {
@@ -173,7 +173,7 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
             StyleData styleData = StyleData.getOrCreateStyleData(Minecraft.getInstance().player);
 
             for (int textureId = -1; textureId < textureVariants.size(); textureId++) {
-                WardrobeStyleSelectionWidget.StyleButton button = new WardrobeStyleSelectionWidget.StyleButton(this, 0, 0, buttonSize, buttonSize, category, style);
+                WardrobeStyleSelectionWidget.StyleButton button = new WardrobeStyleSelectionWidget.StyleButton(this, 0, 0, buttonSize, buttonSize, category, style, false);
                 button.setTextureId(textureId);
 
                 var equippedStyle = styleData.getStyleForSlot(category);

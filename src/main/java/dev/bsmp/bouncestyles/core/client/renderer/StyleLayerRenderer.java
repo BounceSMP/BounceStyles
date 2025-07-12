@@ -15,21 +15,21 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
+import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoRenderer;
+import software.bernie.geckolib.util.RenderUtil;
+import java.util.Optional;
 //? if <= 1.20.1 {
-/*import software.bernie.geckolib.core.animation.AnimationState;
-import software.bernie.geckolib.util.RenderUtils;
-*///?} else if >= 1.21.1 {
+//?} else if >= 1.21.1 {
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.util.RenderUtil;
 //?}
-
-import java.util.Optional;
 
 public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>> implements GeoRenderer<Style> {
     private Player currentPlayer;
@@ -72,16 +72,45 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
         renderStyle(poseStack, equippedStyle.get().getFirst(), equippedStyle.get().getSecond(), category, vertexConsumers, headYaw, partialTick, light, isGui);
     }
 
-    public void renderStyle(PoseStack poseStack, Style style, int textureId, Category category, MultiBufferSource vertexConsumers, float headYaw, float partialTick, int light, boolean isGui) {
-        ResourceLocation texture = style.getTextureId();
-        if (textureId >= 0 && style.getTextureVariants().isPresent()) {
-            var textures = style.getTextureVariants().get();
-            if (textures.size() > textureId) texture = textures.get(textureId);
+    public void renderStyle(PoseStack poseStack, Style style, int textureId, Category category, MultiBufferSource bufferSource, float headYaw, float partialTick, int light, boolean isGui) {
+        ResourceLocation texture = getStyleTexture(style, textureId);
+
+        RenderType renderLayer = getRenderType(style, texture, bufferSource, partialTick);
+        fitToBones(model.getBakedModel(style.getModelId()), category);
+        defaultRender(poseStack, style, bufferSource, renderLayer, null, headYaw, partialTick, light);
+    }
+
+    public void renderStyleForGUI(PoseStack poseStack, Style style, int textureId, Category category, MultiBufferSource bufferSource, float headYaw, float partialTick) {
+        ResourceLocation texture = getStyleTexture(style, textureId);
+
+        RenderType renderType = getRenderType(style, texture, bufferSource, partialTick);
+        VertexConsumer buffer = bufferSource.getBuffer(renderType);
+
+        var bakedModel = model.getBakedModel(style.getModelId());
+        fitToBones(bakedModel, category);
+
+        poseStack.pushPose();
+
+        switch (category) {
+            case Head -> {
+                RenderUtil.translateAwayFromPivotPoint(poseStack, bakedModel.getBone(headBone).get());
+                poseStack.translate(0, -.7f, 0);
+            }
+            case Body -> RenderUtil.translateAwayFromPivotPoint(poseStack, bakedModel.getBone(bodyBone).get());
+            case Legs -> {
+                RenderUtil.translateAwayFromPivotPoint(poseStack, bakedModel.getBone(leftLegBone).get());
+                poseStack.translate(.1f, 0, 0);
+            }
+            case Feet -> {
+                RenderUtil.translateAwayFromPivotPoint(poseStack, bakedModel.getBone(leftBootBone).get());
+                poseStack.translate(.1f, 0, 0);
+            }
         }
 
-        RenderType renderLayer = getRenderType(style, texture, vertexConsumers, partialTick);
-        fit(poseStack, model.getBakedModel(style.getModelId()), category, isGui);
-        defaultRender(poseStack, style, vertexConsumers, renderLayer, null, headYaw, partialTick, light);
+        poseStack.translate(0, 1.1f, 0);
+        defaultRender(poseStack, style, bufferSource, renderType, buffer, 0f, partialTick, 15728880);
+
+        poseStack.popPose();
     }
 
     //? if <= 1.20.1 {
@@ -97,6 +126,15 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
         GeoRenderer.super.actuallyRender(poseStack, style, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
     }
     //?}
+
+    private static ResourceLocation getStyleTexture(Style style, int textureId) {
+        ResourceLocation texture = style.getTextureId();
+        if (textureId >= 0 && style.getTextureVariants().isPresent()) {
+            var textures = style.getTextureVariants().get();
+            if (textures.size() > textureId) texture = textures.get(textureId);
+        }
+        return texture;
+    }
 
     private void setupAnimation(Style style, boolean isReRender, float partialTick) {
         if (!isReRender) {
@@ -121,7 +159,7 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
         }
     }
 
-    private void fit(PoseStack poseStack, BakedGeoModel model, Category category, boolean gui) {
+    private void fitToBones(BakedGeoModel model, Category category) {
         setBoneVisibility(headBone, model, false);
         setBoneVisibility(bodyBone, model, false);
         setBoneVisibility(rightArmBone, model, false);
@@ -137,10 +175,7 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
             case Head -> {
                 GeoBone bone = model.getBone(headBone).orElse(null);
                 if (bone != null) {
-                    if (!gui)
-                        matchModelPartRot(getParentModel().head, bone);
-                    else
-                        translateAwayFromPivotPoint(poseStack, bone);
+                    matchModelPartRot(getParentModel().head, bone);
                     setBoneVisibility(headBone, model, true);
                     bone.setModelPosition(new Vector3d(playerModel.head.x, -playerModel.head.y, playerModel.head.z));
                 }
@@ -150,13 +185,9 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
                 GeoBone rightArmGeoBone = model.getBone(rightArmBone).orElse(null);
                 GeoBone leftArmGeoBone = model.getBone(leftArmBone).orElse(null);
                 if (bodyGeoBone != null && rightArmGeoBone != null && leftArmGeoBone != null) {
-                    if (!gui) {
-                        matchModelPartRot(getParentModel().body, bodyGeoBone);
-                        matchModelPartRot(getParentModel().rightArm, rightArmGeoBone);
-                        matchModelPartRot(getParentModel().leftArm, leftArmGeoBone);
-                    } else {
-                        translateAwayFromPivotPoint(poseStack, bodyGeoBone);
-                    }
+                    matchModelPartRot(getParentModel().body, bodyGeoBone);
+                    matchModelPartRot(getParentModel().rightArm, rightArmGeoBone);
+                    matchModelPartRot(getParentModel().leftArm, leftArmGeoBone);
                     setBoneVisibility(bodyBone, model, true);
                     setBoneVisibility(rightArmBone, model, true);
                     setBoneVisibility(leftArmBone, model, true);
@@ -169,13 +200,8 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
                 GeoBone rightLegGeoBone = model.getBone(rightLegBone).orElse(null);
                 GeoBone leftLegGeoBone = model.getBone(leftLegBone).orElse(null);
                 if (rightLegGeoBone != null && leftLegGeoBone != null) {
-                    if (!gui) {
-                        matchModelPartRot(getParentModel().rightLeg, rightLegGeoBone);
-                        matchModelPartRot(getParentModel().leftLeg, leftLegGeoBone);
-                    } else {
-                        translateAwayFromPivotPoint(poseStack, rightLegGeoBone);
-                        translateAwayFromPivotPoint(poseStack, leftLegGeoBone);
-                    }
+                    matchModelPartRot(getParentModel().rightLeg, rightLegGeoBone);
+                    matchModelPartRot(getParentModel().leftLeg, leftLegGeoBone);
                     setBoneVisibility(rightLegBone, model, true);
                     setBoneVisibility(leftLegBone, model, true);
                     rightLegGeoBone.setModelPosition(new Vector3d(playerModel.rightLeg.x + 2, 12 - playerModel.rightLeg.y, playerModel.rightLeg.z));
@@ -186,13 +212,8 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
                 GeoBone rightBootGeoBone = model.getBone(rightBootBone).orElse(null);
                 GeoBone leftBootGeoBone = model.getBone(leftBootBone).orElse(null);
                 if (rightBootGeoBone != null && leftBootGeoBone != null) {
-                    if (!gui) {
-                        matchModelPartRot(getParentModel().rightLeg, rightBootGeoBone);
-                        matchModelPartRot(getParentModel().leftLeg, leftBootGeoBone);
-                    } else {
-                        translateAwayFromPivotPoint(poseStack, rightBootGeoBone);
-                        translateAwayFromPivotPoint(poseStack, leftBootGeoBone);
-                    }
+                    matchModelPartRot(getParentModel().rightLeg, rightBootGeoBone);
+                    matchModelPartRot(getParentModel().leftLeg, leftBootGeoBone);
                     setBoneVisibility(rightBootBone, model, true);
                     setBoneVisibility(leftBootBone, model, true);
                     rightBootGeoBone.setModelPosition(new Vector3d(playerModel.rightLeg.x + 2, 12 - playerModel.rightLeg.y, playerModel.rightLeg.z));
@@ -207,14 +228,6 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
         /*RenderUtils.matchModelPartRot(modelPart, geoBone);
         *///?} else if >= 1.21.1 {
         RenderUtil.matchModelPartRot(modelPart, geoBone);
-        //?}
-    }
-
-    private void translateAwayFromPivotPoint(PoseStack poseStack, GeoBone geoBone) {
-        //? if <= 1.20.1 {
-        /*RenderUtils.translateAwayFromPivotPoint(poseStack, geoBone);
-        *///?} else if >= 1.21.1 {
-        RenderUtil.translateAwayFromPivotPoint(poseStack, geoBone);
         //?}
     }
 

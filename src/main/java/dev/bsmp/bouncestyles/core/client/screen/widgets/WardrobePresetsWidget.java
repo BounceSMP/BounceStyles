@@ -34,7 +34,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
 
     private final WardrobeScreen parentScreen;
     private final WardrobeIconButton createPresetButton;
-    public EditBox presetNameEntry;
+    public EditBox nameEntry;
 
     boolean namingPreset;
     public boolean needsRefreshing;
@@ -54,23 +54,20 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
 
         this.parentScreen = parentScreen;
 
-        this.presetNameEntry = new EditBox(minecraft.font, x + 10 + buttonSize, y + height - buttonSize - 5, width - 20 - buttonSize, buttonSize, Component.literal("Preset Name"));
-        this.presetNameEntry.visible = false;
-        this.presetNameEntry.active = false;
+        this.nameEntry = new EditBox(minecraft.font, x + 10 + buttonSize, y + height - buttonSize - 4, width - 20 - buttonSize, buttonSize - 2, Component.literal("Preset Name"));
+        this.nameEntry.visible = false;
 
         this.createPresetButton = new WardrobeIconButton(x + 5, y + height - buttonSize - 5, buttonSize, buttonSize, TEX_BTN_CREATE, TEX_BTN_CREATE_HOVER, button -> {
             if (!this.namingPreset) {
-                this.presetNameEntry.visible = true;
-                this.presetNameEntry.active = true;
+                this.nameEntry.visible = true;
             } else {
-                this.presetNameEntry.visible = false;
-                this.presetNameEntry.active = false;
-                String name = this.presetNameEntry.getValue();
+                this.nameEntry.visible = false;
+                String name = this.nameEntry.getValue();
                 if (!name.isBlank()) {
                     BounceStylesRegistries.createPreset(StyleData.getOrCreateStyleData(minecraft.player), name);
                     refreshEntries();
                 }
-                this.presetNameEntry.setValue("");
+                this.nameEntry.setValue("");
             }
             this.namingPreset = !this.namingPreset;
         });
@@ -101,12 +98,12 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
     //?}
 
     private void renderPresetList(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.presetNameEntry.render(guiGraphics, mouseX, mouseY, partialTick);
+        this.nameEntry.render(guiGraphics, mouseX, mouseY, partialTick);
         this.createPresetButton.render(guiGraphics, mouseX, mouseY, partialTick);
         if(this.createPresetButton.isMouseOver(mouseX, mouseY)) {
             String s = "Create Preset";
             if (this.namingPreset) {
-                if (this.presetNameEntry.getValue().isBlank())
+                if (this.nameEntry.getValue().isBlank())
                     s = "Cancel";
                 else
                     s = "Save";
@@ -118,22 +115,27 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if(isMouseOver(mouseX, mouseY) && !this.createPresetButton.mouseClicked(mouseX, mouseY, button) && !this.presetNameEntry.mouseClicked(mouseX, mouseY, button)) {
-            return super.mouseClicked(mouseX, mouseY, button);
+        if (this.nameEntry.mouseClicked(mouseX, mouseY, button)) {
+            this.nameEntry.setFocused(true);
+            return true;
         }
-        return true;
+        this.createPresetButton.mouseClicked(mouseX, mouseY, button);
+        boolean b = super.mouseClicked(mouseX, mouseY, button);
+        this.setFocused(null);
+        this.setSelected(null);
+        return b;
     }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if(this.presetNameEntry.keyPressed(keyCode, scanCode, modifiers))
+        if(this.nameEntry.keyPressed(keyCode, scanCode, modifiers))
             return true;
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
     public boolean charTyped(char chr, int modifiers) {
-        if(this.presetNameEntry.charTyped(chr, modifiers))
+        if(this.nameEntry.charTyped(chr, modifiers))
             return true;
         return super.charTyped(chr, modifiers);
     }

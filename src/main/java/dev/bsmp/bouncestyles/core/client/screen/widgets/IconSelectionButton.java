@@ -17,15 +17,15 @@ public class IconSelectionButton extends Button implements WardrobeWidget {
     private boolean expanded = false;
 
     private final ResourceLocation texture;
-    private final int textureWidth, textureHeight;
+    private int textureWidth, textureHeight;
 
-    public IconSelectionButton(int x, int y, int width, int height, ResourceLocation resourceLocation, int textureWidth, int textureHeight, boolean staticIcon, Component message) {
+    public IconSelectionButton(int x, int y, int width, int height, ResourceLocation resourceLocation, boolean staticIcon, Component message) {
         super(x, y, width, height, message, null, supplier -> Component.empty());
 
         this.staticIcon = staticIcon;
         this.texture = resourceLocation;
-        this.textureWidth = textureWidth;
-        this.textureHeight = textureHeight;
+        this.textureWidth = width;
+        this.textureHeight = height * 3;
     }
 
     @Override
@@ -51,6 +51,7 @@ public class IconSelectionButton extends Button implements WardrobeWidget {
 
     public void addItem(Component label, Runnable onPress) {
         this.items.add(Pair.of(label, onPress));
+        this.textureWidth = this.width * (this.items.size() + (this.staticIcon ? 1 : 0));
     }
 
     @Override

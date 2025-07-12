@@ -1,10 +1,12 @@
 package dev.bsmp.bouncestyles.core.networking;
 
 import dev.architectury.networking.NetworkManager;
+import dev.bsmp.bouncestyles.core.BounceStyles;
+import dev.bsmp.bouncestyles.core.StyleLoader;
 import dev.bsmp.bouncestyles.core.client.screen.WardrobeScreen;
 import dev.bsmp.bouncestyles.core.data.StyleData;
-import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientbound;
 import dev.bsmp.bouncestyles.core.networking.clientbound.OpenWardrobeUIClientbound;
+import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientbound;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -27,6 +29,12 @@ public class ClientPacketHandler {
         NetworkManager.PacketContext ctx = contextSupplier.get();
 
         ctx.queue(() -> {
+            try {
+                StyleLoader.loadPresets();
+            }
+            catch (Exception e) {
+                BounceStyles.LOGGER.error("Exception Occurred reading Presets file", e);
+            }
             StyleData styleData = StyleData.getOrCreateStyleData(ctx.getPlayer());
             styleData.setUnlocks(packet.unlocks());
             Minecraft.getInstance().setScreen(new WardrobeScreen(styleData.getUnlocks()));

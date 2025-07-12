@@ -80,6 +80,7 @@ public class BounceStylesRegistries {
         StyleLoader.writePresetsFile();
         return newPreset;
     }
+
     public static boolean idExists(ResourceLocation id) {
         return getRegistry().map(registry -> registry.containsKey(id)).orElse(false);
     }

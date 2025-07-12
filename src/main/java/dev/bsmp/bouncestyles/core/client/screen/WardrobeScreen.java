@@ -8,6 +8,7 @@ import dev.bsmp.bouncestyles.core.client.screen.widgets.*;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
 import dev.bsmp.bouncestyles.core.networking.serverbound.ToggleArmorVisibilityServerbound;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -24,12 +25,12 @@ public class WardrobeScreen extends Screen {
     private static final ResourceLocation TEX_ARMOR = BounceStyles.resourceLocation("textures/gui/selection_armor.png");
 
     WardrobePreviewWidget previewWidget;
-    IconSelectionButton categoryWidget;
-
     WardrobeStyleSelectionWidget styleWidget;
     WardrobePresetsWidget presetsWidget;
 
     WardrobeWidget activeWidget;
+    IconSelectionButton categoryBtn;
+    EditBox searchBox;
     WardrobeIconButton clearButton;
     IconSelectionButton armorVisibilityButton;
 
@@ -49,27 +50,33 @@ public class WardrobeScreen extends Screen {
         this.previewRight = width / 3;
         this.topBarHeight = height / 10;
 
-        this.previewWidget = addRenderableWidget(new WardrobePreviewWidget(0, 0, previewRight, height, minecraft.player));
-        this.categoryWidget = addRenderableOnly(new IconSelectionButton(previewRight + 5, 2, 24, 24, TEX_CATEGORY, 96, 72, false, Component.literal("Category")));
+        this.categoryBtn = addRenderableOnly(new IconSelectionButton(previewRight + 5, 2, 24, 24, TEX_CATEGORY, false, Component.literal("Category")));
         for (Category category : Category.values()) {
-            if (category == Category.Preset) continue;
-            this.categoryWidget.addItem(Component.literal(category.name()), () -> this.setSelectedCategory(category));
+            this.categoryBtn.addItem(Component.literal(category.name()), () -> this.setSelectedCategory(category));
         }
 
+        this.previewWidget = addRenderableWidget(new WardrobePreviewWidget(0, 0, previewRight, height, minecraft.player));
         this.styleWidget = new WardrobeStyleSelectionWidget(previewRight, topBarHeight + 2, width - previewRight, height - topBarHeight);
-        this.presetsWidget = new WardrobePresetsWidget(minecraft, this, previewRight, topBarHeight, width - previewRight, height - topBarHeight, 30, topBarHeight);
+        this.presetsWidget = new WardrobePresetsWidget(minecraft, this, previewRight, topBarHeight + 4, width - previewRight, height - topBarHeight, 30, topBarHeight);
+
+        this.searchBox = addRenderableWidget(new EditBox(minecraft.font, previewRight + 32, 4, 150, 20, Component.empty()));
+        this.searchBox.setResponder(s -> this.updateStyles());
 
         int btnSize = topBarHeight;
         this.clearButton = addRenderableWidget(new WardrobeIconButton(width - topBarHeight, 2, btnSize, btnSize, TEX_CLEAR, TEX_CLEAR_HOVER, Component.literal("Clear Equipped"), button -> clearEquipped()));
-        this.armorVisibilityButton = addRenderableOnly(new IconSelectionButton(width - 50, 2, 24, 24, TEX_ARMOR, 120, 72, true, Component.literal("Toggle Armor Visibility")));
+        this.armorVisibilityButton = addRenderableOnly(new IconSelectionButton(width - 50, 2, 24, 24, TEX_ARMOR, true, Component.literal("Toggle Armor Visibility")));
         for (EquipmentSlot slot : List.of(EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
             this.armorVisibilityButton.addItem(Component.literal(slot.getName()), () -> this.toggleArmor(slot.getIndex()));
         }
 
-        if(this.activeWidget instanceof WardrobeStyleSelectionWidget)
+        if(this.activeWidget instanceof WardrobeStyleSelectionWidget) {
+            this.searchBox.visible = true;
             this.activeWidget = this.styleWidget;
-        else if(this.activeWidget instanceof WardrobePresetsWidget)
+        }
+        else if(this.activeWidget instanceof WardrobePresetsWidget) {
+            this.searchBox.visible = false;
             this.activeWidget = this.presetsWidget;
+        }
 
         this.setSelectedCategory(this.selectedCategory != null ? this.selectedCategory : Category.Head);
     }
@@ -79,18 +86,11 @@ public class WardrobeScreen extends Screen {
         renderWardrobeBackground(context);
         if (this.activeWidget != null)
             this.activeWidget.render(context, mouseX, mouseY, partialTick);
+        context.pose().pushPose();
+        context.pose().translate(0, 0, 1200);
         super.render(context, mouseX, mouseY, partialTick);
+        context.pose().popPose();
     }
-
-    //? if <= 1.20.1 {
-    /*@Override
-    public void renderBackground(GuiGraphics context) {
-    }
-    *///?} else if >= 1.21.1 {
-    @Override
-    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-    }
-    //?}
 
     private void renderWardrobeBackground(GuiGraphics context) {
         context.fill(0, 0, width, height, 0xcc175796);
@@ -124,25 +124,11 @@ public class WardrobeScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (!this.categoryWidget.mouseClicked(mouseX, mouseY, button))
-            if (!this.armorVisibilityButton.mouseClicked(mouseX, mouseY, button))
-                this.activeWidget.mouseClicked(mouseX, mouseY, button);
+        if (!this.categoryBtn.mouseClicked(mouseX, mouseY, button))
+            this.activeWidget.mouseClicked(mouseX, mouseY, button);
+        this.armorVisibilityButton.mouseClicked(mouseX, mouseY, button);
         return super.mouseClicked(mouseX, mouseY, button);
     }
-
-    //? if <= 1.20.1 {
-    /*@Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-        this.activeWidget.mouseScrolled(mouseX, mouseY, amount);
-        return super.mouseScrolled(mouseX, mouseY, amount);
-    }
-    *///?} else if >= 1.21.1 {
-    @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        this.activeWidget.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
-        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
-    }
-    //?}
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
@@ -157,6 +143,27 @@ public class WardrobeScreen extends Screen {
         return super.charTyped(chr, modifiers);
     }
 
+    //? if <= 1.20.1 {
+    
+    /*@Override
+    public void renderBackground(GuiGraphics context) {}
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+        this.activeWidget.mouseScrolled(mouseX, mouseY, amount);
+        return super.mouseScrolled(mouseX, mouseY, amount);
+    }
+    *///?} else if >= 1.21.1 {
+    @Override
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {}
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        this.activeWidget.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
+    //?}
+
     @Override
     public void tick() {
         if(this.presetsWidget != null && this.presetsWidget.isActive() && this.presetsWidget.needsRefreshing)
@@ -166,22 +173,32 @@ public class WardrobeScreen extends Screen {
     public void setSelectedCategory(Category category) {
         this.selectedCategory = category;
 
-        if (category == Category.Preset)
+        if (category == Category.Preset) {
+            this.searchBox.visible = false;
             this.activeWidget = this.presetsWidget;
-        else {
-            CompletableFuture.supplyAsync(() -> BounceStylesRegistries.getAllStyles().stream()
-                .filter(style -> style.getCategories().contains(category) &&
-                        (this.unlockedStyles.contains(style.getStyleId()) || (minecraft.player.isCreative() && minecraft.player.hasPermissions(2)))
-                )
-                //ToDo Throw in a filter based on search bar when that's implemented
-                .sorted(Comparator.comparing(o -> o.getStyleId().toString()))
-                .toList()
-            ).thenApply(styles -> {
-                this.activeWidget = this.styleWidget;
-                this.styleWidget.updateButtons(category, styles);
-                return null;
-            });
         }
+        else {
+            this.searchBox.visible = true;
+            updateStyles();
+        }
+    }
+
+    private void updateStyles() {
+        CompletableFuture.supplyAsync(() -> BounceStylesRegistries.getAllStyles().stream()
+            .filter(style -> style.getCategories().contains(this.selectedCategory) &&
+                    (this.unlockedStyles.contains(style.getStyleId()) || (minecraft.player.isCreative() && minecraft.player.hasPermissions(2)))
+            )
+            .filter(style -> {
+                var label = Component.translatable(style.getStyleId().getNamespace()+"."+style.getStyleId().getPath()+"."+this.selectedCategory.name().toLowerCase());
+                return label.getString().toLowerCase().contains(this.searchBox.getValue().toLowerCase());
+            })
+            .sorted(Comparator.comparing(o -> o.getStyleId().toString()))
+            .toList()
+        ).thenApply(styles -> {
+            this.activeWidget = this.styleWidget;
+            this.styleWidget.updateButtons(this.selectedCategory, styles);
+            return null;
+        });
     }
 
     public List<StylePreset> requestPresets() {
@@ -197,5 +214,53 @@ public class WardrobeScreen extends Screen {
 
     private void toggleArmor(int index) {
         new ToggleArmorVisibilityServerbound(index).sendToServer();
+    }
+
+//    public static void renderPlayerInGUI(GuiGraphics guiGraphics, float x, float y) {
+//        Window window = Minecraft.getInstance().getWindow();
+//        double guiScale = window.getGuiScale();
+//        var poseStack = RenderSystem.getModelViewStack();
+//        /*? if <= 1.20.1 {*/  /*poseStack.pushPose();  *//*?} else if >= 1.21.1 {*/ poseStack.pushMatrix(); /*?}*/
+//        poseStack.translate(x, y, 1050);
+//        poseStack.scale(1f, 1f, -1f);
+//        RenderSystem.applyModelViewMatrix();
+//        PoseStack poseStack2 = new PoseStack();
+//        poseStack2.translate(0.0, getY(), 1000.0);
+//        poseStack2.scale((float) ((window.getHeight() / 3) / guiScale), (float) ((window.getHeight() / 3) / guiScale), 1);
+//        Quaternionf quaternion = new Quaternionf().rotateZ((float) Math.PI);
+//        Quaternionf quaternion2 = new Quaternionf().rotateY(previewRotation);
+//        quaternion.mul(quaternion2);
+//        poseStack2.mulPose(quaternion);
+//        float h = this.previewPlayer.yBodyRot;
+//        float i = this.previewPlayer.getYRot();
+//        float j = this.previewPlayer.getXRot();
+//        float k = this.previewPlayer.yHeadRotO;
+//        float l = this.previewPlayer.yHeadRot;
+//        this.previewPlayer.yBodyRot = 160f;
+//        this.previewPlayer.setYRot(160.0f);
+//        this.previewPlayer.setXRot(0f);
+//        this.previewPlayer.yHeadRot = this.previewPlayer.getYRot();
+//        this.previewPlayer.yHeadRotO = this.previewPlayer.getYRot();
+//        Lighting.setupForEntityInInventory(); //Setup Entity Lighting
+//        EntityRenderDispatcher renderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+//        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+//        quaternion2.conjugate();
+//        renderDispatcher.overrideCameraOrientation(quaternion2);
+//        renderDispatcher.setRenderShadow(false);
+//        RenderSystem.runAsFancy(() -> renderDispatcher.render(this.previewPlayer, 0, 0, 0, 0, 1f, poseStack2, bufferSource, 0xF000F0));
+//        bufferSource.endBatch();
+//        renderDispatcher.setRenderShadow(true);
+//        this.previewPlayer.yBodyRot = h;
+//        this.previewPlayer.setYRot(i);
+//        this.previewPlayer.setXRot(j);
+//        this.previewPlayer.yHeadRotO = k;
+//        this.previewPlayer.yHeadRot = l;
+//        /*? if <= 1.20.1 {*/  /*poseStack.popPose();  *//*?} else if >= 1.21.1 {*/ poseStack.popMatrix(); /*?}*/
+//        RenderSystem.applyModelViewMatrix();
+//        Lighting.setupFor3DItems();
+//    }
+
+    public static void renderStyleInGUI(GuiGraphics guiGraphics, double x, double y) {
+
     }
 }

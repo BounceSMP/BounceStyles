@@ -5,13 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 
 public enum Category implements StringRepresentable {
-    Head(Style.HEAD_ICON), Body(Style.BODY_ICON), Legs(Style.LEGS_ICON), Feet(Style.FEET_ICON), Preset(Style.PRESET_ICON);
-
-    public final ResourceLocation categoryIcon;
-
-    Category(ResourceLocation categoryIcon) {
-        this.categoryIcon = categoryIcon;
-    }
+    Head, Body, Legs, Feet, Preset;
 
     @Override
     public String getSerializedName() {
