@@ -1,6 +1,7 @@
 //? if forge {
 /*package dev.bsmp.bouncestyles.forge;
 
+import com.mojang.serialization.Lifecycle;
 import dev.architectury.platform.forge.EventBuses;
 import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.BounceStyles;
@@ -21,7 +22,7 @@ public class BounceStylesForge {
 
     @SubscribeEvent
     public static void registerDynamicRegistries(DataPackRegistryEvent.NewRegistry event) {
-        event.dataPackRegistry(BounceStylesRegistries.STYLE_REGISTRY_KEY, Style.CODEC);
+        event.dataPackRegistry(BounceStylesRegistries.STYLE_REGISTRY_KEY, Style.CODEC.withLifecycle(Lifecycle.stable()));
     }
 
 }

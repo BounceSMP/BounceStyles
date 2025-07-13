@@ -54,8 +54,7 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
 
     @Override
     protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
-        this.previewRotation = this.previewRotation + (partialTick * 0.05f);
-
+        this.previewRotation += 0.05f * partialTick;
         if (this.updateButtons)
             this.updateButtons();
         if (this.updateVisible)
@@ -207,10 +206,10 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
             poseStack.mulPose(quaternion);
 
             //? if <= 1.20.1 {
-//            Lighting.setupLevel(context.pose().last().pose());
-            //? } else if >= 1.21.1 {
+            /*Lighting.setupLevel(context.pose().last().pose());
+            *///?} else if >= 1.21.1 {
             GlStateManager.setupLevelDiffuseLighting(new Vector3f(0.2F, 1.0F, -0.7F).normalize(), new Vector3f(-0.2F, 1.0F, 0.7F).normalize(), context.pose().last().pose());
-            //? }
+            //?}
 
             RenderSystem.disableDepthTest();
             RenderSystem.runAsFancy(() -> {

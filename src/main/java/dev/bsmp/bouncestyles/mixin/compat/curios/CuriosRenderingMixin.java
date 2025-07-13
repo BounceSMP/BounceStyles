@@ -1,5 +1,5 @@
-//? if forge {
-/*package dev.bsmp.bouncestyles.mixin.compat.curios;
+//? if forge || neoforge {
+package dev.bsmp.bouncestyles.mixin.compat.curios;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.bsmp.bouncestyles.core.BounceStyles;
@@ -22,4 +22,4 @@ public abstract class CuriosRenderingMixin<T extends LivingEntity, M extends Ent
     }
 
 }
-*///?}
+//?}

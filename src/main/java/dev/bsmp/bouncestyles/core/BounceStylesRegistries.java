@@ -11,13 +11,12 @@ import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.data.StyleMagazineItem;
 import dev.bsmp.bouncestyles.api.style.StylePreset;
-import dev.bsmp.bouncestyles.mixin.ArgumentTypesAccessor;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
+import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -38,9 +37,17 @@ public class BounceStylesRegistries {
 
         //Register StyleSlot Command Argument Type
         Registrar<ArgumentTypeInfo<?, ?>> argTypes = REGISTRIES.get().get(Registries.COMMAND_ARGUMENT_TYPE);
-        ArgumentTypeInfo<?, ?> serializer = SingletonArgumentInfo.contextFree(StyleSlotArgumentType::styleSlot);
-        argTypes.register(BounceStyles.resourceLocation("style_slot"), () -> serializer);
-        ArgumentTypesAccessor.getClassMap().put(StyleSlotArgumentType.class, serializer);
+
+        //? if fabric {
+        /*net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry.registerArgumentType(
+                BounceStyles.resourceLocation("style_slot"),
+                StyleSlotArgumentType.class,
+                SingletonArgumentInfo.contextFree(StyleSlotArgumentType::styleSlot)
+        );
+        *///?} else {
+        var argumentTypeInfo = ArgumentTypeInfos.registerByClass(StyleSlotArgumentType.class, SingletonArgumentInfo.contextFree(StyleSlotArgumentType::styleSlot));
+        argTypes.register(BounceStyles.resourceLocation("style_slot"), () -> argumentTypeInfo);
+        //?}
     }
 
     public static <T, E extends T> RegistrySupplier<E> register(ResourceKey<Registry<T>> key, ResourceLocation id, Supplier<E> supplier) {

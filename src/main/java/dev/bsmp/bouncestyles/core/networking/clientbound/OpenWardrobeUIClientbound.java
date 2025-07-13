@@ -1,6 +1,8 @@
 package dev.bsmp.bouncestyles.core.networking.clientbound;
 
+import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.networking.StylePacket;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
@@ -14,4 +16,19 @@ public record OpenWardrobeUIClientbound(List<ResourceLocation> unlocks) implemen
     public static OpenWardrobeUIClientbound decode(FriendlyByteBuf buf) {
         return new OpenWardrobeUIClientbound(buf.readJsonWithCodec(ResourceLocation.CODEC.listOf()));
     }
+
+    //? if neoforge {
+    public static final Type<OpenWardrobeUIClientbound> TYPE = new net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<>(BounceStyles.resourceLocation("clientbound_open_wardrobe"));
+
+    public static final net.minecraft.network.codec.StreamCodec<ByteBuf, OpenWardrobeUIClientbound> STREAM_CODEC = net.minecraft.network.codec.StreamCodec.composite(
+            net.minecraft.network.codec.ByteBufCodecs.fromCodec(ResourceLocation.CODEC.listOf()),
+            OpenWardrobeUIClientbound::unlocks,
+            OpenWardrobeUIClientbound::new
+    );
+
+    @Override
+    public Type<? extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> type() {
+        return TYPE;
+    }
+    //?}
 }

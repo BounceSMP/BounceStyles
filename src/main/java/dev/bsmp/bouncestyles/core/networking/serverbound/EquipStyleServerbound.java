@@ -3,7 +3,9 @@ package dev.bsmp.bouncestyles.core.networking.serverbound;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import dev.bsmp.bouncestyles.api.style.Category;
+import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.networking.StylePacket;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
@@ -43,5 +45,19 @@ public record EquipStyleServerbound(Map<Category, Optional<Pair<ResourceLocation
             ResourceLocation.CODEC.fieldOf("style_id").codec(),
             Codec.INT.optionalFieldOf("texture_variant", -1).codec()
     ), true).codec());
+
+    public static final net.minecraft.network.codec.StreamCodec<ByteBuf, EquipStyleServerbound> STREAM_CODEC = net.minecraft.network.codec.StreamCodec.composite(
+            net.minecraft.network.codec.ByteBufCodecs.fromCodec(CODEC),
+            EquipStyleServerbound::styleMap,
+            EquipStyleServerbound::new
+    );
+    //?}
+    //? if neoforge {
+    public static final Type<EquipStyleServerbound> TYPE = new net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<>(BounceStyles.resourceLocation("serverbound_equip_style"));
+
+    @Override
+    public Type<? extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> type() {
+        return TYPE;
+    }
     //?}
 }

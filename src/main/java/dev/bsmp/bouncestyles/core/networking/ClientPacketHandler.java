@@ -16,28 +16,30 @@ import java.util.function.Supplier;
 public class ClientPacketHandler {
     public static void handleSyncStyleData(SyncStyleDataClientbound packet, Supplier<NetworkManager.PacketContext> contextSupplier) {
         NetworkManager.PacketContext ctx = contextSupplier.get();
+        ctx.queue(() -> handleSyncStyleData(packet));
+    }
 
-        ctx.queue(() -> {
-            Entity entity = Minecraft.getInstance().player.level().getEntity(packet.entityId());
-            if(entity instanceof Player) {
-                StyleData.setPlayerData((Player) entity, packet.styleData());
-            }
-        });
+    public static void handleSyncStyleData(SyncStyleDataClientbound packet) {
+        Entity entity = Minecraft.getInstance().player.level().getEntity(packet.entityId());
+        if(entity instanceof Player) {
+            StyleData.setPlayerData((Player) entity, packet.styleData());
+        }
     }
 
     public static void handleOpenWardrobeUI(OpenWardrobeUIClientbound packet, Supplier<NetworkManager.PacketContext> contextSupplier) {
         NetworkManager.PacketContext ctx = contextSupplier.get();
+        ctx.queue(() -> handleOpenWardrobeUI(ctx.getPlayer(), packet));
+    }
 
-        ctx.queue(() -> {
-            try {
-                StyleLoader.loadPresets();
-            }
-            catch (Exception e) {
-                BounceStyles.LOGGER.error("Exception Occurred reading Presets file", e);
-            }
-            StyleData styleData = StyleData.getOrCreateStyleData(ctx.getPlayer());
-            styleData.setUnlocks(packet.unlocks());
-            Minecraft.getInstance().setScreen(new WardrobeScreen(styleData.getUnlocks()));
-        });
+    public static void handleOpenWardrobeUI(Player player, OpenWardrobeUIClientbound packet) {
+        try {
+            StyleLoader.loadPresets();
+        }
+        catch (Exception e) {
+            BounceStyles.LOGGER.error("Exception Occurred reading Presets file", e);
+        }
+        StyleData styleData = StyleData.getOrCreateStyleData(player);
+        styleData.setUnlocks(packet.unlocks());
+        Minecraft.getInstance().setScreen(new WardrobeScreen(styleData.getUnlocks()));
     }
 }

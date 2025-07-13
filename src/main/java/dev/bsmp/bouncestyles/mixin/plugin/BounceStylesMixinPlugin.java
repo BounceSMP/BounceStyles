@@ -14,12 +14,13 @@ public class BounceStylesMixinPlugin implements IMixinConfigPlugin {
         if (!mixinClassName.contains("compat.")) return true;
         var path = mixinClassName.split("\\.");
         var modId = path[path.length - 2];
-        //? if forge {
-        /*boolean shouldApply = net.minecraftforge.fml.loading.LoadingModList.get().getModFileById(modId) != null;
+        //? if neoforge {
+        return net.neoforged.fml.loading.LoadingModList.get().getModFileById(modId) != null;
+        //? } elif forge {
+        /*return net.minecraftforge.fml.loading.LoadingModList.get().getModFileById(modId) != null;
         *///?} else {
-        boolean shouldApply = Platform.isModLoaded(modId);
+        //return Platform.isModLoaded(modId);
         //?}
-        return false;
     }
 
     @Override

@@ -39,8 +39,10 @@ public class BounceStyles {
         BounceStylesRegistries.init();
         MAGAZINE_ITEM = BounceStylesRegistries.register(Registries.ITEM, resourceLocation("magazine"), StyleMagazineItem::new);
 
-        BounceStylesNetwork.initServerbound();
+        //? if !neoforge {
+        /*BounceStylesNetwork.initServerbound();
         BounceStylesNetwork.initClientbound();
+        *///?}
 
         LifecycleEvent.SERVER_STARTING.register(server -> BounceStylesRegistries.setRegistryAccess(server.registryAccess()));
         LifecycleEvent.SERVER_STARTED.register(server -> BounceStylesRegistries.getRegistry().ifPresent(styles -> {
