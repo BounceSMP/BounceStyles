@@ -482,10 +482,16 @@ class SpecialMultiversionedConstants {
     private fun forgedep(modid: String, versionRange: VersionRange, order: String, mandatory: Boolean) : String {
         return "[[dependencies.${mod.id}]]\n" +
                 "modId=\"${modid}\"\n" +
-                "${mandatoryIndicator}=${mandatory}\n" +
+                getMandatoryString(mandatory) +
                 "versionRange=\"${versionRange.asForgelike()}\"\n" +
                 "ordering=\"${order}\"\n" +
                 "side=\"BOTH\"\n"
+    }
+    private fun getMandatoryString(mandatory: Boolean) : String {
+        if (env.isNeo)
+            return "type=\"${if(mandatory) "required" else "optional"}\"\n"
+        else
+            return "mandatory=\"${mandatory}\"\n"
     }
 }
 val mod = ModProperties()
