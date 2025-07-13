@@ -1,7 +1,6 @@
 package dev.bsmp.bouncestyles.api.style;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import net.minecraft.resources.ResourceLocation;

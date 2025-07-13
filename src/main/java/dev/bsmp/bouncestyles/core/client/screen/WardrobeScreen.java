@@ -61,6 +61,7 @@ public class WardrobeScreen extends Screen {
 
         this.searchBox = addRenderableWidget(new EditBox(minecraft.font, previewRight + 32, 4, 150, 20, Component.empty()));
         this.searchBox.setResponder(s -> this.updateStyles());
+        this.searchBox.setHint(Component.literal("Search..."));
 
         int btnSize = topBarHeight;
         this.clearButton = addRenderableWidget(new WardrobeIconButton(width - topBarHeight, 2, btnSize, btnSize, TEX_CLEAR, TEX_CLEAR_HOVER, Component.literal("Clear Equipped"), button -> clearEquipped()));
