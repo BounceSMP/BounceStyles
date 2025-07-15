@@ -6,10 +6,16 @@ import dev.architectury.platform.forge.EventBuses;
 import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
+import net.minecraft.core.RegistrySetBuilder;
+import net.minecraft.data.DataProvider;
+import net.minecraftforge.common.data.DatapackBuiltinEntriesProvider;
+import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DataPackRegistryEvent;
+
+import java.util.Set;
 
 @Mod(BounceStyles.modId)
 @Mod.EventBusSubscriber(modid = BounceStyles.modId, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -22,8 +28,7 @@ public class BounceStylesForge {
 
     @SubscribeEvent
     public static void registerDynamicRegistries(DataPackRegistryEvent.NewRegistry event) {
-        event.dataPackRegistry(BounceStylesRegistries.STYLE_REGISTRY_KEY, Style.CODEC.withLifecycle(Lifecycle.stable()));
+        event.dataPackRegistry(BounceStylesRegistries.STYLE_REGISTRY_KEY, Style.CODEC.withLifecycle(Lifecycle.stable()), Style.CODEC);
     }
-
 }
 *///?}

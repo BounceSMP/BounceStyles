@@ -19,7 +19,7 @@ public record SyncStyleDataClientbound(int entityId, StyleData styleData) implem
         );
     }
 
-    //? if neoforge {
+    //? if >= 1.21.1 {
     public static final Type<SyncStyleDataClientbound> TYPE = new net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<>(BounceStyles.resourceLocation("clientbound_sync_style_data"));
 
     public static final net.minecraft.network.codec.StreamCodec<ByteBuf, SyncStyleDataClientbound> STREAM_CODEC = net.minecraft.network.codec.StreamCodec.composite(

@@ -26,12 +26,11 @@ import java.util.Optional;
 *///?} else if >= 1.21.1 {
 import software.bernie.geckolib.animation.AnimationState;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.animation.AnimationState;
 //?}
 
 public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>> implements GeoRenderer<Style> {
     private Player currentPlayer;
-    private static final StyleGeoModel model = new StyleGeoModel();
+    private static final StyleGeoModel geoModel = new StyleGeoModel();
 
     public static String headBone = "armorHead";
     public static String bodyBone = "armorBody";
@@ -74,7 +73,9 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
         ResourceLocation texture = getStyleTexture(style, textureId);
 
         RenderType renderLayer = getRenderType(style, texture, bufferSource, partialTick);
-        fitToBones(model.getBakedModel(style.getModelId()), category);
+        var bakedModel = geoModel.getBakedModel(style.getModelId());
+        setupBoneVisibility(bakedModel, category);
+        fitToBones(bakedModel, category);
         defaultRender(poseStack, style, bufferSource, renderLayer, null, headYaw, partialTick, light);
     }
 
@@ -84,8 +85,8 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
         RenderType renderType = getRenderType(style, texture, bufferSource, partialTick);
         VertexConsumer buffer = bufferSource.getBuffer(renderType);
 
-        var bakedModel = model.getBakedModel(style.getModelId());
-        fitToBones(bakedModel, category);
+        var bakedModel = geoModel.getBakedModel(style.getModelId());
+        setupBoneVisibility(bakedModel, category);
 
         poseStack.pushPose();
 
@@ -156,16 +157,16 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
             AnimationState<Style> animationState = new AnimationState<>(style, 0, 0, partialTick, isMoving);
 
             animationState.setData(Style.PLAYER, this.currentPlayer);
-            model.addAdditionalStateData(style, instanceId, animationState::setData);
+            geoModel.addAdditionalStateData(style, instanceId, animationState::setData);
             //? if <= 1.20.1 {
             /*model.handleAnimations(style, instanceId, animationState);
             *///?} else if >= 1.21.1 {
-            model.handleAnimations(style, instanceId, animationState, partialTick);
+            geoModel.handleAnimations(style, instanceId, animationState, partialTick);
             //?}
         }
     }
 
-    private void fitToBones(BakedGeoModel model, Category category) {
+    private void setupBoneVisibility(BakedGeoModel model, Category category) {
         setBoneVisibility(headBone, model, false);
         setBoneVisibility(bodyBone, model, false);
         setBoneVisibility(rightArmBone, model, false);
@@ -175,6 +176,26 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
         setBoneVisibility(rightBootBone, model, false);
         setBoneVisibility(rightBootBone, model, false);
         setBoneVisibility(leftBootBone, model, false);
+
+        switch (category) {
+            case Head -> setBoneVisibility(headBone, model, true);
+            case Body -> {
+                setBoneVisibility(bodyBone, model, true);
+                setBoneVisibility(rightArmBone, model, true);
+                setBoneVisibility(leftArmBone, model, true);
+            }
+            case Legs -> {
+                setBoneVisibility(rightLegBone, model, true);
+                setBoneVisibility(leftLegBone, model, true);
+            }
+            case Feet -> {
+                setBoneVisibility(rightBootBone, model, true);
+                setBoneVisibility(leftBootBone, model, true);
+            }
+        }
+    }
+
+    private void fitToBones(BakedGeoModel model, Category category) {
         PlayerModel<Player> playerModel = getParentModel();
 
         switch (category) {
@@ -182,7 +203,6 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
                 GeoBone bone = model.getBone(headBone).orElse(null);
                 if (bone != null) {
                     matchModelPartRot(getParentModel().head, bone);
-                    setBoneVisibility(headBone, model, true);
                     bone.setModelPosition(new Vector3d(playerModel.head.x, -playerModel.head.y, playerModel.head.z));
                 }
             }
@@ -194,9 +214,6 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
                     matchModelPartRot(getParentModel().body, bodyGeoBone);
                     matchModelPartRot(getParentModel().rightArm, rightArmGeoBone);
                     matchModelPartRot(getParentModel().leftArm, leftArmGeoBone);
-                    setBoneVisibility(bodyBone, model, true);
-                    setBoneVisibility(rightArmBone, model, true);
-                    setBoneVisibility(leftArmBone, model, true);
                     bodyGeoBone.setModelPosition(new Vector3d(playerModel.body.x, -playerModel.body.y, playerModel.body.z));
                     rightArmGeoBone.setModelPosition(new Vector3d(playerModel.rightArm.x + 5, 2 - playerModel.rightArm.y, playerModel.rightArm.z));
                     leftArmGeoBone.setModelPosition(new Vector3d(playerModel.leftArm.x - 5, 2 - playerModel.leftArm.y, playerModel.leftArm.z));
@@ -208,8 +225,6 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
                 if (rightLegGeoBone != null && leftLegGeoBone != null) {
                     matchModelPartRot(getParentModel().rightLeg, rightLegGeoBone);
                     matchModelPartRot(getParentModel().leftLeg, leftLegGeoBone);
-                    setBoneVisibility(rightLegBone, model, true);
-                    setBoneVisibility(leftLegBone, model, true);
                     rightLegGeoBone.setModelPosition(new Vector3d(playerModel.rightLeg.x + 2, 12 - playerModel.rightLeg.y, playerModel.rightLeg.z));
                     leftLegGeoBone.setModelPosition(new Vector3d(playerModel.leftLeg.x - 2, 12 - playerModel.leftLeg.y, playerModel.leftLeg.z));
                 }
@@ -220,8 +235,6 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
                 if (rightBootGeoBone != null && leftBootGeoBone != null) {
                     matchModelPartRot(getParentModel().rightLeg, rightBootGeoBone);
                     matchModelPartRot(getParentModel().leftLeg, leftBootGeoBone);
-                    setBoneVisibility(rightBootBone, model, true);
-                    setBoneVisibility(leftBootBone, model, true);
                     rightBootGeoBone.setModelPosition(new Vector3d(playerModel.rightLeg.x + 2, 12 - playerModel.rightLeg.y, playerModel.rightLeg.z));
                     leftBootGeoBone.setModelPosition(new Vector3d(playerModel.leftLeg.x - 2, 12 - playerModel.leftLeg.y, playerModel.leftLeg.z));
                 }
@@ -253,7 +266,7 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
 
     @Override
     public GeoModel<Style> getGeoModel() {
-        return model;
+        return geoModel;
     }
 
     @Override

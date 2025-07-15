@@ -1,5 +1,5 @@
 //? if neoforge {
-package dev.bsmp.bouncestyles.neoforge;
+/*package dev.bsmp.bouncestyles.neoforge;
 
 import com.mojang.serialization.Lifecycle;
 import dev.bsmp.bouncestyles.api.style.Style;
@@ -26,6 +26,8 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
+import net.neoforged.neoforge.registries.datamaps.DataMapType;
+import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
 
 @Mod(BounceStyles.modId)
 @EventBusSubscriber(modid = BounceStyles.modId, bus = EventBusSubscriber.Bus.MOD)
@@ -39,21 +41,7 @@ public class BounceStylesNeoforge<T extends StylePacket> implements IPayloadHand
 
     @SubscribeEvent
     public static void registerDynamicRegistries(DataPackRegistryEvent.NewRegistry event) {
-        event.dataPackRegistry(BounceStylesRegistries.STYLE_REGISTRY_KEY, Style.CODEC.withLifecycle(Lifecycle.stable()));
-    }
-
-    @SubscribeEvent
-    public static void registerPackets(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar("300");
-
-        //Serverbound
-        registrar.playToServer(EquipStyleServerbound.TYPE, EquipStyleServerbound.STREAM_CODEC, instance);
-        registrar.playToServer(OpenStyleScreenServerbound.TYPE, OpenStyleScreenServerbound.STREAM_CODEC, instance);
-        registrar.playToServer(ToggleArmorVisibilityServerbound.TYPE, ToggleArmorVisibilityServerbound.STREAM_CODEC, instance);
-
-        //Clientbound
-        registrar.playToClient(OpenWardrobeUIClientbound.TYPE, OpenWardrobeUIClientbound.STREAM_CODEC, instance);
-        registrar.playToClient(SyncStyleDataClientbound.TYPE, SyncStyleDataClientbound.STREAM_CODEC, instance);
+        event.dataPackRegistry(BounceStylesRegistries.STYLE_REGISTRY_KEY, Style.CODEC.withLifecycle(Lifecycle.stable()), Style.CODEC.withLifecycle(Lifecycle.stable()));
     }
 
     @Override
@@ -68,4 +56,4 @@ public class BounceStylesNeoforge<T extends StylePacket> implements IPayloadHand
         else if (packetIn instanceof SyncStyleDataClientbound packet) context.enqueueWork(() -> ClientPacketHandler.handleSyncStyleData(packet));
     }
 }
-//?}
+*///?}

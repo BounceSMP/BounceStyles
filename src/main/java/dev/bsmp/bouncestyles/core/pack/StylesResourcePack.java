@@ -1,5 +1,7 @@
 package dev.bsmp.bouncestyles.core.pack;
 
+import dev.architectury.platform.Platform;
+import dev.architectury.utils.Env;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 import net.minecraft.network.chat.Component;
@@ -66,7 +68,7 @@ public class StylesResourcePack extends AbstractPackResources implements Pack.Re
         List<PackResources> matchingPacks = map.get(id.getNamespace());
         if (matchingPacks == null) matchingPacks = Collections.emptyList();
 
-        if (type == PackType.CLIENT_RESOURCES && BounceStylesClient.isLookingForLang(id)) {
+        if (type == PackType.CLIENT_RESOURCES && Platform.getEnvironment() == Env.CLIENT && BounceStylesClient.isLookingForLang(id)) {
             return BounceStylesClient.processPackLangs(matchingPacks, id);
         }
 

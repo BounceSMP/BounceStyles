@@ -1,4 +1,5 @@
-package dev.bsmp.bouncestyles.neoforge;
+//? if neoforge {
+/*package dev.bsmp.bouncestyles.neoforge;
 
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
@@ -30,3 +31,4 @@ public class BounceStylesNeoforgeClient {
     }
 
 }
+*///?}

@@ -40,7 +40,14 @@ public record EquipStyleServerbound(Map<Category, Optional<Pair<ResourceLocation
             ResourceLocation.CODEC.fieldOf("style_id").codec(),
             Codec.INT.optionalFieldOf("texture_variant", -1).codec()
     )).codec());
-    *///?} else if >= 1.21.1 {
+    *///?} elif >= 1.21.1 {
+    public static final Type<EquipStyleServerbound> TYPE = new net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<>(BounceStyles.resourceLocation("serverbound_equip_style"));
+
+    @Override
+    public Type<? extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> type() {
+        return TYPE;
+    }
+
     private static final Codec<Map<Category, Optional<Pair<ResourceLocation, Integer>>>> CODEC = Codec.unboundedMap(Category.CODEC, Codec.optionalField("value", Codec.pair(
             ResourceLocation.CODEC.fieldOf("style_id").codec(),
             Codec.INT.optionalFieldOf("texture_variant", -1).codec()
@@ -51,13 +58,5 @@ public record EquipStyleServerbound(Map<Category, Optional<Pair<ResourceLocation
             EquipStyleServerbound::styleMap,
             EquipStyleServerbound::new
     );
-    //?}
-    //? if neoforge {
-    public static final Type<EquipStyleServerbound> TYPE = new net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<>(BounceStyles.resourceLocation("serverbound_equip_style"));
-
-    @Override
-    public Type<? extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> type() {
-        return TYPE;
-    }
     //?}
 }

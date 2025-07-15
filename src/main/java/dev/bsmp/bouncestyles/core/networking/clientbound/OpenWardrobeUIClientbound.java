@@ -17,7 +17,7 @@ public record OpenWardrobeUIClientbound(List<ResourceLocation> unlocks) implemen
         return new OpenWardrobeUIClientbound(buf.readJsonWithCodec(ResourceLocation.CODEC.listOf()));
     }
 
-    //? if neoforge {
+    //? if >= 1.21.1 {
     public static final Type<OpenWardrobeUIClientbound> TYPE = new net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<>(BounceStyles.resourceLocation("clientbound_open_wardrobe"));
 
     public static final net.minecraft.network.codec.StreamCodec<ByteBuf, OpenWardrobeUIClientbound> STREAM_CODEC = net.minecraft.network.codec.StreamCodec.composite(

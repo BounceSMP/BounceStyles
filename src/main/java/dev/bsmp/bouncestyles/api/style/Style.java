@@ -168,7 +168,7 @@ public class Style implements GeoAnimatable {
         Map<String, String> stringMap = new HashMap<>();
         this.animationMap.forEach((s, rawAnimation) -> {
             //ToDo If animation sequences are implemented, join them together with ';' or something, matching the input string
-            stringMap.put(s, rawAnimation.getAnimationStages().getLast().animationName());
+            stringMap.put(s, rawAnimation.getAnimationStages().get(rawAnimation.getAnimationStages().size() - 1).animationName());
         });
         return Optional.of(stringMap);
     }

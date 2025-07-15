@@ -1,4 +1,5 @@
-package dev.bsmp.bouncestyles.core.networking;
+//? if <= 1.20.1 {
+/*package dev.bsmp.bouncestyles.core.networking;
 
 import dev.architectury.networking.NetworkChannel;
 import dev.bsmp.bouncestyles.core.BounceStyles;
@@ -12,7 +13,7 @@ import net.minecraft.world.entity.Entity;
 
 import java.util.Set;
 
-public class BounceStylesNetwork {
+public class StylesLegacyNetworking {
     public static final NetworkChannel CHANNEL = NetworkChannel.create(BounceStyles.resourceLocation("network"));
 
     public static void initServerbound() {
@@ -33,3 +34,4 @@ public class BounceStylesNetwork {
         }
     }
 }
+*///?}

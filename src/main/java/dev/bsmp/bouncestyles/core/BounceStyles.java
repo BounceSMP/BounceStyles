@@ -5,7 +5,6 @@ import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.registry.registries.RegistrySupplier;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.data.StyleMagazineItem;
-import dev.bsmp.bouncestyles.core.networking.BounceStylesNetwork;
 import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientbound;
 import dev.bsmp.bouncestyles.mixin.ChunkStorageAccessor;
 import dev.bsmp.bouncestyles.mixin.EntityTrackerAccessor;
@@ -39,10 +38,13 @@ public class BounceStyles {
         BounceStylesRegistries.init();
         MAGAZINE_ITEM = BounceStylesRegistries.register(Registries.ITEM, resourceLocation("magazine"), StyleMagazineItem::new);
 
-        //? if !neoforge {
-        /*BounceStylesNetwork.initServerbound();
-        BounceStylesNetwork.initClientbound();
-        *///?}
+        //? if <= 1.20.1 {
+        /*dev.bsmp.bouncestyles.core.networking.StylesLegacyNetworking.initServerbound();
+        dev.bsmp.bouncestyles.core.networking.StylesLegacyNetworking.initClientbound();
+        *///?} elif >= 1.21.1 {
+        dev.bsmp.bouncestyles.core.networking.StylesNetworking.initServerbound();
+        dev.bsmp.bouncestyles.core.networking.StylesNetworking.initClientbound();
+        //?}
 
         LifecycleEvent.SERVER_STARTING.register(server -> BounceStylesRegistries.setRegistryAccess(server.registryAccess()));
         LifecycleEvent.SERVER_STARTED.register(server -> BounceStylesRegistries.getRegistry().ifPresent(styles -> {

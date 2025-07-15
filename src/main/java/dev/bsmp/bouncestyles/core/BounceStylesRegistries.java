@@ -11,12 +11,14 @@ import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.data.StyleMagazineItem;
 import dev.bsmp.bouncestyles.api.style.StylePreset;
+import net.fabricmc.fabric.impl.registry.sync.DynamicRegistriesImpl;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.RegistryDataLoader;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -36,18 +38,17 @@ public class BounceStylesRegistries {
         CommandRegistrationEvent.EVENT.register((dispatcher, registry, dedicated) -> StyleCommand.register(dispatcher));
 
         //Register StyleSlot Command Argument Type
-        Registrar<ArgumentTypeInfo<?, ?>> argTypes = REGISTRIES.get().get(Registries.COMMAND_ARGUMENT_TYPE);
-
         //? if fabric {
-        /*net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry.registerArgumentType(
+        net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry.registerArgumentType(
                 BounceStyles.resourceLocation("style_slot"),
                 StyleSlotArgumentType.class,
                 SingletonArgumentInfo.contextFree(StyleSlotArgumentType::styleSlot)
         );
-        *///?} else {
+        //?} else {
+        /*Registrar<ArgumentTypeInfo<?, ?>> argTypes = REGISTRIES.get().get(Registries.COMMAND_ARGUMENT_TYPE);
         var argumentTypeInfo = ArgumentTypeInfos.registerByClass(StyleSlotArgumentType.class, SingletonArgumentInfo.contextFree(StyleSlotArgumentType::styleSlot));
         argTypes.register(BounceStyles.resourceLocation("style_slot"), () -> argumentTypeInfo);
-        //?}
+        *///?}
     }
 
     public static <T, E extends T> RegistrySupplier<E> register(ResourceKey<Registry<T>> key, ResourceLocation id, Supplier<E> supplier) {
@@ -93,7 +94,7 @@ public class BounceStylesRegistries {
     }
 
     public static void setRegistryAccess(RegistryAccess access) {
-        if (registryAccess == null) registryAccess = access;
+        registryAccess = access;
     }
 
 }

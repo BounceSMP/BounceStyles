@@ -34,8 +34,10 @@ public class StyleMagazineItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
         ItemStack itemStack = user.getItemInHand(hand);
         if(!world.isClientSide) {
-            if(StyleData.getOrCreateStyleData(user).unlockStyle(getStyleIdFromStack(itemStack)) && !user.getAbilities().instabuild)
+            if(StyleData.getOrCreateStyleData(user).unlockStyle(getStyleIdFromStack(itemStack)) && !user.getAbilities().instabuild) {
+                user.displayClientMessage(Component.literal("Style Unlocked"), true);
                 itemStack.shrink(1);
+            }
         }
         return InteractionResultHolder.sidedSuccess(itemStack, world.isClientSide);
     }

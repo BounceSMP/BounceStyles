@@ -27,4 +27,13 @@ public class StyleGeoModel extends GeoModel<Style> {
     public ResourceLocation getAnimationResource(Style style) {
         return style.getAnimationId().orElse(null);
     }
+
+    //? if <= 1.20.1 {
+    /*@Override
+    public software.bernie.geckolib.core.animation.Animation getAnimation(Style animatable, String name) {
+        if (!GeckoLibCache.getBakedAnimations().containsKey(getAnimationResource(animatable)))
+            return null;
+        return super.getAnimation(animatable, name);
+    }
+    *///?}
 }

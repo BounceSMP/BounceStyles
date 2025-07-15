@@ -34,14 +34,14 @@ public class StyleCommand {
                 .build();
         dispatcher.getRoot().addChild(styleNode);
 
-        registerUnlockCommand(styleNode);
-        registerRemoveCommand(styleNode);
-        registerEquipCommand(styleNode);
-        registerItemCommand(styleNode);
+        unlockCommand(styleNode);
+        removeCommand(styleNode);
+        equipCommand(styleNode);
+        itemizeCommand(styleNode);
     }
 
     //Register
-    private static void registerUnlockCommand(LiteralCommandNode<CommandSourceStack> styleNode) {
+    private static void unlockCommand(LiteralCommandNode<CommandSourceStack> styleNode) {
         LiteralCommandNode<CommandSourceStack> unlockNode = Commands
                 .literal("unlock")
                 .build();
@@ -64,7 +64,7 @@ public class StyleCommand {
         playerNode.addChild(unlockIdNode);
     }
 
-    private static void registerRemoveCommand(LiteralCommandNode<CommandSourceStack> styleNode) {
+    private static void removeCommand(LiteralCommandNode<CommandSourceStack> styleNode) {
         LiteralCommandNode<CommandSourceStack> removeNode = Commands
                 .literal("remove")
                 .build();
@@ -87,42 +87,35 @@ public class StyleCommand {
         playerNode.addChild(unlockIdNode);
     }
 
-    private static void registerEquipCommand(LiteralCommandNode<CommandSourceStack> styleNode) {
+    private static void equipCommand(LiteralCommandNode<CommandSourceStack> styleNode) {
         LiteralCommandNode<CommandSourceStack> equipNode = Commands
                 .literal("equip")
+                .build();
+        ArgumentCommandNode<CommandSourceStack, EntitySelector> playerNode = Commands
+                .argument("player", EntityArgument.player())
                 .build();
         ArgumentCommandNode<CommandSourceStack, Category> slotNode = Commands
                 .argument("slot", StyleSlotArgumentType.styleSlot())
                 .build();
-
+        ArgumentCommandNode<CommandSourceStack, ResourceLocation> idNode = Commands
+                .argument("id", ResourceLocationArgument.id())
+                .suggests((context, builder) -> SharedSuggestionProvider.suggestResource(BounceStylesRegistries.getAllStyleIds(), builder))
+                .executes(context -> equip(context, EntityArgument.getPlayer(context, "player"), StyleSlotArgumentType.getCategory(context, "slot"), ResourceLocationArgument.getId(context, "id")))
+                .build();
         LiteralCommandNode<CommandSourceStack> emptyNode = Commands
                 .literal("empty")
-                .build();
-        ArgumentCommandNode<CommandSourceStack, EntitySelector> equipEmptyPlayerNode = Commands
-                .argument("player", EntityArgument.player())
                 .executes(context -> equip(context, EntityArgument.getPlayer(context, "player"), StyleSlotArgumentType.getCategory(context, "slot"), null))
                 .build();
 
-        ArgumentCommandNode<CommandSourceStack, ResourceLocation> equipIdNode = Commands
-                .argument("id", ResourceLocationArgument.id())
-                .suggests((context, builder) -> SharedSuggestionProvider.suggestResource(BounceStylesRegistries.getAllStyleIds(), builder))
-                .build();
-        ArgumentCommandNode<CommandSourceStack, EntitySelector> equipPlayerNode = Commands
-                .argument("player", EntityArgument.player())
-                .executes(context -> equip(context, EntityArgument.getPlayer(context, "player"), StyleSlotArgumentType.getCategory(context, "slot"), ResourceLocationArgument.getId(context, "id")))
-                .build();
 
         styleNode.addChild(equipNode);
-        equipNode.addChild(slotNode);
-
+        equipNode.addChild(playerNode);
+        playerNode.addChild(slotNode);
         slotNode.addChild(emptyNode);
-        emptyNode.addChild(equipEmptyPlayerNode);
-
-        slotNode.addChild(equipIdNode);
-        equipIdNode.addChild(equipPlayerNode);
+        slotNode.addChild(idNode);
     }
 
-    private static void registerItemCommand(LiteralCommandNode<CommandSourceStack> styleNode) {
+    private static void itemizeCommand(LiteralCommandNode<CommandSourceStack> styleNode) {
         LiteralCommandNode<CommandSourceStack> itemizeNode = Commands
                 .literal("itemize")
                 .build();
@@ -165,20 +158,26 @@ public class StyleCommand {
     private static int removeAll(CommandSourceStack source, Collection<ServerPlayer> players) {
         for(ServerPlayer player : players) {
             StyleData styleData = StyleData.getOrCreateStyleData(player);
-            for(ResourceLocation id : BounceStylesRegistries.getAllStyleIds()) {
-                styleData.removeStyle(id);
-            }
+            for(ResourceLocation id : BounceStylesRegistries.getAllStyleIds())
+                if (styleData.hasStyleUnlocked(id))
+                    styleData.removeStyle(id);
             source.sendSuccess(() -> Component.literal("Removed all styles for " + player.getScoreboardName()), true);
         }
         return 1;
     }
 
     private static int remove(CommandSourceStack source, Collection<ServerPlayer> players, ResourceLocation id) {
-        for(ServerPlayer player : players)
+        for(ServerPlayer player : players) {
+            StyleData styleData = StyleData.getOrCreateStyleData(player);
             if (id != null && BounceStylesRegistries.idExists(id)) {
-                StyleData.getOrCreateStyleData(player).removeStyle(id);
-                source.sendSuccess(() -> Component.literal("Removed style " + id + " from player " + player.getScoreboardName()), true);
+                if (styleData.hasStyleUnlocked(id)) {
+                    styleData.removeStyle(id);
+                    source.sendSuccess(() -> Component.literal("Removed style " + id + " from player " + player.getScoreboardName()), true);
+                }
+                else
+                    source.sendFailure(Component.literal("Player does not have " + id + " unlocked"));
             }
+        }
         return 1;
     }
 

@@ -14,7 +14,7 @@ public record ToggleArmorVisibilityServerbound(int index) implements StylePacket
         return new ToggleArmorVisibilityServerbound(buf.readInt());
     }
 
-    //? if neoforge {
+    //? if >= 1.21.1 {
     public static final Type<ToggleArmorVisibilityServerbound> TYPE = new net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<>(BounceStyles.resourceLocation("serverbound_toggle_armour"));
 
     public static final net.minecraft.network.codec.StreamCodec<ByteBuf, ToggleArmorVisibilityServerbound> STREAM_CODEC = net.minecraft.network.codec.StreamCodec.composite(
