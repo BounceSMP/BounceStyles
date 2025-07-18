@@ -19,6 +19,7 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,20 +29,19 @@ public class StyleData {
     private @Nullable Pair<Style, Integer> legStyle;
     private @Nullable Pair<Style, Integer> feetStyle;
 
-    private final boolean[] armorVisiblity;
     private final List<String> hiddenParts = new ArrayList<>();
     private List<ResourceLocation> unlocks = new ArrayList<>();
 
     public StyleData(Optional<Pair<Style, Integer>> head, Optional<Pair<Style, Integer>> body, Optional<Pair<Style, Integer>> legs, Optional<Pair<Style, Integer>> feet) {
-        this(head, body, legs, feet, new boolean[] {true, true, true, true}, new ArrayList<>(), Optional.empty());
+        this(head, body, legs, feet, new ArrayList<>(), Optional.empty());
     }
 
-    public StyleData(Optional<Pair<Style, Integer>> head, Optional<Pair<Style, Integer>> body, Optional<Pair<Style, Integer>> legs, Optional<Pair<Style, Integer>> feet,  boolean[] armorVisibility, List<String> hiddenParts, Optional<List<ResourceLocation>> unlocks) {
+    public StyleData(Optional<Pair<Style, Integer>> head, Optional<Pair<Style, Integer>> body, Optional<Pair<Style, Integer>> legs, Optional<Pair<Style, Integer>> feet,  List<String> hiddenParts, Optional<List<ResourceLocation>> unlocks) {
         head.ifPresent(pair -> this.setHeadStyle(pair.getFirst(), pair.getSecond()));
         body.ifPresent(pair -> this.setBodyStyle(pair.getFirst(), pair.getSecond()));
         legs.ifPresent(pair -> this.setLegStyle(pair.getFirst(), pair.getSecond()));
         feet.ifPresent(pair -> this.setFeetStyle(pair.getFirst(), pair.getSecond()));
-        this.armorVisiblity = armorVisibility;
+
         this.hiddenParts.addAll(hiddenParts);
         unlocks.ifPresent(list -> this.unlocks = new ArrayList<>(list));
     }
@@ -82,26 +82,6 @@ public class StyleData {
         updatePartVisibility(feetStyle);
     }
 
-    public void setArmorVisiblity(EquipmentSlot slot, boolean showArmor) {
-        if (!slot.isArmor()) return;
-        this.setArmorVisibility(slot.getIndex(), showArmor);
-    }
-
-    public void setArmorVisibility(int index, boolean showArmor) {
-        if (index >= this.armorVisiblity.length) return;
-        this.armorVisiblity[index] = showArmor;
-    }
-
-    public void toggleArmorVisibility(EquipmentSlot slot) {
-        if (!slot.isArmor()) return;
-        this.toggleArmorVisibility(slot.getIndex());
-    }
-
-    public void toggleArmorVisibility(int index) {
-        if (index >= this.armorVisiblity.length) return;
-        this.armorVisiblity[index] = !this.armorVisiblity[index];
-    }
-
     private void updatePartVisibility(Style style) {
         if(style == null || style.getHiddenParts().isEmpty())
             return;
@@ -127,27 +107,9 @@ public class StyleData {
         return Optional.ofNullable(this.feetStyle);
     }
 
-    public boolean[] getArmorVisiblity() {
-        return this.armorVisiblity;
-    }
-
-    private List<Pair<Integer, Boolean>> getArmorVisibilty() {
-        List<Pair<Integer, Boolean>> map = new ArrayList<>();
-        for (int i = 0; i < this.armorVisiblity.length; i++) {
-            map.add(Pair.of(i, this.armorVisiblity[i]));
-        }
-        return map;
-    }
-
     public boolean isArmorVisible(EquipmentSlot slot) {
-        if (!slot.isArmor()) return true;
         if (this.hiddenParts.contains("armor.*") || this.hiddenParts.contains("armor."+slot.getName().toLowerCase())) return false;
-        return isArmorVisible(slot.getIndex());
-    }
-
-    public boolean isArmorVisible(int index) {
-        if (index >= this.armorVisiblity.length) return true;
-        return this.armorVisiblity[index];
+        return true;
     }
 
     public List<String> getHiddenParts() {
@@ -263,12 +225,12 @@ public class StyleData {
         StyleData.setPlayerData(newPlayer, styleData);
     }
 
-    private static StyleData decode(Optional<Pair<ResourceLocation, Integer>> head, Optional<Pair<ResourceLocation, Integer>> body, Optional<Pair<ResourceLocation, Integer>> legs, Optional<Pair<ResourceLocation, Integer>> feet, Optional<List<Pair<Integer, Boolean>>> armorVisibility) {
-        return decode(head, body, legs, feet, armorVisibility, Optional.empty(), Optional.empty());
+    private static StyleData decode(Optional<Pair<ResourceLocation, Integer>> head, Optional<Pair<ResourceLocation, Integer>> body, Optional<Pair<ResourceLocation, Integer>> legs, Optional<Pair<ResourceLocation, Integer>> feet) {
+        return decode(head, body, legs, feet, Optional.empty(), Optional.empty());
     }
 
-    private static StyleData decode(Optional<Pair<ResourceLocation, Integer>> head, Optional<Pair<ResourceLocation, Integer>> body, Optional<Pair<ResourceLocation, Integer>> legs, Optional<Pair<ResourceLocation, Integer>> feet, Optional<List<Pair<Integer, Boolean>>> armorVisibility, Optional<List<String>> hiddenParts, Optional<List<ResourceLocation>> unlocks) {
-        return new StyleData(idToStyle(head), idToStyle(body), idToStyle(legs), idToStyle(feet), decodeArmorVisibility(armorVisibility), decodeHiddenParts(hiddenParts), unlocks);
+    private static StyleData decode(Optional<Pair<ResourceLocation, Integer>> head, Optional<Pair<ResourceLocation, Integer>> body, Optional<Pair<ResourceLocation, Integer>> legs, Optional<Pair<ResourceLocation, Integer>> feet, Optional<List<String>> hiddenParts, Optional<List<ResourceLocation>> unlocks) {
+        return new StyleData(idToStyle(head), idToStyle(body), idToStyle(legs), idToStyle(feet), decodeHiddenParts(hiddenParts), unlocks);
     }
 
     private static boolean[] decodeArmorVisibility(Optional<List<Pair<Integer, Boolean>>> armorVisibility) {
@@ -300,7 +262,6 @@ public class StyleData {
             CODEC_PAIR.optionalFieldOf("body").forGetter(styleData -> getIdIntPair(styleData, Category.Body)),
             CODEC_PAIR.optionalFieldOf("legs").forGetter(styleData -> getIdIntPair(styleData, Category.Legs)),
             CODEC_PAIR.optionalFieldOf("feet").forGetter(styleData -> getIdIntPair(styleData, Category.Feet)),
-            Codec.pair(Codec.INT.fieldOf("index").codec(), Codec.BOOL.fieldOf("value").codec()).listOf().optionalFieldOf("armor_visibility").forGetter(styleData -> Optional.of(styleData.getArmorVisibilty())),
             Codec.STRING.listOf().optionalFieldOf("hidden_parts").forGetter(styleData -> Optional.of(styleData.getHiddenParts())),
             ResourceLocation.CODEC.listOf().optionalFieldOf("unlocks").forGetter(styleData -> Optional.of(styleData.unlocks))
     ).apply(instance, StyleData::decode));
@@ -309,8 +270,7 @@ public class StyleData {
             CODEC_PAIR.optionalFieldOf("head").forGetter(styleData -> getIdIntPair(styleData, Category.Head)),
             CODEC_PAIR.optionalFieldOf("body").forGetter(styleData -> getIdIntPair(styleData, Category.Body)),
             CODEC_PAIR.optionalFieldOf("legs").forGetter(styleData -> getIdIntPair(styleData, Category.Legs)),
-            CODEC_PAIR.optionalFieldOf("feet").forGetter(styleData -> getIdIntPair(styleData, Category.Feet)),
-            Codec.pair(Codec.INT.fieldOf("index").codec(), Codec.BOOL.fieldOf("value").codec()).listOf().optionalFieldOf("armor_visibility").forGetter(styleData -> Optional.of(styleData.getArmorVisibilty()))
+            CODEC_PAIR.optionalFieldOf("feet").forGetter(styleData -> getIdIntPair(styleData, Category.Feet))
     ).apply(instance, StyleData::decode));
 
     private static Optional<Pair<ResourceLocation, Integer>> getIdIntPair(StyleData styleData, Category slot) {

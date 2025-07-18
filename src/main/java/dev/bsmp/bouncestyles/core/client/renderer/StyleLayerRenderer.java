@@ -159,7 +159,7 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
             animationState.setData(Style.PLAYER, this.currentPlayer);
             geoModel.addAdditionalStateData(style, instanceId, animationState::setData);
             //? if <= 1.20.1 {
-            /*model.handleAnimations(style, instanceId, animationState);
+            /*geoModel.handleAnimations(style, instanceId, animationState);
             *///?} else if >= 1.21.1 {
             geoModel.handleAnimations(style, instanceId, animationState, partialTick);
             //?}

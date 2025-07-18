@@ -20,6 +20,7 @@ public class StyleGeoModel extends GeoModel<Style> {
 
     @Override
     public ResourceLocation getTextureResource(Style style) {
+        if (!GeckoLibCache.getBakedModels().containsKey(style.getModelId())) return Style.MISSING_TEXTURE_ID;
         return style.getTextureId();
     }
 

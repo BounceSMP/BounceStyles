@@ -9,7 +9,6 @@ import dev.bsmp.bouncestyles.core.networking.clientbound.OpenWardrobeUIClientbou
 import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientbound;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
 import dev.bsmp.bouncestyles.core.networking.serverbound.OpenStyleScreenServerbound;
-import dev.bsmp.bouncestyles.core.networking.serverbound.ToggleArmorVisibilityServerbound;
 import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.world.entity.Entity;
 
@@ -18,7 +17,6 @@ import java.util.Set;
 public class StylesNetworking {
     public static void initServerbound() {
         NetworkManager.registerReceiver(NetworkManager.Side.C2S, EquipStyleServerbound.TYPE, EquipStyleServerbound.STREAM_CODEC, (packet, context) -> ServerPacketHandler.handleEquipStyle(packet, () -> context));
-        NetworkManager.registerReceiver(NetworkManager.Side.C2S, ToggleArmorVisibilityServerbound.TYPE, ToggleArmorVisibilityServerbound.STREAM_CODEC, (packet, context) -> ServerPacketHandler.handleArmorVisibility(packet, () -> context));
         NetworkManager.registerReceiver(NetworkManager.Side.C2S, OpenStyleScreenServerbound.TYPE, OpenStyleScreenServerbound.STREAM_CODEC, (packet, context) -> ServerPacketHandler.handleOpenStyleScreen(packet, () -> context));
     }
 

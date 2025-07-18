@@ -8,7 +8,6 @@ import dev.bsmp.bouncestyles.core.networking.clientbound.OpenWardrobeUIClientbou
 import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientbound;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
 import dev.bsmp.bouncestyles.core.networking.serverbound.OpenStyleScreenServerbound;
-import dev.bsmp.bouncestyles.core.networking.serverbound.ToggleArmorVisibilityServerbound;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.function.Supplier;
@@ -39,22 +38,6 @@ public class ServerPacketHandler {
         SyncStyleDataClientbound packetOut = new SyncStyleDataClientbound(player.getId(), styleData);
         packetOut.sendToPlayer(player);
         packetOut.sendToTrackingPlayers(player);
-    }
-
-    public static void handleArmorVisibility(ToggleArmorVisibilityServerbound packet, Supplier<NetworkManager.PacketContext> contextSupplier) {
-        NetworkManager.PacketContext ctx = contextSupplier.get();
-        ServerPlayer player = (ServerPlayer) ctx.getPlayer();
-
-        ctx.queue(() -> handleArmorVisibility(player, packet));
-    }
-
-    public static void handleArmorVisibility(ServerPlayer player, ToggleArmorVisibilityServerbound packet) {
-        StyleData styleData = StyleData.getOrCreateStyleData(player);
-        styleData.toggleArmorVisibility(packet.index());
-
-        SyncStyleDataClientbound outPacket = new SyncStyleDataClientbound(player.getId(), styleData);
-        outPacket.sendToPlayer(player);
-        outPacket.sendToTrackingPlayers(player);
     }
 
     public static void handleOpenStyleScreen(OpenStyleScreenServerbound packet, Supplier<NetworkManager.PacketContext> contextSupplier) {

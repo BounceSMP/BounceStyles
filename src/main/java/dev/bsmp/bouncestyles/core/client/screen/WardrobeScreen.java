@@ -6,7 +6,6 @@ import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.*;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
-import dev.bsmp.bouncestyles.core.networking.serverbound.ToggleArmorVisibilityServerbound;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -22,7 +21,6 @@ public class WardrobeScreen extends Screen {
     private static final ResourceLocation TEX_CLEAR = BounceStyles.resourceLocation("textures/gui/btn_clear.png");
     private static final ResourceLocation TEX_CLEAR_HOVER = BounceStyles.resourceLocation("textures/gui/btn_clear_hover.png");
     private static final ResourceLocation TEX_CATEGORY = BounceStyles.resourceLocation("textures/gui/selection_category.png");
-    private static final ResourceLocation TEX_ARMOR = BounceStyles.resourceLocation("textures/gui/selection_armor.png");
 
     WardrobePreviewWidget previewWidget;
     WardrobeStyleSelectionWidget styleWidget;
@@ -32,7 +30,6 @@ public class WardrobeScreen extends Screen {
     IconSelectionButton categoryBtn;
     EditBox searchBox;
     WardrobeIconButton clearButton;
-    IconSelectionButton armorVisibilityButton;
 
     List<ResourceLocation> unlockedStyles;
     Category selectedCategory;
@@ -63,12 +60,7 @@ public class WardrobeScreen extends Screen {
         this.searchBox.setResponder(s -> this.updateStyles());
         this.searchBox.setHint(Component.literal("Search..."));
 
-        int btnSize = topBarHeight;
-        this.clearButton = addRenderableWidget(new WardrobeIconButton(width - topBarHeight, 2, btnSize, btnSize, TEX_CLEAR, TEX_CLEAR_HOVER, Component.literal("Clear Equipped"), button -> clearEquipped()));
-        this.armorVisibilityButton = addRenderableOnly(new IconSelectionButton(width - 50, 2, 24, 24, TEX_ARMOR, true, Component.literal("Toggle Armor Visibility")));
-        for (EquipmentSlot slot : List.of(EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
-            this.armorVisibilityButton.addItem(Component.literal(slot.getName()), () -> this.toggleArmor(slot.getIndex()));
-        }
+        this.clearButton = addRenderableWidget(new WardrobeIconButton(width - topBarHeight, 2, 24, 24, TEX_CLEAR, TEX_CLEAR_HOVER, Component.literal("Clear Equipped"), button -> clearEquipped()));
 
         if(this.activeWidget instanceof WardrobeStyleSelectionWidget) {
             this.searchBox.visible = true;
@@ -127,7 +119,6 @@ public class WardrobeScreen extends Screen {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (!this.categoryBtn.mouseClicked(mouseX, mouseY, button))
             this.activeWidget.mouseClicked(mouseX, mouseY, button);
-        this.armorVisibilityButton.mouseClicked(mouseX, mouseY, button);
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
@@ -211,10 +202,6 @@ public class WardrobeScreen extends Screen {
         new EquipStyleServerbound(Category.Body).sendToServer();
         new EquipStyleServerbound(Category.Legs).sendToServer();
         new EquipStyleServerbound(Category.Feet).sendToServer();
-    }
-
-    private void toggleArmor(int index) {
-        new ToggleArmorVisibilityServerbound(index).sendToServer();
     }
 
 //    public static void renderPlayerInGUI(GuiGraphics guiGraphics, float x, float y) {

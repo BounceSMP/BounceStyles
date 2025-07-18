@@ -14,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
@@ -27,6 +28,7 @@ import java.util.Map;
 
 public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresetsWidget.PresetEntry> implements WardrobeWidget {
     private static final ResourceLocation TEX_WIDGETS = BounceStyles.resourceLocation("textures/gui/widgets.png");
+    private static final ResourceLocation TEX_ERROR = BounceStyles.resourceLocation("textures/icon/error.png");
     private static final ResourceLocation TEX_BTN_DELETE = BounceStyles.resourceLocation("textures/gui/btn_delete.png");
     private static final ResourceLocation TEX_BTN_DELETE_HOVER = BounceStyles.resourceLocation("textures/gui/btn_delete_hover.png");
     private static final ResourceLocation TEX_BTN_CREATE = BounceStyles.resourceLocation("textures/gui/btn_create.png");
@@ -164,7 +166,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
     }
 
     public static class PresetEntry extends AbstractSelectionList.Entry<PresetEntry> {
-        private static List<FormattedCharSequence> tooltipLines;
+        private static List<Component> tooltipLines;
         WardrobePresetsWidget parentWidget;
         StylePreset preset;
         WardrobeIconButton deleteButton;
@@ -179,7 +181,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
                 this.parentWidget.needsRefreshing = true;
             });
 
-            tooltipLines = Minecraft.getInstance().font.split(FormattedText.of("One or more items in this preset are not unlocked or invalid!"), 165);
+            tooltipLines = List.of(Component.literal("One or more items in this preset"), Component.literal("are not unlocked or invalid!"));
         }
 
         @Override
@@ -197,23 +199,18 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
             context.fill(left + width - 1, top, left + width, top + height, colorOutline); //Right Line
 
             context.drawString(Minecraft.getInstance().font, this.preset.name(), left + 5, top + (height / 2) - 4, isMouseOver ? 0xb3fffe : 0xFFFFFF);
-            this.deleteButton.setX(left + width + 5);
+            this.deleteButton.setX(left + width + 2);
             this.deleteButton.setY(top + 1);
             this.deleteButton.render(context, mouseX, mouseY, partialTick);
 
             if(preset.error()) {
                 PoseStack poseStack = context.pose();
-                context.blit(TEX_WIDGETS, left + width - 22, top + 2, 50, 48, 22, 22, 256, 256);
+                context.blit(TEX_ERROR, left + width - 16, top + 5, 0, 0, 16, 16, 16, 16);
                 if(isMouseOver) {
                     poseStack.pushPose();
                     GlStateManager._enableDepthTest();
                     poseStack.translate(0, 0, 100);
-                    WardrobeWidget.drawTooltipBackgroundStatic(context, mouseX + 5, mouseY - 12, 168, (tooltipLines.size() * 10) + 7);
-                    int i = 0;
-                    for(FormattedCharSequence text : tooltipLines) {
-                        context.drawString(Minecraft.getInstance().font, text, mouseX + 9, mouseY - 7 + (i * 10), 0xFFFFFF, false);
-                        i++;
-                    }
+                    WardrobeWidget.drawTooltipStatic(context, Minecraft.getInstance().font, tooltipLines, mouseX, mouseY);
                     poseStack.popPose();
                 }
             }
