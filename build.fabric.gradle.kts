@@ -1,5 +1,8 @@
 @file:Suppress("UnstableApiUsage")
 
+import org.gradle.internal.impldep.org.jsoup.nodes.Entities
+
+
 plugins {
     id("fabric-loom")
     id("dev.kikugie.postprocess.jsonlang")
@@ -34,6 +37,23 @@ jsonlang {
 repositories {
     mavenLocal()
     maven("https://maven.parchmentmc.org") { name = "ParchmentMC" }
+    maven("https://maven.architectury.dev/")
+    maven {
+        name = "GeckoLib"
+        url = uri("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/")
+        content {
+            includeGroupByRegex("software\\.bernie.*")
+            includeGroupAndSubgroups("com.geckolib")
+        }
+    }
+    maven {
+        name = "TerraformersMC"
+        url = uri("https://maven.terraformersmc.com/")
+    }
+    maven {
+        name = "Ladysnake Libs"
+        url = uri("https://maven.ladysnake.org/releases/")
+    }
 }
 
 dependencies {
@@ -44,10 +64,16 @@ dependencies {
             parchment("org.parchmentmc.data:parchment-${property("deps.parchment")}@zip")
     })
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric-loader")}")
-    modImplementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric-api")}")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric.api")}")
 
     val modules = listOf("transitive-access-wideners-v1", "registry-sync-v0", "resource-loader-v0")
-    for (it in modules) modImplementation(fabricApi.module("fabric-$it", property("deps.fabric-api") as String))
+    for (it in modules) modImplementation(fabricApi.module("fabric-$it", property("deps.fabric.api") as String))
+
+    modImplementation("dev.architectury:architectury:${property("deps.architectury")}")
+    modImplementation("software.bernie.geckolib:geckolib-fabric-${property("deps.minecraft")}:${property("deps.geckolib")}")
+
+    if (hasProperty("deps.trinkets"))
+        modImplementation("dev.emi:trinkets:${property("deps.trinkets")}")
 }
 
 fabricApi {

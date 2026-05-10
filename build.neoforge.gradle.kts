@@ -1,3 +1,5 @@
+import org.gradle.internal.impldep.org.jsoup.nodes.Entities
+
 plugins {
     id("net.neoforged.moddev")
     id ("dev.kikugie.postprocess.jsonlang")
@@ -27,6 +29,25 @@ jsonlang {
 
 repositories {
     maven("https://maven.parchmentmc.org") { name = "ParchmentMC" }
+    maven("https://maven.architectury.dev/")
+    maven {
+        name = "GeckoLib"
+        url = uri("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/")
+        content {
+            includeGroupByRegex("software\\.bernie.*")
+            includeGroupAndSubgroups("com.geckolib")
+        }
+    }
+    maven {
+        name = "Illusive Soulworks maven"
+        url = uri("https://maven.theillusivec4.top/")
+    }
+}
+
+dependencies {
+    implementation("dev.architectury:architectury-neoforge:${property("deps.architectury")}")
+    implementation("software.bernie.geckolib:geckolib-neoforge-${property("deps.minecraft")}:${property("deps.geckolib")}")
+    implementation("top.theillusivec4.curios:curios-neoforge:${property("deps.curios")}")
 }
 
 neoForge {
