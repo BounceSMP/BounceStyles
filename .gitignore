@@ -1,8 +1,14 @@
+.env
 .gradle
+.kotlin
+.cache/
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+
+run/
+run-server/
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
@@ -34,21 +40,12 @@ bin/
 /dist/
 /nbdist/
 /.nb-gradle/
-*/run
-*/run-server
 
 ### VS Code ###
 .vscode/
 
 ### Mac OS ###
 .DS_Store
-.idea/runConfigurations/
 
-/run
-/run-server
-/run/saves
-/run/**
-/run-server/**
-*/run
-/run/saves
-.idea/workspace.xml
+### Jetbrains ###
+.idea/

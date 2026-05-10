@@ -1,40 +1,25 @@
 plugins {
     id("dev.kikugie.stonecutter")
-    id("dev.architectury.loom") version "1.7-SNAPSHOT" apply false
-    id("dev.kikugie.j52j") version "1.0" apply false // Enables asset processing by writing json5 files
-    id("me.modmuss50.mod-publish-plugin") version "0.5.+" apply false // Publishes builds to hosting websites
-    id("architectury-plugin") version "3.4-SNAPSHOT" apply false
+    id("co.uzzu.dotenv.gradle") version "4.0.0"
+    id("fabric-loom") version "1.16-SNAPSHOT" apply false
+    id("net.neoforged.moddev") version "2.0.141" apply false
+    id ("dev.kikugie.postprocess.jsonlang") version "2.1-beta.4" apply false
+    id("me.modmuss50.mod-publish-plugin") version "0.8.+" apply false
 }
 
-stonecutter active "1.21.1-fabric" /* You may have to edit this. Make sure it matches one of the versions present in settings.gradle.kts */
+stonecutter active "1.21.11-fabric"
 
-// Builds every version into `build/libs/{mod.version}/`
-stonecutter registerChiseled tasks.register("chiseledBuild", stonecutter.chiseled) {
-    group = "project"
-    ofTask("build")
+stonecutter parameters {
+    constants.match(node.metadata.project.substringAfterLast('-'), "fabric", "neoforge", "forge")
+    filters.include("**/*.fsh", "**/*.vsh")
 }
 
-stonecutter registerChiseled tasks.register("chiseledClean", stonecutter.chiseled) {
-    group = "project"
-    ofTask("clean")
-}
+//stonecutter tasks {
+//    order("publishModrinth")
+//    order("publishCurseforge")
+//}
 
-stonecutter registerChiseled tasks.register("chiseledPublishMods", stonecutter.chiseled) {
-    group = "project"
-    ofTask("publishMods")
-}
-
-stonecutter registerChiseled tasks.register("chiseledPublishMaven", stonecutter.chiseled) {
-    group = "project"
-    ofTask("publish")
-}
-
-stonecutter registerChiseled tasks.register("chiseledPublishModrinth", stonecutter.chiseled) {
-    group = "project"
-    ofTask("publishModrinth")
-}
-
-stonecutter registerChiseled tasks.register("chiseledBuildAndCollect", stonecutter.chiseled) {
-    group = "project"
-    ofTask("buildAndCollect")
+for (version in stonecutter.versions.map { it.version }.distinct()) tasks.register("publish$version") {
+    group = "publishing"
+    dependsOn(stonecutter.tasks.named("publishMods") { metadata.version == version })
 }
