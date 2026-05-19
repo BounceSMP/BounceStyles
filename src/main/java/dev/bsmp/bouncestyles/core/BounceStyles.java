@@ -5,6 +5,7 @@ import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.registry.registries.RegistrySupplier;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.data.StyleMagazineItem;
+import dev.bsmp.bouncestyles.core.networking.StylesNetworking;
 import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientbound;
 import dev.bsmp.bouncestyles.mixin.ChunkStorageAccessor;
 import dev.bsmp.bouncestyles.mixin.EntityTrackerAccessor;
@@ -29,22 +30,13 @@ public class BounceStyles {
     private static RegistrySupplier<StyleMagazineItem> MAGAZINE_ITEM;
 
     public static void init() {
-        //? if <= 1.20.1 {
-         /*software.bernie.geckolib.GeckoLib.initialize();
-        *///?}
-
         StyleLoader.checkAndConvertPackFormat();
 
         BounceStylesRegistries.init();
         MAGAZINE_ITEM = BounceStylesRegistries.register(Registries.ITEM, id("magazine"), StyleMagazineItem::new);
 
-        //? if <= 1.20.1 {
-        /*dev.bsmp.bouncestyles.core.networking.StylesLegacyNetworking.initServerbound();
-        dev.bsmp.bouncestyles.core.networking.StylesLegacyNetworking.initClientbound();
-        *///?} elif >= 1.21.1 {
-        dev.bsmp.bouncestyles.core.networking.StylesNetworking.initServerbound();
-        dev.bsmp.bouncestyles.core.networking.StylesNetworking.initClientbound();
-        //?}
+        StylesNetworking.initServerbound();
+        StylesNetworking.initClientbound();
 
         LifecycleEvent.SERVER_STARTING.register(server -> BounceStylesRegistries.setRegistryAccess(server.registryAccess()));
         LifecycleEvent.SERVER_STARTED.register(server -> BounceStylesRegistries.getRegistry().ifPresent(styles -> {
@@ -55,11 +47,7 @@ public class BounceStyles {
         PlayerEvent.PLAYER_CLONE.register((oldPlayer, newPlayer, wonGame) -> StyleData.copyFrom(oldPlayer, newPlayer));
         PlayerEvent.CHANGE_DIMENSION.register((player, oldLevel, newLevel) -> new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
 
-        //? if <= 1.20.1 {
-        /*PlayerEvent.PLAYER_RESPAWN.register((player, conqueredEnd) -> new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
-        *///?} else if >= 1.21.1 {
         PlayerEvent.PLAYER_RESPAWN.register((player, conqueredEnd, reason) -> new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
-        //?}
     }
 
     public static StyleMagazineItem magazineItem() {

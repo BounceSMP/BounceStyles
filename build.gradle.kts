@@ -9,19 +9,37 @@ version = providers.gradleProperty("mod_version").get()
 group = providers.gradleProperty("maven_group").get()
 
 repositories {
-    maven("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/")
+    maven("https://maven.parchmentmc.org") { name = "ParchmentMC" }
     maven("https://maven.architectury.dev/")
+    maven {
+        name = "GeckoLib"
+        url = uri("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/")
+        content {
+            includeGroupByRegex("software\\.bernie.*")
+            includeGroupAndSubgroups("com.geckolib")
+        }
+    }
+    maven {
+        name = "TerraformersMC"
+        url = uri("https://maven.terraformersmc.com/")
+    }
+    maven {
+        name = "Ladysnake Libs"
+        url = uri("https://maven.ladysnake.org/releases/")
+    }
 }
 
 dependencies {
 	minecraft("com.mojang:minecraft:${providers.gradleProperty("minecraft_version").get()}")
-	mappings(loom.officialMojangMappings())
+	mappings(loom.layered() {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${property("minecraft_version")}:${property("parchment_version")}@zip")
+    })
 	modImplementation("net.fabricmc:fabric-loader:${providers.gradleProperty("loader_version").get()}")
 
-	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation("net.fabricmc.fabric-api:fabric-api:${providers.gradleProperty("fabric_api_version").get()}")
-    modImplementation("com.geckolib:geckolib-fabric-${property("minecraft_version")}:${property("geckolib_version")}")
     modImplementation("dev.architectury:architectury-fabric:${property("architectury_version")}")
+    modImplementation("software.bernie.geckolib:geckolib-fabric-${property("minecraft_version")}:${property("geckolib_version")}")
 }
 
 tasks.processResources {

@@ -1,4 +1,3 @@
-//? if >= 1.21.1 {
 package dev.bsmp.bouncestyles.core.networking;
 
 import dev.architectury.networking.NetworkManager;
@@ -38,4 +37,3 @@ public class StylesNetworking {
         }
     }
 }
-//?}
