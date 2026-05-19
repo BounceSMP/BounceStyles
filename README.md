@@ -1,9 +1,9 @@
-# Mod Template
-//ToDo Update Readme
+# BounceStyles
 
-This is a multi-loader mod template for Fabric and Neoforge utilizing stonecutter. This is the Java-only version 
-of mod-template-kotlin.
-It's largely been adapted from KikuGie's Elytra Trims rewrite following major feature updates to Stonecutter. 
-Feel free to use, although be aware that no support is officially offered or guaranteed.
+## Setup
 
-### Run scaffold.py to automate string replacements and file renames!
+For setup instructions, please see the [Fabric Documentation page](https://docs.fabricmc.net/develop/getting-started/creating-a-project#setting-up) related to the IDE that you are using.
+
+## License
+
+This template is available under the CC0 license. Feel free to learn from it and incorporate it in your own projects.
