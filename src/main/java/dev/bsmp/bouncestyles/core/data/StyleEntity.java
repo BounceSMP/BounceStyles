@@ -1,6 +1,6 @@
 package dev.bsmp.bouncestyles.core.data;
 
 public interface StyleEntity {
-    void setStyleData(StyleData styleData);
-    StyleData getOrCreateStyleData();
+    void bounceStyles$setStyleData(StyleData styleData);
+    StyleData bounceStyles$getOrCreateStyleData();
 }

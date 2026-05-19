@@ -1,18 +1,21 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import java.util.List;
 
+//? if < 1.21.11
+//import com.mojang.blaze3d.platform.GlStateManager;
+
 public interface WardrobeWidget extends GuiEventListener, Renderable {
-    default void drawTooltip(GuiGraphics context, Font font, Component text, int x, int y) {
+    //? if < 1.21.11 {
+    /*default void drawTooltip(GuiGraphics context, Font font, Component text, int x, int y) {
         drawTooltipStatic(context, font, List.of(text), x, y);
     }
 
@@ -33,7 +36,7 @@ public interface WardrobeWidget extends GuiEventListener, Renderable {
         if (textX + width + 6 > maxRight)
             textX = maxRight - width - 6;
 
-        PoseStack poseStack = context.pose();
+        var poseStack = context.pose();
         poseStack.pushPose();
         GlStateManager._enableDepthTest();
         poseStack.translate(0, 0, 100);
@@ -55,4 +58,5 @@ public interface WardrobeWidget extends GuiEventListener, Renderable {
         context.fill(x, y + height - 2, x + 1, y + 2, 0xFF00A8A8);
         context.fill(x + width, y + height - 2, x + width + 1, y + 2, 0xFF00A8A8);
     }
+    *///? }
 }

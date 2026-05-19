@@ -8,25 +8,25 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.data.StyleData;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Optional;
 
-public record StylePreset(ResourceLocation presetId, String name, Optional<Pair<ResourceLocation, Integer>> head, Optional<Pair<ResourceLocation, Integer>> body, Optional<Pair<ResourceLocation, Integer>> legs, Optional<Pair<ResourceLocation, Integer>> feet, boolean error) {
-    public StylePreset(ResourceLocation presetId, String name, Optional<Pair<ResourceLocation, Integer>> head, Optional<Pair<ResourceLocation, Integer>> body, Optional<Pair<ResourceLocation, Integer>> legs, Optional<Pair<ResourceLocation, Integer>> feet) {
+public record StylePreset(Identifier presetId, String name, Optional<Pair<Identifier, Integer>> head, Optional<Pair<Identifier, Integer>> body, Optional<Pair<Identifier, Integer>> legs, Optional<Pair<Identifier, Integer>> feet, boolean error) {
+    public StylePreset(Identifier presetId, String name, Optional<Pair<Identifier, Integer>> head, Optional<Pair<Identifier, Integer>> body, Optional<Pair<Identifier, Integer>> legs, Optional<Pair<Identifier, Integer>> feet) {
         this(presetId, name, head, body, legs, feet, errorCheck(head, body, legs, feet));
     }
 
-    public StylePreset(String name, Optional<Pair<ResourceLocation, Integer>> head, Optional<Pair<ResourceLocation, Integer>> body, Optional<Pair<ResourceLocation, Integer>> legs, Optional<Pair<ResourceLocation, Integer>> feet) {
-        this(BounceStyles.resourceLocation(name), name, head, body, legs, feet);
+    public StylePreset(String name, Optional<Pair<Identifier, Integer>> head, Optional<Pair<Identifier, Integer>> body, Optional<Pair<Identifier, Integer>> legs, Optional<Pair<Identifier, Integer>> feet) {
+        this(BounceStyles.id(name), name, head, body, legs, feet);
     }
 
-    public static Optional<StylePreset> fromJson(ResourceLocation presetId, JsonObject json) {
+    public static Optional<StylePreset> fromJson(Identifier presetId, JsonObject json) {
         return CODEC.parse(JsonOps.INSTANCE, json).resultOrPartial(BounceStyles.LOGGER::error);
     }
 
-    public static boolean errorCheck(Optional<Pair<ResourceLocation, Integer>>... slots) {
-        for(Optional<Pair<ResourceLocation, Integer>> slot : slots)
+    public static boolean errorCheck(Optional<Pair<Identifier, Integer>>... slots) {
+        for(Optional<Pair<Identifier, Integer>> slot : slots)
             if(slot.isPresent() && !BounceStylesRegistries.idExists(slot.get().getFirst()))
                 return true;
 

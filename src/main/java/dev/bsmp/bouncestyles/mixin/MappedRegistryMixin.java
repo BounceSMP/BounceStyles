@@ -16,7 +16,7 @@ public abstract class MappedRegistryMixin<T> {
     //? if >= 1.21.1 {
     @Shadow private Lifecycle registryLifecycle;
 
-    @Inject(method = "register", at = @At(value = "RETURN"))
+    @Inject(method = "register*", at = @At(value = "RETURN"))
     private void bounceStyles$markStable(ResourceKey<T> key, T value, net.minecraft.core.RegistrationInfo registrationInfo, CallbackInfoReturnable<Holder.Reference<T>> cir) {
         if (key.registry().getNamespace().equals(BounceStyles.modId))
             this.registryLifecycle = Lifecycle.stable();

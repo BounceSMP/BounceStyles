@@ -13,14 +13,14 @@ public record SyncStyleDataClientbound(int entityId, StyleData styleData) implem
     }
 
     public static SyncStyleDataClientbound decode(FriendlyByteBuf buf) {
-        return new SyncStyleDataClientbound(
-                buf.readInt(),
-                buf.readJsonWithCodec(StyleData.CODEC_EQUIPPED)
-        );
+        //? if >= 1.21.11 {
+        return new SyncStyleDataClientbound(buf.readInt(), buf.readLenientJsonWithCodec(StyleData.CODEC_EQUIPPED));
+        //? } else
+//        return new SyncStyleDataClientbound(buf.readInt(), buf.readJsonWithCodec(StyleData.CODEC_EQUIPPED));
     }
 
     //? if >= 1.21.1 {
-    public static final Type<SyncStyleDataClientbound> TYPE = new net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<>(BounceStyles.resourceLocation("clientbound_sync_style_data"));
+    public static final Type<SyncStyleDataClientbound> TYPE = new net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<>(BounceStyles.id("clientbound_sync_style_data"));
 
     public static final net.minecraft.network.codec.StreamCodec<ByteBuf, SyncStyleDataClientbound> STREAM_CODEC = net.minecraft.network.codec.StreamCodec.composite(
             net.minecraft.network.codec.ByteBufCodecs.INT,

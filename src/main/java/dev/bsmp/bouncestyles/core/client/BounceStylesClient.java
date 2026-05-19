@@ -8,12 +8,11 @@ import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
-import dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer;
 import dev.bsmp.bouncestyles.core.client.screen.WardrobeScreen;
 import dev.bsmp.bouncestyles.core.networking.serverbound.OpenStyleScreenServerbound;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.IoSupplier;
@@ -28,8 +27,11 @@ import java.util.List;
 import java.util.Map;
 
 public class BounceStylesClient {
-    public static final KeyMapping KEY_WARDROBE = new KeyMapping("key.bounce_styles.wardrobe", GLFW.GLFW_KEY_C, "key.bounce_styles.category");
-    public static StyleLayerRenderer STYLE_RENDERER;
+    public static final KeyMapping KEY_WARDROBE = createWardrobeKeyMapping();
+    //? if >= 1.21.11 {
+    public static dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer STYLE_RENDERER;
+    //? } else
+    //public static dev.bsmp.bouncestyles.core.client.renderer.LegacyStyleLayerRenderer STYLE_RENDERER;
 
     public static void init() {
         KeyMappingRegistry.register(KEY_WARDROBE);
@@ -37,7 +39,7 @@ public class BounceStylesClient {
         ClientLifecycleEvent.CLIENT_LEVEL_LOAD.register(world -> BounceStylesRegistries.setRegistryAccess(world.registryAccess()));
     }
 
-    public static boolean isLookingForLang(ResourceLocation id) {
+    public static boolean isLookingForLang(Identifier id) {
         String langCode = Minecraft.getInstance().getLanguageManager().getSelected();
         return id.getPath().endsWith(String.format("lang/%s.json", langCode));
     }
@@ -48,7 +50,15 @@ public class BounceStylesClient {
         }
     }
 
-    public static IoSupplier<InputStream> processPackLangs(List<PackResources> packs, ResourceLocation id) {
+    private static KeyMapping createWardrobeKeyMapping() {
+        //? if <= 1.20.1 {
+        //return new KeyMapping("key.bounce_styles.wardrobe", GLFW.GLFW_KEY_C, "key.bounce_styles.category");
+        //? } else {
+        return new KeyMapping("key.bounce_styles.wardrobe", GLFW.GLFW_KEY_C, KeyMapping.Category.register(BounceStyles.id("key.bounce_styles.category")));
+        //? }
+    }
+
+    public static IoSupplier<InputStream> processPackLangs(List<PackResources> packs, Identifier id) {
         PackType type = PackType.CLIENT_RESOURCES;
         Gson gson = new Gson();
 

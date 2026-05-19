@@ -1,13 +1,18 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -106,7 +111,23 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
     }
     //?}
 
+    //? if >= 1.21.11 {
     @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (!this.active || !this.visible) {
+            return false;
+        }
+        if (this.isMouseOver(event.x(), event.y())) {
+            if (this.popup != null)
+                return this.popup.mouseClicked(event, doubleClick);
+            else
+                return super.mouseClicked(event, doubleClick);
+        }
+        this.popup = null;
+        return false;
+    }
+    //? } else {
+    /*@Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
         if (!this.active || !this.visible) {
             return false;
@@ -120,8 +141,19 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
         this.popup = null;
         return false;
     }
+    *///? }
 
+    //? if >= 1.21.11 {
     @Override
+    public boolean keyPressed(KeyEvent event) {
+        if (event.key() == InputConstants.KEY_ESCAPE && this.popup != null) {
+            this.popup = null;
+            return true;
+        }
+        return false;
+    }
+    //? } else {
+    /*@Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == 256 && this.popup != null) {
             this.popup = null;
@@ -129,6 +161,7 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
         }
         return false;
     }
+    *///? }
 
     private static class SelectionPopup extends WardrobeScrollWidget {
         private final WardrobeStyleSelectionWidget parent;
@@ -169,7 +202,7 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
 
         @Override
         protected void updateButtons() {
-            List<ResourceLocation> textureVariants = style.getTextureVariants().get();
+            List<Identifier> textureVariants = style.getTextureVariants().get();
             StyleData styleData = StyleData.getOrCreateStyleData(Minecraft.getInstance().player);
 
             for (int textureId = -1; textureId < textureVariants.size(); textureId++) {
@@ -187,7 +220,17 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
             this.updateButtons = false;
         }
 
+        //? if >= 1.21.11 {
         @Override
+        public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+            if (!this.isMouseOver(event.x(), event.y())) {
+                this.parent.popup = null;
+                return true;
+            }
+            return super.mouseClicked(event, doubleClick);
+        }
+        //? } else {
+        /*@Override
         public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
             if (!this.isMouseOver(mouseX, mouseY)) {
                 this.parent.popup = null;
@@ -195,5 +238,6 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
             }
             return super.mouseClicked(mouseX, mouseY, mouseButton);
         }
+        *///? }
     }
 }

@@ -4,8 +4,11 @@ import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,10 +19,10 @@ public class IconSelectionButton extends Button implements WardrobeWidget {
     private int selectedIndex = 0;
     private boolean expanded = false;
 
-    private final ResourceLocation texture;
+    private final Identifier texture;
     private int textureWidth, textureHeight;
 
-    public IconSelectionButton(int x, int y, int width, int height, ResourceLocation resourceLocation, boolean staticIcon, Component message) {
+    public IconSelectionButton(int x, int y, int width, int height, Identifier resourceLocation, boolean staticIcon, Component message) {
         super(x, y, width, height, message, null, supplier -> Component.empty());
 
         this.staticIcon = staticIcon;
@@ -28,8 +31,19 @@ public class IconSelectionButton extends Button implements WardrobeWidget {
         this.textureHeight = height * 3;
     }
 
+    //? if >= 1.21.11 {
     @Override
+    protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        renderButton(guiGraphics, mouseX, mouseY);
+    }
+    //? } else {
+    /*@Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        renderButton(guiGraphics, mouseX, mouseY);
+    }
+    *///? }
+
+    private void renderButton(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         int hoverIndex = (mouseY - this.getY()) / this.height;
         guiGraphics.blit(this.texture, getX(), getY(), this.staticIcon ? 0 : this.selectedIndex * width, (this.isMouseOver(mouseX, mouseY) && hoverIndex == 0) ? height : this.expanded ? 2 * height : 0, width, height, textureWidth, textureHeight);
 
@@ -69,8 +83,19 @@ public class IconSelectionButton extends Button implements WardrobeWidget {
                 && mouseY < (double)(this.getY() + this.getHeight());
     }
 
+    //? if >= 1.21.11 {
     @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        return clicked(event.x(), event.y(), event.button());
+    }
+    //? } else {
+    /*@Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        return clicked(mouseX, mouseY, button);
+    }
+    *///? }
+
+    private boolean clicked(double mouseX, double mouseY, int button) {
         if (this.active && this.visible && this.isMouseOver(mouseX, mouseY) && button == 0) {
             int i = (int) ((mouseY - this.getY()) / this.height);
 
@@ -81,8 +106,7 @@ public class IconSelectionButton extends Button implements WardrobeWidget {
             this.expanded = !this.expanded;
             this.playDownSound(Minecraft.getInstance().getSoundManager());
             return true;
-        }
-        else if (expanded) {
+        } else if (expanded) {
             this.expanded = false;
         }
         this.setFocused(false);

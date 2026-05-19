@@ -2,8 +2,9 @@ package dev.bsmp.bouncestyles.mixin;
 
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.data.StyleEntity;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,26 +17,39 @@ import java.util.Optional;
 public abstract class PlayerMixin implements StyleEntity {
     @Unique private StyleData bounceStyles$styleData;
 
+    //? if >= 1.21.11 {
     @Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
-    private void saveStyleData(CompoundTag compound, CallbackInfo ci) {
-        if(this.bounceStyles$styleData != null)
-            StyleData.toNBT(this.bounceStyles$styleData).ifPresent(tag -> compound.put("bounceStyleData", tag));
+    private void bounceStyles$saveStyleData(ValueOutput output, CallbackInfo ci) {
+        if (this.bounceStyles$styleData != null)
+            output.store(StyleData.DATA_TAG, StyleData.CODEC_FULL, this.bounceStyles$styleData);
     }
 
     @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
-    private void readStyleData(CompoundTag compound, CallbackInfo ci) {
-        if(compound.contains("bounceStyleData"))
-            StyleData.fromNBT(compound.getCompound("bounceStyleData")).ifPresent(this::setStyleData);
+    private void bounceStyles$readStyleData(ValueInput input, CallbackInfo ci) {
+        input.read(StyleData.DATA_TAG, StyleData.CODEC_FULL).ifPresent(this::bounceStyles$setStyleData);
     }
+    //? } else {
+//    @Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
+//    private void bounceStyles$saveStyleData(CompoundTag compound, CallbackInfo ci) {
+//        if(this.bounceStyles$styleData != null)
+//            StyleData.toNBT(this.bounceStyles$styleData).ifPresent(tag -> compound.put(StyleData.DATA_TAG, tag));
+//    }
+//
+//    @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
+//    private void bounceStyles$readStyleData(CompoundTag compound, CallbackInfo ci) {
+//        if(compound.contains(StyleData.DATA_TAG))
+//            StyleData.fromNBT(compound.getCompound(StyleData.DATA_TAG)).ifPresent(this::setStyleData);
+//    }
+    //? }
 
     @Override
-    public void setStyleData(StyleData styleData) {
+    public void bounceStyles$setStyleData(StyleData styleData) {
         if(((Object) this) instanceof Player)
             this.bounceStyles$styleData = styleData;
     }
 
     @Override
-    public StyleData getOrCreateStyleData() {
+    public StyleData bounceStyles$getOrCreateStyleData() {
         if(this.bounceStyles$styleData == null)
             this.bounceStyles$styleData = new StyleData(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
         return this.bounceStyles$styleData;

@@ -4,6 +4,7 @@ plugins {
     id("net.neoforged.moddev")
     id ("dev.kikugie.postprocess.jsonlang")
     id("me.modmuss50.mod-publish-plugin")
+    id("dev.kikugie.fletching-table.neoforge") version "0.1.0-alpha.22"
 }
 
 tasks.named<ProcessResources>("processResources") {
@@ -21,6 +22,12 @@ tasks.named<ProcessResources>("processResources") {
 
 version = "${property("mod.version")}+${property("deps.minecraft")}-neoforge"
 base.archivesName = property("mod.id") as String
+
+fletchingTable {
+    accessConverter.register(sourceSets.main) {
+        add("src/main/resources/${property("mod.id")}.classtweaker")
+    }
+}
 
 jsonlang {
     languageDirectories = listOf("assets/${property("mod.id")}/lang")

@@ -15,11 +15,12 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 
@@ -30,7 +31,10 @@ public class StyleCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         LiteralCommandNode<CommandSourceStack> styleNode = Commands
                 .literal("bouncestyles")
-                .requires(commandSourceStack -> commandSourceStack.hasPermission(2))
+                //? if >= 1.21.11 {
+                .requires(commandSourceStack -> commandSourceStack.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
+                //? } else
+//                .requires(commandSourceStack -> commandSourceStack.hasPermission(2))
                 .build();
         dispatcher.getRoot().addChild(styleNode);
 
@@ -52,10 +56,10 @@ public class StyleCommand {
                 .literal("all")
                 .executes(context -> unlockAll(EntityArgument.getPlayers(context, "players")))
                 .build();
-        ArgumentCommandNode<CommandSourceStack, ResourceLocation> unlockIdNode = Commands
-                .argument("id", ResourceLocationArgument.id())
+        ArgumentCommandNode<CommandSourceStack, Identifier> unlockIdNode = Commands
+                .argument("id", IdentifierArgument.id())
                 .suggests((context, builder) -> SharedSuggestionProvider.suggestResource(BounceStylesRegistries.getAllStyleIds(), builder))
-                .executes(context -> unlock(EntityArgument.getPlayers(context, "players"), ResourceLocationArgument.getId(context, "id")))
+                .executes(context -> unlock(EntityArgument.getPlayers(context, "players"), IdentifierArgument.getId(context, "id")))
                 .build();
 
         styleNode.addChild(unlockNode);
@@ -75,10 +79,10 @@ public class StyleCommand {
                 .literal("all")
                 .executes(context -> removeAll(context.getSource(), EntityArgument.getPlayers(context, "players")))
                 .build();
-        ArgumentCommandNode<CommandSourceStack, ResourceLocation> unlockIdNode = Commands
-                .argument("id", ResourceLocationArgument.id())
+        ArgumentCommandNode<CommandSourceStack, Identifier> unlockIdNode = Commands
+                .argument("id", IdentifierArgument.id())
                 .suggests((context, builder) -> SharedSuggestionProvider.suggestResource(BounceStylesRegistries.getAllStyleIds(), builder))
-                .executes(context -> remove(context.getSource(), EntityArgument.getPlayers(context, "players"), ResourceLocationArgument.getId(context, "id")))
+                .executes(context -> remove(context.getSource(), EntityArgument.getPlayers(context, "players"), IdentifierArgument.getId(context, "id")))
                 .build();
 
         styleNode.addChild(removeNode);
@@ -97,10 +101,10 @@ public class StyleCommand {
         ArgumentCommandNode<CommandSourceStack, Category> slotNode = Commands
                 .argument("slot", StyleSlotArgumentType.styleSlot())
                 .build();
-        ArgumentCommandNode<CommandSourceStack, ResourceLocation> idNode = Commands
-                .argument("id", ResourceLocationArgument.id())
+        ArgumentCommandNode<CommandSourceStack, Identifier> idNode = Commands
+                .argument("id", IdentifierArgument.id())
                 .suggests((context, builder) -> SharedSuggestionProvider.suggestResource(BounceStylesRegistries.getAllStyleIds(), builder))
-                .executes(context -> equip(context, EntityArgument.getPlayer(context, "player"), StyleSlotArgumentType.getCategory(context, "slot"), ResourceLocationArgument.getId(context, "id")))
+                .executes(context -> equip(context, EntityArgument.getPlayer(context, "player"), StyleSlotArgumentType.getCategory(context, "slot"), IdentifierArgument.getId(context, "id")))
                 .build();
         LiteralCommandNode<CommandSourceStack> emptyNode = Commands
                 .literal("empty")
@@ -119,14 +123,14 @@ public class StyleCommand {
         LiteralCommandNode<CommandSourceStack> itemizeNode = Commands
                 .literal("itemize")
                 .build();
-        ArgumentCommandNode<CommandSourceStack, ResourceLocation> idNode = Commands
-                .argument("id", ResourceLocationArgument.id())
+        ArgumentCommandNode<CommandSourceStack, Identifier> idNode = Commands
+                .argument("id", IdentifierArgument.id())
                 .suggests((context, builder) -> SharedSuggestionProvider.suggestResource(BounceStylesRegistries.getAllStyleIds(), builder))
-                .executes(context -> itemize(Collections.singleton(context.getSource().getPlayer()), ResourceLocationArgument.getId(context, "id")))
+                .executes(context -> itemize(Collections.singleton(context.getSource().getPlayer()), IdentifierArgument.getId(context, "id")))
                 .build();
         ArgumentCommandNode<CommandSourceStack, EntitySelector> playerNode = Commands
                 .argument("player", EntityArgument.players())
-                .executes(context -> itemize(EntityArgument.getPlayers(context, "player"), ResourceLocationArgument.getId(context, "id")))
+                .executes(context -> itemize(EntityArgument.getPlayers(context, "player"), IdentifierArgument.getId(context, "id")))
                 .build();
 
         styleNode.addChild(itemizeNode);
@@ -138,7 +142,7 @@ public class StyleCommand {
     private static int unlockAll(Collection<ServerPlayer> players) {
         for(ServerPlayer player : players) {
             StyleData styleData = StyleData.getOrCreateStyleData(player);
-            for(ResourceLocation id : BounceStylesRegistries.getAllStyleIds()) {
+            for(Identifier id : BounceStylesRegistries.getAllStyleIds()) {
                 styleData.unlockStyle(id);
             }
             player.displayClientMessage(Component.literal("You've unlocked all current styles, enjoy!").withStyle(style -> style.withColor(ChatFormatting.GOLD)), false);
@@ -146,7 +150,7 @@ public class StyleCommand {
         return 1;
     }
 
-    private static int unlock(Collection<ServerPlayer> players, ResourceLocation id) {
+    private static int unlock(Collection<ServerPlayer> players, Identifier id) {
         for(ServerPlayer player : players)
             if (id != null && BounceStylesRegistries.idExists(id)) {
                 StyleData.getOrCreateStyleData(player).unlockStyle(id);
@@ -158,7 +162,7 @@ public class StyleCommand {
     private static int removeAll(CommandSourceStack source, Collection<ServerPlayer> players) {
         for(ServerPlayer player : players) {
             StyleData styleData = StyleData.getOrCreateStyleData(player);
-            for(ResourceLocation id : BounceStylesRegistries.getAllStyleIds())
+            for(Identifier id : BounceStylesRegistries.getAllStyleIds())
                 if (styleData.hasStyleUnlocked(id))
                     styleData.removeStyle(id);
             source.sendSuccess(() -> Component.literal("Removed all styles for " + player.getScoreboardName()), true);
@@ -166,7 +170,7 @@ public class StyleCommand {
         return 1;
     }
 
-    private static int remove(CommandSourceStack source, Collection<ServerPlayer> players, ResourceLocation id) {
+    private static int remove(CommandSourceStack source, Collection<ServerPlayer> players, Identifier id) {
         for(ServerPlayer player : players) {
             StyleData styleData = StyleData.getOrCreateStyleData(player);
             if (id != null && BounceStylesRegistries.idExists(id)) {
@@ -181,7 +185,7 @@ public class StyleCommand {
         return 1;
     }
 
-    private static int equip(CommandContext<CommandSourceStack> context, ServerPlayer player, Category slot, ResourceLocation id) {
+    private static int equip(CommandContext<CommandSourceStack> context, ServerPlayer player, Category slot, Identifier id) {
         if(id == null || BounceStylesRegistries.idExists(id)) {
             Style style = id != null ? BounceStylesRegistries.getStyle(id).orElse(null) : null;
             if(style == null || style.getCategories().contains(slot)) {
@@ -205,7 +209,7 @@ public class StyleCommand {
         return 0;
     }
 
-    private static int itemize(Collection<ServerPlayer> targets, ResourceLocation styleId) {
+    private static int itemize(Collection<ServerPlayer> targets, Identifier styleId) {
         for(ServerPlayer player : targets) {
             ItemStack stack = StyleMagazineItem.createStackForStyle(styleId);
             if (!player.addItem(stack)) {

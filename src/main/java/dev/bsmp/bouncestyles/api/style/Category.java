@@ -1,7 +1,7 @@
 package dev.bsmp.bouncestyles.api.style;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 
 public enum Category implements StringRepresentable {

@@ -65,8 +65,12 @@ public class StylePackProvider implements RepositorySource {
             BounceStyles.LOGGER.error("Exception Occurred trying to read Style Packs", e);
         }
 
-        int version = SharedConstants.getCurrentVersion().getPackVersion(packType);
+        //? if >= 1.21.11 {
+        var version = SharedConstants.getCurrentVersion().packVersion(packType);
+        //? } else
+//        int version = SharedConstants.getCurrentVersion().getPackVersion(packType);
         List<PackResources> packs = profiles.stream().map(Pack::open).toList();
+
 
         //? if <= 1.20.1 {
         /*PackMetadataSection metadata = new PackMetadataSection(Component.translatable(BounceStyles.modId + ".resources.styles"), version);
@@ -80,7 +84,10 @@ public class StylePackProvider implements RepositorySource {
                 PackSource.DEFAULT
         );
         *///?} else if >= 1.21.1 {
-        PackMetadataSection metadata = new PackMetadataSection(Component.translatable(BounceStyles.modId + ".resources.styles"), version, Optional.empty());
+        //? if >= 1.21.11 {
+        PackMetadataSection metadata = new PackMetadataSection(Component.translatable(BounceStyles.modId + ".resources.styles"), version.minorRange());
+        //? } else
+//        PackMetadataSection metadata = new PackMetadataSection(Component.translatable(BounceStyles.modId + ".resources.styles"), version, Optional.empty());
         Pack mergedProfile = Pack.readMetaAndCreate(
                 new net.minecraft.server.packs.PackLocationInfo("style_packs", Component.literal("Style Packs"), PackSource.DEFAULT, Optional.empty()),
                 new StylesResourcePack(StyleLoader.getStylesDirectory(), packs, metadata),

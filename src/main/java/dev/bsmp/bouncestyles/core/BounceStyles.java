@@ -9,7 +9,7 @@ import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientboun
 import dev.bsmp.bouncestyles.mixin.ChunkStorageAccessor;
 import dev.bsmp.bouncestyles.mixin.EntityTrackerAccessor;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerPlayer;
@@ -36,7 +36,7 @@ public class BounceStyles {
         StyleLoader.checkAndConvertPackFormat();
 
         BounceStylesRegistries.init();
-        MAGAZINE_ITEM = BounceStylesRegistries.register(Registries.ITEM, resourceLocation("magazine"), StyleMagazineItem::new);
+        MAGAZINE_ITEM = BounceStylesRegistries.register(Registries.ITEM, id("magazine"), StyleMagazineItem::new);
 
         //? if <= 1.20.1 {
         /*dev.bsmp.bouncestyles.core.networking.StylesLegacyNetworking.initServerbound();
@@ -66,9 +66,9 @@ public class BounceStyles {
         return MAGAZINE_ITEM.get();
     }
 
-    public static ResourceLocation resourceLocation(String path) {
+    public static Identifier id(String path) {
         if (!path.contains(":")) path = "%s:%s".formatted(modId, path);
-        return ResourceLocation.tryParse(path);
+        return Identifier.tryParse(path);
     }
 
     public static void playerJoin(ServerPlayer player) {

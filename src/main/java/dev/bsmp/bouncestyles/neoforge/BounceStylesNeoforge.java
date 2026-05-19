@@ -1,5 +1,5 @@
 //? if neoforge {
-/*package dev.bsmp.bouncestyles.neoforge;
+package dev.bsmp.bouncestyles.neoforge;
 
 import com.mojang.serialization.Lifecycle;
 import dev.bsmp.bouncestyles.api.style.Style;
@@ -12,7 +12,10 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 
 @Mod(BounceStyles.modId)
-@EventBusSubscriber(modid = BounceStyles.modId, bus = EventBusSubscriber.Bus.MOD)
+//? if >= 1.21.11 {
+@EventBusSubscriber(modid = BounceStyles.modId)
+//? } else
+//@EventBusSubscriber(modid = BounceStyles.modId, bus = EventBusSubscriber.Bus.MOD)
 public class BounceStylesNeoforge<T extends StylePacket> {
     public BounceStylesNeoforge() {
         BounceStyles.init();
@@ -23,4 +26,4 @@ public class BounceStylesNeoforge<T extends StylePacket> {
         event.dataPackRegistry(BounceStylesRegistries.STYLE_REGISTRY_KEY, Style.CODEC.withLifecycle(Lifecycle.stable()), Style.CODEC.withLifecycle(Lifecycle.stable()));
     }
 }
-*///?}
+//?}

@@ -14,11 +14,12 @@ import dev.bsmp.bouncestyles.api.style.StylePreset;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +28,7 @@ import java.util.function.Supplier;
 
 public class BounceStylesRegistries {
     public static final Supplier<RegistrarManager> REGISTRIES = Suppliers.memoize(() -> RegistrarManager.get(BounceStyles.modId));
-    public static final ResourceKey<Registry<Style>> STYLE_REGISTRY_KEY = ResourceKey.createRegistryKey(BounceStyles.resourceLocation("styles"));
+    public static final ResourceKey<Registry<Style>> STYLE_REGISTRY_KEY = ResourceKey.createRegistryKey(BounceStyles.id("styles"));
 
     private static RegistryAccess registryAccess;
 
@@ -37,32 +38,40 @@ public class BounceStylesRegistries {
 
         //Register StyleSlot Command Argument Type
         //? if fabric {
-        net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry.registerArgumentType(
+        /*net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry.registerArgumentType(
                 BounceStyles.resourceLocation("style_slot"),
                 StyleSlotArgumentType.class,
                 SingletonArgumentInfo.contextFree(StyleSlotArgumentType::styleSlot)
         );
-        //?} else {
-        /*Registrar<ArgumentTypeInfo<?, ?>> argTypes = REGISTRIES.get().get(Registries.COMMAND_ARGUMENT_TYPE);
+        *///?} else {
+        Registrar<ArgumentTypeInfo<?, ?>> argTypes = REGISTRIES.get().get(Registries.COMMAND_ARGUMENT_TYPE);
         var argumentTypeInfo = ArgumentTypeInfos.registerByClass(StyleSlotArgumentType.class, SingletonArgumentInfo.contextFree(StyleSlotArgumentType::styleSlot));
-        argTypes.register(BounceStyles.resourceLocation("style_slot"), () -> argumentTypeInfo);
-        *///?}
+        argTypes.register(BounceStyles.id("style_slot"), () -> argumentTypeInfo);
+        //?}
     }
 
-    public static <T, E extends T> RegistrySupplier<E> register(ResourceKey<Registry<T>> key, ResourceLocation id, Supplier<E> supplier) {
+    public static <T, E extends T> RegistrySupplier<E> register(ResourceKey<Registry<T>> key, Identifier id, Supplier<E> supplier) {
         Registrar<T> registry = BounceStylesRegistries.REGISTRIES.get().get(key);
-        return registry.register(BounceStyles.resourceLocation("magazine"), supplier);
+        return registry.register(BounceStyles.id("magazine"), supplier);
     }
 
-    public static final HashMap<ResourceLocation, StylePreset> PRESETS = new HashMap<>(); //ToDo Move Presets and maybe add server->client syncing?
+    public static final HashMap<Identifier, StylePreset> PRESETS = new HashMap<>(); //ToDo Move Presets and maybe add server->client syncing?
 
     public static Optional<Registry<Style>> getRegistry() {
         if (registryAccess == null) return Optional.empty();
-        return registryAccess.registry(STYLE_REGISTRY_KEY);
+        //? if <= 1.20.1 {
+        //return registryAccess.registry(STYLE_REGISTRY_KEY);
+        //? } else {
+        return registryAccess.lookup(STYLE_REGISTRY_KEY);
+        //? }
     }
 
-    public static Optional<Style> getStyle(ResourceLocation id) {
-        return getRegistry().map(styles -> styles.get(id));
+    public static Optional<Style> getStyle(Identifier id) {
+        //? if <= 1.20.1 {
+        //return getRegistry().map(styles -> styles.get(id));
+        //? } else {
+        return getRegistry().flatMap(styles -> styles.get(id).map(Holder.Reference::value));
+        //? }
     }
 
     @Nullable
@@ -72,7 +81,7 @@ public class BounceStylesRegistries {
         return getStyle(StyleMagazineItem.getStyleIdFromStack(itemStack));
     }
 
-    public static Set<ResourceLocation> getAllStyleIds() {
+    public static Set<Identifier> getAllStyleIds() {
         return getRegistry().map(registry -> registry.keySet()).orElse(Set.of());
     }
 
@@ -87,7 +96,7 @@ public class BounceStylesRegistries {
         return newPreset;
     }
 
-    public static boolean idExists(ResourceLocation id) {
+    public static boolean idExists(Identifier id) {
         return getRegistry().map(registry -> registry.containsKey(id)).orElse(false);
     }
 

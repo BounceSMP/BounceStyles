@@ -10,7 +10,6 @@ pluginManagement {
         maven("https://maven.parchmentmc.org") { name = "ParchmentMC" }
     }
 }
-
 plugins {
     id("dev.kikugie.stonecutter") version "0.9.3"
     id("dev.kikugie.loom-back-compat") version "0.2"

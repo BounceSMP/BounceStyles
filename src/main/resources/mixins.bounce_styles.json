@@ -13,9 +13,11 @@
   ],
   "client": [
     "ArmorRenderingMixin",
+    "AvatarRendererMixin",
+    "AvatarRenderStateMixin",
     "InventoryScreenMixin",
     "PlayerModelAccessor",
-    "PlayerRendererMixin"
+    "PlayerModelVisibilityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

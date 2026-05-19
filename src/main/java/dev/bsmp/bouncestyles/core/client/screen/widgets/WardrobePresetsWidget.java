@@ -1,7 +1,5 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.api.style.StylePreset;
 import dev.bsmp.bouncestyles.core.BounceStyles;
@@ -14,25 +12,34 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.FormattedCharSequence;
+import org.joml.Vector2i;
 
 import java.util.List;
 import java.util.Map;
 
+//? if <= 1.21.1 {
+/*import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.PoseStack;
+*///? }
+
 public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresetsWidget.PresetEntry> implements WardrobeWidget {
-    private static final ResourceLocation TEX_WIDGETS = BounceStyles.resourceLocation("textures/gui/widgets.png");
-    private static final ResourceLocation TEX_ERROR = BounceStyles.resourceLocation("textures/icon/error.png");
-    private static final ResourceLocation TEX_BTN_DELETE = BounceStyles.resourceLocation("textures/gui/btn_delete.png");
-    private static final ResourceLocation TEX_BTN_DELETE_HOVER = BounceStyles.resourceLocation("textures/gui/btn_delete_hover.png");
-    private static final ResourceLocation TEX_BTN_CREATE = BounceStyles.resourceLocation("textures/gui/btn_create.png");
-    private static final ResourceLocation TEX_BTN_CREATE_HOVER = BounceStyles.resourceLocation("textures/gui/btn_create_hover.png");
+    private static final Identifier TEX_WIDGETS = BounceStyles.id("textures/gui/widgets.png");
+    private static final Identifier TEX_ERROR = BounceStyles.id("textures/icon/error.png");
+    private static final Identifier TEX_BTN_DELETE = BounceStyles.id("textures/gui/btn_delete.png");
+    private static final Identifier TEX_BTN_DELETE_HOVER = BounceStyles.id("textures/gui/btn_delete_hover.png");
+    private static final Identifier TEX_BTN_CREATE = BounceStyles.id("textures/gui/btn_create.png");
+    private static final Identifier TEX_BTN_CREATE_HOVER = BounceStyles.id("textures/gui/btn_create_hover.png");
 
     private final WardrobeScreen parentScreen;
     private final WardrobeIconButton createPresetButton;
@@ -111,11 +118,46 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
                     s = "Save";
             }
 
-            drawTooltip(guiGraphics, Minecraft.getInstance().font, Component.literal(s), mouseX, mouseY);
+            //? if >= 1.21.11 {
+            guiGraphics.renderTooltip(Minecraft.getInstance().font, List.of(ClientTooltipComponent.create(Component.literal(s).getVisualOrderText())), mouseX, mouseY, (screenWidth, screenHeight, mouseX1, mouseY1, tooltipWidth, tooltipHeight) -> {
+                return new Vector2i();
+            }, null);
+            //? } else
+            //drawTooltip(guiGraphics, Minecraft.getInstance().font, Component.literal(s), mouseX, mouseY);
         }
     }
 
+    //? if >= 1.21.11 {
+
     @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (this.nameEntry.mouseClicked(event, doubleClick)) {
+            this.nameEntry.setFocused(true);
+            return true;
+        }
+        this.createPresetButton.mouseClicked(event, doubleClick);
+        boolean b = super.mouseClicked(event, doubleClick);
+        this.setFocused(null);
+        this.setSelected(null);
+        return b;
+    }
+
+    @Override
+    public boolean keyPressed(KeyEvent event) {
+        if (this.nameEntry.keyPressed(event))
+            return true;
+        return super.keyPressed(event);
+    }
+
+    @Override
+    public boolean charTyped(CharacterEvent event) {
+        if (this.nameEntry.charTyped(event))
+            return true;
+        return super.charTyped(event);
+    }
+
+    //? } else {
+    /*@Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (this.nameEntry.mouseClicked(mouseX, mouseY, button)) {
             this.nameEntry.setFocused(true);
@@ -141,15 +183,23 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
             return true;
         return super.charTyped(chr, modifiers);
     }
+    *///? }
 
+    //? if >= 1.21.11 {
     @Override
+    protected int scrollBarY() {
+        return super.scrollBarY();
+    }
+    //? } else {
+    /*@Override
     protected int getScrollbarPosition() {
         //? if <= 1.20.1 {
-        /*return this.x1 - 5;
-        *///?} else if >= 1.21.1 {
+        /^return this.x1 - 5;
+        ^///?} else if >= 1.21.1 {
         return this.getX() + this.getWidth() - 5;
         //?}
     }
+    *///? }
 
     @Override
     public int getRowLeft() {
@@ -185,28 +235,40 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
         }
 
         @Override
-        public void render(GuiGraphics context, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean isMouseOver, float partialTick) {
-            isMouseOver = this.isHovered = mouseX >= left && mouseX <= left + width && mouseY >= top && mouseY <= top + height;
+        public void renderContent(GuiGraphics context, int mouseX, int mouseY, boolean isHovering, float partialTick) {
+            renderEntry(context, mouseX, mouseY, this.getX(), this.getY(), this.getWidth(), this.getHeight(), partialTick);
+        }
 
-            int colorBg = isMouseOver ? 0xFF2E4C6B : 0xFF0D2C4C;
+        //? if <= 1.21.1 {
+        /*@Override
+        public void render(GuiGraphics context, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean isMouseOver, float partialTick) {
+            renderEntry(context, mouseX, mouseY, left, top, width, height, partialTick);
+        }
+        *///? }
+
+        private void renderEntry(GuiGraphics context, int mouseX, int mouseY, int left, int top, int width, int height, float partialTick) {
+            this.isHovered = mouseX >= left && mouseX <= left + width && mouseY >= top && mouseY <= top + height;
+
+            int colorBg = this.isHovered ? 0xFF2E4C6B : 0xFF0D2C4C;
             context.fill(left, top, left + width, top + height, colorBg);
 
-            int colorOutline = isMouseOver ? 0xFF00cccc : 0xFF00A8A8;
+            int colorOutline = this.isHovered ? 0xFF00cccc : 0xFF00A8A8;
             context.fill(left, top, left + width, top + 1, colorOutline); //Top Line
             context.fill(left, top + height, left + width, top + height - 1, colorOutline); //Bottom Line
 
             context.fill(left, top, left + 1, top + height, colorOutline); //Left Line
             context.fill(left + width - 1, top, left + width, top + height, colorOutline); //Right Line
 
-            context.drawString(Minecraft.getInstance().font, this.preset.name(), left + 5, top + (height / 2) - 4, isMouseOver ? 0xb3fffe : 0xFFFFFF);
+            context.drawString(Minecraft.getInstance().font, this.preset.name(), left + 5, top + (height / 2) - 4, this.isHovered ? 0xb3fffe : 0xFFFFFF);
             this.deleteButton.setX(left + width + 2);
             this.deleteButton.setY(top + 1);
             this.deleteButton.render(context, mouseX, mouseY, partialTick);
 
-            if(preset.error()) {
+            //? if <= 1.21.1 {
+            /*if(preset.error()) {
                 PoseStack poseStack = context.pose();
                 context.blit(TEX_ERROR, left + width - 16, top + 5, 0, 0, 16, 16, 16, 16);
-                if(isMouseOver) {
+                if(this.isHovered) {
                     poseStack.pushPose();
                     GlStateManager._enableDepthTest();
                     poseStack.translate(0, 0, 100);
@@ -214,6 +276,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
                     poseStack.popPose();
                 }
             }
+            *///? }
         }
 
         @Override
@@ -221,7 +284,23 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
             return this.isHovered;
         }
 
+        //? if >= 1.21.11 {
         @Override
+        public boolean mouseClicked(MouseButtonEvent event, boolean isDoubleClick) {
+            if(this.isHovered) {
+                new EquipStyleServerbound(Map.of(
+                        Category.Head, preset.head(),
+                        Category.Body, preset.body(),
+                        Category.Legs, preset.legs(),
+                        Category.Feet, preset.feet()
+                )).sendToServer();
+                Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+                return true;
+            }
+            return this.deleteButton.mouseClicked(event, isDoubleClick);
+        }
+        //? } else {
+        /*@Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if(this.isHovered) {
                 new EquipStyleServerbound(Map.of(
@@ -235,6 +314,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
             }
             return this.deleteButton.mouseClicked(mouseX, mouseY, button);
         }
+        *///? }
     }
 
     //? if <= 1.20.1 {

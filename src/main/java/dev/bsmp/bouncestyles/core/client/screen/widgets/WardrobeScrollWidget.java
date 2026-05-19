@@ -1,10 +1,7 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.api.style.Category;
@@ -15,19 +12,25 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
 
+//? if >= 1.21.11 {
+//? } else {
+//import com.mojang.blaze3d.platform.GlStateManager;
+//? }
+
 public abstract class WardrobeScrollWidget extends AbstractWidget {
-    private static final ResourceLocation TEX_WIDGETS = BounceStyles.resourceLocation("textures/gui/widgets.png");
+    private static final Identifier TEX_WIDGETS = BounceStyles.id("textures/gui/widgets.png");
 
     protected static final int buttonSize = 50;
     protected static final int  margin = 3;
@@ -62,17 +65,22 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
 
         StyleButton tooltipButton = null;
 
-        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
         for (StyleButton button : this.visibleButtons) {
-            button.renderWidget(context, bufferSource, mouseX, mouseY, partialTick);
+            //? if >= 1.21.11 {
+            button.render(context, mouseX, mouseY, partialTick);
+            //? } else {
+//            MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+//            button.renderWidget(context, bufferSource, mouseX, mouseY, partialTick);
+            //? }
             if (button.isHovered())
                 tooltipButton = button;
         }
 
-        if (tooltipButton != null) {
+        //? if < 1.21.11 {
+        /*if (tooltipButton != null) {
             tooltipButton.renderTooltip(context, mouseX, mouseY);
         }
-
+        *///? }
 
         if (this.buttons.size() > this.rows * this.columns) {
             int barWidth = 6;
@@ -135,13 +143,23 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
     }
     //?}
 
+    //? if >= 1.21.11 {
     @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        for (StyleButton button : this.visibleButtons)
+            if (button.mouseClicked(event, doubleClick))
+                return true;
+        return false;
+    }
+    //? } else {
+    /*@Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
         for (StyleButton button : this.visibleButtons)
             if(button.mouseClicked(mouseX, mouseY, mouseButton))
                 return true;
         return false;
     }
+    *///? }
 
     private int getTotalRows() {
         return (this.buttons.size() / this.columns) + 1;
@@ -156,15 +174,15 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
         private Category category;
         private Style style;
         private int textureId = -1;
-        private boolean showVariantDecoration;
+        private boolean showVariants;
 
-        public StyleButton(WardrobeScrollWidget parentWidget, int x, int y, int width, int height, Category category, Style style, boolean showVariantDecoration) {
+        public StyleButton(WardrobeScrollWidget parentWidget, int x, int y, int width, int height, Category category, Style style, boolean showVariants) {
             super(x, y, width, height, Component.empty(), null, DEFAULT_NARRATION);
             this.parentWidget = parentWidget;
             this.category = category;
             this.style = style;
             this.tooltip = createTooltip(style, category);
-            this.showVariantDecoration = showVariantDecoration;
+            this.showVariants = showVariants;
         }
 
         private static List<Component> createTooltip(Style style, Category category) {
@@ -178,12 +196,49 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
             return list;
         }
 
-        public void renderWidget(GuiGraphics context, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+        //? if >= 1.21.11 {
+        @Override
+        protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+//            this.isHovered = this.isMouseOver(mouseX, mouseY);
+//
+//            guiGraphics.blit(TEX_WIDGETS, this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), 0, 0, 50, 50);
+//            if (this.showVariants && this.style.hasVariants()) {
+//                int x0 = this.getX() + (this.getWidth() / 2) - 5;
+//                int y0 = this.getY() + this.getHeight() - 8;
+//                guiGraphics.blit(TEX_WIDGETS, x0, y0, x0 + 10, y0 + 7, 50, 48, 59, 54);
+//            }
+//
+//            if (!this.isHovered)
+//                guiGraphics.enableScissor(this.getX() + 8, this.getY() + 8, this.getX() + this.getWidth() - 8, this.getY() + this.getHeight() - 8);
+//
+//            var poseStack = guiGraphics.pose();
+//            poseStack.pushMatrix();
+//            poseStack.translate(getX() + (this.width / 2), getY() + this.height);
+//
+//            if(isHovered()) {
+//                poseStack.scale((float) (height * 0.7), (float) (height * 0.7));
+//            }
+//            else {
+//                poseStack.scale((float) (height * 0.6), (float) (height * 0.6));
+//            }
+//
+//            poseStack.rotate(this.parentWidget.previewRotation);
+//
+//            EntityRenderState renderState =
+//            guiGraphics.submitGuiElementRenderState();
+//
+//            poseStack.popMatrix();
+//
+//            if (!this.isHovered)
+//                guiGraphics.disableScissor();
+        }
+        //? } else {
+        /*public void renderWidget(GuiGraphics context, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
             this.isHovered = this.isMouseOver(mouseX, mouseY);
 
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, this.alpha);
             context.blit(TEX_WIDGETS, this.getX(), this.getY(), this.width, this.height, 0, getYOffset() * 50,  50, 50, 256, 256);
-            if (this.showVariantDecoration && style.getTextureVariants().isPresent())
+            if (this.showVariants && this.style.hasVariants())
                 context.blit(TEX_WIDGETS, this.getX() + (this.getWidth() / 2) - 5, this.getY() + this.getHeight() - 8, 50, 48 + (getYOffset() * 7),  10, 7);
 
             if (!this.isHovered)
@@ -206,8 +261,8 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
             poseStack.mulPose(quaternion);
 
             //? if <= 1.20.1 {
-            /*Lighting.setupLevel(context.pose().last().pose());
-            *///?} else if >= 1.21.1 {
+            /^Lighting.setupLevel(context.pose().last().pose());
+            ^///?} else if >= 1.21.1 {
             GlStateManager.setupLevelDiffuseLighting(new Vector3f(0.2F, 1.0F, -0.7F).normalize(), new Vector3f(-0.2F, 1.0F, 0.7F).normalize(), context.pose().last().pose());
             //?}
 
@@ -233,8 +288,20 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
             if (!this.isHovered)
                 context.disableScissor();
         }
+        *///? }
 
+        //? if >= 1.21.11 {
         @Override
+        public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+            if (this.active && this.visible && this.isMouseOver(event.x(), event.y())) {
+                this.playDownSound(Minecraft.getInstance().getSoundManager());
+                this.parentWidget.onSelectionClicked(this, event.button());
+                return true;
+            }
+            return false;
+        }
+        //? } else {
+        /*@Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if (this.active && this.visible && this.clicked(mouseX, mouseY)) {
                 this.playDownSound(Minecraft.getInstance().getSoundManager());
@@ -243,6 +310,7 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
             }
             return false;
         }
+        *///? }
 
         public Style getStyle() {
             return this.style;
@@ -256,12 +324,12 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
             this.textureId = id;
         }
 
-        public void renderTooltip(GuiGraphics poseStack, int mouseX, int mouseY) {
-            poseStack.pose().pushPose();
-            poseStack.pose().translate(0, 0, 1050);
-            WardrobeWidget.drawTooltipStatic(poseStack, Minecraft.getInstance().font, this.tooltip, mouseX + 3, mouseY);
-            poseStack.pose().popPose();
-        }
+//        public void renderTooltip(GuiGraphics poseStack, int mouseX, int mouseY) {
+//            poseStack.pose().pushPose();
+//            poseStack.pose().translate(0, 0, 1050);
+//            WardrobeWidget.drawTooltipStatic(poseStack, Minecraft.getInstance().font, this.tooltip, mouseX + 3, mouseY);
+//            poseStack.pose().popPose();
+//        }
 
         private int getYOffset() {
             return this.parentWidget.selectedStyleButton == this ? 2 : isHovered ? 1 : 0;

@@ -1,5 +1,5 @@
 //? if fabric {
-package dev.bsmp.bouncestyles.mixin.compat.trinkets;
+/*package dev.bsmp.bouncestyles.mixin.compat.trinkets;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.bsmp.bouncestyles.core.data.StyleEntity;
@@ -28,4 +28,4 @@ public abstract class TrinketRenderingMixin<T extends LivingEntity, M extends En
         }
     }
 }
-//?}
+*///?}

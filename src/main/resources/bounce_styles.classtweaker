@@ -1,0 +1,2 @@
+classTweaker v1 named
+accessible field net/minecraft/client/renderer/entity/layers/RenderLayer renderer Lnet/minecraft/client/renderer/entity/RenderLayerParent;

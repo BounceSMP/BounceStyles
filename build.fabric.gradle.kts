@@ -2,11 +2,11 @@
 
 import org.gradle.internal.impldep.org.jsoup.nodes.Entities
 
-
 plugins {
     id("fabric-loom")
     id("dev.kikugie.postprocess.jsonlang")
     id("me.modmuss50.mod-publish-plugin")
+    id("dev.kikugie.fletching-table.fabric") version "0.1.0-alpha.22"
 }
 
 tasks.named<ProcessResources>("processResources") {
@@ -26,7 +26,7 @@ version = "${property("mod.version")}+${property("deps.minecraft")}-fabric"
 base.archivesName = property("mod.id") as String
 
 loom {
-    //accessWidenerPath = rootProject.file("src/main/resources/${property("mod.id")}.accesswidener")
+    accessWidenerPath = rootProject.file("src/main/resources/${property("mod.id")}.classtweaker")
 }
 
 jsonlang {

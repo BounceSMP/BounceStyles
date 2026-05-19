@@ -5,7 +5,7 @@ import com.google.gson.*;
 import com.mojang.serialization.JsonOps;
 import dev.architectury.platform.Platform;
 import dev.bsmp.bouncestyles.api.style.StylePreset;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -140,7 +140,10 @@ public class StyleLoader {
     }
 
     private static String styleIdToPath(String name) {
-        ResourceLocation registryId = BounceStylesRegistries.STYLE_REGISTRY_KEY.location();
+        //? if >= 1.21.11 {
+        Identifier registryId = BounceStylesRegistries.STYLE_REGISTRY_KEY.identifier();
+        //? } else
+//        Identifier registryId = BounceStylesRegistries.STYLE_REGISTRY_KEY.location();
         String nameSpace = name.contains(":") ? name.split(":")[0] : BounceStyles.modId;
         String path = name.contains(":") ? name.split(":")[1] : name;
         return nameSpace + "/" + registryId.getNamespace() + "/" + registryId.getPath() + "/" + path + ".json";
@@ -164,7 +167,7 @@ public class StyleLoader {
         }
     }
 
-    public static void removePreset(ResourceLocation presetId) {
+    public static void removePreset(Identifier presetId) {
         BounceStylesRegistries.PRESETS.remove(presetId);
         writePresetsFile();
     }
