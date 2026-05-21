@@ -4,18 +4,21 @@ import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.registry.registries.RegistrySupplier;
 import dev.bsmp.bouncestyles.core.data.StyleData;
-import dev.bsmp.bouncestyles.core.data.StyleMagazineItem;
+import dev.bsmp.bouncestyles.core.item.StyleMagazineItem;
 import dev.bsmp.bouncestyles.core.networking.StylesNetworking;
 import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientbound;
 import dev.bsmp.bouncestyles.mixin.ChunkStorageAccessor;
 import dev.bsmp.bouncestyles.mixin.EntityTrackerAccessor;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.chunk.ChunkSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,7 +36,12 @@ public class BounceStyles {
         StyleLoader.checkAndConvertPackFormat();
 
         BounceStylesRegistries.init();
-        MAGAZINE_ITEM = BounceStylesRegistries.register(Registries.ITEM, id("magazine"), StyleMagazineItem::new);
+        MAGAZINE_ITEM = BounceStylesRegistries.register(Registries.ITEM, id("magazine"), () -> {
+            var properties = new Item.Properties().rarity(Rarity.RARE).stacksTo(1);
+            //? if >= 1.21.11
+            properties.setId(ResourceKey.create(Registries.ITEM, BounceStyles.id("magazine")));
+            return new StyleMagazineItem(properties);
+        });
 
         StylesNetworking.initServerbound();
         StylesNetworking.initClientbound();

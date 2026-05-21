@@ -26,13 +26,15 @@ import java.util.function.Consumer;
 
 public class StylePackProvider implements RepositorySource {
     public static final StylePackProvider INSTANCE = new StylePackProvider();
-    private static final FileFilter filter = file -> (file.isFile() && file.getName().endsWith(".zip")) || (file.isDirectory() && new File(file, "pack.mcmeta").isFile());
+    private static final FileFilter filter = file -> isPackZip(file) || isPackFolder(file);
 
     @Override
     public void loadPacks(Consumer<Pack> profileAdder) {
         BounceStyles.LOGGER.info("Loading Style Packs...");
+
         PackType packType = Platform.getEnvironment() == Env.CLIENT ? PackType.CLIENT_RESOURCES : PackType.SERVER_DATA;
         List<Pack> profiles = new ArrayList<>();
+
         try {
             //? if <= 1.20.1 {
             /*boolean secondArg = false;
@@ -71,7 +73,6 @@ public class StylePackProvider implements RepositorySource {
 //        int version = SharedConstants.getCurrentVersion().getPackVersion(packType);
         List<PackResources> packs = profiles.stream().map(Pack::open).toList();
 
-
         //? if <= 1.20.1 {
         /*PackMetadataSection metadata = new PackMetadataSection(Component.translatable(BounceStyles.modId + ".resources.styles"), version);
         Pack mergedProfile = Pack.readMetaAndCreate(
@@ -88,14 +89,27 @@ public class StylePackProvider implements RepositorySource {
         PackMetadataSection metadata = new PackMetadataSection(Component.translatable(BounceStyles.modId + ".resources.styles"), version.minorRange());
         //? } else
 //        PackMetadataSection metadata = new PackMetadataSection(Component.translatable(BounceStyles.modId + ".resources.styles"), version, Optional.empty());
+
         Pack mergedProfile = Pack.readMetaAndCreate(
                 new net.minecraft.server.packs.PackLocationInfo("style_packs", Component.literal("Style Packs"), PackSource.DEFAULT, Optional.empty()),
                 new StylesResourcePack(StyleLoader.getStylesDirectory(), packs, metadata),
                 packType,
                 new net.minecraft.server.packs.PackSelectionConfig(true, Pack.Position.BOTTOM, false)
         );
+        BounceStyles.LOGGER.info(mergedProfile);
         //?}
 
         if(mergedProfile != null) profileAdder.accept(mergedProfile);
+    }
+
+    private static boolean isPackZip(File file) {
+        return file.isFile() && file.getName().endsWith(".zip");
+    }
+
+    private static boolean isPackFolder(File file) {
+        return file.isDirectory() && (
+                new File(file, "pack.mcmeta").isFile()
+                || new File(file, "data").isDirectory()
+        );
     }
 }

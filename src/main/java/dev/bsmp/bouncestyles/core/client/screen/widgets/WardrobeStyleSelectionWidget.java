@@ -1,14 +1,12 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.bsmp.bouncestyles.api.style.Style;
-import dev.bsmp.bouncestyles.api.style.Category;
+import dev.bsmp.bouncestyles.core.data.Style;
+import dev.bsmp.bouncestyles.core.data.Category;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Renderable;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;

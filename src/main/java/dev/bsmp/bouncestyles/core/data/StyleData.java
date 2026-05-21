@@ -1,11 +1,8 @@
 package dev.bsmp.bouncestyles.core.data;
 
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.bsmp.bouncestyles.api.style.Category;
-import dev.bsmp.bouncestyles.api.style.Style;
-import dev.bsmp.bouncestyles.api.style.StylePreset;
+import dev.bsmp.bouncestyles.api.StyleEntity;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
@@ -18,161 +15,111 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class StyleData {
     public static final String DATA_TAG = "bounceStyleData";
 
-    private @Nullable Pair<Style, Integer> headStyle;
-    private @Nullable Pair<Style, Integer> bodyStyle;
-    private @Nullable Pair<Style, Integer> legStyle;
-    private @Nullable Pair<Style, Integer> feetStyle;
+    private final Set<String> hiddenParts = new HashSet<>();
+    private final Map<Category, EquippedStyle> equippedStyles = new HashMap<>(Map.of(
+            Category.Head, new EquippedStyle(),
+            Category.Body, new EquippedStyle(),
+            Category.Legs, new EquippedStyle(),
+            Category.Feet, new EquippedStyle()
+    ));
 
-    private final List<String> hiddenParts = new ArrayList<>();
-    private List<Identifier> unlocks = new ArrayList<>();
+    public StyleData() {}
 
-    public StyleData(Optional<Pair<Style, Integer>> head, Optional<Pair<Style, Integer>> body, Optional<Pair<Style, Integer>> legs, Optional<Pair<Style, Integer>> feet) {
-        this(head, body, legs, feet, new ArrayList<>(), Optional.empty());
+    public StyleData(Optional<EquippedStyle> head, Optional<EquippedStyle> body, Optional<EquippedStyle> legs, Optional<EquippedStyle> feet) {
+        head.ifPresent(equipped -> this.equipStyle(Category.Head, equipped));
+        body.ifPresent(equipped -> this.equipStyle(Category.Body, equipped));
+        legs.ifPresent(equipped -> this.equipStyle(Category.Legs, equipped));
+        feet.ifPresent(equipped -> this.equipStyle(Category.Feet, equipped));
     }
 
-    public StyleData(Optional<Pair<Style, Integer>> head, Optional<Pair<Style, Integer>> body, Optional<Pair<Style, Integer>> legs, Optional<Pair<Style, Integer>> feet,  List<String> hiddenParts, Optional<List<Identifier>> unlocks) {
-        head.ifPresent(pair -> this.setHeadStyle(pair.getFirst(), pair.getSecond()));
-        body.ifPresent(pair -> this.setBodyStyle(pair.getFirst(), pair.getSecond()));
-        legs.ifPresent(pair -> this.setLegStyle(pair.getFirst(), pair.getSecond()));
-        feet.ifPresent(pair -> this.setFeetStyle(pair.getFirst(), pair.getSecond()));
-
-        this.hiddenParts.addAll(hiddenParts);
-        unlocks.ifPresent(list -> this.unlocks = new ArrayList<>(list));
+    public boolean equipStyle(Category slot, EquippedStyle style) {
+        return this.equipStyle(slot, style.getStyleId().orElse(null), style.getVariant());
     }
 
-    public void setHeadStyle(Style headStyle) {
-        setHeadStyle(headStyle, -1);
-    }
-
-    public void setHeadStyle(Style headStyle, int textureVariant) {
-        this.headStyle = Pair.of(headStyle, textureVariant);
-        updatePartVisibility(headStyle);
-    }
-
-    public void setBodyStyle(Style bodyStyle) {
-        setBodyStyle(bodyStyle, -1);
-    }
-
-    public void setBodyStyle(Style bodyStyle, int textureVariant) {
-        this.bodyStyle = Pair.of(bodyStyle, textureVariant);
-        updatePartVisibility(bodyStyle);
-    }
-
-    public void setLegStyle(Style legStyle) {
-        setLegStyle(legStyle, -1);
-    }
-
-    public void setLegStyle(Style legStyle, int textureVariant) {
-        this.legStyle = Pair.of(legStyle, textureVariant);
-        updatePartVisibility(legStyle);
-    }
-
-    public void setFeetStyle(Style feetStyle) {
-        setFeetStyle(feetStyle, -1);
-    }
-
-    public void setFeetStyle(Style feetStyle, int textureVariant) {
-        this.feetStyle = Pair.of(feetStyle, textureVariant);
-        updatePartVisibility(feetStyle);
-    }
-
-    private void updatePartVisibility(Style style) {
-        if(style == null || style.getHiddenParts().isEmpty())
-            return;
-        for(String s : style.getHiddenParts().get()) {
-            if(!this.hiddenParts.contains(s))
-                this.hiddenParts.add(s);
+    public boolean equipStyle(Category slot, @Nullable Identifier styleId, int variant) {
+        var style = getStyleFromId(styleId).orElse(null);
+        if (style != null) {
+            if (!style.getCategories().contains(slot)) return false;
+            if (!hasStyleUnlocked(style)) return false;
+            if (!style.hasVariants() || style.getTextureVariants().get().size() <= variant) return false;
         }
+
+        this.equippedStyles.put(slot, new EquippedStyle(style == null ? null : style.getStyleId(), variant));
+        updatePartVisibility();
+        return true;
     }
 
-    public Optional<Pair<Style, Integer>> getHeadStyle() {
-        return Optional.ofNullable(this.headStyle);
+    private void updatePartVisibility() {
+        this.hiddenParts.clear();
+
+        this.equippedStyles.forEach((slot, data) ->
+            data.getStyleId().flatMap(BounceStylesRegistries::getStyle).ifPresent(style -> {
+                if (style.getHiddenParts().isEmpty()) return;
+                this.hiddenParts.addAll(style.getHiddenParts().get());
+            })
+        );
     }
 
-    public Optional<Pair<Style, Integer>> getBodyStyle() {
-        return Optional.ofNullable(this.bodyStyle);
+    public EquippedStyle getHeadStyle() {
+        return this.equippedStyles.get(Category.Head);
     }
 
-    public Optional<Pair<Style, Integer>> getLegStyle() {
-        return Optional.ofNullable(this.legStyle);
+    public EquippedStyle getBodyStyle() {
+        return this.equippedStyles.get(Category.Body);
     }
 
-    public Optional<Pair<Style, Integer>> getFeetStyle() {
-        return Optional.ofNullable(this.feetStyle);
+    public EquippedStyle getLegsStyle() {
+        return this.equippedStyles.get(Category.Legs);
     }
 
-    public boolean isArmorVisible(EquipmentSlot slot) {
+    public EquippedStyle getFeetStyle() {
+        return this.equippedStyles.get(Category.Feet);
+    }
+
+    public boolean isEquipmentSlotVisible(EquipmentSlot slot) {
         if (this.hiddenParts.contains("armor.*") || this.hiddenParts.contains("armor."+slot.getName().toLowerCase())) return false;
         return true;
     }
 
-    public List<String> getHiddenParts() {
+    public Set<String> getHiddenParts() {
         return this.hiddenParts;
     }
 
-    public Optional<Pair<Style, Integer>> getStyleForSlot(Category category) {
-        return switch (category) {
-            case Head -> getHeadStyle();
-            case Body -> getBodyStyle();
-            case Legs -> getLegStyle();
-            case Feet -> getFeetStyle();
-            case Preset -> Optional.empty();
-        };
-    }
-
-    public void setStyleForSlot(Category category, Style style, int textureId) {
-        switch (category) {
-            case Head -> setHeadStyle(style, textureId);
-            case Body -> setBodyStyle(style, textureId);
-            case Legs -> setLegStyle(style, textureId);
-            case Feet -> setFeetStyle(style, textureId);
-        };
-    }
-
-    public List<Identifier> getUnlocks() {
-        return this.unlocks;
-    }
-
-    public void setUnlocks(List<Identifier> unlocks) {
-        this.unlocks = unlocks;
+    public @Nullable EquippedStyle getStyleForSlot(Category category) {
+        return this.equippedStyles.get(category);
     }
 
     public boolean unlockStyle(Style style) {
-        if(style == null)
-            return false;
+        if(style == null) return false;
         return unlockStyle(style.getStyleId());
     }
 
     public boolean unlockStyle(Identifier styleId) {
-        if(styleId == null || unlocks.contains(styleId))
-            return false;
+        if(styleId == null || unlocks.contains(styleId)) return false;
         return unlocks.add(styleId);
     }
 
-    public boolean removeStyle(Style style) {
+    public boolean lockStyle(Style style) {
         if(style == null)
             return false;
-        return removeStyle(style.getStyleId());
+        return lockStyle(style.getStyleId());
     }
 
-    public boolean removeStyle(Identifier styleId) {
+    public boolean lockStyle(Identifier styleId) {
         boolean b = unlocks.remove(styleId);
         if(b) {
-            if(headStyle != null && headStyle.getFirst().getStyleId() == styleId)
-                setHeadStyle(null);
-            if(bodyStyle != null && bodyStyle.getFirst().getStyleId() == styleId)
-                setBodyStyle(null);
-            if(legStyle != null && legStyle.getFirst().getStyleId() == styleId)
-                setLegStyle(null);
-            if(feetStyle != null && feetStyle.getFirst().getStyleId() == styleId)
-                setFeetStyle(null);
+            for (Category category : Category.values()) {
+                if (category == Category.Preset) continue;
+
+                var equipped = this.getStyleForSlot(category);
+                if (equipped.getStyleId().isPresent() && equipped.getStyleId().get().equals(styleId))
+                    this.equipStyle(category, new EquippedStyle());
+            }
         }
         return b;
     }
@@ -186,39 +133,23 @@ public class StyleData {
         return unlocks.contains(id);
     }
 
-    public StylePreset createPreset(String presetName) {
-        Optional<Pair<Identifier, Integer>> head = this.headStyle != null ? Optional.of(Pair.of(this.headStyle.getFirst().getStyleId(), this.headStyle.getSecond())) : Optional.empty();
-        Optional<Pair<Identifier, Integer>> body = this.bodyStyle != null ? Optional.of(Pair.of(this.bodyStyle.getFirst().getStyleId(), this.bodyStyle.getSecond())) : Optional.empty();
-        Optional<Pair<Identifier, Integer>> legs = this.legStyle != null ? Optional.of(Pair.of(this.legStyle.getFirst().getStyleId(), this.legStyle.getSecond())) : Optional.empty();
-        Optional<Pair<Identifier, Integer>> feet = this.feetStyle != null ? Optional.of(Pair.of(this.feetStyle.getFirst().getStyleId(), this.feetStyle.getSecond())) : Optional.empty();
-        return new StylePreset(BounceStyles.id(presetName.toLowerCase().replace(" ", "_")), presetName, head, body, legs, feet);
-    }
-
-    //Static
-    public static void setPlayerData(Player player, StyleData styleData) {
-        ((StyleEntity) player).bounceStyles$setStyleData(styleData);
-        if (player.level().isClientSide())
-            BounceStylesClient.onStyleUpdate();
+    public StylePreset createPreset() {
+        return new StylePreset(
+                this.getHeadStyle(),
+                this.getBodyStyle(),
+                this.getLegsStyle(),
+                this.getFeetStyle()
+        );
     }
 
     public static StyleData getOrCreateStyleData(Player player) {
         return ((StyleEntity)player).bounceStyles$getOrCreateStyleData();
     }
 
-    public static Optional<Tag> toNBT(StyleData styleData) {
-        return CODEC_FULL.encodeStart(NbtOps.INSTANCE, styleData).resultOrPartial(BounceStyles.LOGGER::error);
-    }
-
-    public static Optional<Tag> equippedToNBT(StyleData styleData) {
-        return CODEC_EQUIPPED.encodeStart(NbtOps.INSTANCE, styleData).resultOrPartial(BounceStyles.LOGGER::error);
-    }
-
-    public static Optional<StyleData> fromNBT(CompoundTag tag) {
-        return CODEC_FULL.parse(NbtOps.INSTANCE, tag).resultOrPartial(BounceStyles.LOGGER::error);
-    }
-
-    public static Optional<StyleData> equippedFromNBT(CompoundTag tag) {
-        return CODEC_EQUIPPED.parse(NbtOps.INSTANCE, tag).resultOrPartial(BounceStyles.LOGGER::error);
+    public static void setPlayerData(Player player, StyleData styleData) {
+        ((StyleEntity) player).bounceStyles$setStyleData(styleData);
+        if (player.level().isClientSide())
+            BounceStylesClient.onStyleUpdate();
     }
 
     public static void copyFrom(ServerPlayer oldPlayer, ServerPlayer newPlayer) {
@@ -226,63 +157,25 @@ public class StyleData {
         StyleData.setPlayerData(newPlayer, styleData);
     }
 
-    private static StyleData decode(Optional<Pair<Identifier, Integer>> head, Optional<Pair<Identifier, Integer>> body, Optional<Pair<Identifier, Integer>> legs, Optional<Pair<Identifier, Integer>> feet) {
-        return decode(head, body, legs, feet, Optional.empty(), Optional.empty());
+    public static Optional<Tag> toNBT(StyleData styleData) {
+        return CODEC.encodeStart(NbtOps.INSTANCE, styleData).resultOrPartial(BounceStyles.LOGGER::error);
     }
 
-    private static StyleData decode(Optional<Pair<Identifier, Integer>> head, Optional<Pair<Identifier, Integer>> body, Optional<Pair<Identifier, Integer>> legs, Optional<Pair<Identifier, Integer>> feet, Optional<List<String>> hiddenParts, Optional<List<Identifier>> unlocks) {
-        return new StyleData(idToStyle(head), idToStyle(body), idToStyle(legs), idToStyle(feet), decodeHiddenParts(hiddenParts), unlocks);
+    public static Optional<StyleData> fromNBT(CompoundTag tag) {
+        return CODEC.parse(NbtOps.INSTANCE, tag).resultOrPartial(BounceStyles.LOGGER::error);
     }
 
-    private static boolean[] decodeArmorVisibility(Optional<List<Pair<Integer, Boolean>>> armorVisibility) {
-        boolean[] array = new boolean[] {true, true, true, true};
-        armorVisibility.ifPresent(list -> list.forEach(pair -> array[pair.getFirst()] = pair.getSecond()));
-        return array;
-    }
-
-    private static List<String> decodeHiddenParts(Optional<List<String>> hiddenParts) {
-        List<String> list = new ArrayList<>();
-        hiddenParts.ifPresent(strings -> strings.forEach(s -> list.add(s.toLowerCase())));
-        return list;
-    }
-
-    private static Optional<Pair<Style, Integer>> idToStyle(Optional<Pair<Identifier, Integer>> slot) {
-        if (slot.isPresent()) {
-            Optional<Style> style = BounceStylesRegistries.getStyle(slot.get().getFirst());
-            if (style.isPresent())
-                return Optional.of(Pair.of(style.get(), slot.get().getSecond()));
-        }
-
+    private static Optional<Style> getStyleFromId(@Nullable Identifier styleId) {
+        if (styleId != null)
+            return BounceStylesRegistries.getStyle(styleId);
         return Optional.empty();
     }
-    
-    public static final Codec<Pair<Identifier, Integer>> CODEC_PAIR = Codec.pair(Identifier.CODEC.fieldOf("style_id").codec(), Codec.INT.fieldOf("texture_variant").codec());
 
-    public static final Codec<StyleData> CODEC_FULL = RecordCodecBuilder.create(instance -> instance.group(
-            CODEC_PAIR.optionalFieldOf("head").forGetter(styleData -> getIdIntPair(styleData, Category.Head)),
-            CODEC_PAIR.optionalFieldOf("body").forGetter(styleData -> getIdIntPair(styleData, Category.Body)),
-            CODEC_PAIR.optionalFieldOf("legs").forGetter(styleData -> getIdIntPair(styleData, Category.Legs)),
-            CODEC_PAIR.optionalFieldOf("feet").forGetter(styleData -> getIdIntPair(styleData, Category.Feet)),
-            Codec.STRING.listOf().optionalFieldOf("hidden_parts").forGetter(styleData -> Optional.of(styleData.getHiddenParts())),
-            Identifier.CODEC.listOf().optionalFieldOf("unlocks").forGetter(styleData -> Optional.of(styleData.unlocks))
-    ).apply(instance, StyleData::decode));
-
-    public static final Codec<StyleData> CODEC_EQUIPPED = RecordCodecBuilder.create(instance -> instance.group(
-            CODEC_PAIR.optionalFieldOf("head").forGetter(styleData -> getIdIntPair(styleData, Category.Head)),
-            CODEC_PAIR.optionalFieldOf("body").forGetter(styleData -> getIdIntPair(styleData, Category.Body)),
-            CODEC_PAIR.optionalFieldOf("legs").forGetter(styleData -> getIdIntPair(styleData, Category.Legs)),
-            CODEC_PAIR.optionalFieldOf("feet").forGetter(styleData -> getIdIntPair(styleData, Category.Feet))
-    ).apply(instance, StyleData::decode));
-
-    private static Optional<Pair<Identifier, Integer>> getIdIntPair(StyleData styleData, Category slot) {
-        var pair = styleData.getStyleForSlot(slot);
-        if (pair.isPresent() && pair.get().getFirst() != null) {
-            Style style = pair.get().getFirst();
-            int texture = pair.get().getSecond();
-
-            return Optional.of(Pair.of(style.getStyleId(), texture));
-        }
-        return Optional.empty();
-    }
+    public static final Codec<StyleData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            EquippedStyle.CODEC.fieldOf("head").forGetter(StyleData::getHeadStyle),
+            EquippedStyle.CODEC.fieldOf("body").forGetter(StyleData::getBodyStyle),
+            EquippedStyle.CODEC.fieldOf("legs").forGetter(StyleData::getLegsStyle),
+            EquippedStyle.CODEC.fieldOf("feet").forGetter(StyleData::getFeetStyle)
+    ).apply(instance, StyleData::new));
 }
 

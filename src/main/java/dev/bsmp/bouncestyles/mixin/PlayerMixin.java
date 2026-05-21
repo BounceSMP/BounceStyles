@@ -1,7 +1,7 @@
 package dev.bsmp.bouncestyles.mixin;
 
 import dev.bsmp.bouncestyles.core.data.StyleData;
-import dev.bsmp.bouncestyles.core.data.StyleEntity;
+import dev.bsmp.bouncestyles.api.StyleEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -10,8 +10,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.Optional;
 
 @Mixin(Player.class)
 public abstract class PlayerMixin implements StyleEntity {
@@ -51,7 +49,7 @@ public abstract class PlayerMixin implements StyleEntity {
     @Override
     public StyleData bounceStyles$getOrCreateStyleData() {
         if(this.bounceStyles$styleData == null)
-            this.bounceStyles$styleData = new StyleData(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+            this.bounceStyles$styleData = new StyleData();
         return this.bounceStyles$styleData;
     }
 }

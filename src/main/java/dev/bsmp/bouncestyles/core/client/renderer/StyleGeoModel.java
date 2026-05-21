@@ -1,20 +1,26 @@
 package dev.bsmp.bouncestyles.core.client.renderer;
 
-import dev.bsmp.bouncestyles.api.style.Style;
+import dev.bsmp.bouncestyles.core.data.Style;
 import net.minecraft.resources.Identifier;
 import software.bernie.geckolib.cache.GeckoLibResources;
 import software.bernie.geckolib.model.GeoModel;
 //? if >= 1.21.11 {
 import software.bernie.geckolib.cache.model.BakedGeoModel;
+import software.bernie.geckolib.renderer.base.GeoRenderState;
 //? } else {
 //import software.bernie.geckolib.cache.GeckoLibCache;
 //import software.bernie.geckolib.cache.object.BakedGeoModel;
 //? }
 
 public class StyleGeoModel extends GeoModel<Style> {
+//    @Override
+//    public Identifier getModelResource(Style style) {
+//        return style.getModelId();
+//    }
+
     @Override
-    public Identifier getModelResource(Style style) {
-        return style.getModelId();
+    public Identifier getModelResource(GeoRenderState renderState) {
+        return null;
     }
 
     @Override
@@ -26,10 +32,15 @@ public class StyleGeoModel extends GeoModel<Style> {
         return super.getBakedModel(location);
     }
 
+//    @Override
+//    public Identifier getTextureResource(Style style) {
+//        if (!GeckoLibCache.getBakedModels().containsKey(style.getModelId())) return Style.MISSING_TEXTURE_ID;
+//        return style.getTextureId();
+//    }
+
     @Override
-    public Identifier getTextureResource(Style style) {
-        if (!GeckoLibCache.getBakedModels().containsKey(style.getModelId())) return Style.MISSING_TEXTURE_ID;
-        return style.getTextureId();
+    public Identifier getTextureResource(GeoRenderState renderState) {
+        return null;
     }
 
     @Override

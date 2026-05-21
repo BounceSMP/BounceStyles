@@ -1,23 +1,29 @@
 package dev.bsmp.bouncestyles.core.pack;
 
+import com.mojang.serialization.JsonOps;
+import dev.architectury.platform.Mod;
 import dev.architectury.platform.Platform;
 import dev.architectury.utils.Env;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
+import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.packs.AbstractPackResources;
-import net.minecraft.server.packs.PackResources;
-import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.*;
+import net.minecraft.server.packs.metadata.pack.PackFormat;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.resources.IoSupplier;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.util.InclusiveRange;
+import net.minecraft.world.flag.FeatureFlags;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.*;
 
 //? if >= 1.21.11 {
@@ -26,6 +32,11 @@ import net.minecraft.server.packs.metadata.MetadataSectionType;
 //import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 
 public class StylesResourcePack extends AbstractPackResources implements Pack.ResourcesSupplier {
+    private static final Map<MetadataSectionType<?>, ?> BUILT_IN_METADATA = Map.of(
+            PackMetadataSection.CLIENT_TYPE, new PackMetadataSection(Component.literal("BounceStyles"), SharedConstants.getCurrentVersion().packVersion(PackType.CLIENT_RESOURCES).minorRange()),
+            PackMetadataSection.SERVER_TYPE, new PackMetadataSection(Component.literal("BounceStyles"), SharedConstants.getCurrentVersion().packVersion(PackType.SERVER_DATA).minorRange()),
+            FeatureFlagsMetadataSection.TYPE, new FeatureFlagsMetadataSection(FeatureFlags.DEFAULT_FLAGS)
+    );
     private final List<PackResources> mergedPacks;
     private final PackMetadataSection metadata;
     private final Map<String, List<PackResources>> dataNamespaces;
@@ -55,15 +66,15 @@ public class StylesResourcePack extends AbstractPackResources implements Pack.Re
 
     @Override
     public IoSupplier<InputStream> getRootResource(String... segments) {
-//        for (String fileName : segments) {
-//            if (fileName.equals("pack.png")) {
-//                Mod mod = Platform.getMod(BounceStyles.modId);
-//                String logoPath = mod.getLogoFile(120).orElse("");
-//                Path path = mod.findResource(logoPath).orElse(null);
-//                if (path != null)
-//                    return IoSupplier.create(path);
-//            }
-//        }
+        for (String fileName : segments) {
+            if (fileName.equals("pack.png")) {
+                Mod mod = Platform.getMod(BounceStyles.modId);
+                String logoPath = mod.getLogoFile(120).orElse("");
+                Path path = mod.findResource(logoPath).orElse(null);
+                if (path != null)
+                    return IoSupplier.create(path);
+            }
+        }
         return null;
     }
 
@@ -94,10 +105,8 @@ public class StylesResourcePack extends AbstractPackResources implements Pack.Re
 
     //? if >= 1.21.11 {
     @Override
-    public @Nullable <T> T getMetadataSection(MetadataSectionType<T> meta) throws IOException {
-        if (meta.name().equals("pack"))
-            return (T) meta;
-        return null;
+    public @Nullable <T> T getMetadataSection(MetadataSectionType<T> type) throws IOException {
+        return (T) BUILT_IN_METADATA.get(type);
     }
     //? } else {
     /*@Override
@@ -142,5 +151,7 @@ public class StylesResourcePack extends AbstractPackResources implements Pack.Re
     public PackResources openFull(net.minecraft.server.packs.PackLocationInfo location, Pack.Metadata metadata) {
         return this;
     }
+
+
     //?}
 }

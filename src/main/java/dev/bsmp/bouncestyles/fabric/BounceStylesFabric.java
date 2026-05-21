@@ -1,8 +1,8 @@
 //? if fabric {
-/*package dev.bsmp.bouncestyles.fabric;
+package dev.bsmp.bouncestyles.fabric;
 
 import com.mojang.serialization.Lifecycle;
-import dev.bsmp.bouncestyles.api.style.Style;
+import dev.bsmp.bouncestyles.core.data.Style;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import net.fabricmc.api.ModInitializer;
@@ -17,4 +17,4 @@ public class BounceStylesFabric implements ModInitializer {
     }
 
 }
-*///?}
+//?}

@@ -52,7 +52,7 @@ public class WardrobePreviewWidget extends AbstractWidget implements WardrobeWid
 
         //? if >= 1.21.11 {
         Vector3f translate = new Vector3f(0.0F,  (previewPlayer.getBbHeight() / 2.0F) + 0.1f, 0.0F);
-        InventoryScreen.renderEntityInInventoryFollowsAngle(guiGraphics, getX() + 3, getY() + 3, this.getX() + this.getWidth() - 3, this.getY() + this.getHeight() - 3, (int) (scale / previewPlayer.getScale()), 0f, previewRotation, 0f, previewPlayer);
+        InventoryScreen.renderEntityInInventoryFollowsMouse(guiGraphics, getX() + 3, getY() + 3, this.getX() + this.getWidth() - 3, this.getY() + this.getHeight() - 3, (int) (scale / previewPlayer.getScale()), 0f, 0, 0, previewPlayer);
         //? } elif >= 1.21.1 {
         /*Vector3f translate = new Vector3f(0.0F,  (previewPlayer.getBbHeight() / 2.0F) + 0.1f, 0.0F);
         InventoryScreen.renderEntityInInventory(guiGraphics, getX() + (getWidth() / 2), getY() + (getHeight() / 2), scale / previewPlayer.getScale(), translate, new Quaternionf().rotateZ((float) Math.PI).rotateY(previewRotation), new Quaternionf(), previewPlayer);

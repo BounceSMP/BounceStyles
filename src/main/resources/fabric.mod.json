@@ -17,12 +17,21 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "${fabric_common_entry}"
+      "dev.bsmp.bouncestyles.fabric.BounceStylesFabric"
     ],
     "client": [
-      "${fabric_client_entry}"
+      "dev.bsmp.bouncestyles.fabric.BounceStylesFabricClient"
     ]
   },
-  ${mixin_field}
-  ${dependencies_field}
+  "mixins": [
+    "mixins.bounce_styles.json"
+  ],
+  "depends": {
+    "minecraft": "${minecraft_version}",
+    "fabricloader": "${loader_version}",
+    "java": ">=21",
+    "fabric-api": "*",
+    "architectury": "${architectury_version}",
+    "geckolib": "${geckolib_version}"
+  }
 }

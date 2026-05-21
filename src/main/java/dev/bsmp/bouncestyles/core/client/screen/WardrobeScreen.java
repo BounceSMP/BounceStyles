@@ -1,9 +1,10 @@
 package dev.bsmp.bouncestyles.core.client.screen;
 
-import dev.bsmp.bouncestyles.api.style.Category;
-import dev.bsmp.bouncestyles.api.style.StylePreset;
+import dev.bsmp.bouncestyles.core.data.Category;
+import dev.bsmp.bouncestyles.core.data.StylePreset;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
+import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.*;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
 import net.minecraft.client.gui.GuiGraphics;
@@ -226,7 +227,7 @@ public class WardrobeScreen extends Screen {
     }
 
     public List<StylePreset> requestPresets() {
-        return BounceStylesRegistries.PRESETS.values().stream().toList();
+        return BounceStylesClient.PRESETS.values().stream().toList();
     }
 
     private void clearEquipped() {

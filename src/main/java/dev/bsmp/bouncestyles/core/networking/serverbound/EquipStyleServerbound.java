@@ -1,20 +1,19 @@
 package dev.bsmp.bouncestyles.core.networking.serverbound;
 
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
-import dev.bsmp.bouncestyles.api.style.Category;
+import dev.bsmp.bouncestyles.core.data.Category;
 import dev.bsmp.bouncestyles.core.BounceStyles;
+import dev.bsmp.bouncestyles.core.data.EquippedStyle;
 import dev.bsmp.bouncestyles.core.networking.StylePacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.Identifier;
 
 import java.util.Map;
-import java.util.Optional;
 
-public record EquipStyleServerbound(Map<Category, Optional<Pair<Identifier, Integer>>> styleMap) implements StylePacket.ServerboundStylePacket {
+public record EquipStyleServerbound(Map<Category, EquippedStyle> styleMap) implements StylePacket.ServerboundStylePacket {
     public EquipStyleServerbound(Category category) {
-        this(Map.of(category, Optional.empty()));
+        this(Map.of(category, new EquippedStyle()));
     }
 
     public EquipStyleServerbound(Category category, Identifier styleId) {
@@ -22,7 +21,7 @@ public record EquipStyleServerbound(Map<Category, Optional<Pair<Identifier, Inte
     }
 
     public EquipStyleServerbound(Category category, Identifier styleId, int textureId) {
-        this(Map.of(category, Optional.of(Pair.of(styleId, textureId))));
+        this(Map.of(category, new EquippedStyle(styleId, textureId)));
     }
 
     public void encode(FriendlyByteBuf buf) {
@@ -49,10 +48,7 @@ public record EquipStyleServerbound(Map<Category, Optional<Pair<Identifier, Inte
         return TYPE;
     }
 
-    private static final Codec<Map<Category, Optional<Pair<Identifier, Integer>>>> CODEC = Codec.unboundedMap(Category.CODEC, Codec.optionalField("value", Codec.pair(
-            Identifier.CODEC.fieldOf("style_id").codec(),
-            Codec.INT.optionalFieldOf("texture_variant", -1).codec()
-    ), true).codec());
+    private static final Codec<Map<Category, EquippedStyle>> CODEC = Codec.unboundedMap(Category.CODEC, EquippedStyle.CODEC);
 
     public static final net.minecraft.network.codec.StreamCodec<ByteBuf, EquipStyleServerbound> STREAM_CODEC = net.minecraft.network.codec.StreamCodec.composite(
             net.minecraft.network.codec.ByteBufCodecs.fromCodec(CODEC),

@@ -1,5 +1,5 @@
 //? if fabric {
-/*package dev.bsmp.bouncestyles.fabric;
+package dev.bsmp.bouncestyles.fabric;
 
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer;
@@ -15,8 +15,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.model.player.PlayerModel;
 //? } else {
-/^import net.minecraft.client.model.PlayerModel;
-^///? }
+//import net.minecraft.client.model.PlayerModel;
+//? }
 
 public class BounceStylesFabricClient implements ClientModInitializer {
     @Override
@@ -33,8 +33,8 @@ public class BounceStylesFabricClient implements ClientModInitializer {
             //? if >= 1.21.11 {
             registrationHelper.register(BounceStylesClient.STYLE_RENDERER = new StyleLayerRenderer((RenderLayerParent<AvatarRenderState, PlayerModel>) livingEntityRenderer));
             //? } else {
-            /^registrationHelper.register(BounceStylesClient.STYLE_RENDERER = new StyleLayerRenderer((RenderLayerParent<Player, PlayerModel<Player>>) livingEntityRenderer));
-            ^///? }
+//            registrationHelper.register(BounceStylesClient.STYLE_RENDERER = new StyleLayerRenderer((RenderLayerParent<Player, PlayerModel<Player>>) livingEntityRenderer));
+            //? }
     }
 }
-*///?}
+//?}

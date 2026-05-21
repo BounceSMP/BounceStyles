@@ -1,9 +1,10 @@
-package dev.bsmp.bouncestyles.core.data;
+package dev.bsmp.bouncestyles.core.item;
 
-import dev.bsmp.bouncestyles.api.style.Category;
-import dev.bsmp.bouncestyles.api.style.Style;
+import dev.bsmp.bouncestyles.core.data.Category;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
+import dev.bsmp.bouncestyles.core.data.Style;
+import dev.bsmp.bouncestyles.core.data.StyleData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -12,8 +13,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
 //? if >= 1.21.11 {
@@ -23,15 +22,14 @@ import net.minecraft.world.InteractionResult;
 *///? }
 //? if >= 1.21.1 {
 import net.minecraft.world.item.component.CustomData;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 //? }
 
 import java.util.List;
 
 public class StyleMagazineItem extends Item {
-    public StyleMagazineItem() {
-        super(new Properties().rarity(Rarity.RARE).stacksTo(1));
+    public StyleMagazineItem(Properties properties) {
+        super(properties);
     }
 
     @Override

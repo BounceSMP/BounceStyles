@@ -1,4 +1,4 @@
-package dev.bsmp.bouncestyles.core.commands;
+package dev.bsmp.bouncestyles.core.command;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
@@ -7,7 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import dev.bsmp.bouncestyles.api.style.Category;
+import dev.bsmp.bouncestyles.core.data.Category;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;

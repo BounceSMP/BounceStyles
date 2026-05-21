@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import dev.architectury.event.events.client.ClientLifecycleEvent;
 import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
+import dev.bsmp.bouncestyles.core.data.StylePreset;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.screen.WardrobeScreen;
@@ -23,10 +24,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class BounceStylesClient {
+    private static final HashMap<String, StylePreset> PRESETS = new HashMap<>(); //ToDo add server->client syncing; adds serverside presets in addition to existing client presets
+
     public static final KeyMapping KEY_WARDROBE = createWardrobeKeyMapping();
     //? if >= 1.21.11 {
     public static dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer STYLE_RENDERER;
@@ -37,6 +41,15 @@ public class BounceStylesClient {
         KeyMappingRegistry.register(KEY_WARDROBE);
         ClientTickEvent.CLIENT_POST.register(instance -> { while (KEY_WARDROBE.consumeClick()) new OpenStyleScreenServerbound().sendToServer(); });
         ClientLifecycleEvent.CLIENT_LEVEL_LOAD.register(world -> BounceStylesRegistries.setRegistryAccess(world.registryAccess()));
+    }
+
+    public static void setPresets(Map<String, StylePreset> map) {
+        PRESETS.clear();
+        PRESETS.putAll(map);
+    }
+
+    public static Map<String, StylePreset> getPresets() {
+        return PRESETS;
     }
 
     public static boolean isLookingForLang(Identifier id) {

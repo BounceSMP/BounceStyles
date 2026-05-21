@@ -16,7 +16,6 @@
     "AvatarRendererMixin",
     "AvatarRenderStateMixin",
     "InventoryScreenMixin",
-    "PlayerModelAccessor",
     "PlayerModelVisibilityMixin"
   ],
   "injectors": {

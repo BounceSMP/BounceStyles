@@ -8,6 +8,10 @@ plugins {
 version = providers.gradleProperty("mod_version").get()
 group = providers.gradleProperty("maven_group").get()
 
+loom {
+    mods {  }
+}
+
 repositories {
     maven("https://maven.parchmentmc.org") { name = "ParchmentMC" }
     maven("https://maven.architectury.dev/")
@@ -18,14 +22,6 @@ repositories {
             includeGroupByRegex("software\\.bernie.*")
             includeGroupAndSubgroups("com.geckolib")
         }
-    }
-    maven {
-        name = "TerraformersMC"
-        url = uri("https://maven.terraformersmc.com/")
-    }
-    maven {
-        name = "Ladysnake Libs"
-        url = uri("https://maven.ladysnake.org/releases/")
     }
 }
 
@@ -47,8 +43,23 @@ tasks.processResources {
 	inputs.property("version", version)
 
 	filesMatching("fabric.mod.json") {
-		expand("version" to version)
-	}
+		expand(
+            "id" to providers.gradleProperty("mod_id").get(),
+            "version" to version,
+            "minecraft_version" to providers.gradleProperty("minecraft_version").get(),
+            "name" to providers.gradleProperty("mod_name").get(),
+            "description" to providers.gradleProperty("mod_description").get(),
+            "authors" to providers.gradleProperty("mod_authors").get(),
+            "website" to providers.gradleProperty("mod_website").get(),
+            "source_url" to providers.gradleProperty("mod_source_url").get(),
+            "issue_tracker" to providers.gradleProperty("mod_issue_tracker").get(),
+            "license" to providers.gradleProperty("mod_license").get(),
+            "icon" to providers.gradleProperty("mod_icon").get(),
+            "loader_version" to providers.gradleProperty("loader_version").get(),
+            "architectury_version" to providers.gradleProperty("architectury_version").get(),
+            "geckolib_version" to providers.gradleProperty("geckolib_version").get(),
+        )
+    }
 }
 
 tasks.withType<JavaCompile>().configureEach {
@@ -56,9 +67,6 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 java {
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-    // if it is present.
-    // If you remove this line, sources will not be generated.
     withSourcesJar()
 
     sourceCompatibility = JavaVersion.VERSION_21

@@ -1,14 +1,14 @@
-package dev.bsmp.bouncestyles.core.commands;
+package dev.bsmp.bouncestyles.core.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import dev.bsmp.bouncestyles.api.style.Category;
+import dev.bsmp.bouncestyles.core.data.Category;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
-import dev.bsmp.bouncestyles.api.style.Style;
+import dev.bsmp.bouncestyles.core.data.Style;
 import dev.bsmp.bouncestyles.core.data.StyleData;
-import dev.bsmp.bouncestyles.core.data.StyleMagazineItem;
+import dev.bsmp.bouncestyles.core.item.StyleMagazineItem;
 import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientbound;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -164,7 +164,7 @@ public class StyleCommand {
             StyleData styleData = StyleData.getOrCreateStyleData(player);
             for(Identifier id : BounceStylesRegistries.getAllStyleIds())
                 if (styleData.hasStyleUnlocked(id))
-                    styleData.removeStyle(id);
+                    styleData.lockStyle(id);
             source.sendSuccess(() -> Component.literal("Removed all styles for " + player.getScoreboardName()), true);
         }
         return 1;
@@ -175,7 +175,7 @@ public class StyleCommand {
             StyleData styleData = StyleData.getOrCreateStyleData(player);
             if (id != null && BounceStylesRegistries.idExists(id)) {
                 if (styleData.hasStyleUnlocked(id)) {
-                    styleData.removeStyle(id);
+                    styleData.lockStyle(id);
                     source.sendSuccess(() -> Component.literal("Removed style " + id + " from player " + player.getScoreboardName()), true);
                 }
                 else

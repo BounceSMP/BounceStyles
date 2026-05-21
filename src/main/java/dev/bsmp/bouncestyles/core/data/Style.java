@@ -1,4 +1,4 @@
-package dev.bsmp.bouncestyles.api.style;
+package dev.bsmp.bouncestyles.core.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -35,7 +35,11 @@ import software.bernie.geckolib.core.object.PlayState;
 import java.util.*;
 
 public class Style implements GeoAnimatable {
-    public static final Identifier MISSING_MODEL_ID = BounceStyles.id("geo/missing_model.geo.json");
+    //? if >= 1.21.11 {
+    public static final Identifier MISSING_MODEL_ID = BounceStyles.id("missing_model");
+    //? } else
+//    public static final Identifier MISSING_MODEL_ID = BounceStyles.id("geo/missing_model.geo.json");
+
     public static final Identifier MISSING_TEXTURE_ID = BounceStyles.id("textures/missing_model.png");
 
     //? if >= 1.21.11 {

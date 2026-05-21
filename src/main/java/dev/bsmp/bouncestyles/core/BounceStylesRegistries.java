@@ -5,19 +5,17 @@ import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.registry.registries.Registrar;
 import dev.architectury.registry.registries.RegistrarManager;
 import dev.architectury.registry.registries.RegistrySupplier;
-import dev.bsmp.bouncestyles.core.commands.StyleCommand;
-import dev.bsmp.bouncestyles.core.commands.StyleSlotArgumentType;
-import dev.bsmp.bouncestyles.api.style.Style;
+import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
+import dev.bsmp.bouncestyles.core.command.StyleCommand;
+import dev.bsmp.bouncestyles.core.command.StyleSlotArgumentType;
+import dev.bsmp.bouncestyles.core.data.Style;
 import dev.bsmp.bouncestyles.core.data.StyleData;
-import dev.bsmp.bouncestyles.core.data.StyleMagazineItem;
-import dev.bsmp.bouncestyles.api.style.StylePreset;
-import net.minecraft.commands.synchronization.ArgumentTypeInfo;
-import net.minecraft.commands.synchronization.ArgumentTypeInfos;
+import dev.bsmp.bouncestyles.core.item.StyleMagazineItem;
+import dev.bsmp.bouncestyles.core.data.StylePreset;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
@@ -38,24 +36,22 @@ public class BounceStylesRegistries {
 
         //Register StyleSlot Command Argument Type
         //? if fabric {
-        /*net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry.registerArgumentType(
-                BounceStyles.resourceLocation("style_slot"),
+        net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry.registerArgumentType(
+                BounceStyles.id("style_slot"),
                 StyleSlotArgumentType.class,
                 SingletonArgumentInfo.contextFree(StyleSlotArgumentType::styleSlot)
         );
-        *///?} else {
-        Registrar<ArgumentTypeInfo<?, ?>> argTypes = REGISTRIES.get().get(Registries.COMMAND_ARGUMENT_TYPE);
-        var argumentTypeInfo = ArgumentTypeInfos.registerByClass(StyleSlotArgumentType.class, SingletonArgumentInfo.contextFree(StyleSlotArgumentType::styleSlot));
-        argTypes.register(BounceStyles.id("style_slot"), () -> argumentTypeInfo);
+        //?} else {
+//        Registrar<ArgumentTypeInfo<?, ?>> argTypes = REGISTRIES.get().get(Registries.COMMAND_ARGUMENT_TYPE);
+//        var argumentTypeInfo = ArgumentTypeInfos.registerByClass(StyleSlotArgumentType.class, SingletonArgumentInfo.contextFree(StyleSlotArgumentType::styleSlot));
+//        argTypes.register(BounceStyles.id("style_slot"), () -> argumentTypeInfo);
         //?}
     }
 
     public static <T, E extends T> RegistrySupplier<E> register(ResourceKey<Registry<T>> key, Identifier id, Supplier<E> supplier) {
         Registrar<T> registry = BounceStylesRegistries.REGISTRIES.get().get(key);
-        return registry.register(BounceStyles.id("magazine"), supplier);
+        return registry.register(id, supplier);
     }
-
-    public static final HashMap<Identifier, StylePreset> PRESETS = new HashMap<>(); //ToDo Move Presets and maybe add server->client syncing?
 
     public static Optional<Registry<Style>> getRegistry() {
         if (registryAccess == null) return Optional.empty();
@@ -90,8 +86,8 @@ public class BounceStylesRegistries {
     }
 
     public static StylePreset createPreset(StyleData styleData, String presetName) {
-        StylePreset newPreset = styleData.createPreset(presetName);
-        PRESETS.put(newPreset.presetId(), newPreset);
+        StylePreset newPreset = styleData.createPreset();
+        BounceStylesClient.PRESETS.put(presetName, newPreset);
         StyleLoader.writePresetsFile();
         return newPreset;
     }
