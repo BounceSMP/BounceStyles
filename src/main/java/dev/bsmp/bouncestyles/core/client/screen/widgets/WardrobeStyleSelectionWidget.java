@@ -1,6 +1,7 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import dev.bsmp.bouncestyles.core.client.screen.widgets.button.StyleSelectionButton;
 import dev.bsmp.bouncestyles.core.data.Style;
 import dev.bsmp.bouncestyles.core.data.Category;
 import dev.bsmp.bouncestyles.core.data.StyleData;
@@ -38,7 +39,7 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
     }
 
     @Override
-    protected void onSelectionClicked(StyleButton button, int mouseButton) {
+    public void onSelectionClicked(StyleSelectionButton button, int mouseButton) {
         Style style = button.getStyle();
         if (style.getTextureVariants().isPresent() && mouseButton != 1) {
             int popupWidth = this.width - 10;
@@ -48,12 +49,12 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
             this.popup = new SelectionPopup(this, this.category, style, popupX, popupY, popupWidth, popupHeight);
         }
         else {
-            if (this.selectedStyleButton == button) {
+            if (this.selectedButton == button) {
                 new EquipStyleServerbound(this.category).sendToServer();
-                this.selectedStyleButton = null;
+                this.selectedButton = null;
             } else if (mouseButton != 1) {
                 new EquipStyleServerbound(this.category, style.getStyleId()).sendToServer();
-                this.selectedStyleButton = button;
+                this.selectedButton = button;
             }
         }
     }
@@ -81,13 +82,13 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
         StyleData styleData = StyleData.getOrCreateStyleData(Minecraft.getInstance().player);
 
         for (Style style : this.styles) {
-            WardrobeStyleSelectionWidget.StyleButton button = new WardrobeStyleSelectionWidget.StyleButton(this, 0, 0, buttonSize, buttonSize, category, style, true);
+            StyleSelectionButton button = new StyleSelectionButton(this, 0, 0, buttonSize, buttonSize, category, style, true);
 
             var equippedStyle = styleData.getStyleForSlot(category);
             if (equippedStyle.getStyleId().orElse(null) == style.getStyleId()) {
                 if (style.getTextureVariants().isPresent())
                     button.setTextureId(equippedStyle.getVariant());
-                this.selectedStyleButton = button;
+                this.selectedButton = button;
             }
 
             this.buttons.add(button);
@@ -189,13 +190,13 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
         }
 
         @Override
-        protected void onSelectionClicked(StyleButton button, int mouseButton) {
-            if (this.selectedStyleButton == button) {
+        public void onSelectionClicked(StyleSelectionButton button, int mouseButton) {
+            if (this.selectedButton == button) {
                 new EquipStyleServerbound(this.category).sendToServer();
-                this.selectedStyleButton = null;
+                this.selectedButton = null;
             } else {
                 new EquipStyleServerbound(this.category, this.style.getStyleId(), button.getTextureId()).sendToServer();
-                this.selectedStyleButton = button;
+                this.selectedButton = button;
             }
 
             this.parent.updateButtons = true;
@@ -208,12 +209,12 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
             StyleData styleData = StyleData.getOrCreateStyleData(Minecraft.getInstance().player);
 
             for (int textureId = -1; textureId < textureVariants.size(); textureId++) {
-                WardrobeStyleSelectionWidget.StyleButton button = new WardrobeStyleSelectionWidget.StyleButton(this, 0, 0, buttonSize, buttonSize, category, style, false);
+                StyleSelectionButton button = new StyleSelectionButton(this, 0, 0, buttonSize, buttonSize, category, style, false);
                 button.setTextureId(textureId);
 
                 var equippedStyle = styleData.getStyleForSlot(category);
                 if (equippedStyle.getStyleId().orElse(null) == style.getStyleId() && equippedStyle.getVariant() == textureId)
-                    this.selectedStyleButton = button;
+                    this.selectedButton = button;
 
                 this.buttons.add(button);
             }

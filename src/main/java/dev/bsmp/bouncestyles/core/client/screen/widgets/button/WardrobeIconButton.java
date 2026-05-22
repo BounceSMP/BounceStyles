@@ -2,7 +2,6 @@ package dev.bsmp.bouncestyles.core.client.screen.widgets.button;
 
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.WardrobeWidget;
-import dev.bsmp.bouncestyles.core.data.Category;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -14,8 +13,8 @@ import java.util.function.Supplier;
 
 public class WardrobeIconButton extends Button implements WardrobeWidget {
     private static final Identifier TEX_BASE = id("btn_base", "");
-    private static final Identifier TEX_BASE_HOVER = id("btn_base", "hover");
-    private static final Identifier TEX_BASE_SELECTED = id("btn_base", "selected");
+    private static final Identifier TEX_HOVER = id("btn_base", "hover");
+    private static final Identifier TEX_SELECTED = id("btn_base", "selected");
 
     private final Identifier iconTexture;
     private final Identifier iconTextureHover;
@@ -41,7 +40,7 @@ public class WardrobeIconButton extends Button implements WardrobeWidget {
 
     @Override
     protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        var baseTexture = isFocused() ? TEX_BASE_SELECTED : isHovered() ? TEX_BASE_HOVER : TEX_BASE;
+        var baseTexture = isFocused() ? TEX_SELECTED : isHovered() ? TEX_HOVER : TEX_BASE;
         blit(guiGraphics, baseTexture, getX(), getY(), getWidth(), getHeight());
         blit(guiGraphics, isHoveredOrFocused() ? this.iconTextureHover : this.iconTexture, getX() + 2, getY() + 2, 16, 16);
 
