@@ -1,12 +1,10 @@
-package dev.bsmp.bouncestyles.core;
+package dev.bsmp.bouncestyles.core.data;
 
 import com.google.common.io.Files;
 import com.google.gson.*;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.JsonOps;
 import dev.architectury.platform.Platform;
-import dev.bsmp.bouncestyles.core.data.StylePreset;
-import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
+import dev.bsmp.bouncestyles.core.BounceStyles;
+import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import net.minecraft.resources.Identifier;
 
 import java.io.*;
@@ -17,7 +15,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class StyleLoader {
-    private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().create();
+    public static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().create();
 
     public static void checkAndConvertPackFormat() {
         File stylesDirectory = getStylesDirectory();
@@ -148,52 +146,6 @@ public class StyleLoader {
         String nameSpace = name.contains(":") ? name.split(":")[0] : BounceStyles.modId;
         String path = name.contains(":") ? name.split(":")[1] : name;
         return nameSpace + "/" + registryId.getNamespace() + "/" + registryId.getPath() + "/" + path + ".json";
-    }
-
-    public static void loadPresets() {
-        File dir = getStylesDirectory();
-        File file = new File(dir, "presets.json");
-        if(file.exists()) {
-            try(BufferedReader reader = Files.newReader(file, StandardCharsets.UTF_8)) {
-                try {
-                    JsonArray jsonArray = GSON.fromJson(reader, JsonArray.class);
-                    StylePreset.CODEC.listOf().parse(JsonOps.INSTANCE, jsonArray)
-                            .resultOrPartial(BounceStyles.LOGGER::error)
-                            .ifPresent(presets -> {
-                                int i = 0;
-                                presets.forEach(stylePreset -> BounceStylesClient.getPresets().put("preset_" + i, stylePreset));
-                            });
-                }
-                catch (JsonSyntaxException e) {
-                    JsonObject jsonObject = GSON.fromJson(reader, JsonObject.class);
-                    Codec.unboundedMap(Codec.STRING, StylePreset.CODEC).parse(JsonOps.INSTANCE, jsonObject)
-                            .resultOrPartial(BounceStyles.LOGGER::error)
-                            .ifPresent(BounceStylesClient::setPresets);
-                }
-            }
-            catch (IOException e) {
-                BounceStyles.LOGGER.error("Exception Occurred reading Presets file", e);
-            }
-        }
-    }
-
-    public static void removePreset(Identifier presetId) {
-        BounceStylesClient.getPresets().remove(presetId);
-        writePresetsFile();
-    }
-
-    public static void writePresetsFile() {
-        File dir = getStylesDirectory();
-        File file = new File(dir, "presets.json");
-        try(BufferedWriter bufferedWriter = Files.newWriter(file, StandardCharsets.UTF_8)) {
-            Codec.unboundedMap(Codec.STRING, StylePreset.CODEC)
-                .encodeStart(JsonOps.INSTANCE, BounceStylesClient.getPresets())
-                .resultOrPartial(BounceStyles.LOGGER::error)
-                .ifPresent(jsonElement -> GSON.toJson(jsonElement, bufferedWriter));
-        }
-        catch (IOException e) {
-            BounceStyles.LOGGER.error("Exception Occurred writing Presets file", e);
-        }
     }
 
     public static File getStylesDirectory() {

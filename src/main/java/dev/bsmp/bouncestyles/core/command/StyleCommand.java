@@ -8,6 +8,7 @@ import dev.bsmp.bouncestyles.core.data.Category;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.data.Style;
 import dev.bsmp.bouncestyles.core.data.StyleData;
+import dev.bsmp.bouncestyles.core.data.unlocks.UnlockManager;
 import dev.bsmp.bouncestyles.core.item.StyleMagazineItem;
 import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientbound;
 import net.minecraft.ChatFormatting;
@@ -141,9 +142,8 @@ public class StyleCommand {
     //Functions
     private static int unlockAll(Collection<ServerPlayer> players) {
         for(ServerPlayer player : players) {
-            StyleData styleData = StyleData.getOrCreateStyleData(player);
             for(Identifier id : BounceStylesRegistries.getAllStyleIds()) {
-                styleData.unlockStyle(id);
+                UnlockManager.unlockStyle(player, id);
             }
             player.displayClientMessage(Component.literal("You've unlocked all current styles, enjoy!").withStyle(style -> style.withColor(ChatFormatting.GOLD)), false);
         }
@@ -153,7 +153,7 @@ public class StyleCommand {
     private static int unlock(Collection<ServerPlayer> players, Identifier id) {
         for(ServerPlayer player : players)
             if (id != null && BounceStylesRegistries.idExists(id)) {
-                StyleData.getOrCreateStyleData(player).unlockStyle(id);
+                UnlockManager.unlockStyle(player, id);
                 player.displayClientMessage(Component.literal("Style unlocked").withStyle(style -> style.withColor(ChatFormatting.GOLD)), false);
             }
         return 1;
@@ -161,10 +161,8 @@ public class StyleCommand {
 
     private static int removeAll(CommandSourceStack source, Collection<ServerPlayer> players) {
         for(ServerPlayer player : players) {
-            StyleData styleData = StyleData.getOrCreateStyleData(player);
             for(Identifier id : BounceStylesRegistries.getAllStyleIds())
-                if (styleData.hasStyleUnlocked(id))
-                    styleData.lockStyle(id);
+                UnlockManager.lockStyle(player, id);
             source.sendSuccess(() -> Component.literal("Removed all styles for " + player.getScoreboardName()), true);
         }
         return 1;
@@ -172,10 +170,8 @@ public class StyleCommand {
 
     private static int remove(CommandSourceStack source, Collection<ServerPlayer> players, Identifier id) {
         for(ServerPlayer player : players) {
-            StyleData styleData = StyleData.getOrCreateStyleData(player);
             if (id != null && BounceStylesRegistries.idExists(id)) {
-                if (styleData.hasStyleUnlocked(id)) {
-                    styleData.lockStyle(id);
+                if (UnlockManager.lockStyle(player, id)) {
                     source.sendSuccess(() -> Component.literal("Removed style " + id + " from player " + player.getScoreboardName()), true);
                 }
                 else
@@ -190,12 +186,7 @@ public class StyleCommand {
             Style style = id != null ? BounceStylesRegistries.getStyle(id).orElse(null) : null;
             if(style == null || style.getCategories().contains(slot)) {
                 StyleData styleData = StyleData.getOrCreateStyleData(player);
-                switch (slot) {
-                    case Head -> styleData.setHeadStyle(style);
-                    case Body -> styleData.setBodyStyle(style);
-                    case Legs -> styleData.setLegStyle(style);
-                    case Feet -> styleData.setFeetStyle(style);
-                }
+                styleData.equipStyle(slot, id);
                 SyncStyleDataClientbound outPacket = new SyncStyleDataClientbound(player.getId(), styleData);
                 outPacket.sendToPlayer(player);
                 outPacket.sendToTrackingPlayers(player);

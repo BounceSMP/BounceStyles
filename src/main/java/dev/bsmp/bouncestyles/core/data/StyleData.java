@@ -6,11 +6,14 @@ import dev.bsmp.bouncestyles.api.StyleEntity;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
+import dev.bsmp.bouncestyles.core.data.preset.StylePreset;
+import dev.bsmp.bouncestyles.core.data.unlocks.UnlockManager;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
@@ -20,6 +23,7 @@ import java.util.*;
 public class StyleData {
     public static final String DATA_TAG = "bounceStyleData";
 
+    private Entity owner;
     private final Set<String> hiddenParts = new HashSet<>();
     private final Map<Category, EquippedStyle> equippedStyles = new HashMap<>(Map.of(
             Category.Head, new EquippedStyle(),
@@ -30,11 +34,15 @@ public class StyleData {
 
     public StyleData() {}
 
-    public StyleData(Optional<EquippedStyle> head, Optional<EquippedStyle> body, Optional<EquippedStyle> legs, Optional<EquippedStyle> feet) {
-        head.ifPresent(equipped -> this.equipStyle(Category.Head, equipped));
-        body.ifPresent(equipped -> this.equipStyle(Category.Body, equipped));
-        legs.ifPresent(equipped -> this.equipStyle(Category.Legs, equipped));
-        feet.ifPresent(equipped -> this.equipStyle(Category.Feet, equipped));
+    public StyleData(EquippedStyle head, EquippedStyle body, EquippedStyle legs, EquippedStyle feet) {
+        this.equipStyle(Category.Head, head);
+        this.equipStyle(Category.Body, body);
+        this.equipStyle(Category.Legs, legs);
+        this.equipStyle(Category.Feet, feet);
+    }
+
+    public boolean equipStyle(Category slot, @Nullable Identifier styleId) {
+        return this.equipStyle(slot, new EquippedStyle(styleId));
     }
 
     public boolean equipStyle(Category slot, EquippedStyle style) {
@@ -45,9 +53,9 @@ public class StyleData {
         var style = getStyleFromId(styleId).orElse(null);
         if (style != null) {
             if (!style.getCategories().contains(slot)) return false;
-            if (!hasStyleUnlocked(style)) return false;
             if (!style.hasVariants() || style.getTextureVariants().get().size() <= variant) return false;
         }
+        if (!UnlockManager.hasUnlocked(this.owner, styleId)) return false;
 
         this.equippedStyles.put(slot, new EquippedStyle(style == null ? null : style.getStyleId(), variant));
         updatePartVisibility();
@@ -63,6 +71,10 @@ public class StyleData {
                 this.hiddenParts.addAll(style.getHiddenParts().get());
             })
         );
+    }
+
+    public @Nullable EquippedStyle getStyleForSlot(Category category) {
+        return this.equippedStyles.get(category);
     }
 
     public EquippedStyle getHeadStyle() {
@@ -90,47 +102,8 @@ public class StyleData {
         return this.hiddenParts;
     }
 
-    public @Nullable EquippedStyle getStyleForSlot(Category category) {
-        return this.equippedStyles.get(category);
-    }
-
-    public boolean unlockStyle(Style style) {
-        if(style == null) return false;
-        return unlockStyle(style.getStyleId());
-    }
-
-    public boolean unlockStyle(Identifier styleId) {
-        if(styleId == null || unlocks.contains(styleId)) return false;
-        return unlocks.add(styleId);
-    }
-
-    public boolean lockStyle(Style style) {
-        if(style == null)
-            return false;
-        return lockStyle(style.getStyleId());
-    }
-
-    public boolean lockStyle(Identifier styleId) {
-        boolean b = unlocks.remove(styleId);
-        if(b) {
-            for (Category category : Category.values()) {
-                if (category == Category.Preset) continue;
-
-                var equipped = this.getStyleForSlot(category);
-                if (equipped.getStyleId().isPresent() && equipped.getStyleId().get().equals(styleId))
-                    this.equipStyle(category, new EquippedStyle());
-            }
-        }
-        return b;
-    }
-
-    //ToDo Potentially move unlocks to a file and read as needed
-    public boolean hasStyleUnlocked(Style style) {
-        return hasStyleUnlocked(style.getStyleId());
-    }
-
-    public boolean hasStyleUnlocked(Identifier id) {
-        return unlocks.contains(id);
+    public void setOwner(Entity entity) {
+        this.owner = entity;
     }
 
     public StylePreset createPreset() {

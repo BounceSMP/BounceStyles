@@ -1,10 +1,12 @@
 package dev.bsmp.bouncestyles.core.item;
 
+import dev.bsmp.bouncestyles.api.StyleEntity;
 import dev.bsmp.bouncestyles.core.data.Category;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.data.Style;
 import dev.bsmp.bouncestyles.core.data.StyleData;
+import dev.bsmp.bouncestyles.core.data.unlocks.UnlockManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -40,7 +42,7 @@ public class StyleMagazineItem extends Item {
     *///? }
         ItemStack itemStack = user.getItemInHand(hand);
         if(!world.isClientSide()) {
-            if(StyleData.getOrCreateStyleData(user).unlockStyle(getStyleIdFromStack(itemStack)) && !user.getAbilities().instabuild) {
+            if(UnlockManager.unlockStyle(user, getStyleIdFromStack(itemStack)) && !user.getAbilities().instabuild) {
                 user.displayClientMessage(Component.literal("Style Unlocked"), true);
                 itemStack.shrink(1);
             }

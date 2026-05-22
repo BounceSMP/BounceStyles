@@ -1,7 +1,7 @@
 package dev.bsmp.bouncestyles.core.client.screen;
 
 import dev.bsmp.bouncestyles.core.data.Category;
-import dev.bsmp.bouncestyles.core.data.StylePreset;
+import dev.bsmp.bouncestyles.core.data.preset.StylePreset;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
@@ -224,10 +224,6 @@ public class WardrobeScreen extends Screen {
             this.styleWidget.updateButtons(this.selectedCategory, styles);
             return null;
         });
-    }
-
-    public List<StylePreset> requestPresets() {
-        return BounceStylesClient.PRESETS.values().stream().toList();
     }
 
     private void clearEquipped() {

@@ -80,9 +80,9 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
             WardrobeStyleSelectionWidget.StyleButton button = new WardrobeStyleSelectionWidget.StyleButton(this, 0, 0, buttonSize, buttonSize, category, style, true);
 
             var equippedStyle = styleData.getStyleForSlot(category);
-            if (equippedStyle.isPresent() && equippedStyle.get().getFirst() == style) {
+            if (equippedStyle.getStyleId().orElse(null) == style.getStyleId()) {
                 if (style.getTextureVariants().isPresent())
-                    button.setTextureId(equippedStyle.get().getSecond());
+                    button.setTextureId(equippedStyle.getVariant());
                 this.selectedStyleButton = button;
             }
 
@@ -208,7 +208,7 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
                 button.setTextureId(textureId);
 
                 var equippedStyle = styleData.getStyleForSlot(category);
-                if (equippedStyle.isPresent() && equippedStyle.get().getFirst() == style && equippedStyle.get().getSecond() == textureId)
+                if (equippedStyle.getStyleId().orElse(null) == style.getStyleId() && equippedStyle.getVariant() == textureId)
                     this.selectedStyleButton = button;
 
                 this.buttons.add(button);

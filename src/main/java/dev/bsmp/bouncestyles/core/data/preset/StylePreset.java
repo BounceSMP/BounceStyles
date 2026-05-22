@@ -1,9 +1,15 @@
-package dev.bsmp.bouncestyles.core.data;
+package dev.bsmp.bouncestyles.core.data.preset;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.bsmp.bouncestyles.api.StyleEntity;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
+import dev.bsmp.bouncestyles.core.data.Category;
+import dev.bsmp.bouncestyles.core.data.EquippedStyle;
+import dev.bsmp.bouncestyles.core.data.unlocks.UnlockManager;
+import net.minecraft.world.entity.Entity;
 
+import java.util.Map;
 import java.util.Optional;
 
 public record StylePreset(Optional<EquippedStyle> head, Optional<EquippedStyle> body, Optional<EquippedStyle> legs, Optional<EquippedStyle> feet) {
@@ -11,12 +17,22 @@ public record StylePreset(Optional<EquippedStyle> head, Optional<EquippedStyle> 
         this(slotCheck(head), slotCheck(body), slotCheck(legs), slotCheck(feet));
     }
 
+    public Map<Category, EquippedStyle> toMap() {
+        return Map.of(
+                Category.Head, head().orElse(new EquippedStyle()),
+                Category.Body, body().orElse(new EquippedStyle()),
+                Category.Legs, legs().orElse(new EquippedStyle()),
+                Category.Feet, feet().orElse(new EquippedStyle())
+        );
+    }
+
     private static Optional<EquippedStyle> slotCheck(EquippedStyle equipped) {
         if (equipped.getStyleId().isEmpty()) return Optional.empty();
         return Optional.of(equipped);
     }
 
-    public static Error errorCheck(StyleData styleData, EquippedStyle... slots) {
+    public static Error errorCheck(Entity styleEntity, EquippedStyle... slots) {
+        if (!(styleEntity instanceof StyleEntity)) return Error.WRONG_ENTITY;
         Error error = Error.NO_ERROR;
 
         for(EquippedStyle slot : slots)
@@ -24,7 +40,7 @@ public record StylePreset(Optional<EquippedStyle> head, Optional<EquippedStyle> 
                 var styleId = slot.getStyleId().get();
                 if (!BounceStylesRegistries.idExists(styleId))
                     error = error != Error.NO_ERROR ? Error.BOTH : Error.MISSING;
-                else if (!styleData.hasStyleUnlocked(styleId))
+                else if (!UnlockManager.hasUnlocked(styleEntity, styleId))
                     error = error != Error.NO_ERROR ? Error.BOTH : Error.LOCKED;
             }
 
@@ -40,6 +56,7 @@ public record StylePreset(Optional<EquippedStyle> head, Optional<EquippedStyle> 
 
     enum Error {
         NO_ERROR,
+        WRONG_ENTITY,
         MISSING,
         LOCKED,
         BOTH

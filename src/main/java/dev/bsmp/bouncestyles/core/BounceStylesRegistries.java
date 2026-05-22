@@ -5,13 +5,10 @@ import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.registry.registries.Registrar;
 import dev.architectury.registry.registries.RegistrarManager;
 import dev.architectury.registry.registries.RegistrySupplier;
-import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.core.command.StyleCommand;
 import dev.bsmp.bouncestyles.core.command.StyleSlotArgumentType;
 import dev.bsmp.bouncestyles.core.data.Style;
-import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.item.StyleMagazineItem;
-import dev.bsmp.bouncestyles.core.data.StylePreset;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -83,13 +80,6 @@ public class BounceStylesRegistries {
 
     public static Collection<Style> getAllStyles() {
         return getRegistry().map(registry -> registry.stream().toList()).orElse(List.of());
-    }
-
-    public static StylePreset createPreset(StyleData styleData, String presetName) {
-        StylePreset newPreset = styleData.createPreset();
-        BounceStylesClient.PRESETS.put(presetName, newPreset);
-        StyleLoader.writePresetsFile();
-        return newPreset;
     }
 
     public static boolean idExists(Identifier id) {

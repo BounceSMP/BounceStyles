@@ -19,12 +19,12 @@ public abstract class PlayerMixin implements StyleEntity {
     @Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
     private void bounceStyles$saveStyleData(ValueOutput output, CallbackInfo ci) {
         if (this.bounceStyles$styleData != null)
-            output.store(StyleData.DATA_TAG, StyleData.CODEC_FULL, this.bounceStyles$styleData);
+            output.store(StyleData.DATA_TAG, StyleData.CODEC, this.bounceStyles$styleData);
     }
 
     @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
     private void bounceStyles$readStyleData(ValueInput input, CallbackInfo ci) {
-        input.read(StyleData.DATA_TAG, StyleData.CODEC_FULL).ifPresent(this::bounceStyles$setStyleData);
+        input.read(StyleData.DATA_TAG, StyleData.CODEC).ifPresent(this::bounceStyles$setStyleData);
     }
     //? } else {
 //    @Inject(method = "addAdditionalSaveData", at = @At("TAIL"))

@@ -1,10 +1,10 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
+import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.core.data.Category;
-import dev.bsmp.bouncestyles.core.data.StylePreset;
+import dev.bsmp.bouncestyles.core.data.preset.PresetManager;
+import dev.bsmp.bouncestyles.core.data.preset.StylePreset;
 import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
-import dev.bsmp.bouncestyles.core.StyleLoader;
 import dev.bsmp.bouncestyles.core.client.screen.WardrobeScreen;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
@@ -71,7 +71,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
                 this.nameEntry.visible = false;
                 String name = this.nameEntry.getValue();
                 if (!name.isBlank()) {
-                    BounceStylesRegistries.createPreset(StyleData.getOrCreateStyleData(minecraft.player), name);
+                    PresetManager.createPreset(StyleData.getOrCreateStyleData(minecraft.player), name);
                     refreshEntries();
                 }
                 this.nameEntry.setValue("");
@@ -85,9 +85,9 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
     public void refreshEntries() {
         this.needsRefreshing = false;
         clearEntries();
-        for (StylePreset preset : this.parentScreen.requestPresets()) {
-            addEntry(new PresetEntry(this, preset));
-        }
+        BounceStylesClient.getPresets().forEach((presetName, preset) ->
+                addEntry(new PresetEntry(this, presetName, preset))
+        );
     }
 
     //? if <= 1.20.1 {
@@ -216,16 +216,18 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
     public static class PresetEntry extends AbstractSelectionList.Entry<PresetEntry> {
         private static List<Component> tooltipLines;
         WardrobePresetsWidget parentWidget;
+        String presetName;
         StylePreset preset;
         WardrobeIconButton deleteButton;
 
         boolean isHovered = false;
 
-        public PresetEntry(WardrobePresetsWidget parentWidget, StylePreset preset) {
+        public PresetEntry(WardrobePresetsWidget parentWidget, String presetName, StylePreset preset) {
             this.parentWidget = parentWidget;
+            this.presetName = presetName;
             this.preset = preset;
             this.deleteButton = new WardrobeIconButton(0,0, 24,24, TEX_BTN_DELETE, TEX_BTN_DELETE_HOVER, button -> {
-                StyleLoader.removePreset(this.preset.presetId());
+                PresetManager.removePreset(presetName);
                 this.parentWidget.needsRefreshing = true;
             });
 
@@ -257,7 +259,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
             context.fill(left, top, left + 1, top + height, colorOutline); //Left Line
             context.fill(left + width - 1, top, left + width, top + height, colorOutline); //Right Line
 
-            context.drawString(Minecraft.getInstance().font, this.preset.name(), left + 5, top + (height / 2) - 4, this.isHovered ? 0xb3fffe : 0xFFFFFF);
+            context.drawString(Minecraft.getInstance().font, this.presetName, left + 5, top + (height / 2) - 4, this.isHovered ? 0xb3fffe : 0xFFFFFF);
             this.deleteButton.setX(left + width + 2);
             this.deleteButton.setY(top + 1);
             this.deleteButton.render(context, mouseX, mouseY, partialTick);
@@ -286,12 +288,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
         @Override
         public boolean mouseClicked(MouseButtonEvent event, boolean isDoubleClick) {
             if(this.isHovered) {
-                new EquipStyleServerbound(Map.of(
-                        Category.Head, preset.head(),
-                        Category.Body, preset.body(),
-                        Category.Legs, preset.legs(),
-                        Category.Feet, preset.feet()
-                )).sendToServer();
+                new EquipStyleServerbound(this.preset.toMap()).sendToServer();
                 Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f));
                 return true;
             }
@@ -301,12 +298,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
         /*@Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if(this.isHovered) {
-                new EquipStyleServerbound(Map.of(
-                        Category.Head, preset.head(),
-                        Category.Body, preset.body(),
-                        Category.Legs, preset.legs(),
-                        Category.Feet, preset.feet()
-                )).sendToServer();
+                new EquipStyleServerbound(this.preset.toMap()).sendToServer();
                 Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f));
                 return true;
             }

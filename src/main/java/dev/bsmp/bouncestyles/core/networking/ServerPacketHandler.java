@@ -2,12 +2,14 @@ package dev.bsmp.bouncestyles.core.networking;
 
 import dev.architectury.networking.NetworkManager;
 import dev.bsmp.bouncestyles.core.data.StyleData;
+import dev.bsmp.bouncestyles.core.data.unlocks.UnlockManager;
 import dev.bsmp.bouncestyles.core.networking.clientbound.OpenWardrobeUIClientbound;
 import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientbound;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
 import dev.bsmp.bouncestyles.core.networking.serverbound.OpenStyleScreenServerbound;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.util.Set;
 import java.util.function.Supplier;
 
 public class ServerPacketHandler {
@@ -32,6 +34,6 @@ public class ServerPacketHandler {
         NetworkManager.PacketContext ctx = contextSupplier.get();
         ServerPlayer player = (ServerPlayer) ctx.getPlayer();
 
-        ctx.queue(() -> new OpenWardrobeUIClientbound(StyleData.getOrCreateStyleData(player).getUnlocks().stream().toList()).sendToPlayer(player));
+        ctx.queue(() -> new OpenWardrobeUIClientbound(UnlockManager.readUnlockData(player).orElse(Set.of()).stream().toList()).sendToPlayer(player));
     }
 }
