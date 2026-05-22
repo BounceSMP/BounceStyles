@@ -9,6 +9,7 @@
     "EntityTrackerAccessor",
     "PackRepoMixin",
     "PlayerMixin",
+    "MappedRegistryMixin",
     "ResourcePackManagerAccessor"
   ],
   "client": [
