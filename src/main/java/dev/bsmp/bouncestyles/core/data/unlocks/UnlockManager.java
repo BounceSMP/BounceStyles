@@ -2,6 +2,7 @@ package dev.bsmp.bouncestyles.core.data.unlocks;
 
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.Identifier;
@@ -38,7 +39,7 @@ public class UnlockManager {
         try {
             var nbt = NbtIo.read(dataFile);
             if (nbt != null) {
-                var unlocks = Identifier.CODEC.listOf().parse(NbtOps.INSTANCE, nbt).resultOrPartial(BounceStyles.LOGGER::error);
+                var unlocks = Identifier.CODEC.listOf().parse(NbtOps.INSTANCE, nbt.getList("").orElse(new ListTag())).resultOrPartial(BounceStyles.LOGGER::error);
                 if (unlocks.isPresent()) {
                     var set = new HashSet<>(unlocks.get());
                     return Optional.of(set);

@@ -8,6 +8,7 @@ import dev.bsmp.bouncestyles.core.data.Style;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.data.unlocks.UnlockManager;
 import net.minecraft.ChatFormatting;
+import net.minecraft.commands.arguments.item.ItemParser;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -42,13 +43,19 @@ public class StyleMagazineItem extends Item {
     *///? }
         ItemStack itemStack = user.getItemInHand(hand);
         if(!world.isClientSide()) {
-            if(UnlockManager.unlockStyle(user, getStyleIdFromStack(itemStack)) && !user.getAbilities().instabuild) {
-                user.displayClientMessage(Component.literal("Style Unlocked"), true);
+            var styleId = getStyleIdFromStack(itemStack);
+            if (!UnlockManager.unlockStyle(user, styleId) && styleId != null) {
+                user.displayClientMessage(Component.literal("Style is already unlocked!").withStyle(ChatFormatting.RED), true);
+                return InteractionResult.PASS;
+            }
+            if(!user.getAbilities().instabuild) {
                 itemStack.shrink(1);
             }
+            user.displayClientMessage(Component.literal("Style Unlocked"), true);
+            return InteractionResult.CONSUME;
         }
         //? if >= 1.21.11 {
-        return InteractionResult.SUCCESS;
+        return InteractionResult.PASS;
         //? } else {
         /*return InteractionResultHolder.sidedSuccess(itemStack, world.isClientSide);
         *///? }
