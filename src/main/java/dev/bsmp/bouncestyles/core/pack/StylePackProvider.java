@@ -95,7 +95,6 @@ public class StylePackProvider implements RepositorySource {
                 packType,
                 new net.minecraft.server.packs.PackSelectionConfig(true, Pack.Position.BOTTOM, false)
         );
-        BounceStyles.LOGGER.info(mergedProfile);
         //?}
 
         if(mergedProfile != null) profileAdder.accept(mergedProfile);

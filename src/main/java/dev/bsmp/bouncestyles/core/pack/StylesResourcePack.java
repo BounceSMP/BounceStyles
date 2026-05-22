@@ -28,6 +28,7 @@ import java.util.*;
 
 //? if >= 1.21.11 {
 import net.minecraft.server.packs.metadata.MetadataSectionType;
+import software.bernie.geckolib.cache.GeckoLibResources;
 //? } else
 //import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 
@@ -97,9 +98,17 @@ public class StylesResourcePack extends AbstractPackResources implements Pack.Re
     }
 
     @Override
-    public void listResources(PackType type, String namespace, String prefix, ResourceOutput consumer) {
+    public void listResources(PackType type, String namespace, String path, ResourceOutput consumer) {
+        var alternatePath = "";
+        if (path.equals(GeckoLibResources.MODELS_PATH.getPath()))
+            alternatePath = "geo";
+        else if (path.equals(GeckoLibResources.ANIMATIONS_PATH.getPath()))
+            alternatePath = "animations";
+
         for (PackResources pack : this.mergedPacks) {
-            pack.listResources(type, namespace, prefix, consumer);
+            pack.listResources(type, namespace, path, consumer);
+            if (!alternatePath.isBlank())
+                pack.listResources(type, namespace, alternatePath, consumer);
         }
     }
 
