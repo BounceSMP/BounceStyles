@@ -5,8 +5,10 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
@@ -14,6 +16,18 @@ import java.util.List;
 //import com.mojang.blaze3d.platform.GlStateManager;
 
 public interface WardrobeWidget extends GuiEventListener, Renderable {
+    default void blit(GuiGraphics guiGraphics, Identifier id, int x, int y, int width, int height) {
+        blit(guiGraphics, id, x, y, width, height, width, height);
+    }
+
+    default void blit(GuiGraphics guiGraphics, Identifier id, int x, int y, int width, int height, int textureWidth, int textureHeight) {
+        blit(guiGraphics, id, x, y, width, height, textureWidth, textureHeight, 0, 0);
+    }
+
+    default void blit(GuiGraphics guiGraphics, Identifier id, int x, int y, int width, int height, int textureWidth, int textureHeight, int u, int v) {
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, id, x, y, u, v, width, height, textureWidth, textureHeight);
+    }
+
     //? if < 1.21.11 {
     /*default void drawTooltip(GuiGraphics context, Font font, Component text, int x, int y) {
         drawTooltipStatic(context, font, List.of(text), x, y);

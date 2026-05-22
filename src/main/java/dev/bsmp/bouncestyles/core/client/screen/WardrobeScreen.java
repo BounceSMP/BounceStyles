@@ -1,11 +1,13 @@
 package dev.bsmp.bouncestyles.core.client.screen;
 
-import dev.bsmp.bouncestyles.core.data.Category;
-import dev.bsmp.bouncestyles.core.data.preset.StylePreset;
-import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
-import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
-import dev.bsmp.bouncestyles.core.client.screen.widgets.*;
+import dev.bsmp.bouncestyles.core.client.screen.widgets.WardrobePresetsWidget;
+import dev.bsmp.bouncestyles.core.client.screen.widgets.WardrobePreviewWidget;
+import dev.bsmp.bouncestyles.core.client.screen.widgets.WardrobeStyleSelectionWidget;
+import dev.bsmp.bouncestyles.core.client.screen.widgets.WardrobeWidget;
+import dev.bsmp.bouncestyles.core.client.screen.widgets.button.WardrobeIconButton;
+import dev.bsmp.bouncestyles.core.data.Category;
+import dev.bsmp.bouncestyles.core.data.Style;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
@@ -18,27 +20,23 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.permissions.Permissions;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class WardrobeScreen extends Screen {
-    private static final Identifier TEX_CLEAR = BounceStyles.id("textures/gui/btn_clear.png");
-    private static final Identifier TEX_CLEAR_HOVER = BounceStyles.id("textures/gui/btn_clear_hover.png");
-    private static final Identifier TEX_CATEGORY = BounceStyles.id("textures/gui/selection_category.png");
-
+    WardrobeWidget activeWidget;
     WardrobePreviewWidget previewWidget;
     WardrobeStyleSelectionWidget styleWidget;
     WardrobePresetsWidget presetsWidget;
 
-    WardrobeWidget activeWidget;
-    IconSelectionButton categoryBtn;
     EditBox searchBox;
-    WardrobeIconButton clearButton;
+    Map<Category, WardrobeIconButton> categoryButtons = new HashMap<>();
 
-    List<Identifier> unlockedStyles;
-    Category selectedCategory;
     int previewRight;
     int topBarHeight;
+    List<Identifier> unlockedStyles;
 
     public WardrobeScreen(List<Identifier> unlocks) {
         super(Component.literal("Wardrobe Screen"));
@@ -51,20 +49,32 @@ public class WardrobeScreen extends Screen {
         this.previewRight = width / 3;
         this.topBarHeight = height / 10;
 
-        this.categoryBtn = addRenderableOnly(new IconSelectionButton(previewRight + 5, 2, 24, 24, TEX_CATEGORY, false, Component.literal("Category")));
-        for (Category category : Category.values()) {
-            this.categoryBtn.addItem(Component.literal(category.name()), () -> this.setSelectedCategory(category));
-        }
+        var selectedCategory = this.styleWidget != null ? this.styleWidget.getCategory() : Category.Head;
 
         this.previewWidget = addRenderableWidget(new WardrobePreviewWidget(0, 0, previewRight, height, minecraft.player));
         this.styleWidget = new WardrobeStyleSelectionWidget(previewRight, topBarHeight + 2, width - previewRight, height - topBarHeight);
         this.presetsWidget = new WardrobePresetsWidget(minecraft, this, previewRight, topBarHeight + 4, width - previewRight, height - topBarHeight, 30, topBarHeight);
 
-        this.searchBox = addRenderableWidget(new EditBox(minecraft.font, previewRight + 32, 4, 150, 20, Component.empty()));
-        this.searchBox.setResponder(s -> this.updateStyles());
+        int y = 2;
+        var i = width - previewRight - (50 + (Category.values().length * 22));
+        this.searchBox = addRenderableWidget(new EditBox(minecraft.font, previewRight + 4, y, i, 20, Component.empty()));
+        this.searchBox.setResponder(s -> this.updateStyles(this.styleWidget.getCategory()));
         this.searchBox.setHint(Component.literal("Search..."));
 
-        this.clearButton = addRenderableWidget(new WardrobeIconButton(width - topBarHeight, 2, 24, 24, TEX_CLEAR, TEX_CLEAR_HOVER, Component.literal("Clear Equipped"), button -> clearEquipped()));
+        for (int index = 0; index < Category.values().length; index++) {
+            Category category = Category.values()[index];
+            this.categoryButtons.put(category, addRenderableWidget(new WardrobeIconButton(
+                    (width - 44) - ((Category.values().length - index) * 22), y,
+                    "btn_"+category.getSerializedName(),
+                    Component.literal(category.name()),
+                    button -> this.updateStyles(category)
+            )));
+        }
+
+        addRenderableWidget(new WardrobeIconButton(width - 44, y, "btn_preset", Component.literal("Presets"), btn -> {
+
+        }));
+        addRenderableWidget(new WardrobeIconButton(width - 22, y, "btn_clear", Component.literal("Clear Equipped"), button -> clearEquipped()));
 
         if(this.activeWidget instanceof WardrobeStyleSelectionWidget) {
             this.searchBox.visible = true;
@@ -75,7 +85,7 @@ public class WardrobeScreen extends Screen {
             this.activeWidget = this.presetsWidget;
         }
 
-        this.setSelectedCategory(this.selectedCategory != null ? this.selectedCategory : Category.Head);
+        this.setSelectedCategory(selectedCategory);
     }
 
     @Override
@@ -128,8 +138,8 @@ public class WardrobeScreen extends Screen {
     //? if >= 1.21.11 {
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if (!this.categoryBtn.mouseClicked(event, doubleClick))
-            this.activeWidget.mouseClicked(event, doubleClick);
+//        if (!this.categoryBtn.mouseClicked(event, doubleClick))
+//            this.activeWidget.mouseClicked(event, doubleClick);
         return super.mouseClicked(event, doubleClick);
     }
 
@@ -195,35 +205,37 @@ public class WardrobeScreen extends Screen {
     }
 
     public void setSelectedCategory(Category category) {
-        this.selectedCategory = category;
-
-        if (category == Category.Preset) {
-            this.searchBox.visible = false;
-            this.activeWidget = this.presetsWidget;
-        }
-        else {
-            this.searchBox.visible = true;
-            updateStyles();
-        }
+//        this.categoryButtons.get(category)
+        this.searchBox.visible = true;
+        updateStyles(category);
     }
 
-    private void updateStyles() {
+    private void updateStyles(Category category) {
         CompletableFuture.supplyAsync(() -> BounceStylesRegistries.getAllStyles().stream()
-            //? if >= 1.21.11 {
-            .filter(style -> style.getCategories().contains(this.selectedCategory) && (this.unlockedStyles.contains(style.getStyleId()) || (minecraft.player.isCreative() && minecraft.player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))))
-            //? } else
-//            .filter(style -> style.getCategories().contains(this.selectedCategory) && (this.unlockedStyles.contains(style.getStyleId()) || (minecraft.player.isCreative() && minecraft.player.hasPermissions(2))))
-            .filter(style -> {
-                var label = Component.translatable(style.getStyleId().getNamespace()+"."+style.getStyleId().getPath()+"."+this.selectedCategory.name().toLowerCase());
-                return label.getString().toLowerCase().contains(this.searchBox.getValue().toLowerCase());
-            })
-            .sorted(Comparator.comparing(o -> o.getStyleId().toString()))
+            .filter(style -> availabilityFilter(style, category))
+            .filter(style -> searchFilter(style, category))
+            .sorted(Comparator.comparing(style -> style.getStyleId().toString()))
             .toList()
         ).thenApply(styles -> {
             this.activeWidget = this.styleWidget;
-            this.styleWidget.updateButtons(this.selectedCategory, styles);
+            this.styleWidget.updateButtons(category, styles);
             return null;
         });
+    }
+
+    private boolean availabilityFilter(Style style, Category category) {
+        boolean categoryCheck = style.getCategories().contains(category);
+        boolean unlockCheck = this.unlockedStyles.contains(style.getStyleId());
+        //? if >= 1.21.11 {
+        boolean permissionCheck = (minecraft.player.isCreative() && minecraft.player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER));
+        //? } else
+//        boolean permissionCheck = (minecraft.player.isCreative() && minecraft.player.hasPermissions(2));
+        return  categoryCheck && (unlockCheck || permissionCheck);
+    }
+
+    private boolean searchFilter(Style style, Category category) {
+        var label = Component.translatable(style.getStyleId().getNamespace()+"."+style.getStyleId().getPath()+"."+category.getSerializedName());
+        return label.getString().toLowerCase().contains(this.searchBox.getValue().toLowerCase());
     }
 
     private void clearEquipped() {
@@ -276,8 +288,4 @@ public class WardrobeScreen extends Screen {
 //        RenderSystem.applyModelViewMatrix();
 //        Lighting.setupFor3DItems();
 //    }
-
-    public static void renderStyleInGUI(GuiGraphics guiGraphics, double x, double y) {
-
-    }
 }

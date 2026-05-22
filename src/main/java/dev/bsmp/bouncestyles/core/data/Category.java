@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import net.minecraft.util.StringRepresentable;
 
 public enum Category implements StringRepresentable {
-    Head, Body, Legs, Feet, Preset;
+    Head, Body, Legs, Feet;
 
     @Override
     public String getSerializedName() {

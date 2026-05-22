@@ -43,7 +43,7 @@ public class StyleSlotArgumentType implements ArgumentType<Category> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        return SharedSuggestionProvider.suggest(Stream.of(Category.class.getEnumConstants()).filter(category -> category != Category.Preset).map(Object::toString), builder);
+        return SharedSuggestionProvider.suggest(Stream.of(Category.class.getEnumConstants()).map(Object::toString), builder);
     }
 
     public Collection<String> getExamples() {

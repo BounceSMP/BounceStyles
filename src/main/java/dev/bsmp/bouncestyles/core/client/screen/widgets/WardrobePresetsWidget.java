@@ -1,7 +1,7 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
-import dev.bsmp.bouncestyles.core.data.Category;
+import dev.bsmp.bouncestyles.core.client.screen.widgets.button.WardrobeIconButton;
 import dev.bsmp.bouncestyles.core.data.preset.PresetManager;
 import dev.bsmp.bouncestyles.core.data.preset.StylePreset;
 import dev.bsmp.bouncestyles.core.BounceStyles;
@@ -24,7 +24,6 @@ import net.minecraft.sounds.SoundEvents;
 import org.joml.Vector2i;
 
 import java.util.List;
-import java.util.Map;
 
 //? if <= 1.21.1 {
 /*import com.mojang.blaze3d.platform.GlStateManager;
@@ -64,7 +63,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
         this.nameEntry = new EditBox(minecraft.font, x + 10 + buttonSize, y + height - buttonSize - 4, width - 20 - buttonSize, buttonSize - 2, Component.literal("Preset Name"));
         this.nameEntry.visible = false;
 
-        this.createPresetButton = new WardrobeIconButton(x + 5, y + height - buttonSize - 5, buttonSize, buttonSize, TEX_BTN_CREATE, TEX_BTN_CREATE_HOVER, button -> {
+        this.createPresetButton = new WardrobeIconButton(x + 5, y + height - buttonSize - 5, "create", button -> {
             if (!this.namingPreset) {
                 this.nameEntry.visible = true;
             } else {
@@ -226,7 +225,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
             this.parentWidget = parentWidget;
             this.presetName = presetName;
             this.preset = preset;
-            this.deleteButton = new WardrobeIconButton(0,0, 24,24, TEX_BTN_DELETE, TEX_BTN_DELETE_HOVER, button -> {
+            this.deleteButton = new WardrobeIconButton(0, 0, "delete", button -> {
                 PresetManager.removePreset(presetName);
                 this.parentWidget.needsRefreshing = true;
             });

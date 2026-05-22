@@ -58,6 +58,10 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
         }
     }
 
+    public Category getCategory() {
+        return category;
+    }
+
     public void updateButtons(Category category, List<Style> styles) {
         this.category = category;
         this.scroll = 0;
