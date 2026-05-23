@@ -64,13 +64,10 @@ public class StyleSelectionButton extends Button implements WardrobeWidget {
             var variantTexture = this.isHovered() ? TEX_VARIANT_HOVER : TEX_VARIANT;
             blit(guiGraphics, variantTexture, this.getX() + (this.getWidth() / 2) - 5, this.getY() + this.getHeight() - 6, 10, 7);
         }
-        guiGraphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, this.tooltip, mouseX, mouseY);
-//            if (this.showVariants && this.style.hasVariants()) {
-//                int x0 = this.getX() + (this.getWidth() / 2) - 5;
-//                int y0 = this.getY() + this.getHeight() - 8;
-//                guiGraphics.blit(TEX_WIDGETS, x0, y0, x0 + 10, y0 + 7, 50, 48, 59, 54);
-//            }
-//
+
+        if (this.isHovered())
+            guiGraphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, this.tooltip, mouseX, mouseY);
+
 //            if (!this.isHovered)
 //                guiGraphics.enableScissor(this.getX() + 8, this.getY() + 8, this.getX() + this.getWidth() - 8, this.getY() + this.getHeight() - 8);
 //

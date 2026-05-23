@@ -17,7 +17,8 @@
     "AvatarRendererMixin",
     "AvatarRenderStateMixin",
     "InventoryScreenMixin",
-    "PlayerModelVisibilityMixin"
+    "PlayerModelVisibilityMixin",
+    "GeckoLibResourcesMixin"
   ],
   "injectors": {
     "defaultRequire": 1
