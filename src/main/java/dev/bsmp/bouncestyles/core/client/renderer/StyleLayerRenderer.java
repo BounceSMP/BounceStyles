@@ -46,6 +46,9 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
 
     @Override
     public void submit(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int packedLight, AvatarRenderState avatarState, float yRot, float xRot) {
+        var profiler = Profiler.get();
+        profiler.push("bounceStylesEntity");
+
         var cameraState = Minecraft.getInstance().gameRenderer.getLevelRenderState().cameraRenderState;
 
         var styleData = avatarState.getGeckolibData(TICKET_STYLE_DATA);
@@ -55,6 +58,8 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
                 renderState.addGeckolibData(TICKET_CATEGORY, category);
                 GeoRenderer.super.performRenderPass(renderState, poseStack, submitNodeCollector, cameraState);
         });
+
+        profiler.pop();
     }
 
     @Override
