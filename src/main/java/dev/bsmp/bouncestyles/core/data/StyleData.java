@@ -40,21 +40,24 @@ public class StyleData {
     }
 
     public boolean equipStyle(Category slot, @Nullable Identifier styleId) {
-        return this.equipStyle(slot, new EquippedStyle(styleId));
-    }
-
-    public boolean equipStyle(Category slot, EquippedStyle style) {
-        return this.equipStyle(slot, style.getStyleId().orElse(null), style.getVariant());
+        return this.equipStyle(slot, new EquippedStyle(getStyleFromId(styleId).orElse(null)));
     }
 
     public boolean equipStyle(Category slot, @Nullable Identifier styleId, int variant) {
         var style = getStyleFromId(styleId).orElse(null);
+        return this.equipStyle(slot, new EquippedStyle(style, variant));
+    }
+
+    public boolean equipStyle(Category slot, EquippedStyle equipped) {
+        var style = equipped.getStyle().orElse(null);
+        var variant = equipped.getVariant();
+
         if (style != null) {
             if (!style.getCategories().contains(slot)) return false;
             if (variant > -1 && (!style.hasVariants() || style.getTextureVariants().get().size() <= variant)) return false;
         }
 
-        this.equippedStyles.put(slot, new EquippedStyle(style == null ? null : style.getStyleId(), variant));
+        this.equippedStyles.put(slot, equipped);
         updatePartVisibility();
         return true;
     }
@@ -63,7 +66,7 @@ public class StyleData {
         this.hiddenParts.clear();
 
         this.equippedStyles.forEach((slot, data) ->
-            data.getStyleId().flatMap(BounceStylesRegistries::getStyle).ifPresent(style -> {
+            data.getStyle().ifPresent(style -> {
                 if (style.getHiddenParts().isEmpty()) return;
                 this.hiddenParts.addAll(style.getHiddenParts().get());
             })
@@ -72,11 +75,11 @@ public class StyleData {
 
     public Map<Category, EquippedStyle> getAllNonEmpty() {
         return this.equippedStyles.entrySet().stream()
-                .filter(entry -> entry.getValue().getStyleId().isPresent())
+                .filter(entry -> entry.getValue().getStyle().isPresent())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    public @Nullable EquippedStyle getStyleForSlot(Category category) {
+    public EquippedStyle getStyleForSlot(Category category) {
         return this.equippedStyles.get(category);
     }
 

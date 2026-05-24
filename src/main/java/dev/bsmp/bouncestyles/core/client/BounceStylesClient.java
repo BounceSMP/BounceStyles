@@ -7,6 +7,8 @@ import dev.architectury.event.events.client.ClientLifecycleEvent;
 import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import dev.bsmp.bouncestyles.core.client.model.StyleModelFactory;
+import dev.bsmp.bouncestyles.core.data.Style;
+import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.data.preset.StylePreset;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
@@ -19,6 +21,7 @@ import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.IoSupplier;
 import org.lwjgl.glfw.GLFW;
+import software.bernie.geckolib.constant.dataticket.DataTicket;
 import software.bernie.geckolib.loading.object.BakedModelFactory;
 import software.bernie.geckolib.util.GeckoLibUtil;
 

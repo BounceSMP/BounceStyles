@@ -1,6 +1,7 @@
 package dev.bsmp.bouncestyles.core.networking.serverbound;
 
 import com.mojang.serialization.Codec;
+import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.data.Category;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.data.EquippedStyle;
@@ -21,7 +22,7 @@ public record EquipStyleServerbound(Map<Category, EquippedStyle> styleMap) imple
     }
 
     public EquipStyleServerbound(Category category, Identifier styleId, int textureId) {
-        this(Map.of(category, new EquippedStyle(styleId, textureId)));
+        this(Map.of(category, new EquippedStyle(BounceStylesRegistries.getStyle(styleId).orElse(null), textureId)));
     }
 
     public void encode(FriendlyByteBuf buf) {

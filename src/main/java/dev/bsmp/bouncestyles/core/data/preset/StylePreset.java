@@ -27,7 +27,7 @@ public record StylePreset(Optional<EquippedStyle> head, Optional<EquippedStyle> 
     }
 
     private static Optional<EquippedStyle> slotCheck(EquippedStyle equipped) {
-        if (equipped.getStyleId().isEmpty()) return Optional.empty();
+        if (equipped.getStyle().isEmpty()) return Optional.empty();
         return Optional.of(equipped);
     }
 

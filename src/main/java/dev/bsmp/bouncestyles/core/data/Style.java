@@ -164,6 +164,11 @@ public class Style implements GeoAnimatable {
         return textureId;
     }
 
+    public Identifier getTextureId(int variant) {
+        if (!this.hasVariants() || variant < 0 || variant >= this.textureVariants.size()) return this.getTextureId();
+        return this.textureVariants.get(variant);
+    }
+
     public Optional<List<Identifier>> getTextureVariants() {
         return Optional.ofNullable(this.textureVariants);
     }

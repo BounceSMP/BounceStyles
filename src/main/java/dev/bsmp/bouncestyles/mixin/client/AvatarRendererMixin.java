@@ -1,6 +1,7 @@
 package dev.bsmp.bouncestyles.mixin.client;
 
 import dev.bsmp.bouncestyles.core.client.renderer.StyleEntityState;
+import dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import net.minecraft.client.entity.ClientAvatarEntity;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
@@ -20,6 +21,7 @@ public abstract class AvatarRendererMixin<E extends Avatar & ClientAvatarEntity>
         if (entity instanceof Player player && state instanceof StyleEntityState styleState) {
             var styleData = StyleData.getOrCreateStyleData(player);
             styleData.getHiddenParts().forEach(styleState::bounceStyles$addHiddenPart);
+            state.addGeckolibData(StyleLayerRenderer.TICKET_STYLE_DATA, styleData);
         }
     }
 

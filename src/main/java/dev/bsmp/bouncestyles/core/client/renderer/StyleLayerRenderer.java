@@ -1,63 +1,102 @@
 package dev.bsmp.bouncestyles.core.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
+import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
+import dev.bsmp.bouncestyles.core.client.model.StyleGeoModel;
+import dev.bsmp.bouncestyles.core.data.Category;
+import dev.bsmp.bouncestyles.core.data.EquippedStyle;
 import dev.bsmp.bouncestyles.core.data.Style;
+import dev.bsmp.bouncestyles.core.data.StyleData;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.EquipmentSlot;
+import org.joml.Vector3f;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import software.bernie.geckolib.constant.dataticket.DataTicket;
 import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.renderer.GeoArmorRenderer;
+import software.bernie.geckolib.renderer.base.BoneSnapshots;
 import software.bernie.geckolib.renderer.base.GeoRenderState;
 import software.bernie.geckolib.renderer.base.GeoRenderer;
 import software.bernie.geckolib.renderer.base.RenderPassInfo;
 
+import java.util.List;
 import java.util.Map;
 
-public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerModel> implements GeoRenderer<Style, Player, StyleLayerRenderer.StyleRenderState> {
+public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerModel> implements GeoRenderer<Style, StyleData, StyleLayerRenderer.StyleRenderState> {
     private static final StyleGeoModel geoModel = new StyleGeoModel();
-
-    public static String headBone = "armorHead";
-    public static String bodyBone = "armorBody";
-    public static String rightArmBone = "armorRightArm";
-    public static String leftArmBone = "armorLeftArm";
-    public static String rightLegBone = "armorRightLeg";
-    public static String leftLegBone = "armorLeftLeg";
-    public static String rightBootBone = "armorRightBoot";
-    public static String leftBootBone = "armorLeftBoot";
+    public static final DataTicket<EquippedStyle> TICKET_STYLE = DataTicket.create("style", EquippedStyle.class);
+    public static final DataTicket<Category> TICKET_CATEGORY = DataTicket.create("style_category", Category.class);
+    public static final DataTicket<StyleData> TICKET_STYLE_DATA = DataTicket.create("style_data", StyleData.class);
 
     public StyleLayerRenderer(RenderLayerParent<AvatarRenderState, PlayerModel> context) {
         super(context);
     }
 
     @Override
-    public void addRenderData(Style animatable, @Nullable Player relatedObject, StyleRenderState renderState, float partialTick) {
-
-    }
-
-    @Override
-    public void submit(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int i, AvatarRenderState avatarRenderState, float v, float v1) {
+    public void submit(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int packedLight, AvatarRenderState avatarState, float yRot, float xRot) {
         var cameraState = Minecraft.getInstance().gameRenderer.getLevelRenderState().cameraRenderState;
-        GeoRenderer.super.performRenderPass(createRenderState(null, null), poseStack, submitNodeCollector, cameraState);
+
+        var styleData = avatarState.getGeckolibData(TICKET_STYLE_DATA);
+        styleData.getAllNonEmpty().forEach((category, equippedStyle) -> {
+                var renderState = createRenderState(equippedStyle.getStyle().get(), styleData);
+                renderState.addGeckolibData(TICKET_STYLE, equippedStyle);
+                renderState.addGeckolibData(TICKET_CATEGORY, category);
+                GeoRenderer.super.performRenderPass(renderState, poseStack, submitNodeCollector, cameraState);
+        });
     }
 
     @Override
-    public void adjustRenderPose(RenderPassInfo<StyleRenderState> renderPassInfo) {
+    public void adjustModelBonesForRender(RenderPassInfo<StyleRenderState> renderPassInfo, BoneSnapshots snapshots) {
+        var category = renderPassInfo.renderState().getGeckolibData(TICKET_CATEGORY);
+
+        var segments = switch (category) {
+            case Head -> getSegmentsForSlot(EquipmentSlot.HEAD);
+            case Body -> getSegmentsForSlot(EquipmentSlot.BODY);
+            case Legs -> getSegmentsForSlot(EquipmentSlot.LEGS);
+            case Feet -> getSegmentsForSlot(EquipmentSlot.FEET);
+        };
+
+        segments.forEach(segment -> {
+            snapshots.get(getBoneNameForSegment(segment)).ifPresent(boneSnapshot -> {
+                final ModelPart modelPart = segment.modelPartGetter.apply(getParentModel());
+                final Vector3f bonePos = segment.modelPartMatcher.apply(new Vector3f(modelPart.x, modelPart.y, modelPart.z));
+
+                boneSnapshot.setRotX(-modelPart.xRot)
+                        .setRotY(-modelPart.yRot)
+                        .setRotZ(modelPart.zRot)
+                        .setTranslateX(bonePos.x)
+                        .setTranslateY(bonePos.y)
+                        .setTranslateZ(bonePos.z);
+            });
+        });
+    }
+
+    @Override
+    public boolean firePreRenderEvent(@NonNull RenderPassInfo<StyleRenderState> renderPassInfo, @NonNull SubmitNodeCollector renderTasks) {
+        return true;
+    }
+
+    @Override
+    public void adjustRenderPose(@NonNull RenderPassInfo<StyleRenderState> renderPassInfo) {
         GeoRenderer.super.adjustRenderPose(renderPassInfo);
     }
 
     @Override
-    public GeoModel<Style> getGeoModel() {
+    public @NonNull GeoModel<Style> getGeoModel() {
         return geoModel;
     }
 
     @Override
-    public StyleRenderState createRenderState(Style animatable, @Nullable Player relatedObject) {
+    public @NonNull StyleRenderState createRenderState(@NonNull Style style, @Nullable StyleData styleData) {
         return new StyleRenderState();
     }
 
@@ -65,12 +104,7 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
     public void fireCompileRenderLayersEvent() {}
 
     @Override
-    public void fireCompileRenderStateEvent(Style animatable, @Nullable Player relatedObject, StyleRenderState renderState, float partialTick) {}
-
-    @Override
-    public boolean firePreRenderEvent(RenderPassInfo<StyleRenderState> renderPassInfo, SubmitNodeCollector renderTasks) {
-        return false;
-    }
+    public void fireCompileRenderStateEvent(Style animatable, @Nullable StyleData styleData, StyleRenderState renderState, float partialTick) {}
 
     public static class StyleRenderState implements GeoRenderState {
         private final Map<DataTicket<?>, Object> map = new Reference2ObjectOpenHashMap<>();
@@ -79,6 +113,29 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
         public Map<DataTicket<?>, Object> getDataMap() {
             return map;
         }
+    }
+
+    public List<GeoArmorRenderer.ArmorSegment> getSegmentsForSlot(EquipmentSlot slot) {
+        return switch (slot) {
+            case HEAD -> List.of(GeoArmorRenderer.ArmorSegment.HEAD);
+            case CHEST -> List.of(GeoArmorRenderer.ArmorSegment.CHEST, GeoArmorRenderer.ArmorSegment.LEFT_ARM, GeoArmorRenderer.ArmorSegment.RIGHT_ARM);
+            case LEGS -> List.of(GeoArmorRenderer.ArmorSegment.LEFT_LEG, GeoArmorRenderer.ArmorSegment.RIGHT_LEG);
+            case FEET -> List.of(GeoArmorRenderer.ArmorSegment.LEFT_FOOT, GeoArmorRenderer.ArmorSegment.RIGHT_FOOT);
+            default -> List.of();
+        };
+    }
+
+    public String getBoneNameForSegment(GeoArmorRenderer.ArmorSegment segment) {
+        return switch (segment) {
+            case HEAD -> "armorHead";
+            case CHEST -> "armorBody";
+            case LEFT_ARM -> "armorLeftArm";
+            case RIGHT_ARM -> "armorRightArm";
+            case LEFT_LEG -> "armorLeftLeg";
+            case RIGHT_LEG -> "armorRightLeg";
+            case LEFT_FOOT -> "armorLeftBoot";
+            case RIGHT_FOOT -> "armorRightBoot";
+        };
     }
 
 //    @Override
