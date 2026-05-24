@@ -1,16 +1,14 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
-import dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.TextureSetup;
 import net.minecraft.client.gui.render.state.GuiElementRenderState;
 import org.jspecify.annotations.Nullable;
+import software.bernie.geckolib.renderer.base.GeoRenderState;
 
-public record GuiStyleRenderState(StyleLayerRenderer.StyleRenderState renderState) implements GuiElementRenderState {
+public record GuiStyleRenderState(GeoRenderState renderState) implements GuiElementRenderState {
     @Override
     public void buildVertices(VertexConsumer consumer) {
     }

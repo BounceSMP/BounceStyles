@@ -17,8 +17,7 @@
     "client.AvatarRendererMixin",
     "client.AvatarRenderStateMixin",
     "client.InventoryScreenMixin",
-    "client.PlayerModelVisibilityMixin",
-    "client.GeckoLibResourcesMixin"
+    "client.PlayerModelVisibilityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

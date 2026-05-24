@@ -1,6 +1,5 @@
-package dev.bsmp.bouncestyles.core.client.model;
+package dev.bsmp.bouncestyles.core.client.renderer;
 
-import dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer;
 import dev.bsmp.bouncestyles.core.data.Style;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
