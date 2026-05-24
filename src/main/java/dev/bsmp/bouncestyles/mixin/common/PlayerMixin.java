@@ -1,4 +1,4 @@
-package dev.bsmp.bouncestyles.mixin;
+package dev.bsmp.bouncestyles.mixin.common;
 
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.api.StyleEntity;

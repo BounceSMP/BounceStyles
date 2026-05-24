@@ -1,4 +1,4 @@
-package dev.bsmp.bouncestyles.mixin;
+package dev.bsmp.bouncestyles.mixin.common;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.server.level.ChunkMap;

@@ -1,4 +1,4 @@
-package dev.bsmp.bouncestyles.mixin;
+package dev.bsmp.bouncestyles.mixin.client;
 
 import dev.bsmp.bouncestyles.core.client.screen.widgets.button.WardrobeIconButton;
 import dev.bsmp.bouncestyles.core.networking.serverbound.OpenStyleScreenServerbound;

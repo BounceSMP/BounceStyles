@@ -1,4 +1,4 @@
-package dev.bsmp.bouncestyles.mixin;
+package dev.bsmp.bouncestyles.mixin.common;
 
 import dev.bsmp.bouncestyles.core.pack.StylePackProvider;
 import net.minecraft.server.packs.repository.PackRepository;

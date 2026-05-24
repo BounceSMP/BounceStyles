@@ -1,5 +1,5 @@
 //? if >= 1.21.11 {
-package dev.bsmp.bouncestyles.mixin;
+package dev.bsmp.bouncestyles.mixin.client;
 
 import dev.bsmp.bouncestyles.core.client.renderer.StyleEntityState;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;

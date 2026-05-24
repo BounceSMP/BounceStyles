@@ -4,21 +4,21 @@
   "package": "dev.bsmp.bouncestyles.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "ChunkStorageAccessor",
-    "EntityMixin",
-    "EntityTrackerAccessor",
-    "PackRepoMixin",
-    "PlayerMixin",
-    "MappedRegistryMixin",
-    "ResourcePackManagerAccessor"
+    "common.ChunkStorageAccessor",
+    "common.EntityMixin",
+    "common.EntityTrackerAccessor",
+    "common.PackRepoMixin",
+    "common.PlayerMixin",
+    "common.MappedRegistryMixin",
+    "common.ResourcePackManagerAccessor"
   ],
   "client": [
-    "ArmorRenderingMixin",
-    "AvatarRendererMixin",
-    "AvatarRenderStateMixin",
-    "InventoryScreenMixin",
-    "PlayerModelVisibilityMixin",
-    "GeckoLibResourcesMixin"
+    "client.ArmorRenderingMixin",
+    "client.AvatarRendererMixin",
+    "client.AvatarRenderStateMixin",
+    "client.InventoryScreenMixin",
+    "client.PlayerModelVisibilityMixin",
+    "client.GeckoLibResourcesMixin"
   ],
   "injectors": {
     "defaultRequire": 1
