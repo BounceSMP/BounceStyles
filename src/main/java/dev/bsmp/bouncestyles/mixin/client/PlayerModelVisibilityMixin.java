@@ -43,7 +43,7 @@ public abstract class PlayerModelVisibilityMixin extends HumanoidModel<AvatarRen
             for (String s : styleState.bounceStyles$getHiddenParts()) {
                 switch (s) {
                     case "head" -> {
-                        this.body.visible = false;
+                        this.head.visible = false;
                         this.hat.visible = false;
                     }
                     case "body" -> {

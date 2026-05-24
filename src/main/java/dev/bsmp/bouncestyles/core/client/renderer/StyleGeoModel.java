@@ -18,7 +18,7 @@ public class StyleGeoModel extends GeoModel<Style> {
     @Override
     public @NonNull Identifier getModelResource(GeoRenderState renderState) {
         var style = renderState.getGeckolibData(StyleLayerRenderer.TICKET_STYLE);
-        return style != null ? style.getStyleId().orElse(Style.MISSING_MODEL_ID) : Style.MISSING_MODEL_ID;
+        return style.getStyle().map(Style::getModelId).orElse(Style.MISSING_MODEL_ID);
     }
 
     @Override

@@ -16,6 +16,7 @@
     "client.ArmorRenderingMixin",
     "client.AvatarRendererMixin",
     "client.AvatarRenderStateMixin",
+    "client.GeckoLibResourcesMixin",
     "client.InventoryScreenMixin",
     "client.PlayerModelVisibilityMixin"
   ],

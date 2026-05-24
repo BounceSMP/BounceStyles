@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.profiling.Profiler;
 import net.minecraft.world.entity.EquipmentSlot;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
@@ -83,8 +84,8 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
 
     @Override
     public void adjustRenderPose(@NonNull RenderPassInfo<GeoRenderState.Impl> renderPassInfo) {
-        renderPassInfo.poseStack().scale(-1f, -1f, 1f);
-        renderPassInfo.poseStack().translate(0f, -1.5f, 0f);
+        renderPassInfo.poseStack().translate(0, 24 / 16f, 0);
+        renderPassInfo.poseStack().scale(-1, -1, 1);
     }
 
     @Override
