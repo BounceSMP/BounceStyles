@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.data.Category;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.data.Style;
@@ -104,12 +105,19 @@ public class StyleCommand {
                 .build();
         ArgumentCommandNode<CommandSourceStack, Identifier> idNode = Commands
                 .argument("id", IdentifierArgument.id())
-                .suggests((context, builder) -> SharedSuggestionProvider.suggestResource(BounceStylesRegistries.getAllStyleIds(), builder))
-                .executes(context -> equip(context, EntityArgument.getPlayer(context, "player"), StyleSlotArgumentType.getCategory(context, "slot"), IdentifierArgument.getId(context, "id")))
+                .suggests((context, builder) -> {
+                    //ToDo consider filtering results based on given slot argument, requires caching the ids in the regsitry on load
+//                    BounceStyles.LOGGER.info(StyleSlotArgumentType.getCategory(context, "slot"));
+                    return SharedSuggestionProvider.suggestResource(BounceStylesRegistries.getAllStyleIds(), builder);
+                })
+                .executes(context -> equip(context, EntityArgument.getPlayer(context, "player"), StyleSlotArgumentType.getCategory(context, "slot"), IdentifierArgument.getId(context, "id"), false))
+                .build();
+        LiteralCommandNode<CommandSourceStack> forced = Commands.literal("forced")
+                .executes(context -> equip(context, EntityArgument.getPlayer(context, "player"), StyleSlotArgumentType.getCategory(context, "slot"), IdentifierArgument.getId(context, "id"), true))
                 .build();
         LiteralCommandNode<CommandSourceStack> emptyNode = Commands
                 .literal("empty")
-                .executes(context -> equip(context, EntityArgument.getPlayer(context, "player"), StyleSlotArgumentType.getCategory(context, "slot"), null))
+                .executes(context -> equip(context, EntityArgument.getPlayer(context, "player"), StyleSlotArgumentType.getCategory(context, "slot"), null, false))
                 .build();
 
 
@@ -118,6 +126,7 @@ public class StyleCommand {
         playerNode.addChild(slotNode);
         slotNode.addChild(emptyNode);
         slotNode.addChild(idNode);
+        idNode.addChild(forced);
     }
 
     private static void itemizeCommand(LiteralCommandNode<CommandSourceStack> styleNode) {
@@ -181,16 +190,27 @@ public class StyleCommand {
         return 1;
     }
 
-    private static int equip(CommandContext<CommandSourceStack> context, ServerPlayer player, Category slot, Identifier id) {
+    private static int equip(CommandContext<CommandSourceStack> context, ServerPlayer player, Category slot, Identifier id, boolean forced) {
         if(id == null || BounceStylesRegistries.idExists(id)) {
             Style style = id != null ? BounceStylesRegistries.getStyle(id).orElse(null) : null;
             if(style == null || style.getCategories().contains(slot)) {
-                StyleData styleData = StyleData.getOrCreateStyleData(player);
-                styleData.equipStyle(slot, id);
-                SyncStyleDataClientbound outPacket = new SyncStyleDataClientbound(player.getId(), styleData);
-                outPacket.sendToPlayer(player);
-                outPacket.sendToTrackingPlayers(player);
-                return 1;
+                if (forced || UnlockManager.hasUnlocked(player, id)) {
+                    StyleData styleData = StyleData.getOrCreateStyleData(player);
+
+                    if (styleData.equipStyle(slot, id)) {
+                        SyncStyleDataClientbound outPacket = new SyncStyleDataClientbound(player.getId(), styleData);
+                        outPacket.sendToPlayer(player);
+                        outPacket.sendToTrackingPlayers(player);
+                        return 1;
+                    }
+
+                    //ToDo Add reasons via enums
+                    context.getSource().sendFailure(Component.literal("Unable to equip style"));
+                    return 0;
+                }
+
+                context.getSource().sendFailure(Component.literal("Player does not have style unlocked"));
+                return 0;
             }
             else
                 context.getSource().sendFailure(Component.literal("Given ID does not fit into " + slot.name() + " slot"));

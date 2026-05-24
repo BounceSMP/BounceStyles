@@ -7,23 +7,21 @@ import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.core.data.preset.StylePreset;
-import dev.bsmp.bouncestyles.core.data.unlocks.UnlockManager;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class StyleData {
     public static final String DATA_TAG = "bounceStyleData";
 
-    private Entity owner;
     private final Set<String> hiddenParts = new HashSet<>();
     private final Map<Category, EquippedStyle> equippedStyles = new HashMap<>(Map.of(
             Category.Head, new EquippedStyle(),
@@ -53,9 +51,8 @@ public class StyleData {
         var style = getStyleFromId(styleId).orElse(null);
         if (style != null) {
             if (!style.getCategories().contains(slot)) return false;
-            if (!style.hasVariants() || style.getTextureVariants().get().size() <= variant) return false;
+            if (variant > -1 && (!style.hasVariants() || style.getTextureVariants().get().size() <= variant)) return false;
         }
-        if (!UnlockManager.hasUnlocked(this.owner, styleId)) return false;
 
         this.equippedStyles.put(slot, new EquippedStyle(style == null ? null : style.getStyleId(), variant));
         updatePartVisibility();
@@ -71,6 +68,12 @@ public class StyleData {
                 this.hiddenParts.addAll(style.getHiddenParts().get());
             })
         );
+    }
+
+    public Map<Category, EquippedStyle> getAllNonEmpty() {
+        return this.equippedStyles.entrySet().stream()
+                .filter(entry -> entry.getValue().getStyleId().isPresent())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public @Nullable EquippedStyle getStyleForSlot(Category category) {
@@ -100,10 +103,6 @@ public class StyleData {
 
     public Set<String> getHiddenParts() {
         return this.hiddenParts;
-    }
-
-    public void setOwner(Entity entity) {
-        this.owner = entity;
     }
 
     public StylePreset createPreset() {
