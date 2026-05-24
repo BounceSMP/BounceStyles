@@ -15,6 +15,7 @@ import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 public class StyleSelectionButton extends Button implements WardrobeWidget {
     private static final Identifier TEX_BASE = BounceStyles.id("textures/gui/sprites/style_selection/style_selection.png");
@@ -46,8 +47,9 @@ public class StyleSelectionButton extends Button implements WardrobeWidget {
         list.add(Component.translatable(style.getStyleId().getNamespace()+"."+style.getStyleId().getPath()+"."+category.name().toLowerCase()).withStyle(ChatFormatting.BOLD));
 //            style.getTextureVariants().ifPresent(variants -> list.add(Component.literal(variants.size() + " Variants Available")));
         style.getCredits().ifPresent(credits -> {
-            list.add(Component.literal("-Made By-").withStyle(ChatFormatting.GRAY));
-            credits.forEach(s -> list.add(Component.literal(s).withStyle(ChatFormatting.GRAY)));
+            StringJoiner joiner = new StringJoiner(", ");
+            credits.forEach(joiner::add);
+            list.add(Component.literal("Made By: " + joiner).withStyle(ChatFormatting.GRAY));
         });
         return list;
     }
