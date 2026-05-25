@@ -35,7 +35,7 @@ import java.util.Objects;
 
 @SuppressWarnings("UnstableApiUsage")
 public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerModel> implements GeoRenderer<Style, StyleData, GeoRenderState.Impl> {
-    private static final StyleGeoModel geoModel = new StyleGeoModel();
+    public static final StyleGeoModel geoModel = new StyleGeoModel();
     public static final DataTicket<EquippedStyle> TICKET_STYLE = DataTicket.create("style", EquippedStyle.class);
     public static final DataTicket<Category> TICKET_CATEGORY = DataTicket.create("style_category", Category.class);
     public static final DataTicket<StyleData> TICKET_STYLE_DATA = DataTicket.create("style_data", StyleData.class);
@@ -46,20 +46,17 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
 
     @Override
     public void submit(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int packedLight, AvatarRenderState avatarState, float yRot, float xRot) {
-        var profiler = Profiler.get();
-        profiler.push("bounceStylesEntity");
-
         var cameraState = Minecraft.getInstance().gameRenderer.getLevelRenderState().cameraRenderState;
 
         var styleData = avatarState.getGeckolibData(TICKET_STYLE_DATA);
-        styleData.getAllNonEmpty().forEach((category, equippedStyle) -> {
+        if (styleData != null) {
+            styleData.getAllNonEmpty().forEach((category, equippedStyle) -> {
                 var renderState = createRenderState(equippedStyle.getStyle().get(), styleData);
                 renderState.addGeckolibData(TICKET_STYLE, equippedStyle);
                 renderState.addGeckolibData(TICKET_CATEGORY, category);
                 GeoRenderer.super.performRenderPass(renderState, poseStack, submitNodeCollector, cameraState);
-        });
-
-        profiler.pop();
+            });
+        }
     }
 
     @Override
@@ -129,7 +126,7 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
     }
 
     @Override
-    public GeoRenderState.Impl createRenderState(@NonNull Style style, @Nullable StyleData styleData) {
+    public GeoRenderState.Impl createRenderState(Style style, @Nullable StyleData styleData) {
         return new GeoRenderState.Impl();
     }
 

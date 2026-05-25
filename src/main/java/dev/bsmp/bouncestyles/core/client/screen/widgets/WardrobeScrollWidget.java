@@ -1,12 +1,15 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
+import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.button.StyleSelectionButton;
 import dev.bsmp.bouncestyles.core.data.Style;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.profiling.Profiler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -26,7 +29,7 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
     protected int columns;
     protected int left;
     protected int top;
-    float previewRotation = -30f;
+    public float previewRotation = -30f;
     protected @Nullable StyleSelectionButton selectedButton;
 
     protected boolean updateButtons = false;
@@ -43,7 +46,7 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
 
     @Override
     protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
-        this.previewRotation += 0.05f * partialTick;
+        this.previewRotation += 0.03f * partialTick;
         if (this.updateButtons)
             this.updateButtons();
         if (this.updateVisible)

@@ -9,6 +9,7 @@ import dev.bsmp.bouncestyles.core.client.screen.widgets.button.WardrobeIconButto
 import dev.bsmp.bouncestyles.core.data.Category;
 import dev.bsmp.bouncestyles.core.data.Style;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
+import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -72,20 +73,19 @@ public class WardrobeScreen extends Screen {
         }
 
         addRenderableWidget(new WardrobeIconButton(width - 44, y, "btn_preset", Component.literal("Presets"), btn -> {
-
+            this.activeWidget = this.presetsWidget;
         }));
         addRenderableWidget(new WardrobeIconButton(width - 22, y, "btn_clear", Component.literal("Clear Equipped"), button -> clearEquipped()));
-
-        if(this.activeWidget instanceof WardrobeStyleSelectionWidget) {
-            this.searchBox.visible = true;
-            this.activeWidget = this.styleWidget;
-        }
-        else if(this.activeWidget instanceof WardrobePresetsWidget) {
+        if(this.activeWidget instanceof WardrobePresetsWidget) {
             this.searchBox.visible = false;
             this.activeWidget = this.presetsWidget;
         }
+        else {
+            this.searchBox.visible = true;
+            this.activeWidget = this.styleWidget;
+        }
 
-        this.setSelectedCategory(selectedCategory);
+        this.updateStyles(selectedCategory);
     }
 
     @Override
@@ -138,9 +138,9 @@ public class WardrobeScreen extends Screen {
     //? if >= 1.21.11 {
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-//        if (!this.categoryBtn.mouseClicked(event, doubleClick))
-//            this.activeWidget.mouseClicked(event, doubleClick);
-        return super.mouseClicked(event, doubleClick);
+        if (!this.activeWidget.mouseClicked(event, doubleClick))
+            return super.mouseClicked(event, doubleClick);
+        return false;
     }
 
     @Override
@@ -204,13 +204,9 @@ public class WardrobeScreen extends Screen {
             this.presetsWidget.refreshEntries();
     }
 
-    public void setSelectedCategory(Category category) {
-//        this.categoryButtons.get(category)
-        this.searchBox.visible = true;
-        updateStyles(category);
-    }
-
     private void updateStyles(Category category) {
+        this.categoryButtons.get(this.styleWidget.getCategory()).setFocused(false);
+
         CompletableFuture.supplyAsync(() -> BounceStylesRegistries.getAllStyles().stream()
             .filter(style -> availabilityFilter(style, category))
             .filter(style -> searchFilter(style, category))
@@ -221,6 +217,8 @@ public class WardrobeScreen extends Screen {
             this.styleWidget.updateButtons(category, styles);
             return null;
         });
+
+        this.categoryButtons.get(category).setFocused(true);
     }
 
     private boolean availabilityFilter(Style style, Category category) {

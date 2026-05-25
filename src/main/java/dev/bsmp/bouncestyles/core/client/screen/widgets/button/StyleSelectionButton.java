@@ -1,17 +1,28 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets.button;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.bsmp.bouncestyles.core.BounceStyles;
+import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
+import dev.bsmp.bouncestyles.core.client.renderer.StyleGuiRenderer;
+import dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.WardrobeScrollWidget;
+import dev.bsmp.bouncestyles.core.client.screen.widgets.WardrobeStyleSelectionWidget;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.WardrobeWidget;
 import dev.bsmp.bouncestyles.core.data.Category;
+import dev.bsmp.bouncestyles.core.data.EquippedStyle;
 import dev.bsmp.bouncestyles.core.data.Style;
+import dev.bsmp.bouncestyles.core.data.StyleData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,26 +37,22 @@ public class StyleSelectionButton extends Button implements WardrobeWidget {
     private static final Identifier TEX_VARIANT_HOVER = BounceStyles.id("textures/gui/sprites/style_selection/style_selection_variant_hover.png");
     private static final Identifier TEX_VARIANT_EQUIPPED = BounceStyles.id("textures/gui/sprites/style_selection/style_selection_variant_equipped.png");
 
-    private WardrobeScrollWidget parentWidget;
-    private List<Component> tooltip;
-    private Category category;
-    private Style style;
-    private int textureId = -1;
-    private boolean showVariants;
+    private final WardrobeScrollWidget parentWidget;
+    private final List<Component> tooltip;
+    private final Category category;
+    private final EquippedStyle style;
 
-    public StyleSelectionButton(WardrobeScrollWidget parentWidget, int x, int y, int width, int height, Category category, Style style, boolean showVariants) {
+    public StyleSelectionButton(WardrobeScrollWidget parentWidget, int x, int y, int width, int height, Category category, Style style) {
         super(x, y, width, height, Component.empty(), null, DEFAULT_NARRATION);
         this.parentWidget = parentWidget;
         this.category = category;
-        this.style = style;
+        this.style = new EquippedStyle(style);
         this.tooltip = createTooltip(style, category);
-        this.showVariants = showVariants;
     }
 
     private static List<Component> createTooltip(Style style, Category category) {
         List<Component> list = new ArrayList<>();
         list.add(Component.translatable(style.getStyleId().getNamespace()+"."+style.getStyleId().getPath()+"."+category.name().toLowerCase()).withStyle(ChatFormatting.BOLD));
-//            style.getTextureVariants().ifPresent(variants -> list.add(Component.literal(variants.size() + " Variants Available")));
         style.getCredits().ifPresent(credits -> {
             StringJoiner joiner = new StringJoiner(", ");
             credits.forEach(joiner::add);
@@ -58,41 +65,49 @@ public class StyleSelectionButton extends Button implements WardrobeWidget {
     @Override
     protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.isHovered = this.isMouseOver(mouseX, mouseY);
+        var currentStyle = StyleData.getOrCreateStyleData(Minecraft.getInstance().player).getStyleForSlot(this.category);
+        boolean equipped = currentStyle.getStyleId().map(identifier -> identifier.equals(this.getStyle().getStyleId())).orElse(false);
+        if (equipped && this.parentWidget instanceof WardrobeStyleSelectionWidget.SelectionPopup)
+            equipped = this.getTextureId() == currentStyle.getVariant();
 
-        var baseTexture = this.isHovered() ? TEX_HOVER : TEX_BASE;
+        var baseTexture = equipped ? TEX_EQUIPPED : this.isHovered() ? TEX_HOVER : TEX_BASE;
         blit(guiGraphics, baseTexture, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 50, 50);
 
-        if (this.style.hasVariants()) {
-            var variantTexture = this.isHovered() ? TEX_VARIANT_HOVER : TEX_VARIANT;
+        if (!(this.parentWidget instanceof WardrobeStyleSelectionWidget.SelectionPopup) && this.getStyle().hasVariants()) {
+            var variantTexture = equipped ? TEX_VARIANT_EQUIPPED : this.isHovered() ? TEX_VARIANT_HOVER : TEX_VARIANT;
             blit(guiGraphics, variantTexture, this.getX() + (this.getWidth() / 2) - 5, this.getY() + this.getHeight() - 6, 10, 7);
         }
 
         if (this.isHovered())
             guiGraphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, this.tooltip, mouseX, mouseY);
 
-//            if (!this.isHovered)
-//                guiGraphics.enableScissor(this.getX() + 8, this.getY() + 8, this.getX() + this.getWidth() - 8, this.getY() + this.getHeight() - 8);
-//
-//            var poseStack = guiGraphics.pose();
-//            poseStack.pushMatrix();
-//            poseStack.translate(getX() + (this.width / 2), getY() + this.height);
-//
-//            if(isHovered()) {
-//                poseStack.scale((float) (height * 0.7), (float) (height * 0.7));
-//            }
-//            else {
-//                poseStack.scale((float) (height * 0.6), (float) (height * 0.6));
-//            }
-//
-//            poseStack.rotate(this.parentWidget.previewRotation);
-//
-//            EntityRenderState renderState =
-//            guiGraphics.submitGuiElementRenderState();
-//
-//            poseStack.popMatrix();
-//
-//            if (!this.isHovered)
-//                guiGraphics.disableScissor();
+        var renderState = BounceStylesClient.STYLE_RENDERER.createRenderState(null, null);
+        renderState.addGeckolibData(StyleLayerRenderer.TICKET_STYLE, this.style);
+        renderState.addGeckolibData(StyleLayerRenderer.TICKET_CATEGORY, this.category);
+
+        if (!this.isHovered)
+            guiGraphics.enableScissor(this.getX() + 8, this.getY() + 8, this.getX() + this.getWidth() - 8, this.getY() + this.getHeight() - 8);
+
+        var translate = switch (category) {
+            case Head -> new Vector3f(0f, -0.4f, 0f);
+            case Body -> new Vector3f(0f, -1.1f, 0f);
+            case Legs -> new Vector3f(0f, -1.9f, 0f);
+            case Feet -> new Vector3f(0f, -2.0f, 0f);
+        };
+
+        guiGraphics.guiRenderState.submitPicturesInPictureState(new StyleGuiRenderer.StyleGuiRenderState(
+                renderState,
+                translate,
+                new Quaternionf().rotationY(this.parentWidget.previewRotation),
+                this.getX(), this.getY(),
+                this.getX() + this.getWidth(), this.getY() + this.getHeight(),
+                30f,
+                isHovered,
+                guiGraphics.scissorStack.peek()
+        ));
+
+            if (!this.isHovered)
+                guiGraphics.disableScissor();
     }
     //? } else {
         /*public void renderWidget(GuiGraphics context, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
@@ -175,15 +190,15 @@ public class StyleSelectionButton extends Button implements WardrobeWidget {
         *///? }
 
     public Style getStyle() {
-        return this.style;
+        return this.style.getStyle().get();
     }
 
     public int getTextureId() {
-        return this.textureId;
+        return this.style.getVariant();
     }
 
     public void setTextureId(int id) {
-        this.textureId = id;
+        this.style.setVariant(id);
     }
 
 //        public void renderTooltip(GuiGraphics poseStack, int mouseX, int mouseY) {

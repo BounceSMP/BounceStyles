@@ -48,7 +48,7 @@ public class WardrobePreviewWidget extends AbstractWidget implements WardrobeWid
         float xRot = previewPlayer.getXRot();
         float yHeadRot0 = previewPlayer.yHeadRotO;
         float yHeadRot = previewPlayer.yHeadRot;
-
+//
         previewPlayer.yBodyRot = 180.0F;
         previewPlayer.setYRot(180.0F);
         previewPlayer.setXRot(0f);
@@ -61,19 +61,6 @@ public class WardrobePreviewWidget extends AbstractWidget implements WardrobeWid
 
         Quaternionf rotation = new Quaternionf().rotateZ((float) Math.PI).rotateY((float) Math.toRadians(this.previewRotation));
         EntityRenderState entityRenderState = extractRenderState(previewPlayer);
-//        if (entityRenderState instanceof LivingEntityRenderState livingEntityRenderState) {
-//            livingEntityRenderState.bodyRot = 180.0F + h * 20.0F;
-//            livingEntityRenderState.yRot = h * 20.0F;
-//            if (livingEntityRenderState.pose != Pose.FALL_FLYING) {
-//                livingEntityRenderState.xRot = -i * 20.0F;
-//            } else {
-//                livingEntityRenderState.xRot = 0.0F;
-//            }
-//
-//            livingEntityRenderState.boundingBoxWidth = livingEntityRenderState.boundingBoxWidth / livingEntityRenderState.scale;
-//            livingEntityRenderState.boundingBoxHeight = livingEntityRenderState.boundingBoxHeight / livingEntityRenderState.scale;
-//            livingEntityRenderState.scale = 1.0F;
-//        }
 
         guiGraphics.submitEntityRenderState(
                 entityRenderState, scale,

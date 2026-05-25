@@ -8,9 +8,11 @@ import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
+import dev.bsmp.bouncestyles.core.client.renderer.StyleGuiRenderer;
 import dev.bsmp.bouncestyles.core.client.screen.WardrobeScreen;
 import dev.bsmp.bouncestyles.core.data.preset.StylePreset;
 import dev.bsmp.bouncestyles.core.networking.serverbound.OpenStyleScreenServerbound;
+import net.fabricmc.fabric.api.client.rendering.v1.SpecialGuiElementRegistry;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
@@ -41,6 +43,7 @@ public class BounceStylesClient {
         KeyMappingRegistry.register(KEY_WARDROBE);
         ClientTickEvent.CLIENT_POST.register(instance -> { while (KEY_WARDROBE.consumeClick()) new OpenStyleScreenServerbound().sendToServer(); });
         ClientLifecycleEvent.CLIENT_LEVEL_LOAD.register(world -> BounceStylesRegistries.setRegistryAccess(world.registryAccess()));
+        SpecialGuiElementRegistry.register(StyleGuiRenderer::new);
     }
 
     public static void setPresets(Map<String, StylePreset> map) {

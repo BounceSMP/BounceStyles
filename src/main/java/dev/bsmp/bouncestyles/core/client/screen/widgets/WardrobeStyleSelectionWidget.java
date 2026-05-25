@@ -1,6 +1,7 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.button.StyleSelectionButton;
 import dev.bsmp.bouncestyles.core.data.Style;
 import dev.bsmp.bouncestyles.core.data.Category;
@@ -12,6 +13,7 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.profiling.Profiler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -82,7 +84,7 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
         StyleData styleData = StyleData.getOrCreateStyleData(Minecraft.getInstance().player);
 
         for (Style style : this.styles) {
-            StyleSelectionButton button = new StyleSelectionButton(this, 0, 0, buttonSize, buttonSize, category, style, true);
+            StyleSelectionButton button = new StyleSelectionButton(this, 0, 0, buttonSize, buttonSize, category, style);
 
             var equippedStyle = styleData.getStyleForSlot(category);
             if (equippedStyle.getStyleId().orElse(null) == style.getStyleId()) {
@@ -121,10 +123,9 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
             return false;
         }
         if (this.isMouseOver(event.x(), event.y())) {
-            if (this.popup != null)
-                return this.popup.mouseClicked(event, doubleClick);
-            else
+            if (this.popup == null || !this.popup.mouseClicked(event, doubleClick)) {
                 return super.mouseClicked(event, doubleClick);
+            }
         }
         this.popup = null;
         return false;
@@ -166,7 +167,7 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
     }
     *///? }
 
-    private static class SelectionPopup extends WardrobeScrollWidget {
+    public static class SelectionPopup extends WardrobeScrollWidget {
         private final WardrobeStyleSelectionWidget parent;
         private final Category category;
         private final Style style;
@@ -209,7 +210,7 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
             StyleData styleData = StyleData.getOrCreateStyleData(Minecraft.getInstance().player);
 
             for (int textureId = -1; textureId < textureVariants.size(); textureId++) {
-                StyleSelectionButton button = new StyleSelectionButton(this, 0, 0, buttonSize, buttonSize, category, style, false);
+                StyleSelectionButton button = new StyleSelectionButton(this, 0, 0, buttonSize, buttonSize, category, style);
                 button.setTextureId(textureId);
 
                 var equippedStyle = styleData.getStyleForSlot(category);
@@ -230,7 +231,8 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
                 this.parent.popup = null;
                 return true;
             }
-            return super.mouseClicked(event, doubleClick);
+            super.mouseClicked(event, doubleClick);
+            return true;
         }
         //? } else {
         /*@Override
