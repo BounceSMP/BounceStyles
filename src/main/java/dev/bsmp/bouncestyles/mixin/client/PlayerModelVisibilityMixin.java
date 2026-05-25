@@ -39,6 +39,7 @@ public abstract class PlayerModelVisibilityMixin extends HumanoidModel<AvatarRen
     //? if >= 1.21.11 {
     @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At("TAIL"))
     private void bounceStyles$checkStyleVisibility(AvatarRenderState state, CallbackInfo ci) {
+        this.head.visible = true; //Heads don't automatically get set back to visible I guess?
         if (state instanceof StyleEntityState styleState) {
             for (String s : styleState.bounceStyles$getHiddenParts()) {
                 switch (s) {
