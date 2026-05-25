@@ -9,9 +9,16 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import org.joml.Quaternionf;
+import org.joml.Vector2i;
 import org.joml.Vector3f;
 
 public class WardrobePreviewWidget extends AbstractWidget implements WardrobeWidget {
@@ -25,9 +32,7 @@ public class WardrobePreviewWidget extends AbstractWidget implements WardrobeWid
 
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        Window window = Minecraft.getInstance().getWindow();
-        double guiScale = window.getGuiScale();
-        float scale = (float) ((getHeight() / 3f));
+        float scale = getHeight() / 3f;
 
         //? if >= 1.21.11 {
         guiGraphics.pose().pushMatrix();
@@ -51,8 +56,31 @@ public class WardrobePreviewWidget extends AbstractWidget implements WardrobeWid
         previewPlayer.yHeadRotO = previewPlayer.getYRot();
 
         //? if >= 1.21.11 {
-        Vector3f translate = new Vector3f(0.0F,  (previewPlayer.getBbHeight() / 2.0F) + 0.1f, 0.0F);
-        InventoryScreen.renderEntityInInventoryFollowsMouse(guiGraphics, getX() + 3, getY() + 3, this.getX() + this.getWidth() - 3, this.getY() + this.getHeight() - 3, (int) (scale / previewPlayer.getScale()), 0f, 0, 0, previewPlayer);
+        var pos1 = new Vector2i(this.getX() + 3, this.getY() + 3);
+        var pos2 = new Vector2i(this.getX() + this.getWidth() - 3, this.getY() + this.getHeight() - 3);
+
+        Quaternionf rotation = new Quaternionf().rotateZ((float) Math.PI).rotateY((float) Math.toRadians(this.previewRotation));
+        EntityRenderState entityRenderState = extractRenderState(previewPlayer);
+//        if (entityRenderState instanceof LivingEntityRenderState livingEntityRenderState) {
+//            livingEntityRenderState.bodyRot = 180.0F + h * 20.0F;
+//            livingEntityRenderState.yRot = h * 20.0F;
+//            if (livingEntityRenderState.pose != Pose.FALL_FLYING) {
+//                livingEntityRenderState.xRot = -i * 20.0F;
+//            } else {
+//                livingEntityRenderState.xRot = 0.0F;
+//            }
+//
+//            livingEntityRenderState.boundingBoxWidth = livingEntityRenderState.boundingBoxWidth / livingEntityRenderState.scale;
+//            livingEntityRenderState.boundingBoxHeight = livingEntityRenderState.boundingBoxHeight / livingEntityRenderState.scale;
+//            livingEntityRenderState.scale = 1.0F;
+//        }
+
+        guiGraphics.submitEntityRenderState(
+                entityRenderState, scale,
+                new Vector3f(0.0F, entityRenderState.boundingBoxHeight / 2.0F, 0.0F),
+                rotation, null,
+                pos1.x(), pos1.y(), pos2.x(), pos2.y()
+        );
         //? } elif >= 1.21.1 {
         /*Vector3f translate = new Vector3f(0.0F,  (previewPlayer.getBbHeight() / 2.0F) + 0.1f, 0.0F);
         InventoryScreen.renderEntityInInventory(guiGraphics, getX() + (getWidth() / 2), getY() + (getHeight() / 2), scale / previewPlayer.getScale(), translate, new Quaternionf().rotateZ((float) Math.PI).rotateY(previewRotation), new Quaternionf(), previewPlayer);
@@ -77,6 +105,14 @@ public class WardrobePreviewWidget extends AbstractWidget implements WardrobeWid
 //        guiGraphics.pose().popPose();
     }
 
+    private static EntityRenderState extractRenderState(LivingEntity entity) {
+        EntityRenderState entityRenderState = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entity).createRenderState(entity, 1.0F);
+        entityRenderState.lightCoords = 15728880;
+        entityRenderState.shadowPieces.clear();
+        entityRenderState.outlineColor = 0;
+        return entityRenderState;
+    }
+
     //? if >= 1.21.11 {
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
@@ -95,7 +131,7 @@ public class WardrobePreviewWidget extends AbstractWidget implements WardrobeWid
     //? if >= 1.21.11 {
     @Override
     protected void onDrag(MouseButtonEvent event, double dragX, double dragY) {
-        this.previewRotation += (float) (dragX / (getWidth() / 3f));
+        this.previewRotation += (float) dragX * 0.9f;
     }
     //? } else {
     /*@Override
