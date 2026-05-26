@@ -31,13 +31,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 *///? }
 
 public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresetsWidget.PresetEntry> implements WardrobeWidget {
-    private static final Identifier TEX_WIDGETS = BounceStyles.id("textures/gui/widgets.png");
-    private static final Identifier TEX_ERROR = BounceStyles.id("textures/icon/error.png");
-    private static final Identifier TEX_BTN_DELETE = BounceStyles.id("textures/gui/btn_delete.png");
-    private static final Identifier TEX_BTN_DELETE_HOVER = BounceStyles.id("textures/gui/btn_delete_hover.png");
-    private static final Identifier TEX_BTN_CREATE = BounceStyles.id("textures/gui/btn_create.png");
-    private static final Identifier TEX_BTN_CREATE_HOVER = BounceStyles.id("textures/gui/btn_create_hover.png");
-
     private final WardrobeScreen parentScreen;
     private final WardrobeIconButton createPresetButton;
     public EditBox nameEntry;
@@ -60,10 +53,11 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
 
         this.parentScreen = parentScreen;
 
-        this.nameEntry = new EditBox(minecraft.font, x + 10 + buttonSize, y + height - buttonSize - 4, width - 20 - buttonSize, buttonSize - 2, Component.literal("Preset Name"));
+        this.nameEntry = new EditBox(minecraft.font, x + 10 + buttonSize, y + height - buttonSize - 5, width - 20 - buttonSize, 20, Component.literal("Preset Name"));
+        this.nameEntry.setHint(Component.literal("Preset Name..."));
         this.nameEntry.visible = false;
 
-        this.createPresetButton = new WardrobeIconButton(x + 5, y + height - buttonSize - 5, "create", button -> {
+        this.createPresetButton = new WardrobeIconButton(x + 5, y + height - buttonSize - 5, "btn_create", button -> {
             if (!this.namingPreset) {
                 this.nameEntry.visible = true;
             } else {
@@ -114,13 +108,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
                 else
                     s = "Save";
             }
-
-            //? if >= 1.21.11 {
-            guiGraphics.renderTooltip(Minecraft.getInstance().font, List.of(ClientTooltipComponent.create(Component.literal(s).getVisualOrderText())), mouseX, mouseY, (screenWidth, screenHeight, mouseX1, mouseY1, tooltipWidth, tooltipHeight) -> {
-                return new Vector2i();
-            }, null);
-            //? } else
-            //drawTooltip(guiGraphics, Minecraft.getInstance().font, Component.literal(s), mouseX, mouseY);
+            this.createPresetButton.setMessage(Component.literal(s));
         }
     }
 
@@ -128,15 +116,28 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if (this.nameEntry.mouseClicked(event, doubleClick)) {
-            this.nameEntry.setFocused(true);
+        if (isHovered()) {
+            if (this.nameEntry.mouseClicked(event, doubleClick)) {
+                this.nameEntry.setFocused(true);
+                return true;
+            }
+
+            this.nameEntry.setFocused(false);
+
+            if (!this.createPresetButton.mouseClicked(event, doubleClick))
+                return super.mouseClicked(event, doubleClick);
             return true;
         }
-        this.createPresetButton.mouseClicked(event, doubleClick);
-        boolean b = super.mouseClicked(event, doubleClick);
-        this.setFocused(null);
-        this.setSelected(null);
-        return b;
+        return false;
+//        if (this.nameEntry.mouseClicked(event, doubleClick)) {
+//            this.nameEntry.setFocused(true);
+//            return true;
+//        }
+//        this.createPresetButton.mouseClicked(event, doubleClick);
+//        boolean b = super.mouseClicked(event, doubleClick);
+//        this.setFocused(null);
+//        this.setSelected(null);
+//        return b;
     }
 
     @Override
@@ -225,7 +226,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
             this.parentWidget = parentWidget;
             this.presetName = presetName;
             this.preset = preset;
-            this.deleteButton = new WardrobeIconButton(0, 0, "delete", button -> {
+            this.deleteButton = new WardrobeIconButton(0, 0, "btn_delete", button -> {
                 PresetManager.removePreset(presetName);
                 this.parentWidget.needsRefreshing = true;
             });
@@ -258,7 +259,8 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
             context.fill(left, top, left + 1, top + height, colorOutline); //Left Line
             context.fill(left + width - 1, top, left + width, top + height, colorOutline); //Right Line
 
-            context.drawString(Minecraft.getInstance().font, this.presetName, left + 5, top + (height / 2) - 4, this.isHovered ? 0xb3fffe : 0xFFFFFF);
+            context.drawString(Minecraft.getInstance().font, this.presetName, left + 5, top + (height / 2) - 4, this.isHovered ? 0xFFb3fffe : 0xFFFFFFFF);
+
             this.deleteButton.setX(left + width + 2);
             this.deleteButton.setY(top + 1);
             this.deleteButton.render(context, mouseX, mouseY, partialTick);
@@ -280,18 +282,18 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
 
         @Override
         public boolean isMouseOver(double mouseX, double mouseY) {
-            return this.isHovered;
+            return this.isHovered || this.deleteButton.isMouseOver(mouseX, mouseY);
         }
 
         //? if >= 1.21.11 {
         @Override
         public boolean mouseClicked(MouseButtonEvent event, boolean isDoubleClick) {
-            if(this.isHovered) {
+            if (!this.deleteButton.mouseClicked(event, isDoubleClick)) {
                 new EquipStyleServerbound(this.preset.toMap()).sendToServer();
                 Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f));
                 return true;
             }
-            return this.deleteButton.mouseClicked(event, isDoubleClick);
+            return false;
         }
         //? } else {
         /*@Override

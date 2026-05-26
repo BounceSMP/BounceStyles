@@ -34,6 +34,7 @@ public class WardrobeScreen extends Screen {
 
     EditBox searchBox;
     Map<Category, WardrobeIconButton> categoryButtons = new HashMap<>();
+    WardrobeIconButton presetButton;
 
     int previewRight;
     int topBarHeight;
@@ -72,17 +73,18 @@ public class WardrobeScreen extends Screen {
             )));
         }
 
-        addRenderableWidget(new WardrobeIconButton(width - 44, y, "btn_preset", Component.literal("Presets"), btn -> {
-            this.activeWidget = this.presetsWidget;
+        presetButton = addRenderableWidget(new WardrobeIconButton(width - 44, y, "btn_preset", Component.literal("Presets"), btn -> {
+            this.setActiveWidget(this.presetsWidget);
+            this.categoryButtons.get(this.styleWidget.getCategory()).setFocused(false);
         }));
-        addRenderableWidget(new WardrobeIconButton(width - 22, y, "btn_clear", Component.literal("Clear Equipped"), button -> clearEquipped()));
+        addRenderableWidget(new WardrobeIconButton(width - 22, y, "btn_clear", Component.literal("Clear Equipped"), button -> {
+            this.clearEquipped();
+        }));
         if(this.activeWidget instanceof WardrobePresetsWidget) {
-            this.searchBox.visible = false;
-            this.activeWidget = this.presetsWidget;
+            this.setActiveWidget(this.presetsWidget);
         }
         else {
-            this.searchBox.visible = true;
-            this.activeWidget = this.styleWidget;
+            this.setActiveWidget(this.styleWidget);
         }
 
         this.updateStyles(selectedCategory);
@@ -133,6 +135,11 @@ public class WardrobeScreen extends Screen {
     public void refresh() {
         if (this.activeWidget instanceof WardrobeStyleSelectionWidget widget)
             widget.refresh();
+    }
+
+    public void setActiveWidget(WardrobeWidget widget) {
+        this.activeWidget = widget;
+        this.searchBox.visible = this.activeWidget == this.styleWidget;
     }
 
     //? if >= 1.21.11 {
@@ -213,7 +220,7 @@ public class WardrobeScreen extends Screen {
             .sorted(Comparator.comparing(style -> style.getStyleId().toString()))
             .toList()
         ).thenApply(styles -> {
-            this.activeWidget = this.styleWidget;
+            this.setActiveWidget(this.styleWidget);
             this.styleWidget.updateButtons(category, styles);
             return null;
         });

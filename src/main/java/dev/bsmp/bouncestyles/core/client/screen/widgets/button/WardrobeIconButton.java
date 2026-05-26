@@ -44,7 +44,7 @@ public class WardrobeIconButton extends Button implements WardrobeWidget {
         blit(guiGraphics, baseTexture, getX(), getY(), getWidth(), getHeight());
         blit(guiGraphics, isHoveredOrFocused() ? this.iconTextureHover : this.iconTexture, getX() + 2, getY() + 2, 16, 16);
 
-        if (isHovered())
+        if (isHovered() && !this.getMessage().getString().isBlank())
             guiGraphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, List.of(this.getMessage()), mouseX + 4, mouseY + 16);
     }
 }

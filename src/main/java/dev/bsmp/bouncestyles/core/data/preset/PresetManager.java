@@ -23,8 +23,15 @@ public class PresetManager {
         File dir = StyleLoader.getStylesDirectory();
         File file = new File(dir, "presets.json");
         if(file.exists()) {
+            boolean convert = false;
             try(BufferedReader reader = Files.newReader(file, StandardCharsets.UTF_8)) {
                 try {
+                    JsonObject jsonObject = StyleLoader.GSON.fromJson(reader, JsonObject.class);
+                    Codec.unboundedMap(Codec.STRING, StylePreset.CODEC).parse(JsonOps.INSTANCE, jsonObject)
+                            .resultOrPartial(BounceStyles.LOGGER::error)
+                            .ifPresent(BounceStylesClient::setPresets);
+                }
+                catch (JsonSyntaxException e) {
                     JsonArray jsonArray = StyleLoader.GSON.fromJson(reader, JsonArray.class);
                     StylePreset.CODEC.listOf().parse(JsonOps.INSTANCE, jsonArray)
                             .resultOrPartial(BounceStyles.LOGGER::error)
@@ -32,17 +39,14 @@ public class PresetManager {
                                 int i = 0;
                                 presets.forEach(stylePreset -> BounceStylesClient.getPresets().put("preset_" + i, stylePreset));
                             });
-                }
-                catch (JsonSyntaxException e) {
-                    JsonObject jsonObject = StyleLoader.GSON.fromJson(reader, JsonObject.class);
-                    Codec.unboundedMap(Codec.STRING, StylePreset.CODEC).parse(JsonOps.INSTANCE, jsonObject)
-                            .resultOrPartial(BounceStyles.LOGGER::error)
-                            .ifPresent(BounceStylesClient::setPresets);
+                    convert = true;
                 }
             }
             catch (IOException e) {
                 BounceStyles.LOGGER.error("Exception Occurred reading Presets file", e);
             }
+            if (convert)
+                writePresetsFile();
         }
     }
 
