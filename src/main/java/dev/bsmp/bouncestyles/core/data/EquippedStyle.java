@@ -3,6 +3,7 @@ package dev.bsmp.bouncestyles.core.data;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
+import dev.bsmp.bouncestyles.core.data.style.Style;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
 

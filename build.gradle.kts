@@ -44,7 +44,6 @@ dependencies {
     modImplementation("dev.architectury:architectury-fabric:${property("architectury_version")}")
     modImplementation("software.bernie.geckolib:geckolib-fabric-${property("minecraft_version")}:${property("geckolib_version")}")
 
-
     modCompileOnly("maven.modrinth:flashback:AGkqd25Y")
 }
 

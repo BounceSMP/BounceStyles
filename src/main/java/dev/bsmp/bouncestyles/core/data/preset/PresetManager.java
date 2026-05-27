@@ -8,9 +8,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.data.StyleData;
-import dev.bsmp.bouncestyles.core.data.StyleLoader;
+import dev.bsmp.bouncestyles.core.data.style.StyleLoader;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
-import net.minecraft.resources.Identifier;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

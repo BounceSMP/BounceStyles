@@ -1,15 +1,12 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
-import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.button.StyleSelectionButton;
-import dev.bsmp.bouncestyles.core.data.Style;
-import net.minecraft.client.Minecraft;
+import dev.bsmp.bouncestyles.core.data.style.Style;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.profiling.Profiler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;

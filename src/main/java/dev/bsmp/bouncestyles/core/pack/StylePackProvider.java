@@ -3,7 +3,7 @@ package dev.bsmp.bouncestyles.core.pack;
 import dev.architectury.platform.Platform;
 import dev.architectury.utils.Env;
 import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.data.StyleLoader;
+import dev.bsmp.bouncestyles.core.data.style.StyleLoader;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackResources;

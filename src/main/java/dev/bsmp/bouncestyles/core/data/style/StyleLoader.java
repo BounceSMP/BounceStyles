@@ -1,4 +1,4 @@
-package dev.bsmp.bouncestyles.core.data;
+package dev.bsmp.bouncestyles.core.data.style;
 
 import com.google.common.io.Files;
 import com.google.gson.*;

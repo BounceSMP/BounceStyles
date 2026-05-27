@@ -9,7 +9,7 @@ import dev.bsmp.bouncestyles.core.client.screen.widgets.WardrobeStyleSelectionWi
 import dev.bsmp.bouncestyles.core.client.screen.widgets.WardrobeWidget;
 import dev.bsmp.bouncestyles.core.data.Category;
 import dev.bsmp.bouncestyles.core.data.EquippedStyle;
-import dev.bsmp.bouncestyles.core.data.Style;
+import dev.bsmp.bouncestyles.core.data.style.Style;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;

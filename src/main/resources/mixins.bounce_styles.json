@@ -4,13 +4,14 @@
   "package": "dev.bsmp.bouncestyles.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "common.AvatarMixin",
     "common.ChunkStorageAccessor",
     "common.EntityMixin",
     "common.EntityTrackerAccessor",
     "common.MappedRegistryMixin",
     "common.PackRepoMixin",
-    "common.AvatarMixin",
-    "common.ResourcePackManagerAccessor"
+    "common.ResourcePackManagerAccessor",
+    "compat.flashback.IgnoredPacketSetMixin"
   ],
   "client": [
     "client.ArmorRenderingMixin",

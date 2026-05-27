@@ -30,6 +30,7 @@ public abstract class GeckoLibResourcesMixin {
                                         .replaceFirst("geo/", "")
                                         .replaceFirst("animations/", "")
                                         .replace(".geo.json", "")
+                                        .replace(".animation.json", "")
                         ),
                         resource
                 );

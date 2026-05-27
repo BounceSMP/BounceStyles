@@ -1,9 +1,11 @@
 package dev.bsmp.bouncestyles.core.client.renderer;
 
-import dev.bsmp.bouncestyles.core.data.Style;
+import dev.bsmp.bouncestyles.core.data.style.Style;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import software.bernie.geckolib.cache.GeckoLibResources;
+import software.bernie.geckolib.cache.animation.Animation;
 import software.bernie.geckolib.model.GeoModel;
 //? if >= 1.21.11 {
 import software.bernie.geckolib.cache.model.BakedGeoModel;
@@ -30,6 +32,13 @@ public class StyleGeoModel extends GeoModel<Style> {
     @Override
     public @NonNull Identifier getAnimationResource(Style style) {
         return style.getAnimationId().orElse(Identifier.withDefaultNamespace(""));
+    }
+
+    @Override
+    public @Nullable Animation getBakedAnimation(Style style, String name) throws RuntimeException {
+        if (style.getAnimationId().isEmpty()) return null;
+        if (!GeckoLibResources.getBakedAnimations().cache().containsKey(style.getAnimationId().get())) return null;
+        return GeckoLibResources.getBakedAnimations().cache().get(style.getAnimationId().get()).getAnimation(name);
     }
 
     @Override

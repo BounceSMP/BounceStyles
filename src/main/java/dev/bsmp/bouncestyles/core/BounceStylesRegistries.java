@@ -7,7 +7,7 @@ import dev.architectury.registry.registries.RegistrarManager;
 import dev.architectury.registry.registries.RegistrySupplier;
 import dev.bsmp.bouncestyles.core.command.StyleCommand;
 import dev.bsmp.bouncestyles.core.command.StyleSlotArgumentType;
-import dev.bsmp.bouncestyles.core.data.Style;
+import dev.bsmp.bouncestyles.core.data.style.Style;
 import dev.bsmp.bouncestyles.core.item.StyleMagazineItem;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.Holder;

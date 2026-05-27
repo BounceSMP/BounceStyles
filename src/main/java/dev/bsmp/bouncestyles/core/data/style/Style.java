@@ -1,8 +1,10 @@
-package dev.bsmp.bouncestyles.core.data;
+package dev.bsmp.bouncestyles.core.data.style;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.bsmp.bouncestyles.core.BounceStyles;
+import dev.bsmp.bouncestyles.core.data.Category;
+import dev.bsmp.bouncestyles.core.data.animation.AnimationHandler;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
@@ -13,9 +15,7 @@ import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.RawAnimation;
-import software.bernie.geckolib.animation.object.PlayState;
 import software.bernie.geckolib.constant.dataticket.DataTicket;
-import software.bernie.geckolib.animation.state.AnimationTest;
 //? } elif >= 1.21.1 {
 /*import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -48,7 +48,7 @@ public class Style implements GeoAnimatable {
     /*public static final DataTicket<Player> PLAYER = new DataTicket<>("player_entity", Player.class);
     *///? }
 
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this, true);
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this, false);
 
     private final Identifier styleId;
     private final Identifier modelId;
@@ -86,65 +86,12 @@ public class Style implements GeoAnimatable {
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar registrar) {
         if(animationMap != null && !animationMap.isEmpty()) {
-            registrar.add(
-                    new AnimationController<>(this.styleId.toString(), Math.max(transitionTicks, 0), this::predicate)
-            );
+            registrar.add(new AnimationController<>(
+                    this.styleId.toString(),
+                    Math.max(transitionTicks, 0),
+                    AnimationHandler::handleAnimState
+            ));
         }
-    }
-
-    //? if <= 1.21.1 {
-    /*@Override
-    public double getTick(Object o) {
-        return 0;
-    }
-    *///? }
-
-    //? if >= 1.21.11 {
-    private PlayState predicate(AnimationTest<Style> state) {
-    //? } else {
-    /*private PlayState predicate(AnimationState<Style> state) {
-    *///? }
-        Player entity = state.getData(PLAYER);
-        if (entity == null) return PlayState.CONTINUE;
-
-        return setupAnimation(entity, state.controller(), state.isMoving());
-    }
-
-    private PlayState setupAnimation(Player entity, AnimationController<?> controller, boolean isMoving) {
-        if(animationMap != null && !animationMap.isEmpty()) {
-            RawAnimation anim;
-            //ToDo Consider supporting EmoteCraft emote-specific animations, if specified as something like "emote.emote_name"
-            if(entity.isSleeping() && (anim = animationMap.get("sleeping")) != null)
-                return applyAnimation(controller, anim);
-
-            else if (entity.isSwimming() && (anim = animationMap.get("swimming")) != null)
-                return applyAnimation(controller, anim);
-
-            else if(entity.isFallFlying() && (anim = animationMap.get("flying")) != null)
-                return applyAnimation(controller, anim);
-
-            else if(!entity.onGround() && (anim = animationMap.get("in_air")) != null)
-                return applyAnimation(controller, anim);
-
-            else if(entity.isShiftKeyDown() && (anim = animationMap.get("sneaking")) != null)
-                return applyAnimation(controller, anim);
-
-            else if(entity.isSprinting() && (anim = animationMap.get("sprinting")) != null)
-                return applyAnimation(controller, anim);
-
-            else if(isMoving && (anim = animationMap.get("walking")) != null)
-                return applyAnimation(controller, anim);
-
-            else if((anim = animationMap.get("idle")) != null)
-                return applyAnimation(controller, anim);
-        }
-
-        return PlayState.STOP;
-    }
-
-    private static PlayState applyAnimation(AnimationController<?> controller, RawAnimation anim) {
-        controller.setAnimation(anim);
-        return PlayState.CONTINUE;
     }
 
     public boolean hasVariants() {
@@ -220,6 +167,13 @@ public class Style implements GeoAnimatable {
         );
     }
 
+    //? if <= 1.21.1 {
+    /*@Override
+    public double getTick(Object o) {
+        return 0;
+    }
+    *///? }
+
     //ToDo Consider adding a way to define a sequence of animations to play, separated by ';' or something
     private static Map<String, RawAnimation> buildAnimationMap(Map<String, String> map) {
         Map<String, RawAnimation> animMap = new HashMap<>();
@@ -229,7 +183,7 @@ public class Style implements GeoAnimatable {
         return animMap;
     }
 
-    private static Style decode(String styleName, Optional<Identifier> modelId, Optional<Identifier> textureId, Optional<List<Identifier>> textureVariants, Optional<Identifier> animationId, Optional<Map<String, String>> animationMap, Optional<Integer> transitionTicks, Optional<List<String>> hiddenParts, List<Category> categories, Optional<List<String>> credits) {
+    private static Style decode(String styleName, Optional<Identifier> modelId, Optional<Identifier> textureId, Optional<List<Identifier>> textureVariants, Optional<Identifier> animationId, Optional<Map<String, String>> animationMap, Integer transitionTicks, Optional<List<String>> hiddenParts, List<Category> categories, Optional<List<String>> credits) {
         var styleId = BounceStyles.id(styleName);
         if (textureVariants.isPresent()) {
             if (!textureVariants.get().isEmpty()) {
@@ -249,7 +203,7 @@ public class Style implements GeoAnimatable {
                 textureVariants.orElse(null),
                 parseId(styleId, animationId, "animations", ".animation.json"),
                 animationMap.orElse(null),
-                transitionTicks.orElse(0),
+                transitionTicks,
                 hiddenParts.orElse(null),
                 categories,
                 credits.orElse(null)
@@ -262,7 +216,7 @@ public class Style implements GeoAnimatable {
         //? if >= 1.21.11 {
         if (directory.equalsIgnoreCase("textures") && !id.getPath().startsWith(directory))
             id = id.withPath(directory+"/"+id.getPath());
-        return id.withPath(id.getPath().replace(".geo.json", ""));
+        return id.withPath(id.getPath().replace(".geo.json", "").replace(".animation.json", ""));
         //? } else {
 //        var path = id.getPath().endsWith(suffix) ? id.getPath() : id.getPath() + suffix;
 //        if (!path.startsWith(directory)) path = directory + "/" + path;
@@ -286,7 +240,7 @@ public class Style implements GeoAnimatable {
             ID_CODEC.listOf().optionalFieldOf("texture_variants").forGetter(Style::getTextureVariants),
             ID_CODEC.optionalFieldOf("animation_id").forGetter(Style::getAnimationId),
             Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("animations").forGetter(Style::getAnimationStringMap),
-            Codec.INT.optionalFieldOf("transition_ticks").forGetter(style -> Optional.of(style.getTransitionTicks())),
+            Codec.INT.optionalFieldOf("transition_ticks", 0).forGetter(Style::getTransitionTicks),
             Codec.STRING.listOf().optionalFieldOf("hidden_parts").forGetter(Style::getHiddenParts),
             Category.CODEC.listOf().fieldOf("slots").forGetter(Style::getCategories),
             Codec.STRING.listOf().optionalFieldOf("credits").forGetter(Style::getCredits)

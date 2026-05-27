@@ -7,9 +7,8 @@ import dev.bsmp.bouncestyles.core.client.screen.widgets.WardrobeStyleSelectionWi
 import dev.bsmp.bouncestyles.core.client.screen.widgets.WardrobeWidget;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.button.WardrobeIconButton;
 import dev.bsmp.bouncestyles.core.data.Category;
-import dev.bsmp.bouncestyles.core.data.Style;
+import dev.bsmp.bouncestyles.core.data.style.Style;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
-import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;

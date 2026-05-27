@@ -2,7 +2,7 @@
 package dev.bsmp.bouncestyles.fabric;
 
 import com.mojang.serialization.Lifecycle;
-import dev.bsmp.bouncestyles.core.data.Style;
+import dev.bsmp.bouncestyles.core.data.style.Style;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import net.fabricmc.api.ModInitializer;

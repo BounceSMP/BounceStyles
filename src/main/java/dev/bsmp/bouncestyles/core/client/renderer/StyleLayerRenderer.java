@@ -1,10 +1,11 @@
 package dev.bsmp.bouncestyles.core.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.data.Category;
 import dev.bsmp.bouncestyles.core.data.EquippedStyle;
-import dev.bsmp.bouncestyles.core.data.Style;
+import dev.bsmp.bouncestyles.core.data.animation.AnimState;
+import dev.bsmp.bouncestyles.core.data.animation.AnimationHandler;
+import dev.bsmp.bouncestyles.core.data.style.Style;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
@@ -17,8 +18,7 @@ import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.profiling.Profiler;
-import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.Pose;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -36,10 +36,11 @@ import java.util.Objects;
 
 @SuppressWarnings("UnstableApiUsage")
 public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerModel> implements GeoRenderer<Style, StyleData, GeoRenderState.Impl> {
-    public static final StyleGeoModel geoModel = new StyleGeoModel();
+    public static final DataTicket<StyleData> TICKET_STYLE_DATA = DataTicket.create("style_data", StyleData.class);
     public static final DataTicket<EquippedStyle> TICKET_STYLE = DataTicket.create("style", EquippedStyle.class);
     public static final DataTicket<Category> TICKET_CATEGORY = DataTicket.create("style_category", Category.class);
-    public static final DataTicket<StyleData> TICKET_STYLE_DATA = DataTicket.create("style_data", StyleData.class);
+
+    public static final StyleGeoModel geoModel = new StyleGeoModel();
 
     public StyleLayerRenderer(RenderLayerParent<AvatarRenderState, PlayerModel> context) {
         super(context);
@@ -53,11 +54,41 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
         if (styleData != null) {
             styleData.getAllNonEmpty().forEach((category, equippedStyle) -> {
                 var renderState = createRenderState(equippedStyle.getStyle().get(), styleData);
+
+                setupAnimationState(renderState, avatarState);
+                fillRenderState(equippedStyle.getStyle().get(), styleData, renderState, avatarState.getPartialTick());
+
                 renderState.addGeckolibData(TICKET_STYLE, equippedStyle);
                 renderState.addGeckolibData(TICKET_CATEGORY, category);
                 GeoRenderer.super.performRenderPass(renderState, poseStack, submitNodeCollector, cameraState);
             });
         }
+    }
+
+    public void setupAnimationState(GeoRenderState geoRenderState, AvatarRenderState avatarState) {
+        if (avatarState.pose == Pose.SLEEPING)
+            geoRenderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, AnimState.SLEEPING);
+
+        else if (avatarState.isInWater && avatarState.isVisuallySwimming)
+            geoRenderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, AnimState.SWIMMING);
+
+        else if (avatarState.isFallFlying)
+            geoRenderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, AnimState.FLYING);
+
+        else if (!avatarState.getGeckolibData(AnimationHandler.TICKET_ON_GROUND))
+            geoRenderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, AnimState.IN_AIR);
+
+        else if (avatarState.isCrouching)
+            geoRenderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, AnimState.SNEAKING);
+
+        else if (avatarState.getGeckolibData(DataTickets.IS_MOVING)) {
+            if (avatarState.getGeckolibData(AnimationHandler.TICKET_SPRINTING))
+                geoRenderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, AnimState.SPRINTING);
+            else
+                geoRenderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, AnimState.WALKING);
+        }
+        else
+            geoRenderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, AnimState.IDLE);
     }
 
     @Override

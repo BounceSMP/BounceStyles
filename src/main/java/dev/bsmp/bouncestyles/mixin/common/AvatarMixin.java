@@ -40,21 +40,21 @@ public abstract class AvatarMixin extends LivingEntity implements StyleEntity {
         return this.getEntityData().get(bounceStyles$STYLE_DATA);
     }
 
+    //? if >= 1.21.11 {
+    @Override
+    protected void addAdditionalSaveData(ValueOutput output) {
+        super.addAdditionalSaveData(output);
+        output.store(StyleData.DATA_TAG, StyleData.CODEC, this.bounceStyles$getStyleData());
+    }
+
+    @Override
+    protected void readAdditionalSaveData(ValueInput input) {
+        super.readAdditionalSaveData(input);
+        input.read(StyleData.DATA_TAG, StyleData.CODEC).ifPresent(this::bounceStyles$setStyleData);
+    }
+    //? } else {
 //    @Unique private StyleData bounceStyles$styleData;
 
-    //? if >= 1.21.11 {
-//    @Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
-//    private void bounceStyles$saveStyleData(ValueOutput output, CallbackInfo ci) {
-//        if (this.bounceStyles$styleData != null)
-//            output.store(StyleData.DATA_TAG, StyleData.CODEC, this.bounceStyles$styleData);
-//    }
-//
-//    @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
-//    private void bounceStyles$readStyleData(ValueInput input, CallbackInfo ci) {
-//        input.read(StyleData.DATA_TAG, StyleData.CODEC).ifPresent(this::bounceStyles$setStyleData);
-//    }
-
-    //? } else {
 //    @Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
 //    private void bounceStyles$saveStyleData(CompoundTag compound, CallbackInfo ci) {
 //        if(this.bounceStyles$styleData != null)
