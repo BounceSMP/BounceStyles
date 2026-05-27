@@ -33,13 +33,15 @@ public abstract class InventoryScreenMixin  extends AbstractRecipeBookScreen<Inv
 //    }
     //? }
 
-    @Inject(method = "init", at = @At("TAIL"))
-    private void addWardrobeButton(CallbackInfo ci) {
-        addRenderableWidget(new WardrobeIconButton(
-                leftPos + 78, topPos + 47,
-                "btn_inventory",
-                Component.literal("Open Wardrobe"),
-                button -> new OpenStyleScreenServerbound().sendToServer()
-        ));
-    }
+    //ToDo Decide on if I want to keep the inventory button later, or have a config option
+//    @Inject(method = "init", at = @At("TAIL"))
+//    private void addWardrobeButton(CallbackInfo ci) {
+//        var recipeButton = this.getRecipeBookButtonPosition();
+//        addRenderableWidget(new WardrobeIconButton(
+//                recipeButton.x() + 22, recipeButton.y() - 1,
+//                "btn_inventory",
+//                Component.literal("Open Wardrobe"),
+//                button -> new OpenStyleScreenServerbound().sendToServer()
+//        ));
+//    }
 }
