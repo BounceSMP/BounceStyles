@@ -4,7 +4,6 @@ import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.button.WardrobeIconButton;
 import dev.bsmp.bouncestyles.core.data.preset.PresetManager;
 import dev.bsmp.bouncestyles.core.data.preset.StylePreset;
-import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.client.screen.WardrobeScreen;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
@@ -13,15 +12,12 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
-import org.joml.Vector2i;
 
 import java.util.List;
 
@@ -64,7 +60,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
                 this.nameEntry.visible = false;
                 String name = this.nameEntry.getValue();
                 if (!name.isBlank()) {
-                    PresetManager.createPreset(StyleData.getOrCreateStyleData(minecraft.player), name);
+                    PresetManager.createPreset(StyleData.getEntityData(minecraft.player), name);
                     refreshEntries();
                 }
                 this.nameEntry.setValue("");

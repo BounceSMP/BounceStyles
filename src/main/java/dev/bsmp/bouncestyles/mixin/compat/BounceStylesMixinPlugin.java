@@ -1,4 +1,4 @@
-package dev.bsmp.bouncestyles.mixin.plugin;
+package dev.bsmp.bouncestyles.mixin.compat;
 
 import dev.architectury.platform.Platform;
 import org.objectweb.asm.tree.ClassNode;

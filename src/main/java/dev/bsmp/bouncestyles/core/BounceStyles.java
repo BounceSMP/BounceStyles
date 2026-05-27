@@ -3,6 +3,7 @@ package dev.bsmp.bouncestyles.core;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.registry.registries.RegistrySupplier;
+import dev.bsmp.bouncestyles.api.StyleEntity;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.data.StyleLoader;
 import dev.bsmp.bouncestyles.core.item.StyleMagazineItem;
@@ -10,7 +11,9 @@ import dev.bsmp.bouncestyles.core.networking.StylesNetworking;
 import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientbound;
 import dev.bsmp.bouncestyles.mixin.common.ChunkStorageAccessor;
 import dev.bsmp.bouncestyles.mixin.common.EntityTrackerAccessor;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricTrackedDataRegistry;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ChunkMap;
@@ -54,9 +57,11 @@ public class BounceStyles {
 
         PlayerEvent.PLAYER_JOIN.register(BounceStyles::playerJoin);
         PlayerEvent.PLAYER_CLONE.register((oldPlayer, newPlayer, wonGame) -> StyleData.copyFrom(oldPlayer, newPlayer));
-        PlayerEvent.CHANGE_DIMENSION.register((player, oldLevel, newLevel) -> new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
+        PlayerEvent.CHANGE_DIMENSION.register((player, oldLevel, newLevel) -> new SyncStyleDataClientbound(player.getId(), StyleData.getEntityData(player)).sendToPlayer(player));
 
-        PlayerEvent.PLAYER_RESPAWN.register((player, conqueredEnd, reason) -> new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player)).sendToPlayer(player));
+        PlayerEvent.PLAYER_RESPAWN.register((player, conqueredEnd, reason) -> new SyncStyleDataClientbound(player.getId(), StyleData.getEntityData(player)).sendToPlayer(player));
+
+        FabricTrackedDataRegistry.register(BounceStyles.id("style_data"), StyleEntity.STYLE_DATA_SERIALIZER);
     }
 
     public static StyleMagazineItem magazineItem() {
@@ -69,14 +74,14 @@ public class BounceStyles {
     }
 
     public static void playerJoin(ServerPlayer player) {
-        SyncStyleDataClientbound packet = new SyncStyleDataClientbound(player.getId(), StyleData.getOrCreateStyleData(player));
+        SyncStyleDataClientbound packet = new SyncStyleDataClientbound(player.getId(), StyleData.getEntityData(player));
         packet.sendToPlayer(player);
         packet.sendToTrackingPlayers(player);
     }
 
     public static void startTrackingPlayer(ServerPlayer tracker, ServerPlayer tracked) {
-        new SyncStyleDataClientbound(tracker.getId(), StyleData.getOrCreateStyleData(tracker)).sendToPlayer(tracked);
-        new SyncStyleDataClientbound(tracked.getId(), StyleData.getOrCreateStyleData(tracked)).sendToPlayer(tracker);
+        new SyncStyleDataClientbound(tracker.getId(), StyleData.getEntityData(tracker)).sendToPlayer(tracked);
+        new SyncStyleDataClientbound(tracked.getId(), StyleData.getEntityData(tracked)).sendToPlayer(tracker);
     }
 
     public static Set<ServerPlayerConnection> getPlayersTracking(Entity entity) {

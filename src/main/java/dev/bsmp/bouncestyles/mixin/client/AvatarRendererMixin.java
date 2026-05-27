@@ -19,7 +19,7 @@ public abstract class AvatarRendererMixin<E extends Avatar & ClientAvatarEntity>
     @Inject(method = "extractRenderState(Lnet/minecraft/world/entity/Avatar;Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;F)V", at = @At("TAIL"))
     private void bounceStyles$setupStyleStateData(E entity, AvatarRenderState state, float f, CallbackInfo ci) {
         if (entity instanceof Player player && state instanceof StyleEntityState styleState) {
-            var styleData = StyleData.getOrCreateStyleData(player);
+            var styleData = StyleData.getEntityData(player);
             styleData.getHiddenParts().forEach(styleState::bounceStyles$addHiddenPart);
             state.addGeckolibData(StyleLayerRenderer.TICKET_STYLE_DATA, styleData);
         }

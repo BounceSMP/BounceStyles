@@ -4,7 +4,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.data.Category;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.data.Style;
@@ -195,7 +194,7 @@ public class StyleCommand {
             Style style = id != null ? BounceStylesRegistries.getStyle(id).orElse(null) : null;
             if(style == null || style.getCategories().contains(slot)) {
                 if (forced || UnlockManager.hasUnlocked(player, id)) {
-                    StyleData styleData = StyleData.getOrCreateStyleData(player);
+                    StyleData styleData = StyleData.getEntityData(player);
 
                     if (styleData.equipStyle(slot, id)) {
                         SyncStyleDataClientbound outPacket = new SyncStyleDataClientbound(player.getId(), styleData);

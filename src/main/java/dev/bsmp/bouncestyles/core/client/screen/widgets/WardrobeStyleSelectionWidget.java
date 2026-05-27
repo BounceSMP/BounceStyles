@@ -1,7 +1,6 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.button.StyleSelectionButton;
 import dev.bsmp.bouncestyles.core.data.Style;
 import dev.bsmp.bouncestyles.core.data.Category;
@@ -13,7 +12,6 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.profiling.Profiler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -81,7 +79,7 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
     @Override
     protected void updateButtons() {
         this.buttons.clear();
-        StyleData styleData = StyleData.getOrCreateStyleData(Minecraft.getInstance().player);
+        StyleData styleData = StyleData.getEntityData(Minecraft.getInstance().player);
 
         for (Style style : this.styles) {
             StyleSelectionButton button = new StyleSelectionButton(this, 0, 0, buttonSize, buttonSize, category, style);
@@ -207,7 +205,7 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
         @Override
         protected void updateButtons() {
             List<Identifier> textureVariants = style.getTextureVariants().get();
-            StyleData styleData = StyleData.getOrCreateStyleData(Minecraft.getInstance().player);
+            StyleData styleData = StyleData.getEntityData(Minecraft.getInstance().player);
 
             for (int textureId = -1; textureId < textureVariants.size(); textureId++) {
                 StyleSelectionButton button = new StyleSelectionButton(this, 0, 0, buttonSize, buttonSize, category, style);

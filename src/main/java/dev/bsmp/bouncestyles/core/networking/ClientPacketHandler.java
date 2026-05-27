@@ -1,8 +1,6 @@
 package dev.bsmp.bouncestyles.core.networking;
 
 import dev.architectury.networking.NetworkManager;
-import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.data.StyleLoader;
 import dev.bsmp.bouncestyles.core.client.screen.WardrobeScreen;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.data.preset.PresetManager;
@@ -23,7 +21,7 @@ public class ClientPacketHandler {
     public static void handleSyncStyleData(SyncStyleDataClientbound packet) {
         Entity entity = Minecraft.getInstance().player.level().getEntity(packet.entityId());
         if(entity instanceof Player) {
-            StyleData.setPlayerData((Player) entity, packet.styleData());
+            StyleData.setEntityData((Player) entity, packet.styleData());
         }
     }
 

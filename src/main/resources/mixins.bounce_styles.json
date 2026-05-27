@@ -7,9 +7,9 @@
     "common.ChunkStorageAccessor",
     "common.EntityMixin",
     "common.EntityTrackerAccessor",
-    "common.PackRepoMixin",
-    "common.PlayerMixin",
     "common.MappedRegistryMixin",
+    "common.PackRepoMixin",
+    "common.AvatarMixin",
     "common.ResourcePackManagerAccessor"
   ],
   "client": [
@@ -23,5 +23,5 @@
   "injectors": {
     "defaultRequire": 1
   },
-  "plugin": "dev.bsmp.bouncestyles.mixin.plugin.BounceStylesMixinPlugin"
+  "plugin": "dev.bsmp.bouncestyles.mixin.compat.BounceStylesMixinPlugin"
 }

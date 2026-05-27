@@ -23,6 +23,13 @@ repositories {
             includeGroupAndSubgroups("com.geckolib")
         }
     }
+    maven {
+        name = "Modrinth"
+        url = uri("https://api.modrinth.com/maven")
+        content {
+            includeGroup("maven.modrinth")
+        }
+    }
 }
 
 dependencies {
@@ -36,6 +43,9 @@ dependencies {
 	modImplementation("net.fabricmc.fabric-api:fabric-api:${providers.gradleProperty("fabric_api_version").get()}")
     modImplementation("dev.architectury:architectury-fabric:${property("architectury_version")}")
     modImplementation("software.bernie.geckolib:geckolib-fabric-${property("minecraft_version")}:${property("geckolib_version")}")
+
+
+    modCompileOnly("maven.modrinth:flashback:AGkqd25Y")
 }
 
 tasks.processResources {

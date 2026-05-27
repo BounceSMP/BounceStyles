@@ -1,6 +1,5 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets.button;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.core.client.renderer.StyleGuiRenderer;
@@ -17,8 +16,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.renderer.entity.state.AvatarRenderState;
-import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.joml.Quaternionf;
@@ -65,7 +62,7 @@ public class StyleSelectionButton extends Button implements WardrobeWidget {
     @Override
     protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.isHovered = this.isMouseOver(mouseX, mouseY);
-        var currentStyle = StyleData.getOrCreateStyleData(Minecraft.getInstance().player).getStyleForSlot(this.category);
+        var currentStyle = StyleData.getEntityData(Minecraft.getInstance().player).getStyleForSlot(this.category);
         boolean equipped = currentStyle.getStyleId().map(identifier -> identifier.equals(this.getStyle().getStyleId())).orElse(false);
         if (equipped && this.parentWidget instanceof WardrobeStyleSelectionWidget.SelectionPopup)
             equipped = this.getTextureId() == currentStyle.getVariant();

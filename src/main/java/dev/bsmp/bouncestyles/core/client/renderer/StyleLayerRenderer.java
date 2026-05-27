@@ -1,6 +1,7 @@
 package dev.bsmp.bouncestyles.core.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.data.Category;
 import dev.bsmp.bouncestyles.core.data.EquippedStyle;
 import dev.bsmp.bouncestyles.core.data.Style;

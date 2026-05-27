@@ -3,17 +3,14 @@ package dev.bsmp.bouncestyles.core.data;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.bsmp.bouncestyles.api.StyleEntity;
-import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.core.data.preset.StylePreset;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -117,27 +114,27 @@ public class StyleData {
         );
     }
 
-    public static StyleData getOrCreateStyleData(Player player) {
-        return ((StyleEntity)player).bounceStyles$getOrCreateStyleData();
+    public static StyleData getEntityData(Avatar avatar) {
+        return ((StyleEntity) avatar).bounceStyles$getStyleData();
     }
 
-    public static void setPlayerData(Player player, StyleData styleData) {
-        ((StyleEntity) player).bounceStyles$setStyleData(styleData);
-        if (player.level().isClientSide())
+    public static void setEntityData(Avatar avatar, StyleData styleData) {
+        ((StyleEntity) avatar).bounceStyles$setStyleData(styleData);
+        if (avatar.level().isClientSide())
             BounceStylesClient.onStyleUpdate();
     }
 
-    public static void copyFrom(ServerPlayer oldPlayer, ServerPlayer newPlayer) {
-        StyleData styleData = StyleData.getOrCreateStyleData(oldPlayer);
-        StyleData.setPlayerData(newPlayer, styleData);
+    public static void copyFrom(Avatar oldAvatar, Avatar newAvatar) {
+        StyleData styleData = StyleData.getEntityData(oldAvatar);
+        StyleData.setEntityData(newAvatar, styleData);
     }
 
-    public static Optional<Tag> toNBT(StyleData styleData) {
-        return CODEC.encodeStart(NbtOps.INSTANCE, styleData).resultOrPartial(BounceStyles.LOGGER::error);
+    public void write(FriendlyByteBuf buf) {
+        buf.writeJsonWithCodec(CODEC, this);
     }
 
-    public static Optional<StyleData> fromNBT(CompoundTag tag) {
-        return CODEC.parse(NbtOps.INSTANCE, tag).resultOrPartial(BounceStyles.LOGGER::error);
+    public static StyleData read(FriendlyByteBuf buf) {
+        return buf.readLenientJsonWithCodec(CODEC);
     }
 
     private static Optional<Style> getStyleFromId(@Nullable Identifier styleId) {
@@ -152,5 +149,7 @@ public class StyleData {
             EquippedStyle.CODEC.fieldOf("legs").forGetter(StyleData::getLegsStyle),
             EquippedStyle.CODEC.fieldOf("feet").forGetter(StyleData::getFeetStyle)
     ).apply(instance, StyleData::new));
+
+    public static final StreamCodec<FriendlyByteBuf, StyleData> STREAM_CODEC = StreamCodec.ofMember(StyleData::write, StyleData::read);
 }
 

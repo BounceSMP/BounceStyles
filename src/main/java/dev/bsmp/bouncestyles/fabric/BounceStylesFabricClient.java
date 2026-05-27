@@ -29,7 +29,7 @@ public class BounceStylesFabricClient implements ClientModInitializer {
     private void registerLayer(EntityType<? extends LivingEntity> entityType, LivingEntityRenderer<?,?, ?> livingEntityRenderer, LivingEntityFeatureRendererRegistrationCallback.RegistrationHelper registrationHelper, EntityRendererProvider.Context context) {
     //? } else
     //private void registerLayer(EntityType<? extends LivingEntity> entityType, LivingEntityRenderer<?,?> livingEntityRenderer, LivingEntityFeatureRendererRegistrationCallback.RegistrationHelper registrationHelper, EntityRendererProvider.Context context) {
-        if(entityType == EntityType.PLAYER)
+        if(entityType == EntityType.PLAYER || entityType == EntityType.MANNEQUIN)
             //? if >= 1.21.11 {
             registrationHelper.register(BounceStylesClient.STYLE_RENDERER = new StyleLayerRenderer((RenderLayerParent<AvatarRenderState, PlayerModel>) livingEntityRenderer));
             //? } else {

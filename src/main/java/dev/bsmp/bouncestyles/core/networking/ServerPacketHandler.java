@@ -21,7 +21,7 @@ public class ServerPacketHandler {
     }
 
     public static void handleEquipStyle(ServerPlayer player, EquipStyleServerbound packet) {
-        StyleData styleData = StyleData.getOrCreateStyleData(player);
+        StyleData styleData = StyleData.getEntityData(player);
 
         packet.styleMap().forEach(styleData::equipStyle);
 
