@@ -17,6 +17,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
@@ -59,6 +60,11 @@ public class BounceStyles {
         PlayerEvent.PLAYER_RESPAWN.register((player, conqueredEnd, reason) -> new SyncStyleDataClientbound(player.getId(), StyleData.getEntityData(player)).sendToPlayer(player));
 
         FabricTrackedDataRegistry.register(BounceStyles.id("style_data"), StyleEntity.STYLE_DATA_SERIALIZER);
+    }
+
+    public static void startTrackingPlayer(ServerPlayer tracker, ServerPlayer tracked) {
+        new SyncStyleDataClientbound(tracker.getId(), StyleData.getEntityData(tracker)).sendToPlayer(tracked);
+        new SyncStyleDataClientbound(tracked.getId(), StyleData.getEntityData(tracked)).sendToPlayer(tracker);
     }
 
     public static StyleMagazineItem magazineItem() {
