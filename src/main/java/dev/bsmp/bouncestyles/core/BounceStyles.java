@@ -17,7 +17,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
@@ -54,7 +53,6 @@ public class BounceStyles {
             BounceStyles.LOGGER.info("Server Started with {} styles registered", styles.size());
         }));
 
-        PlayerEvent.PLAYER_JOIN.register(BounceStyles::playerJoin);
         PlayerEvent.PLAYER_CLONE.register((oldPlayer, newPlayer, wonGame) -> StyleData.copyFrom(oldPlayer, newPlayer));
         PlayerEvent.CHANGE_DIMENSION.register((player, oldLevel, newLevel) -> new SyncStyleDataClientbound(player.getId(), StyleData.getEntityData(player)).sendToPlayer(player));
 
@@ -70,17 +68,6 @@ public class BounceStyles {
     public static Identifier id(String path) {
         if (!path.contains(":")) path = "%s:%s".formatted(modId, path);
         return Identifier.tryParse(path);
-    }
-
-    public static void playerJoin(ServerPlayer player) {
-//        SyncStyleDataClientbound packet = new SyncStyleDataClientbound(player.getId(), StyleData.getEntityData(player));
-//        packet.sendToPlayer(player);
-//        packet.sendToTrackingPlayers(player);
-    }
-
-    public static void startTrackingPlayer(ServerPlayer tracker, ServerPlayer tracked) {
-//        new SyncStyleDataClientbound(tracker.getId(), StyleData.getEntityData(tracker)).sendToPlayer(tracked);
-//        new SyncStyleDataClientbound(tracked.getId(), StyleData.getEntityData(tracked)).sendToPlayer(tracker);
     }
 
     public static Set<ServerPlayerConnection> getPlayersTracking(Entity entity) {
