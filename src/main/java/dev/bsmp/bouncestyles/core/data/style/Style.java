@@ -40,7 +40,7 @@ public class Style implements GeoAnimatable {
     //? } else
 //    public static final Identifier MISSING_MODEL_ID = BounceStyles.id("geo/missing_model.geo.json");
 
-    public static final Identifier MISSING_TEXTURE_ID = BounceStyles.id("textures/missing_model.png");
+    public static final Identifier MISSING_MODEL_TEXTURE_ID = BounceStyles.id("textures/missing_model.png");
 
     //? if >= 1.21.11 {
     public static final DataTicket<Player> PLAYER = DataTicket.create("player_entity", Player.class);
@@ -214,8 +214,10 @@ public class Style implements GeoAnimatable {
         var id = resourceId.orElse(styleName);
 
         //? if >= 1.21.11 {
-        if (directory.equalsIgnoreCase("textures") && !id.getPath().startsWith(directory))
-            id = id.withPath(directory+"/"+id.getPath());
+        if (directory.equalsIgnoreCase("textures") && !id.getPath().startsWith(directory)) {
+            id = id.withPath(directory + "/" + id.getPath());
+            if (!id.getPath().endsWith(".png")) id = id.withPath(id.getPath() + ".png");
+        }
         return id.withPath(id.getPath().replace(".geo.json", "").replace(".animation.json", ""));
         //? } else {
 //        var path = id.getPath().endsWith(suffix) ? id.getPath() : id.getPath() + suffix;

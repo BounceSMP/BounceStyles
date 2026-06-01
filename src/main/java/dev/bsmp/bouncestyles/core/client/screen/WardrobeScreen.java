@@ -218,10 +218,9 @@ public class WardrobeScreen extends Screen {
             .filter(style -> searchFilter(style, category))
             .sorted(Comparator.comparing(style -> style.getStyleId().toString()))
             .toList()
-        ).thenApply(styles -> {
+        ).thenAccept(styles -> {
             this.setActiveWidget(this.styleWidget);
             this.styleWidget.updateButtons(category, styles);
-            return null;
         });
 
         this.categoryButtons.get(category).setFocused(true);

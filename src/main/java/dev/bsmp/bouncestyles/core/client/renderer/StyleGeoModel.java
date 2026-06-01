@@ -26,7 +26,7 @@ public class StyleGeoModel extends GeoModel<Style> {
     @Override
     public @NonNull Identifier getTextureResource(GeoRenderState renderState) {
         var style = renderState.getGeckolibData(StyleLayerRenderer.TICKET_STYLE);
-        return style != null ? style.getTextureId().orElse(Style.MISSING_TEXTURE_ID) : Style.MISSING_TEXTURE_ID;
+        return style != null ? style.getTextureId().orElse(Style.MISSING_MODEL_TEXTURE_ID) : Style.MISSING_MODEL_TEXTURE_ID;
     }
 
     @Override
