@@ -6,6 +6,7 @@ import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.data.style.Style;
 import dev.bsmp.bouncestyles.core.data.unlocks.UnlockManager;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -13,6 +14,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.Level;
 
 //? if >= 1.21.11 {
@@ -25,6 +27,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.core.component.DataComponents;
 //? }
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class StyleMagazineItem extends Item {
@@ -70,6 +73,9 @@ public class StyleMagazineItem extends Item {
         /*itemStack.getOrCreateTag().putString("style", styleId.toString());
         *///?} else if >= 1.21.1 {
         CustomData.update(DataComponents.CUSTOM_DATA, itemStack, compoundTag -> compoundTag.putString("style", styleId.toString()));
+        var lore = new ArrayList<Component>();
+        appendTooltip(styleId, lore);
+        itemStack.applyComponents(DataComponentMap.builder().set(DataComponents.LORE, new ItemLore(lore)).build());
         //?}
         return itemStack;
     }
@@ -109,14 +115,15 @@ public class StyleMagazineItem extends Item {
     *///? }
 
 
-    private static void appendTooltip(ItemStack stack, List<Component> tooltip) {
-        Identifier styleId = getStyleIdFromStack(stack);
+    private static void appendTooltip(Identifier styleId, List<Component> tooltip) {
         if (styleId == null) return;
 
         BounceStylesRegistries.getStyle(styleId).ifPresent(style -> {
             for (Category category : style.getCategories()) {
-                tooltip.add(Component.literal("- ").append(Component.translatable(style.getStyleId().getNamespace() + "." + style.getStyleId().getPath() + "." + category.name().toLowerCase())).withStyle(
-                        textStyle -> textStyle.withColor(ChatFormatting.GRAY))
+                tooltip.add(
+                        Component.translatable(style.getStyleId().getNamespace() + "." + style.getStyleId().getPath() + "." + category.name().toLowerCase())
+                                .withStyle((ChatFormatting.DARK_AQUA))
+                                .append(Component.literal(" (" + category.name() + ")").withStyle(ChatFormatting.DARK_GRAY))
                 );
             }
         });
