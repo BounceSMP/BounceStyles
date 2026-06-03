@@ -54,6 +54,7 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
         if (styleData != null) {
             styleData.getAllNonEmpty().forEach((category, equippedStyle) -> {
                 var renderState = createRenderState(equippedStyle.getStyle().get(), styleData);
+                renderState.addGeckolibData(DataTickets.PACKED_LIGHT, packedLight);
 
                 setupAnimationState(renderState, avatarState);
                 fillRenderState(equippedStyle.getStyle().get(), styleData, renderState, avatarState.getPartialTick());
