@@ -2,23 +2,8 @@ plugins {
     id("net.neoforged.moddev")
     id("dev.kikugie.postprocess.jsonlang")
     id("me.modmuss50.mod-publish-plugin")
+    id("common-logic")
 }
-
-tasks.named<ProcessResources>("processResources") {
-    fun prop(name: String) = project.property(name) as String
-
-    val props = HashMap<String, String>().apply {
-        this["version"] = prop("mod.version")
-        this["minecraft"] = prop("deps.minecraft")
-    }
-
-    filesMatching(listOf("fabric.mod.json", "META-INF/neoforge.mods.toml", "META-INF/mods.toml")) {
-        expand(props)
-    }
-}
-
-version = "${property("mod.version")}+${property("deps.minecraft")}-neoforge"
-base.archivesName = property("mod.id") as String
 
 jsonlang {
     languageDirectories = listOf("assets/${property("mod.id")}/lang")
@@ -73,17 +58,6 @@ tasks {
         into(rootProject.layout.buildDirectory.file("libs/${project.property("mod.version")}"))
         dependsOn("build")
     }
-}
-
-java {
-    withSourcesJar()
-    val javaCompat = if (stonecutter.eval(stonecutter.current.version, ">=1.20.5")) {
-        JavaVersion.VERSION_21
-    } else {
-        JavaVersion.VERSION_17
-    }
-    sourceCompatibility = javaCompat
-    targetCompatibility = javaCompat
 }
 
 val additionalVersionsStr = findProperty("publish.additionalVersions") as String?
