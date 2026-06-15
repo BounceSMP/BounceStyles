@@ -220,14 +220,14 @@ public class Style implements GeoAnimatable {
         }
         return id.withPath(id.getPath().replace(".geo.json", "").replace(".animation.json", ""));
         //? } else {
-//        var path = id.getPath().endsWith(suffix) ? id.getPath() : id.getPath() + suffix;
+/*//        var path = id.getPath().endsWith(suffix) ? id.getPath() : id.getPath() + suffix;
 //        if (!path.startsWith(directory)) path = directory + "/" + path;
         //? if >= 1.21.1 {
-//        return Identifier.fromNamespaceAndPath(id.getNamespace(), path);
+        return Identifier.fromNamespaceAndPath(id.getNamespace(), path);
         //? } else {
-        /*return new Identifier(id.getNamespace(), path);
+        /^return new Identifier(id.getNamespace(), path);
+        ^///? }
         *///? }
-        //? }
     }
 
     private static final Codec<Identifier> ID_CODEC = Codec.STRING.xmap(s -> {

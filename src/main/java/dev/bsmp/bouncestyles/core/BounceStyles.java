@@ -3,7 +3,6 @@ package dev.bsmp.bouncestyles.core;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.registry.registries.RegistrySupplier;
-import dev.bsmp.bouncestyles.api.StyleEntity;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.data.style.StyleLoader;
 import dev.bsmp.bouncestyles.core.item.StyleMagazineItem;
@@ -11,7 +10,6 @@ import dev.bsmp.bouncestyles.core.networking.StylesNetworking;
 import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientbound;
 import dev.bsmp.bouncestyles.mixin.common.ChunkStorageAccessor;
 import dev.bsmp.bouncestyles.mixin.common.EntityTrackerAccessor;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricTrackedDataRegistry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -58,8 +56,6 @@ public class BounceStyles {
         PlayerEvent.CHANGE_DIMENSION.register((player, oldLevel, newLevel) -> new SyncStyleDataClientbound(player.getId(), StyleData.getEntityData(player)).sendToPlayer(player));
 
         PlayerEvent.PLAYER_RESPAWN.register((player, conqueredEnd, reason) -> new SyncStyleDataClientbound(player.getId(), StyleData.getEntityData(player)).sendToPlayer(player));
-
-        FabricTrackedDataRegistry.register(BounceStyles.id("style_data"), StyleEntity.STYLE_DATA_SERIALIZER);
     }
 
     public static void startTrackingPlayer(ServerPlayer tracker, ServerPlayer tracked) {

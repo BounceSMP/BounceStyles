@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import software.bernie.geckolib.constant.DataTickets;
+import software.bernie.geckolib.renderer.base.GeoRenderState;
 
 @Mixin(AvatarRenderer.class)
 public abstract class AvatarRendererMixin<E extends Avatar & ClientAvatarEntity> {
@@ -24,10 +25,11 @@ public abstract class AvatarRendererMixin<E extends Avatar & ClientAvatarEntity>
             var styleData = StyleData.getEntityData(avatar);
             styleData.getHiddenParts().forEach(styleState::bounceStyles$addHiddenPart);
 
-            state.addGeckolibData(StyleLayerRenderer.TICKET_STYLE_DATA, styleData);
-            state.addGeckolibData(AnimationHandler.TICKET_ON_GROUND, avatar.onGround());
-            state.addGeckolibData(DataTickets.IS_MOVING, avatar.walkAnimation.speed() >= 0.015f);
-            state.addGeckolibData(AnimationHandler.TICKET_SPRINTING, avatar.isSprinting());
+            var geoState = ((GeoRenderState) state);
+            geoState.addGeckolibData(StyleLayerRenderer.TICKET_STYLE_DATA, styleData);
+            geoState.addGeckolibData(AnimationHandler.TICKET_ON_GROUND, avatar.onGround());
+            geoState.addGeckolibData(DataTickets.IS_MOVING, avatar.walkAnimation.speed() >= 0.015f);
+            geoState.addGeckolibData(AnimationHandler.TICKET_SPRINTING, avatar.isSprinting());
         }
     }
 

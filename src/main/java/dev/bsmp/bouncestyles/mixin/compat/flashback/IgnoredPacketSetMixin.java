@@ -1,3 +1,4 @@
+//? if fabric {
 package dev.bsmp.bouncestyles.mixin.compat.flashback;
 
 import com.moulberry.flashback.record.IgnoredPacketSet;
@@ -22,3 +23,4 @@ public abstract class IgnoredPacketSetMixin {
     }
 
 }
+//? }

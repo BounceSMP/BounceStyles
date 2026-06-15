@@ -50,14 +50,14 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
     public void submit(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int packedLight, AvatarRenderState avatarState, float yRot, float xRot) {
         var cameraState = Minecraft.getInstance().gameRenderer.getLevelRenderState().cameraRenderState;
 
-        var styleData = avatarState.getGeckolibData(TICKET_STYLE_DATA);
+        var styleData = ((GeoRenderState) avatarState).getGeckolibData(TICKET_STYLE_DATA);
         if (styleData != null) {
             styleData.getAllNonEmpty().forEach((category, equippedStyle) -> {
                 var renderState = createRenderState(equippedStyle.getStyle().get(), styleData);
                 renderState.addGeckolibData(DataTickets.PACKED_LIGHT, packedLight);
 
                 setupAnimationState(renderState, avatarState);
-                fillRenderState(equippedStyle.getStyle().get(), styleData, renderState, avatarState.getPartialTick());
+                fillRenderState(equippedStyle.getStyle().get(), styleData, renderState, ((GeoRenderState) avatarState).getPartialTick());
 
                 renderState.addGeckolibData(TICKET_STYLE, equippedStyle);
                 renderState.addGeckolibData(TICKET_CATEGORY, category);
@@ -76,14 +76,14 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
         else if (avatarState.isFallFlying)
             geoRenderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, AnimState.FLYING);
 
-        else if (!avatarState.getGeckolibData(AnimationHandler.TICKET_ON_GROUND))
+        else if (!((GeoRenderState) avatarState).getGeckolibData(AnimationHandler.TICKET_ON_GROUND))
             geoRenderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, AnimState.IN_AIR);
 
         else if (avatarState.isCrouching)
             geoRenderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, AnimState.SNEAKING);
 
-        else if (avatarState.getGeckolibData(DataTickets.IS_MOVING)) {
-            if (avatarState.getGeckolibData(AnimationHandler.TICKET_SPRINTING))
+        else if (((GeoRenderState) avatarState).getGeckolibData(DataTickets.IS_MOVING)) {
+            if (((GeoRenderState) avatarState).getGeckolibData(AnimationHandler.TICKET_SPRINTING))
                 geoRenderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, AnimState.SPRINTING);
             else
                 geoRenderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, AnimState.WALKING);
