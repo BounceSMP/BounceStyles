@@ -16,8 +16,6 @@ public class BounceStylesMixinPlugin implements IMixinConfigPlugin {
         var modId = path[path.length - 2];
         //? if neoforge {
 //        return net.neoforged.fml.loading.LoadingModList.get().getModFileById(modId) != null;
-        //?} elif forge {
-        /*return net.minecraftforge.fml.loading.LoadingModList.get().getModFileById(modId) != null;
         *///?} else {
         return Platform.isModLoaded(modId);
         //?}
