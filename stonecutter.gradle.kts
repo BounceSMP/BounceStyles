@@ -1,9 +1,11 @@
 plugins {
     id("dev.kikugie.stonecutter")
     id("co.uzzu.dotenv.gradle") version "4.0.0"
-    id("fabric-loom") version "1.17-SNAPSHOT" apply false
-    id("net.neoforged.moddev") version "2.0.141" apply false
+    id("dev.architectury.loom-remap") version "1.17-SNAPSHOT" apply false
+    id("dev.architectury.loom-no-remap") version "1.17-SNAPSHOT" apply false
+    id("architectury-plugin")  version "3.5.169" apply false
     id("dev.kikugie.postprocess.jsonlang") version "2.1-beta.4" apply false
+    id("dev.kikugie.fletching-table") version "0.1.0-alpha.22" apply false
     id("me.modmuss50.mod-publish-plugin") version "2.0+" apply false
 }
 
