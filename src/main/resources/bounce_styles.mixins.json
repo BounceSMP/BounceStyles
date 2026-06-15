@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.bsmp.bouncestyles.mixin",
+  "compatibilityLevel": "JAVA_${java}",
+  "mixins": [
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "plugin": "dev.bsmp.bouncestyles.mixin.compat.BounceStylesMixinPlugin"
+}

@@ -42,4 +42,4 @@ ordering = "AFTER"
 side = "BOTH"
 
 [[mixins]]
-config = "mixins.${id}.json"
+config = "${id}.mixins.json"

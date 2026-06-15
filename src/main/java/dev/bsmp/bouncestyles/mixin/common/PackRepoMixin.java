@@ -1,6 +1,7 @@
 package dev.bsmp.bouncestyles.mixin.common;
 
 import dev.bsmp.bouncestyles.core.pack.StylePackProvider;
+import dev.kikugie.fletching_table.annotation.MixinEnvironment;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.repository.RepositorySource;
 import org.spongepowered.asm.mixin.Final;
@@ -15,6 +16,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Mixin(PackRepository.class)
+@MixinEnvironment
 public abstract class PackRepoMixin {
     @Shadow @Final @Mutable private Set<RepositorySource> sources;
 

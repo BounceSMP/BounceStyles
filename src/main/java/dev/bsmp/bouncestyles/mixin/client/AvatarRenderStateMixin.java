@@ -2,6 +2,7 @@
 package dev.bsmp.bouncestyles.mixin.client;
 
 import dev.bsmp.bouncestyles.core.client.renderer.StyleEntityState;
+import dev.kikugie.fletching_table.annotation.MixinEnvironment;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Mixin(AvatarRenderState.class)
+@MixinEnvironment(type = MixinEnvironment.Env.CLIENT)
 public abstract class AvatarRenderStateMixin implements StyleEntityState {
     @Unique private final List<String> bounceStyles$hiddenParts = new ArrayList<>();
 

@@ -1,6 +1,7 @@
 package dev.bsmp.bouncestyles.mixin.client;
 
 import dev.bsmp.bouncestyles.core.client.renderer.StyleEntityState;
+import dev.kikugie.fletching_table.annotation.MixinEnvironment;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
@@ -21,6 +22,7 @@ import net.minecraft.client.model.player.PlayerModel;
 
 //? if >= 1.21.11 {
 @Mixin(PlayerModel.class)
+@MixinEnvironment(type = MixinEnvironment.Env.CLIENT)
 public abstract class PlayerModelVisibilityMixin extends HumanoidModel<AvatarRenderState> {
     @Shadow @Final public ModelPart jacket;
     @Shadow @Final public ModelPart leftSleeve;

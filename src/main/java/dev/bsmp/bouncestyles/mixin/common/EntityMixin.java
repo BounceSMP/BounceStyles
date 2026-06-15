@@ -1,6 +1,7 @@
 package dev.bsmp.bouncestyles.mixin.common;
 
 import dev.bsmp.bouncestyles.core.BounceStyles;
+import dev.kikugie.fletching_table.annotation.MixinEnvironment;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -9,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Entity.class)
+@MixinEnvironment
 public abstract class EntityMixin {
 
     @Inject(method = "startSeenByPlayer", at = @At("HEAD"))

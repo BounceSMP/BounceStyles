@@ -14,11 +14,7 @@ public class BounceStylesMixinPlugin implements IMixinConfigPlugin {
         if (!mixinClassName.contains("compat.")) return true;
         var path = mixinClassName.split("\\.");
         var modId = path[path.length - 2];
-        //? if neoforge {
-        /*return net.neoforged.fml.loading.LoadingModList.get().getModFileById(modId) != null;
-        *///?} else {
         return Platform.isModLoaded(modId);
-        //?}
     }
 
     @Override

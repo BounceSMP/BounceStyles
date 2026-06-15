@@ -6,7 +6,7 @@ pluginManagement {
         maven("https://maven.architectury.dev/") { name = "Architectury" }
         maven("https://maven.fabricmc.net/") { name = "Fabric" }
         maven("https://maven.neoforged.net/releases/") { name = "NeoForged" }
-        maven("https://maven.kikugie.dev/snapshots") { name = "KikuGie" }
+        maven("https://maven.kikugie.dev/snapshots") { name = "KikuGie Snapshots" }
         maven("https://maven.kikugie.dev/releases") { name = "KikuGie Releases" }
         maven("https://maven.parchmentmc.org") { name = "ParchmentMC" }
     }
@@ -22,6 +22,9 @@ stonecutter {
         fun addVersion(version: String, vararg loaders: String) = loaders.forEach { version("$version-$it", version) }
 
         addVersion("1.21.11", "fabric", "neoforge")
+        addVersion("1.21.10", "fabric")
+        addVersion("1.21.8", "fabric")
+        addVersion("1.21.1", "fabric")
 
         vcsVersion = "1.21.11-fabric"
     }

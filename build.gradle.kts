@@ -1,17 +1,19 @@
 @file:Suppress("UnstableApiUsage")
 
 plugins {
+    kotlin("jvm")
     id("architectury-plugin")
     id("dev.architectury.loom-remap")
     id("dev.kikugie.fletching-table")
     id("dev.kikugie.postprocess.jsonlang")
     id("me.modmuss50.mod-publish-plugin")
+    id("com.google.devtools.ksp")
 }
 
 val loader = project.name.split("-")[1]
 
 group = property("mod.group") as String
-version = "${sc.current.version}+${property("mod.version")}"
+version = "${property("mod.version")}+${sc.current.version}"
 base.archivesName = "${property("mod.id")}-$loader"
 
 architectury {
@@ -80,15 +82,33 @@ dependencies {
     modImplementation("software.bernie.geckolib:geckolib-$loader-${sc.current.version}:${property("deps.geckolib")}")
 }
 
+val accessWidener = when {
+    sc.eval(sc.current.version, "<=1.21.1") -> "1.21.1.accesswidener"
+    else -> "1.21.8+.accesswidener"
+}
+
 loom {
-    accessWidenerPath = rootProject.file("src/main/resources/${property("mod.id")}.classtweaker")
+    accessWidenerPath = rootProject.file("src/main/resources/$accessWidener")
+}
+
+stonecutter {
+    replacements.string(current.parsed <= "1.21.10") {
+        replace("Identifier", "ResourceLocation")
+    }
 }
 
 fletchingTable {
     if (isNeoforge()) {
         accessConverter.register(sourceSets.main) {
-            add("${property("mod.id")}.classtweaker")
+            add(accessWidener)
         }
+    }
+
+    mixins.all {
+        automatic = false
+    }
+    mixins.create("main") {
+        mixin("default", "${property("mod.id")}.mixins.json")
     }
 }
 
@@ -120,13 +140,14 @@ java {
 }
 
 tasks.named<ProcessResources>("processResources") {
+    val mcVersion = sc.current.version
     fun prop(name: String) = project.property(name) as String
 
     val props = HashMap<String, String>().apply {
         this["id"] = prop("mod.id")
         this["name"] = prop("mod.name")
         this["version"] = prop("mod.version")
-        this["minecraft"] = prop("deps.minecraft") //sc.current.version
+        this["minecraft"] = mcVersion
         this["authors"] = prop("mod.authors")
         this["description"] = prop("mod.description")
         this["website"] = prop("mod.website")
@@ -134,14 +155,16 @@ tasks.named<ProcessResources>("processResources") {
         this["issue_tracker"] = prop("mod.issues")
         this["license"] = "MIT"
         this["icon"] = "icon_bounce_styles.png"
+        this["mixin"] = "${prop("mod.id")}.mixins.json"
         this["fabric_loader"] = prop("deps.fabric.loader")
-        this["java"] = ">=${getJavaVersion()}"
+        this["java"] = "${getJavaVersion()}"
         this["architectury_version"] = prop("deps.architectury")
         this["geckolib_version"] = prop("deps.geckolib")
         this["neoforge"] = prop("deps.neoforge")
     }
 
-    filesMatching(listOf("fabric.mod.json", "META-INF/neoforge.mods.toml")) {
+    val mixin = "${prop("mod.id")}.mixins.json"
+    filesMatching(listOf("fabric.mod.json", "META-INF/neoforge.mods.toml", mixin)) {
         expand(props)
     }
 
@@ -176,8 +199,8 @@ publishMods {
     additionalFiles.from(tasks.remapSourcesJar.map { it.archiveFile.get() })
 
     type = BETA
-    displayName = "${property("mod.name")} ${property("mod.version")} for ${stonecutter.current.version} Fabric"
-    version = "${property("mod.version")}+${property("deps.minecraft")}-fabric"
+    displayName = "${property("mod.name")} ${property("mod.version")} - Fabric ${stonecutter.current.version}"
+    version = "${property("mod.version")}+${sc.current.version}-fabric"
     changelog = provider { rootProject.file("CHANGELOG.md").readText() }
     modLoaders.add("fabric")
 

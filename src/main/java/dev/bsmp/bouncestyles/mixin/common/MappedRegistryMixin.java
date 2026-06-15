@@ -3,6 +3,7 @@ package dev.bsmp.bouncestyles.mixin.common;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.mojang.serialization.Lifecycle;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
+import dev.kikugie.fletching_table.annotation.MixinEnvironment;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -11,6 +12,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(MappedRegistry.class)
+@MixinEnvironment
 public abstract class MappedRegistryMixin<T> {
     @Shadow public abstract ResourceKey<? extends Registry<T>> key();
 

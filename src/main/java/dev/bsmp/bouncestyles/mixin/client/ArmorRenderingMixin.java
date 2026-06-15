@@ -1,6 +1,7 @@
 package dev.bsmp.bouncestyles.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.kikugie.fletching_table.annotation.MixinEnvironment;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
@@ -13,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(HumanoidArmorLayer.class)
+@MixinEnvironment(type = MixinEnvironment.Env.CLIENT)
 //? if >= 1.21.11 {
 public class ArmorRenderingMixin<S extends HumanoidRenderState, M extends HumanoidModel<S>, A extends HumanoidModel<S>> {
 //? } else

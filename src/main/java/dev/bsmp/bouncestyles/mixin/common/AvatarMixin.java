@@ -2,6 +2,7 @@ package dev.bsmp.bouncestyles.mixin.common;
 
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.api.StyleEntity;
+import dev.kikugie.fletching_table.annotation.MixinEnvironment;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Avatar;
@@ -18,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Avatar.class)
+@MixinEnvironment
 public abstract class AvatarMixin extends LivingEntity implements StyleEntity {
     @Unique private static final EntityDataAccessor<StyleData> bounceStyles$STYLE_DATA = SynchedEntityData.defineId(Avatar.class, STYLE_DATA_SERIALIZER);
 

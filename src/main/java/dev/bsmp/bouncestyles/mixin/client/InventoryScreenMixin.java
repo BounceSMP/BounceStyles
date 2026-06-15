@@ -2,6 +2,7 @@ package dev.bsmp.bouncestyles.mixin.client;
 
 import dev.bsmp.bouncestyles.core.client.screen.widgets.button.WardrobeIconButton;
 import dev.bsmp.bouncestyles.core.networking.serverbound.OpenStyleScreenServerbound;
+import dev.kikugie.fletching_table.annotation.MixinEnvironment;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.network.chat.Component;
@@ -18,6 +19,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
 //import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 
 @Mixin(InventoryScreen.class)
+@MixinEnvironment(type = MixinEnvironment.Env.CLIENT)
 //? if >= 1.21.11 {
 public abstract class InventoryScreenMixin  extends AbstractRecipeBookScreen<InventoryMenu> {
 //? } else

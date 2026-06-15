@@ -4,6 +4,7 @@ import dev.bsmp.bouncestyles.core.client.renderer.StyleEntityState;
 import dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer;
 import dev.bsmp.bouncestyles.core.data.StyleData;
 import dev.bsmp.bouncestyles.core.data.animation.AnimationHandler;
+import dev.kikugie.fletching_table.annotation.MixinEnvironment;
 import net.minecraft.client.entity.ClientAvatarEntity;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
@@ -17,6 +18,7 @@ import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.renderer.base.GeoRenderState;
 
 @Mixin(AvatarRenderer.class)
+@MixinEnvironment(type = MixinEnvironment.Env.CLIENT)
 public abstract class AvatarRendererMixin<E extends Avatar & ClientAvatarEntity> {
 
     @Inject(method = "extractRenderState(Lnet/minecraft/world/entity/Avatar;Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;F)V", at = @At("TAIL"))
