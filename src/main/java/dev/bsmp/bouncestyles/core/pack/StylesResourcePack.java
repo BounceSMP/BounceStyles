@@ -1,24 +1,17 @@
 package dev.bsmp.bouncestyles.core.pack;
 
-import com.mojang.serialization.JsonOps;
 import dev.architectury.platform.Mod;
 import dev.architectury.platform.Platform;
 import dev.architectury.utils.Env;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
-import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.*;
-import net.minecraft.server.packs.metadata.pack.PackFormat;
-import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.resources.IoSupplier;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.util.InclusiveRange;
-import net.minecraft.world.flag.FeatureFlags;
-import org.jspecify.annotations.Nullable;
+import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,17 +20,23 @@ import java.nio.file.Path;
 import java.util.*;
 
 //? if >= 1.21.11 {
+import net.minecraft.SharedConstants;
 import net.minecraft.server.packs.metadata.MetadataSectionType;
+import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.server.packs.metadata.pack.PackFormat;
 import software.bernie.geckolib.cache.GeckoLibResources;
+import org.jspecify.annotations.Nullable;
 //? } else
 //import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 
 public class StylesResourcePack extends AbstractPackResources implements Pack.ResourcesSupplier {
+    //? if >= 1.21.11 {
     private static final Map<MetadataSectionType<?>, ?> BUILT_IN_METADATA = Map.of(
             PackMetadataSection.CLIENT_TYPE, new PackMetadataSection(Component.literal("BounceStyles"), SharedConstants.getCurrentVersion().packVersion(PackType.CLIENT_RESOURCES).minorRange()),
             PackMetadataSection.SERVER_TYPE, new PackMetadataSection(Component.literal("BounceStyles"), SharedConstants.getCurrentVersion().packVersion(PackType.SERVER_DATA).minorRange()),
             FeatureFlagsMetadataSection.TYPE, new FeatureFlagsMetadataSection(FeatureFlags.DEFAULT_FLAGS)
     );
+    //? }
     private final List<PackResources> mergedPacks;
     private final PackMetadataSection metadata;
     private final Map<String, List<PackResources>> dataNamespaces;
@@ -100,10 +99,12 @@ public class StylesResourcePack extends AbstractPackResources implements Pack.Re
     @Override
     public void listResources(PackType type, String namespace, String path, ResourceOutput consumer) {
         var alternatePath = "";
+        //? if >= 1.21.5 {
         if (path.equals(GeckoLibResources.MODELS_PATH.getPath()))
             alternatePath = "geo";
         else if (path.equals(GeckoLibResources.ANIMATIONS_PATH.getPath()))
             alternatePath = "animations";
+        //? }
 
         for (PackResources pack : this.mergedPacks) {
             pack.listResources(type, namespace, path, consumer);

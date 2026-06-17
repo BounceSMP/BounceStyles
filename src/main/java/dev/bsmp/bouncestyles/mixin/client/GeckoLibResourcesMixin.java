@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.CompletionStage;
 
+//~ if >= 1.21.5 'GeckoLibCache' -> 'GeckoLibResources'
 @Mixin(GeckoLibResources.class)
 @MixinEnvironment(type = MixinEnvironment.Env.CLIENT)
 public abstract class GeckoLibResourcesMixin {

@@ -1,42 +1,29 @@
-//? if <= 1.20.1 {
+//? if <= 1.21.1 {
 /*package dev.bsmp.bouncestyles.core.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.datafixers.util.Pair;
 import dev.bsmp.bouncestyles.api.style.Category;
+import dev.bsmp.bouncestyles.api.data.EquippedStyle;
 import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.data.StyleData;
+import dev.bsmp.bouncestyles.api.data.StyleData;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import org.joml.Vector3d;
-import org.jspecify.annotations.Nullable;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.model.GeoModel;
-import java.util.Optional;
-
-//? if >= 1.21.1 {
-import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.renderer.RenderType;
 import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.model.GeoModel;
+import net.minecraft.client.model.player.PlayerModel;
+import net.minecraft.client.renderer.RenderType;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoRenderer;
-import org.jetbrains.annotations.Nullable;
-/^
-^///?} else  {
-/^import software.bernie.geckolib.core.animation.AnimationState;
-^///?}
 
-public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>> implements GeoRenderer<Style> {
+public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>> implements GeoRenderer<Style> {
     private Player currentPlayer;
     private static final StyleGeoModel geoModel = new StyleGeoModel();
 
@@ -49,19 +36,14 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
     public static String rightBootBone = "armorRightBoot";
     public static String leftBootBone = "armorLeftBoot";
 
-    public StyleLayerRenderer(RenderLayerParent<Player, PlayerModel<Player>> context) {
+    public LegacyStyleLayerRenderer(RenderLayerParent<Player, PlayerModel<Player>> context) {
         super(context);
-    }
-
-    @Override
-    public void submit(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int i, AvatarRenderState avatarRenderState, float v, float v1) {
-
     }
 
     @Override
     public void render(PoseStack poseStack, MultiBufferSource vertexConsumers, int light, Player player, float limbAngle, float limbDistance, float partialTick, float animationProgress, float headYaw, float headPitch) {
         this.currentPlayer = player;
-        StyleData styleData = StyleData.getOrCreateStyleData(player);
+        StyleData styleData = StyleData.getEntityData(player);
 
         poseStack.translate(0.0D, 1.497F, 0.0D);
         poseStack.scale(-1.005F, -1.0F, 1.005F);
@@ -69,7 +51,7 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
 
         renderStyle(poseStack, styleData.getHeadStyle(), Category.Head, vertexConsumers, headYaw, partialTick, light, false);
         renderStyle(poseStack, styleData.getBodyStyle(), Category.Body, vertexConsumers, headYaw, partialTick, light, false);
-        renderStyle(poseStack, styleData.getLegStyle(), Category.Legs, vertexConsumers, headYaw, partialTick, light, false);
+        renderStyle(poseStack, styleData.getLegsStyle(), Category.Legs, vertexConsumers, headYaw, partialTick, light, false);
         renderStyle(poseStack, styleData.getFeetStyle(), Category.Feet, vertexConsumers, headYaw, partialTick, light, false);
 
         poseStack.popPose();
@@ -77,13 +59,13 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
         poseStack.translate(0.0D, -1.497F, 0.0D);
     }
 
-    public void renderStyle(PoseStack poseStack, Optional<Pair<Style, Integer>> equippedStyle, Category category, MultiBufferSource vertexConsumers, float headYaw, float partialTick, int light, boolean isGui) {
-        if (equippedStyle.isEmpty()) return;
-        renderStyle(poseStack, equippedStyle.get().getFirst(), equippedStyle.get().getSecond(), category, vertexConsumers, headYaw, partialTick, light, isGui);
+    public void renderStyle(PoseStack poseStack, EquippedStyle equippedStyle, Category category, MultiBufferSource vertexConsumers, float headYaw, float partialTick, int light, boolean isGui) {
+        if (equippedStyle.getStyle().isEmpty()) return;
+        renderStyle(poseStack, equippedStyle.getStyle().get(), equippedStyle.getVariant(), category, vertexConsumers, headYaw, partialTick, light, isGui);
     }
 
-    public void renderStyle(PoseStack poseStack, Style style, int textureId, Category category, MultiBufferSource bufferSource, float headYaw, float partialTick, int light, boolean isGui) {
-        Identifier texture = getStyleTexture(style, textureId);
+    public void renderStyle(PoseStack poseStack, Style style, int variant, Category category, MultiBufferSource bufferSource, float headYaw, float partialTick, int light, boolean isGui) {
+        Identifier texture = getStyleTexture(style, variant);
 
         RenderType renderLayer = getRenderType(style, texture, bufferSource, partialTick);
         var bakedModel = geoModel.getBakedModel(style.getModelId());
@@ -127,25 +109,25 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
 
     private void moveFromPivot(PoseStack poseStack, GeoBone bone) {
         //? if <= 1.20.1 {
-        /^software.bernie.geckolib.util.RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
-        ^///?} else if >= 1.21.1 {
+        /^/^²software.bernie.geckolib.util.RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
+        ²^///?} else if >= 1.21.1 {
         software.bernie.geckolib.util.RenderUtil.translateAwayFromPivotPoint(poseStack, bone);
-        //?}
+        ^///?}
     }
 
     //? if <= 1.20.1 {
-    /^@Override
+    /^/^²@Override
     public void actuallyRender(PoseStack poseStack, Style style, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         setupAnimation(style, isReRender, partialTick);
         GeoRenderer.super.actuallyRender(poseStack, style, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
     }
-    ^///?} else if >= 1.21.1 {
+    ²^///?} else if >= 1.21.1 {
     @Override
     public void actuallyRender(PoseStack poseStack, Style style, BakedGeoModel model, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
         setupAnimation(style, isReRender, partialTick);
         GeoRenderer.super.actuallyRender(poseStack, style, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
     }
-    //?}
+    ^///?}
 
     private static Identifier getStyleTexture(Style style, int textureId) {
         Identifier texture = style.getTextureId();
@@ -172,10 +154,10 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
             animationState.setData(Style.PLAYER, this.currentPlayer);
             geoModel.addAdditionalStateData(style, instanceId, animationState::setData);
             //? if <= 1.20.1 {
-            /^geoModel.handleAnimations(style, instanceId, animationState);
-            ^///?} else if >= 1.21.1 {
+            /^/^²geoModel.handleAnimations(style, instanceId, animationState);
+            ²^///?} else if >= 1.21.1 {
             geoModel.handleAnimations(style, instanceId, animationState, partialTick);
-            //?}
+            ^///?}
         }
     }
 
@@ -257,10 +239,10 @@ public class StyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>>
 
     private void matchModelPartRot(ModelPart modelPart, GeoBone geoBone) {
         //? if <= 1.20.1 {
-        /^software.bernie.geckolib.util.RenderUtils.matchModelPartRot(modelPart, geoBone);
-        ^///?} else if >= 1.21.1 {
+        /^/^²software.bernie.geckolib.util.RenderUtils.matchModelPartRot(modelPart, geoBone);
+        ²^///?} else if >= 1.21.1 {
         software.bernie.geckolib.util.RenderUtil.matchModelPartRot(modelPart, geoBone);
-        //?}
+        ^///?}
     }
 
     private void setBoneVisibility(String bone, BakedGeoModel model, boolean isVisible) {

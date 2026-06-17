@@ -39,12 +39,14 @@ public class WardrobeIconButton extends Button implements WardrobeWidget {
     }
 
     @Override
+    //~ if >= 1.21.5 'renderWidget' -> 'renderContents'
     protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         var baseTexture = isFocused() ? TEX_SELECTED : isHovered() ? TEX_HOVER : TEX_BASE;
         blit(guiGraphics, baseTexture, getX(), getY(), getWidth(), getHeight());
         blit(guiGraphics, isHoveredOrFocused() ? this.iconTextureHover : this.iconTexture, getX() + 2, getY() + 2, 16, 16);
 
         if (isHovered() && !this.getMessage().getString().isBlank())
+        //~ if >= 1.21.5 'renderComponentTooltip' -> 'setComponentTooltipForNextFrame'
             guiGraphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, List.of(this.getMessage()), mouseX + 4, mouseY + 16);
     }
 }

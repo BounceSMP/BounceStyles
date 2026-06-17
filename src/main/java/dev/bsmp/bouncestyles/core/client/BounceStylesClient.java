@@ -9,7 +9,7 @@ import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.screen.WardrobeScreen;
-import dev.bsmp.bouncestyles.core.data.preset.StylePreset;
+import dev.bsmp.bouncestyles.api.style.StylePreset;
 import dev.bsmp.bouncestyles.core.networking.serverbound.OpenStyleScreenServerbound;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -32,7 +32,7 @@ public class BounceStylesClient {
     private static final HashMap<String, StylePreset> PRESETS = new HashMap<>(); //ToDo add server->client syncing; adds serverside presets in addition to existing client presets
 
     public static final KeyMapping KEY_WARDROBE = createWardrobeKeyMapping();
-    //? if >= 1.21.11 {
+    //? if >= 1.21.5 {
     public static dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer STYLE_RENDERER;
     //? } else
     //public static dev.bsmp.bouncestyles.core.client.renderer.LegacyStyleLayerRenderer STYLE_RENDERER;
@@ -64,11 +64,11 @@ public class BounceStylesClient {
     }
 
     private static KeyMapping createWardrobeKeyMapping() {
-        //? if <= 1.20.1 {
-        //return new KeyMapping("key.bounce_styles.wardrobe", GLFW.GLFW_KEY_C, "key.bounce_styles.category");
-        //? } else {
+        //? if >= 1.21.10 {
         return new KeyMapping("key.bounce_styles.wardrobe", GLFW.GLFW_KEY_C, KeyMapping.Category.register(BounceStyles.id("key.bounce_styles.category")));
-        //? }
+        //? } else {
+        /*return new KeyMapping("key.bounce_styles.wardrobe", GLFW.GLFW_KEY_C, "key.bounce_styles.category");
+        *///? }
     }
 
     public static IoSupplier<InputStream> processPackLangs(List<PackResources> packs, Identifier id) {

@@ -6,8 +6,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
+import dev.bsmp.bouncestyles.api.style.StylePreset;
 import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.data.StyleData;
+import dev.bsmp.bouncestyles.api.data.StyleData;
 import dev.bsmp.bouncestyles.core.data.style.StyleLoader;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 

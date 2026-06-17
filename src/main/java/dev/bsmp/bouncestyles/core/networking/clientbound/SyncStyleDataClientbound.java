@@ -1,7 +1,7 @@
 package dev.bsmp.bouncestyles.core.networking.clientbound;
 
 import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.data.StyleData;
+import dev.bsmp.bouncestyles.api.data.StyleData;
 import dev.bsmp.bouncestyles.core.networking.StylePacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
@@ -19,7 +19,7 @@ public record SyncStyleDataClientbound(int entityId, StyleData styleData) implem
         //? if >= 1.21.11 {
         return new SyncStyleDataClientbound(buf.readInt(), buf.readLenientJsonWithCodec(StyleData.CODEC));
         //? } else
-//        return new SyncStyleDataClientbound(buf.readInt(), buf.readJsonWithCodec(StyleData.CODEC_EQUIPPED));
+        //return new SyncStyleDataClientbound(buf.readInt(), buf.readJsonWithCodec(StyleData.CODEC));
     }
 
     //? if >= 1.21.1 {

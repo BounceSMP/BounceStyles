@@ -142,7 +142,7 @@ public class StyleLoader {
         //? if >= 1.21.11 {
         Identifier registryId = BounceStylesRegistries.STYLE_REGISTRY_KEY.identifier();
         //? } else
-//        Identifier registryId = BounceStylesRegistries.STYLE_REGISTRY_KEY.location();
+        //Identifier registryId = BounceStylesRegistries.STYLE_REGISTRY_KEY.location();
         String nameSpace = name.contains(":") ? name.split(":")[0] : BounceStyles.modId;
         String path = name.contains(":") ? name.split(":")[1] : name;
         return nameSpace + "/" + registryId.getNamespace() + "/" + registryId.getPath() + "/" + path + ".json";

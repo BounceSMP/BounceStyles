@@ -92,8 +92,31 @@ loom {
 }
 
 stonecutter {
-    replacements.string(current.parsed <= "1.21.10") {
-        replace("Identifier", "ResourceLocation")
+    replacements.string(current.parsed >= "1.21.11") {
+        replace("ResourceLocation", "Identifier")
+
+        replace("org.jetbrains.annotations.Nullable", "org.jspecify.annotations.Nullable")
+        replace("org.jetbrains.annotations.NotNull", "org.jspecify.annotations.NonNull")
+        replace("@NotNull", "@NonNull")
+
+        replace("net.minecraft.client.model.PlayerModel", "net.minecraft.client.model.player.PlayerModel")
+    }
+
+    replacements.string(current.parsed >= "1.21.10") {
+        replace("PlayerRenderState", "AvatarRenderState")
+    }
+
+    replacements.string(current.parsed >= "1.21.9", "avatar") {
+        replace("entity.player.Player", "entity.Avatar")
+        replace("Player", "Avatar")
+    }
+
+    replacements.string(current.parsed >= "1.21.5") {
+        replace("software.bernie.geckolib.cache.GeckoLibCache", "software.bernie.geckolib.cache.GeckoLibResources")
+    }
+
+    replacements.string(current.parsed >= "1.20.5") {
+        replace("software.bernie.geckolib.core", "software.bernie.geckolib")
     }
 }
 

@@ -22,9 +22,7 @@ stonecutter {
         fun addVersion(version: String, vararg loaders: String) = loaders.forEach { version("$version-$it", version) }
 
         addVersion("1.21.11", "fabric", "neoforge")
-        addVersion("1.21.10", "fabric")
-        addVersion("1.21.8", "fabric")
-        addVersion("1.21.1", "fabric")
+        addVersion("1.21.1", "fabric", "neoforge")
 
         vcsVersion = "1.21.11-fabric"
     }

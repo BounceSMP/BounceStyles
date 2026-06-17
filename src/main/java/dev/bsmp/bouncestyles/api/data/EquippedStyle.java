@@ -1,9 +1,9 @@
-package dev.bsmp.bouncestyles.core.data;
+package dev.bsmp.bouncestyles.api.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
-import dev.bsmp.bouncestyles.core.data.style.Style;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
 

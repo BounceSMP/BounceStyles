@@ -1,4 +1,4 @@
-package dev.bsmp.bouncestyles.core.data.animation;
+package dev.bsmp.bouncestyles.api.animation;
 
 public enum AnimState {
     SLEEPING,

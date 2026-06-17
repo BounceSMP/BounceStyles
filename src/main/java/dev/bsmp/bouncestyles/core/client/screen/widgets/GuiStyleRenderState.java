@@ -1,3 +1,4 @@
+//? if >= 1.21.5 {
 package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
@@ -33,3 +34,4 @@ public record GuiStyleRenderState(GeoRenderState renderState) implements GuiElem
         return null;
     }
 }
+//? }

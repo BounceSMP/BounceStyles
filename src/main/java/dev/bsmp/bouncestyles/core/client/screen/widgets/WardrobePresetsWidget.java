@@ -3,25 +3,25 @@ package dev.bsmp.bouncestyles.core.client.screen.widgets;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.button.WardrobeIconButton;
 import dev.bsmp.bouncestyles.core.data.preset.PresetManager;
-import dev.bsmp.bouncestyles.core.data.preset.StylePreset;
+import dev.bsmp.bouncestyles.api.style.StylePreset;
 import dev.bsmp.bouncestyles.core.client.screen.WardrobeScreen;
-import dev.bsmp.bouncestyles.core.data.StyleData;
+import dev.bsmp.bouncestyles.api.data.StyleData;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.input.CharacterEvent;
-import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 
 import java.util.List;
-
-//? if <= 1.21.1 {
+//? if >= 1.21.5 {
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+//? } elif <= 1.21.1 {
 /*import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 *///? }
@@ -230,12 +230,12 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
             tooltipLines = List.of(Component.literal("One or more items in this preset"), Component.literal("are not unlocked or invalid!"));
         }
 
+        //? if >= 1.21.5 {
         @Override
         public void renderContent(GuiGraphics context, int mouseX, int mouseY, boolean isHovering, float partialTick) {
             renderEntry(context, mouseX, mouseY, this.getX(), this.getY(), this.getWidth(), this.getHeight(), partialTick);
         }
-
-        //? if <= 1.21.1 {
+        //? } else {
         /*@Override
         public void render(GuiGraphics context, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean isMouseOver, float partialTick) {
             renderEntry(context, mouseX, mouseY, left, top, width, height, partialTick);
@@ -261,19 +261,17 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
             this.deleteButton.setY(top + 1);
             this.deleteButton.render(context, mouseX, mouseY, partialTick);
 
-            //? if <= 1.21.1 {
-            /*if(preset.error()) {
-                PoseStack poseStack = context.pose();
-                context.blit(TEX_ERROR, left + width - 16, top + 5, 0, 0, 16, 16, 16, 16);
-                if(this.isHovered) {
-                    poseStack.pushPose();
-                    GlStateManager._enableDepthTest();
-                    poseStack.translate(0, 0, 100);
-                    WardrobeWidget.drawTooltipStatic(context, Minecraft.getInstance().font, tooltipLines, mouseX, mouseY);
-                    poseStack.popPose();
-                }
-            }
-            *///? }
+//            if(preset.error()) {
+//                PoseStack poseStack = context.pose();
+//                context.blit(TEX_ERROR, left + width - 16, top + 5, 0, 0, 16, 16, 16, 16);
+//                if(this.isHovered) {
+//                    poseStack.pushPose();
+//                    GlStateManager._enableDepthTest();
+//                    poseStack.translate(0, 0, 100);
+//                    WardrobeWidget.drawTooltipStatic(context, Minecraft.getInstance().font, tooltipLines, mouseX, mouseY);
+//                    poseStack.popPose();
+//                }
+//            }
         }
 
         @Override

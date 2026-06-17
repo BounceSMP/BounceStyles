@@ -1,23 +1,28 @@
 //? if fabric {
-package dev.bsmp.bouncestyles.fabric;
+/*package dev.bsmp.bouncestyles.fabric;
 
 import com.mojang.serialization.Lifecycle;
-import dev.bsmp.bouncestyles.api.StyleEntity;
-import dev.bsmp.bouncestyles.core.data.style.Style;
+import dev.bsmp.bouncestyles.api.data.StyleData;
+import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricTrackedDataRegistry;
 
 public class BounceStylesFabric implements ModInitializer {
+    public static final AttachmentType<StyleData> STYLE_DATA_ATTACHMENT = AttachmentRegistry.<StyleData>builder()
+            .initializer(StyleData::new)
+            .persistent(StyleData.CODEC)
+            .copyOnDeath()
+            .buildAndRegister(BounceStyles.id("style_data"));
 
     @Override
     public void onInitialize() {
         BounceStyles.init();
         DynamicRegistries.registerSynced(BounceStylesRegistries.STYLE_REGISTRY_KEY, Style.CODEC.withLifecycle(Lifecycle.stable()));
-        FabricTrackedDataRegistry.register(BounceStyles.id("style_data"), StyleEntity.STYLE_DATA_SERIALIZER);
     }
 
 }
-//?}
+*///?}

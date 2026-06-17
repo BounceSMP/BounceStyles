@@ -8,7 +8,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Mixin(AvatarRenderState.class)
 @MixinEnvironment(type = MixinEnvironment.Env.CLIENT)
@@ -16,8 +18,8 @@ public abstract class AvatarRenderStateMixin implements StyleEntityState {
     @Unique private final List<String> bounceStyles$hiddenParts = new ArrayList<>();
 
     @Override
-    public List<String> bounceStyles$getHiddenParts() {
-        return this.bounceStyles$hiddenParts;
+    public Set<String> bounceStyles$getHiddenParts() {
+        return new HashSet<>(this.bounceStyles$hiddenParts);
     }
 
     @Override

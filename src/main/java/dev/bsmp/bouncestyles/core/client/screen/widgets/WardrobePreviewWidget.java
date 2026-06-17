@@ -1,25 +1,22 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
-import com.mojang.blaze3d.platform.Window;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Renderable;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.state.EntityRenderState;
-import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import org.joml.Quaternionf;
-import org.joml.Vector2i;
 import org.joml.Vector3f;
+
+
+//? if >= 1.21.5 {
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import org.joml.Vector2i;
+import net.minecraft.client.input.MouseButtonEvent;
+//? }
 
 public class WardrobePreviewWidget extends AbstractWidget implements WardrobeWidget {
     private Player previewPlayer;
@@ -34,12 +31,12 @@ public class WardrobePreviewWidget extends AbstractWidget implements WardrobeWid
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         float scale = getHeight() / 3f;
 
-        //? if >= 1.21.11 {
+        //? if >= 1.21.5 {
         guiGraphics.pose().pushMatrix();
         //? } else {
-//        guiGraphics.pose().pushPose();
-//        guiGraphics.pose().translate(0, 0, 1050);
-        //? }
+        /*guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0, 0, 1050);
+        *///? }
 
         guiGraphics.enableScissor(this.getX() + 3, this.getY() + 3, this.getX() + getWidth() - 2, this.getY() + getHeight() - 3);
 
@@ -55,7 +52,7 @@ public class WardrobePreviewWidget extends AbstractWidget implements WardrobeWid
         previewPlayer.yHeadRot = previewPlayer.getYRot();
         previewPlayer.yHeadRotO = previewPlayer.getYRot();
 
-        //? if >= 1.21.11 {
+        //? if >= 1.21.5 {
         var pos1 = new Vector2i(this.getX() + 3, this.getY() + 3);
         var pos2 = new Vector2i(this.getX() + this.getWidth() - 3, this.getY() + this.getHeight() - 3);
 
@@ -86,12 +83,13 @@ public class WardrobePreviewWidget extends AbstractWidget implements WardrobeWid
 
         guiGraphics.disableScissor();
 
-        //? if >= 1.21.11 {
+        //? if >= 1.21.5 {
         guiGraphics.pose().pushMatrix();
         //? } else
-//        guiGraphics.pose().popPose();
+        //guiGraphics.pose().popPose();
     }
 
+    //? if >= 1.21.5 {
     private static EntityRenderState extractRenderState(LivingEntity entity) {
         EntityRenderState entityRenderState = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entity).createRenderState(entity, 1.0F);
         entityRenderState.lightCoords = 15728880;
@@ -99,8 +97,9 @@ public class WardrobePreviewWidget extends AbstractWidget implements WardrobeWid
         entityRenderState.outlineColor = 0;
         return entityRenderState;
     }
+    //? }
 
-    //? if >= 1.21.11 {
+    //? if >= 1.21.5 {
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         return this.isValidClickButton(event.buttonInfo()) && this.isMouseOver(event.x(), event.y());
@@ -115,7 +114,7 @@ public class WardrobePreviewWidget extends AbstractWidget implements WardrobeWid
     @Override
     protected void updateWidgetNarration(NarrationElementOutput builder) {}
 
-    //? if >= 1.21.11 {
+    //? if >= 1.21.5 {
     @Override
     protected void onDrag(MouseButtonEvent event, double dragX, double dragY) {
         this.previewRotation += (float) dragX * 0.9f;

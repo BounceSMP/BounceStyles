@@ -17,7 +17,7 @@ public record OpenWardrobeUIClientbound(List<Identifier> unlocks) implements Sty
         //? if >= 1.21.11 {
         return new OpenWardrobeUIClientbound(buf.readLenientJsonWithCodec(Identifier.CODEC.listOf()));
         //? } else
-//        return new OpenWardrobeUIClientbound(buf.readJsonWithCodec(Identifier.CODEC.listOf()));
+        //return new OpenWardrobeUIClientbound(buf.readJsonWithCodec(Identifier.CODEC.listOf()));
     }
 
     //? if >= 1.21.1 {

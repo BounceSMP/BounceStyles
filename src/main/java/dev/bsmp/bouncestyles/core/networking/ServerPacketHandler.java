@@ -1,7 +1,7 @@
 package dev.bsmp.bouncestyles.core.networking;
 
 import dev.architectury.networking.NetworkManager;
-import dev.bsmp.bouncestyles.core.data.StyleData;
+import dev.bsmp.bouncestyles.api.data.StyleData;
 import dev.bsmp.bouncestyles.core.data.unlocks.UnlockManager;
 import dev.bsmp.bouncestyles.core.networking.clientbound.OpenWardrobeUIClientbound;
 import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientbound;

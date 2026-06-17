@@ -5,14 +5,14 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
-//? if < 1.21.11
+//? if >= 1.21.5 {
+import net.minecraft.client.renderer.RenderPipelines;
+//? } else
 //import com.mojang.blaze3d.platform.GlStateManager;
 
 public interface WardrobeWidget extends GuiEventListener, Renderable {
@@ -25,7 +25,10 @@ public interface WardrobeWidget extends GuiEventListener, Renderable {
     }
 
     default void blit(GuiGraphics guiGraphics, Identifier id, int x, int y, int width, int height, int textureWidth, int textureHeight, int u, int v) {
+        //? if >= 1.21.5 {
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, id, x, y, u, v, width, height, textureWidth, textureHeight);
+        //? } else
+        //guiGraphics.blit(id, x, y, u, v, width, height, textureWidth, textureHeight);
     }
 
     //? if < 1.21.11 {

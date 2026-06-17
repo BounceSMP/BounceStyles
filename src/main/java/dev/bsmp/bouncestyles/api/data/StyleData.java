@@ -1,25 +1,25 @@
-package dev.bsmp.bouncestyles.core.data;
+package dev.bsmp.bouncestyles.api.data;
+//~ avatar
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.bsmp.bouncestyles.api.StyleEntity;
+import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
-import dev.bsmp.bouncestyles.core.data.preset.StylePreset;
-import dev.bsmp.bouncestyles.core.data.style.Style;
+import dev.bsmp.bouncestyles.core.data.attached.StyleDataAttachment;
+import dev.bsmp.bouncestyles.api.style.StylePreset;
+import dev.bsmp.bouncestyles.api.style.Style;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.EquipmentSlot;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class StyleData {
-    public static final String DATA_TAG = "bounceStyleData";
-
     private final Set<String> hiddenParts = new HashSet<>();
     private final Map<Category, EquippedStyle> equippedStyles = new HashMap<>(Map.of(
             Category.Head, new EquippedStyle(),
@@ -116,11 +116,11 @@ public class StyleData {
     }
 
     public static StyleData getEntityData(Avatar avatar) {
-        return ((StyleEntity) avatar).bounceStyles$getStyleData();
+        return StyleDataAttachment.getEntityData(avatar);
     }
 
     public static void setEntityData(Avatar avatar, StyleData styleData) {
-        ((StyleEntity) avatar).bounceStyles$setStyleData(styleData);
+        StyleDataAttachment.setEntityData(avatar, styleData);
         if (avatar.level().isClientSide())
             BounceStylesClient.onStyleUpdate();
     }
@@ -135,6 +135,7 @@ public class StyleData {
     }
 
     public static StyleData read(FriendlyByteBuf buf) {
+        //~ if >= 1.21.8 'readJsonWithCodec' -> 'readLenientJsonWithCodec'
         return buf.readLenientJsonWithCodec(CODEC);
     }
 

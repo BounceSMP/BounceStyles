@@ -5,10 +5,9 @@ import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.registry.registries.Registrar;
 import dev.architectury.registry.registries.RegistrarManager;
 import dev.architectury.registry.registries.RegistrySupplier;
-import dev.bsmp.bouncestyles.api.StyleEntity;
 import dev.bsmp.bouncestyles.core.command.StyleCommand;
 import dev.bsmp.bouncestyles.core.command.StyleSlotArgumentType;
-import dev.bsmp.bouncestyles.core.data.style.Style;
+import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.item.StyleMagazineItem;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
@@ -20,7 +19,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -41,21 +40,16 @@ public class BounceStylesRegistries {
 
         //Register StyleSlot Command Argument Type
         //? if fabric {
-        net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry.registerArgumentType(
+        /*net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry.registerArgumentType(
                 BounceStyles.id("style_slot"),
                 StyleSlotArgumentType.class,
                 SingletonArgumentInfo.contextFree(StyleSlotArgumentType::styleSlot)
         );
-        //?} else {
-        /*Registrar<ArgumentTypeInfo<?, ?>> argTypes = REGISTRIES.get().get(Registries.COMMAND_ARGUMENT_TYPE);
+        *///?} else {
+        Registrar<ArgumentTypeInfo<?, ?>> argTypes = REGISTRIES.get().get(Registries.COMMAND_ARGUMENT_TYPE);
         var argumentTypeInfo = ArgumentTypeInfos.registerByClass(StyleSlotArgumentType.class, SingletonArgumentInfo.contextFree(StyleSlotArgumentType::styleSlot));
         argTypes.register(BounceStyles.id("style_slot"), () -> argumentTypeInfo);
-        *///?}
-
-        //? if neoforge {
-        /*var dataSerializers = REGISTRIES.get().get(net.neoforged.neoforge.registries.NeoForgeRegistries.ENTITY_DATA_SERIALIZERS);
-        dataSerializers.register(BounceStyles.id("style_data"), () -> StyleEntity.STYLE_DATA_SERIALIZER);
-        *///? }
+        //?}
     }
 
     public static <T, E extends T> RegistrySupplier<E> register(ResourceKey<Registry<T>> key, Identifier id, Supplier<E> supplier) {
@@ -65,17 +59,17 @@ public class BounceStylesRegistries {
 
     public static Optional<Registry<Style>> getRegistry() {
         if (registryAccess == null) return Optional.empty();
-        //? if <= 1.20.1 {
-        //return registryAccess.registry(STYLE_REGISTRY_KEY);
-        //? } else {
+        //? if <= 1.21.1 {
+        /*return registryAccess.registry(STYLE_REGISTRY_KEY);
+        *///? } else {
         return registryAccess.lookup(STYLE_REGISTRY_KEY);
         //? }
     }
 
     public static Optional<Style> getStyle(Identifier id) {
-        //? if <= 1.20.1 {
-        //return getRegistry().map(styles -> styles.get(id));
-        //? } else {
+        //? if <= 1.21.1 {
+        /*return getRegistry().map(styles -> styles.get(id));
+        *///? } else {
         return getRegistry().flatMap(styles -> styles.get(id).map(Holder.Reference::value));
         //? }
     }

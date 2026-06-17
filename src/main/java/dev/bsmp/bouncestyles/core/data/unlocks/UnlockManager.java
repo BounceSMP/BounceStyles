@@ -17,13 +17,13 @@ import java.util.Optional;
 import java.util.Set;
 
 public class UnlockManager {
-    public static <T extends Entity> Optional<Set<Identifier>> readUnlockData(T styleEntity) {
-        if (styleEntity.level().isClientSide()) return Optional.empty();
+    public static Optional<Set<Identifier>> readUnlockData(Entity entity) {
+        if (entity.level().isClientSide()) return Optional.empty();
 
-        var unlocksDir = ((ServerLevel) styleEntity.level()).getServer().getWorldPath(LevelResource.ROOT).resolve("style_unlocks");
+        var unlocksDir = ((ServerLevel) entity.level()).getServer().getWorldPath(LevelResource.ROOT).resolve("style_unlocks");
         if (unlocksDir.toFile().mkdirs()) return Optional.empty();
 
-        var dataFile = unlocksDir.resolve(styleEntity.getStringUUID()+".dat");
+        var dataFile = unlocksDir.resolve(entity.getStringUUID()+".dat");
         if (dataFile.toFile().isDirectory()) {
             try {
                 Files.delete(dataFile);
@@ -32,14 +32,18 @@ public class UnlockManager {
             return Optional.empty();
         }
         else if (!dataFile.toFile().exists()) {
-            writeUnlockData(styleEntity, Set.of());
+            writeUnlockData(entity, Set.of());
             return Optional.of(new HashSet<>());
         }
 
         try {
             var nbt = NbtIo.read(dataFile);
             if (nbt != null) {
-                var unlocks = Identifier.CODEC.listOf().parse(NbtOps.INSTANCE, nbt.getList("").orElse(new ListTag())).resultOrPartial(BounceStyles.LOGGER::error);
+                var unlocks = Identifier.CODEC.listOf().parse(
+                        NbtOps.INSTANCE,
+                        getList(nbt, "").orElse(new ListTag())
+                ).resultOrPartial(BounceStyles.LOGGER::error);
+
                 if (unlocks.isPresent()) {
                     var set = new HashSet<>(unlocks.get());
                     return Optional.of(set);
@@ -47,54 +51,62 @@ public class UnlockManager {
             }
         }
         catch (IOException e) {
-            BounceStyles.LOGGER.error("Exception Occurred trying to read Unlock Data for entity {}", styleEntity.getDisplayName(), e);
+            BounceStyles.LOGGER.error("Exception Occurred trying to read Unlock Data for entity {}", entity.getDisplayName(), e);
         }
 
         return Optional.empty();
     }
 
-    public static <T extends Entity> void writeUnlockData(T styleEntity, Set<Identifier> unlocks) {
-        if (styleEntity.level().isClientSide()) return;
+    private static Optional<ListTag> getList(CompoundTag nbt, String key) {
+        //? if >= 1.21.8 {
+        return nbt.getList(key);
+        //? } else {
+        /*return Optional.of(nbt.getList(key, ListTag.TAG_STRING)); //ToDo This probably wont work but y'kno, it compiles for now
+        *///? }
+    }
 
-        var unlocksDir = ((ServerLevel) styleEntity.level()).getServer().getWorldPath(LevelResource.ROOT).resolve("style_unlocks");
+    public static void writeUnlockData(Entity entity, Set<Identifier> unlocks) {
+        if (entity.level().isClientSide()) return;
+
+        var unlocksDir = ((ServerLevel) entity.level()).getServer().getWorldPath(LevelResource.ROOT).resolve("style_unlocks");
         unlocksDir.toFile().mkdirs();
 
-        var dataFile = unlocksDir.resolve(styleEntity.getStringUUID()+".dat");
+        var dataFile = unlocksDir.resolve(entity.getStringUUID()+".dat");
         Identifier.CODEC.listOf().encodeStart(NbtOps.INSTANCE, unlocks.stream().toList()).resultOrPartial(BounceStyles.LOGGER::error).ifPresent(tag -> {
             try {
                 var compoundTag = new CompoundTag();
                 compoundTag.put("", tag);
                 NbtIo.write(compoundTag, dataFile);
             } catch (IOException e) {
-                BounceStyles.LOGGER.error("Exception Occurred trying to write Unlock Data for entity {}", styleEntity.getDisplayName(), e);
+                BounceStyles.LOGGER.error("Exception Occurred trying to write Unlock Data for entity {}", entity.getDisplayName(), e);
             }
         });
     }
 
-    public static <T extends Entity> boolean unlockStyle(T styleEntity, Identifier styleId) {
+    public static boolean unlockStyle(Entity entity, Identifier styleId) {
         if(styleId == null) return false;
 
-        var unlocks = readUnlockData(styleEntity).orElse(new HashSet<>());
+        var unlocks = readUnlockData(entity).orElse(new HashSet<>());
         if (unlocks.add(styleId)) {
-            writeUnlockData(styleEntity, unlocks);
+            writeUnlockData(entity, unlocks);
             return true;
         }
         return false;
     }
 
-    public static <T extends Entity> boolean lockStyle(T styleEntity, Identifier styleId) {
+    public static boolean lockStyle(Entity entity, Identifier styleId) {
         if(styleId == null) return false;
 
-        var unlocks = readUnlockData(styleEntity).orElse(new HashSet<>());
+        var unlocks = readUnlockData(entity).orElse(new HashSet<>());
         if (unlocks.remove(styleId)) {
-            writeUnlockData(styleEntity, unlocks);
+            writeUnlockData(entity, unlocks);
             return true;
         }
         return false;
     }
 
-    public static <T extends Entity> boolean hasUnlocked(T styleEntity, Identifier styleId) {
+    public static boolean hasUnlocked(Entity entity, Identifier styleId) {
         if(styleId == null) return false;
-        return readUnlockData(styleEntity).map(identifiers -> identifiers.contains(styleId)).orElse(false);
+        return readUnlockData(entity).map(identifiers -> identifiers.contains(styleId)).orElse(false);
     }
 }

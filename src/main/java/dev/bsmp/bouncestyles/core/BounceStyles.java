@@ -3,7 +3,7 @@ package dev.bsmp.bouncestyles.core;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.registry.registries.RegistrySupplier;
-import dev.bsmp.bouncestyles.core.data.StyleData;
+import dev.bsmp.bouncestyles.api.data.StyleData;
 import dev.bsmp.bouncestyles.core.data.style.StyleLoader;
 import dev.bsmp.bouncestyles.core.item.StyleMagazineItem;
 import dev.bsmp.bouncestyles.core.networking.StylesNetworking;

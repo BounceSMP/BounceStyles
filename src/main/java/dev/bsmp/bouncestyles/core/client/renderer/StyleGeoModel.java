@@ -1,72 +1,65 @@
 package dev.bsmp.bouncestyles.core.client.renderer;
 
-import dev.bsmp.bouncestyles.core.data.style.Style;
+import dev.bsmp.bouncestyles.api.style.Style;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import software.bernie.geckolib.cache.GeckoLibResources;
-import software.bernie.geckolib.cache.animation.Animation;
 import software.bernie.geckolib.model.GeoModel;
-//? if >= 1.21.11 {
-import software.bernie.geckolib.cache.model.BakedGeoModel;
+//? if >= 1.21.5 {
 import software.bernie.geckolib.renderer.base.GeoRenderState;
+import software.bernie.geckolib.cache.animation.Animation;
 //? } else {
-//import software.bernie.geckolib.cache.GeckoLibCache;
-//import software.bernie.geckolib.cache.object.BakedGeoModel;
-//? }
+/*import software.bernie.geckolib.animation.Animation;
+*///? }
+
+import static dev.bsmp.bouncestyles.core.client.renderer.StyleDataTickets.TICKET_STYLE;
 
 public class StyleGeoModel extends GeoModel<Style> {
-
-    @Override
-    public @NonNull Identifier getModelResource(GeoRenderState renderState) {
-        var style = renderState.getGeckolibData(StyleLayerRenderer.TICKET_STYLE);
-        return style.getStyle().map(Style::getModelId).orElse(Style.MISSING_MODEL_ID);
+    //? if < 1.21.5
+    //@Override
+    public @NonNull Identifier getModelResource(Style style) {
+        return style != null ? style.getModelId() : Style.MISSING_MODEL_ID;
     }
 
-    @Override
-    public @NonNull Identifier getTextureResource(GeoRenderState renderState) {
-        var style = renderState.getGeckolibData(StyleLayerRenderer.TICKET_STYLE);
-        return style != null ? style.getTextureId().orElse(Style.MISSING_MODEL_TEXTURE_ID) : Style.MISSING_MODEL_TEXTURE_ID;
+    //? if < 1.21.5
+    //@Override
+    public @NonNull Identifier getTextureResource(Style style) {
+        return style != null ? style.getTextureId() : Style.MISSING_MODEL_TEXTURE_ID;
     }
 
     @Override
     public @NonNull Identifier getAnimationResource(Style style) {
-        return style.getAnimationId().orElse(Identifier.withDefaultNamespace(""));
+        if (style != null && style.getAnimationId().isPresent())
+            return style.getAnimationId().get();
+        return Identifier.withDefaultNamespace("");
+    }
+
+    //? if >= 1.21.5 {
+    @Override
+    public @NonNull Identifier getModelResource(GeoRenderState renderState) {
+        var style = renderState.getGeckolibData(TICKET_STYLE);
+        return getModelResource(style.getStyle().orElse(null));
     }
 
     @Override
-    public @Nullable Animation getBakedAnimation(Style style, String name) throws RuntimeException {
+    public @NonNull Identifier getTextureResource(GeoRenderState renderState) {
+        var style = renderState.getGeckolibData(TICKET_STYLE);
+        return getTextureResource(style.getStyle().orElse(null));
+    }
+
+    @Override
+    public @Nullable Animation getBakedAnimation(Style style, String animName) throws RuntimeException {
         if (style.getAnimationId().isEmpty()) return null;
         if (!GeckoLibResources.getBakedAnimations().cache().containsKey(style.getAnimationId().get())) return null;
-        return GeckoLibResources.getBakedAnimations().cache().get(style.getAnimationId().get()).getAnimation(name);
+        return GeckoLibResources.getBakedAnimations().cache().get(style.getAnimationId().get()).getAnimation(animName);
     }
-
-    @Override
-    public @NonNull BakedGeoModel getBakedModel(@NonNull Identifier location) {
-        //? if >= 1.21.11 {
-        if (!GeckoLibResources.getBakedModels().cache().containsKey(location)) location = Style.MISSING_MODEL_ID;
-        //? } else
-//        if (!GeckoLibCache.getBakedModels().containsKey(location)) location = Style.MISSING_MODEL_ID;
-        return super.getBakedModel(location);
-    }
-
-//    @Override
-//    public Identifier getModelResource(Style style) {
-//        return style.getModelId();
-//    }
-
-//    @Override
-//    public Identifier getTextureResource(Style style) {
-//        if (!GeckoLibCache.getBakedModels().containsKey(style.getModelId())) return Style.MISSING_TEXTURE_ID;
-//        return style.getTextureId();
-//    }
-
-    //? if <= 1.20.1 {
+    //? } else {
     /*@Override
-    public software.bernie.geckolib.core.animation.Animation getAnimation(Style animatable, String name) {
-        if (!GeckoLibCache.getBakedAnimations().containsKey(getAnimationResource(animatable)))
+    public @Nullable Animation getAnimation(Style style, String animName) {
+        if (!GeckoLibCache.getBakedAnimations().containsKey(getAnimationResource(style)))
             return null;
-        return super.getAnimation(animatable, name);
+        return super.getAnimation(style, animName);
     }
-    *///?}
+    *///? }
 }

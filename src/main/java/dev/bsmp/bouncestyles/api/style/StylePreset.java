@@ -1,11 +1,9 @@
-package dev.bsmp.bouncestyles.core.data.preset;
+package dev.bsmp.bouncestyles.api.style;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.bsmp.bouncestyles.api.StyleEntity;
+import dev.bsmp.bouncestyles.api.data.EquippedStyle;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
-import dev.bsmp.bouncestyles.core.data.Category;
-import dev.bsmp.bouncestyles.core.data.EquippedStyle;
 import dev.bsmp.bouncestyles.core.data.unlocks.UnlockManager;
 import net.minecraft.world.entity.Entity;
 
@@ -31,8 +29,7 @@ public record StylePreset(Optional<EquippedStyle> head, Optional<EquippedStyle> 
         return Optional.of(equipped);
     }
 
-    public static Error errorCheck(Entity styleEntity, EquippedStyle... slots) {
-        if (!(styleEntity instanceof StyleEntity)) return Error.WRONG_ENTITY;
+    public static Error errorCheck(Entity entity, EquippedStyle... slots) {
         Error error = Error.NO_ERROR;
 
         for(EquippedStyle slot : slots)
@@ -40,7 +37,7 @@ public record StylePreset(Optional<EquippedStyle> head, Optional<EquippedStyle> 
                 var styleId = slot.getStyleId().get();
                 if (!BounceStylesRegistries.idExists(styleId))
                     error = error != Error.NO_ERROR ? Error.BOTH : Error.MISSING;
-                else if (!UnlockManager.hasUnlocked(styleEntity, styleId))
+                else if (!UnlockManager.hasUnlocked(entity, styleId))
                     error = error != Error.NO_ERROR ? Error.BOTH : Error.LOCKED;
             }
 
@@ -56,7 +53,6 @@ public record StylePreset(Optional<EquippedStyle> head, Optional<EquippedStyle> 
 
     enum Error {
         NO_ERROR,
-        WRONG_ENTITY,
         MISSING,
         LOCKED,
         BOTH

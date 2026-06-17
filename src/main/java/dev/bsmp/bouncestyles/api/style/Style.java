@@ -1,14 +1,5 @@
-package dev.bsmp.bouncestyles.core.data.style;
+package dev.bsmp.bouncestyles.api.style;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.data.Category;
-import dev.bsmp.bouncestyles.core.data.animation.AnimationHandler;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.util.GeckoLibUtil;
 //? if >= 1.21.11 {
 import software.bernie.geckolib.animatable.manager.AnimatableManager;
 import software.bernie.geckolib.animatable.GeoAnimatable;
@@ -16,21 +7,38 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.constant.dataticket.DataTicket;
-//? } elif >= 1.21.1 {
-/*import software.bernie.geckolib.animatable.GeoAnimatable;
+//? } elif >= 1.21.8 {
+/*import software.bernie.geckolib.animatable.manager.AnimatableManager;
+import software.bernie.geckolib.animatable.processing.AnimationController;
+import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.constant.dataticket.DataTicket;
+*///? } elif >= 1.21.1 {
+/*import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.constant.dataticket.DataTicket;
 *///? } else {
-/*import software.bernie.geckolib.core.animatable.GeoAnimatable;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.animation.AnimationState;
-import software.bernie.geckolib.core.animation.RawAnimation;
-import software.bernie.geckolib.core.object.DataTicket;
-import software.bernie.geckolib.core.object.PlayState;
-*///? }
+//import software.bernie.geckolib.animatable.GeoAnimatable;
+//import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+//import software.bernie.geckolib.animation.AnimatableManager;
+//import software.bernie.geckolib.animation.AnimationController;
+//import software.bernie.geckolib.animation.AnimationState;
+//import software.bernie.geckolib.animation.RawAnimation;
+//import software.bernie.geckolib.object.DataTicket;
+//import software.bernie.geckolib.object.PlayState;
+//? }
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.bsmp.bouncestyles.core.BounceStyles;
+import dev.bsmp.bouncestyles.core.data.animation.AnimationHandler;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.player.Player;
+import org.jspecify.annotations.Nullable;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.*;
 
@@ -38,11 +46,11 @@ public class Style implements GeoAnimatable {
     //? if >= 1.21.11 {
     public static final Identifier MISSING_MODEL_ID = BounceStyles.id("missing_model");
     //? } else
-//    public static final Identifier MISSING_MODEL_ID = BounceStyles.id("geo/missing_model.geo.json");
+    //public static final Identifier MISSING_MODEL_ID = BounceStyles.id("geo/missing_model.geo.json");
 
     public static final Identifier MISSING_MODEL_TEXTURE_ID = BounceStyles.id("textures/missing_model.png");
 
-    //? if >= 1.21.11 {
+    //? if >= 1.21.5 {
     public static final DataTicket<Player> PLAYER = DataTicket.create("player_entity", Player.class);
     //? } else {
     /*public static final DataTicket<Player> PLAYER = new DataTicket<>("player_entity", Player.class);
@@ -86,11 +94,11 @@ public class Style implements GeoAnimatable {
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar registrar) {
         if(animationMap != null && !animationMap.isEmpty()) {
-            registrar.add(new AnimationController<>(
-                    this.styleId.toString(),
-                    Math.max(transitionTicks, 0),
-                    AnimationHandler::handleAnimState
-            ));
+            //? if >= 1.21.8 {
+            registrar.add(new AnimationController<>(this.styleId.toString(), Math.max(transitionTicks, 0), AnimationHandler::handleAnimState));
+            //? } else {
+            /*registrar.add(new AnimationController<>(this, this.styleId.toString(), Math.max(transitionTicks, 0), AnimationHandler::handleAnimState));
+            *///? }
         }
     }
 
@@ -167,7 +175,7 @@ public class Style implements GeoAnimatable {
         );
     }
 
-    //? if <= 1.21.1 {
+    //? if <= 1.21.10 {
     /*@Override
     public double getTick(Object o) {
         return 0;
@@ -220,8 +228,8 @@ public class Style implements GeoAnimatable {
         }
         return id.withPath(id.getPath().replace(".geo.json", "").replace(".animation.json", ""));
         //? } else {
-/*//        var path = id.getPath().endsWith(suffix) ? id.getPath() : id.getPath() + suffix;
-//        if (!path.startsWith(directory)) path = directory + "/" + path;
+        /*var path = id.getPath().endsWith(suffix) ? id.getPath() : id.getPath() + suffix;
+        if (!path.startsWith(directory)) path = directory + "/" + path;
         //? if >= 1.21.1 {
         return Identifier.fromNamespaceAndPath(id.getNamespace(), path);
         //? } else {

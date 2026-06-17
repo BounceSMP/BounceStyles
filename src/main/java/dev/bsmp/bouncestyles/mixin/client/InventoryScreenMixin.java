@@ -30,10 +30,10 @@ public abstract class InventoryScreenMixin  extends AbstractRecipeBookScreen<Inv
         super(menu, recipeBookComponent, playerInventory, title);
     }
     //? } else {
-//    private InventoryScreenMixin(InventoryMenu menu, Inventory playerInventory, Component title) {
-//        super(menu, playerInventory, title);
-//    }
-    //? }
+    /*private InventoryScreenMixin(InventoryMenu menu, Inventory playerInventory, Component title) {
+        super(menu, playerInventory, title);
+    }
+    *///? }
 
     //ToDo Decide on if I want to keep the inventory button later, or have a config option
 //    @Inject(method = "init", at = @At("TAIL"))

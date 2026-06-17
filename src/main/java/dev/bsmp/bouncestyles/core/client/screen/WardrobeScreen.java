@@ -6,18 +6,21 @@ import dev.bsmp.bouncestyles.core.client.screen.widgets.WardrobePreviewWidget;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.WardrobeStyleSelectionWidget;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.WardrobeWidget;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.button.WardrobeIconButton;
-import dev.bsmp.bouncestyles.core.data.Category;
-import dev.bsmp.bouncestyles.core.data.style.Style;
+import dev.bsmp.bouncestyles.api.style.Category;
+import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+
+//? if >= 1.21.5 {
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.permissions.Permissions;
+//? }
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -164,9 +167,9 @@ public class WardrobeScreen extends Screen {
     //? } else {
     /*@Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (!this.categoryBtn.mouseClicked(mouseX, mouseY, button))
-            this.activeWidget.mouseClicked(mouseX, mouseY, button);
-        return super.mouseClicked(mouseX, mouseY, button);
+        if (!this.activeWidget.mouseClicked(mouseX, mouseY, button))
+            return super.mouseClicked(mouseX, mouseY, button);
+        return false;
     }
 
     @Override
@@ -232,7 +235,7 @@ public class WardrobeScreen extends Screen {
         //? if >= 1.21.11 {
         boolean permissionCheck = (minecraft.player.isCreative() && minecraft.player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER));
         //? } else
-//        boolean permissionCheck = (minecraft.player.isCreative() && minecraft.player.hasPermissions(2));
+        //boolean permissionCheck = (minecraft.player.isCreative() && minecraft.player.hasPermissions(2));
         return  categoryCheck && (unlockCheck || permissionCheck);
     }
 
@@ -247,48 +250,4 @@ public class WardrobeScreen extends Screen {
         new EquipStyleServerbound(Category.Legs).sendToServer();
         new EquipStyleServerbound(Category.Feet).sendToServer();
     }
-
-//    public static void renderPlayerInGUI(GuiGraphics guiGraphics, float x, float y) {
-//        Window window = Minecraft.getInstance().getWindow();
-//        double guiScale = window.getGuiScale();
-//        var poseStack = RenderSystem.getModelViewStack();
-//        /*? if <= 1.20.1 {*/  /*poseStack.pushPose();  *//*?} else if >= 1.21.1 {*/ poseStack.pushMatrix(); /*?}*/
-//        poseStack.translate(x, y, 1050);
-//        poseStack.scale(1f, 1f, -1f);
-//        RenderSystem.applyModelViewMatrix();
-//        PoseStack poseStack2 = new PoseStack();
-//        poseStack2.translate(0.0, getY(), 1000.0);
-//        poseStack2.scale((float) ((window.getHeight() / 3) / guiScale), (float) ((window.getHeight() / 3) / guiScale), 1);
-//        Quaternionf quaternion = new Quaternionf().rotateZ((float) Math.PI);
-//        Quaternionf quaternion2 = new Quaternionf().rotateY(previewRotation);
-//        quaternion.mul(quaternion2);
-//        poseStack2.mulPose(quaternion);
-//        float h = this.previewPlayer.yBodyRot;
-//        float i = this.previewPlayer.getYRot();
-//        float j = this.previewPlayer.getXRot();
-//        float k = this.previewPlayer.yHeadRotO;
-//        float l = this.previewPlayer.yHeadRot;
-//        this.previewPlayer.yBodyRot = 160f;
-//        this.previewPlayer.setYRot(160.0f);
-//        this.previewPlayer.setXRot(0f);
-//        this.previewPlayer.yHeadRot = this.previewPlayer.getYRot();
-//        this.previewPlayer.yHeadRotO = this.previewPlayer.getYRot();
-//        Lighting.setupForEntityInInventory(); //Setup Entity Lighting
-//        EntityRenderDispatcher renderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
-//        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-//        quaternion2.conjugate();
-//        renderDispatcher.overrideCameraOrientation(quaternion2);
-//        renderDispatcher.setRenderShadow(false);
-//        RenderSystem.runAsFancy(() -> renderDispatcher.render(this.previewPlayer, 0, 0, 0, 0, 1f, poseStack2, bufferSource, 0xF000F0));
-//        bufferSource.endBatch();
-//        renderDispatcher.setRenderShadow(true);
-//        this.previewPlayer.yBodyRot = h;
-//        this.previewPlayer.setYRot(i);
-//        this.previewPlayer.setXRot(j);
-//        this.previewPlayer.yHeadRotO = k;
-//        this.previewPlayer.yHeadRot = l;
-//        /*? if <= 1.20.1 {*/  /*poseStack.popPose();  *//*?} else if >= 1.21.1 {*/ poseStack.popMatrix(); /*?}*/
-//        RenderSystem.applyModelViewMatrix();
-//        Lighting.setupFor3DItems();
-//    }
 }

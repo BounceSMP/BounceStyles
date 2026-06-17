@@ -2,9 +2,9 @@ package dev.bsmp.bouncestyles.core.networking.serverbound;
 
 import com.mojang.serialization.Codec;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
-import dev.bsmp.bouncestyles.core.data.Category;
+import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.data.EquippedStyle;
+import dev.bsmp.bouncestyles.api.data.EquippedStyle;
 import dev.bsmp.bouncestyles.core.networking.StylePacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
@@ -33,7 +33,7 @@ public record EquipStyleServerbound(Map<Category, EquippedStyle> styleMap) imple
         //? if >= 1.21.11 {
         return new EquipStyleServerbound(buf.readLenientJsonWithCodec(CODEC));
         //? } else
-//        return new EquipStyleServerbound(buf.readJsonWithCodec(CODEC));
+        //return new EquipStyleServerbound(buf.readJsonWithCodec(CODEC));
     }
 
     //? if <= 1.20.1 {

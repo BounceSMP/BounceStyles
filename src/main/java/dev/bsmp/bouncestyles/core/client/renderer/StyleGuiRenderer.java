@@ -1,3 +1,4 @@
+//? if >= 1.21.5 {
 package dev.bsmp.bouncestyles.core.client.renderer;
 
 import com.mojang.blaze3d.platform.Lighting;
@@ -53,3 +54,4 @@ public class StyleGuiRenderer extends PictureInPictureRenderer<StyleGuiRenderer.
         }
     }
 }
+//? }

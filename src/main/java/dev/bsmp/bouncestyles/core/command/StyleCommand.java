@@ -4,10 +4,10 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import dev.bsmp.bouncestyles.core.data.Category;
+import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
-import dev.bsmp.bouncestyles.core.data.style.Style;
-import dev.bsmp.bouncestyles.core.data.StyleData;
+import dev.bsmp.bouncestyles.api.style.Style;
+import dev.bsmp.bouncestyles.api.data.StyleData;
 import dev.bsmp.bouncestyles.core.data.unlocks.UnlockManager;
 import dev.bsmp.bouncestyles.core.item.StyleMagazineItem;
 import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientbound;
@@ -21,12 +21,14 @@ import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Collection;
 import java.util.Collections;
+
+//? if >= 1.21.5
+import net.minecraft.server.permissions.Permissions;
 
 public class StyleCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -35,7 +37,7 @@ public class StyleCommand {
                 //? if >= 1.21.11 {
                 .requires(commandSourceStack -> commandSourceStack.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                 //? } else
-//                .requires(commandSourceStack -> commandSourceStack.hasPermission(2))
+                //.requires(commandSourceStack -> commandSourceStack.hasPermission(2))
                 .build();
         dispatcher.getRoot().addChild(styleNode);
 
