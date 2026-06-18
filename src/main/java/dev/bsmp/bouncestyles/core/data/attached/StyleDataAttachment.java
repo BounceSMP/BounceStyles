@@ -27,4 +27,12 @@ public class StyleDataAttachment {
         //return target.getData(BounceStylesNeoforge.STYLE_DATA_ATTACHMENT);
     }
 
+    //~ if fabric 'AttachmentHolder' -> 'AttachmentTarget'
+    public static boolean hasEntityData(AttachmentTarget target) {
+        //? if fabric {
+        return target.hasAttached(BounceStylesFabric.STYLE_DATA_ATTACHMENT);
+        //? } else
+//        return target.hasData(BounceStylesNeoforge.STYLE_DATA_ATTACHMENT);
+    }
+
 }

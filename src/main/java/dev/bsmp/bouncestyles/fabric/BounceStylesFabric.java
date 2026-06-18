@@ -8,6 +8,7 @@ import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 
@@ -15,6 +16,7 @@ public class BounceStylesFabric implements ModInitializer {
     public static final AttachmentType<StyleData> STYLE_DATA_ATTACHMENT = AttachmentRegistry.<StyleData>builder()
             .initializer(StyleData::new)
             .persistent(StyleData.CODEC)
+            .syncWith(StyleData.STREAM_CODEC, AttachmentSyncPredicate.all())
             .copyOnDeath()
             .buildAndRegister(BounceStyles.id("style_data"));
 

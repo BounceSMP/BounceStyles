@@ -4,11 +4,11 @@ package dev.bsmp.bouncestyles.api.data;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.bsmp.bouncestyles.api.style.Category;
+import dev.bsmp.bouncestyles.api.style.Style;
+import dev.bsmp.bouncestyles.api.style.StylePreset;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.core.data.attached.StyleDataAttachment;
-import dev.bsmp.bouncestyles.api.style.StylePreset;
-import dev.bsmp.bouncestyles.api.style.Style;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
@@ -113,6 +113,10 @@ public class StyleData {
                 this.getLegsStyle(),
                 this.getFeetStyle()
         );
+    }
+
+    public static boolean hasStyleData(Avatar avatar) {
+        return StyleDataAttachment.hasEntityData(avatar);
     }
 
     public static StyleData getEntityData(Avatar avatar) {

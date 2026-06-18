@@ -7,8 +7,8 @@ import dev.bsmp.bouncestyles.core.data.preset.PresetManager;
 import dev.bsmp.bouncestyles.core.networking.clientbound.OpenWardrobeUIClientbound;
 import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientbound;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.function.Supplier;
 
@@ -20,8 +20,8 @@ public class ClientPacketHandler {
 
     public static void handleSyncStyleData(SyncStyleDataClientbound packet) {
         Entity entity = Minecraft.getInstance().player.level().getEntity(packet.entityId());
-        if(entity instanceof Player) {
-            StyleData.setEntityData((Player) entity, packet.styleData());
+        if(entity instanceof Avatar) {
+            StyleData.setEntityData((Avatar) entity, packet.styleData());
         }
     }
 
