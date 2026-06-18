@@ -1,5 +1,5 @@
 //? if fabric {
-/*package dev.bsmp.bouncestyles.mixin.compat.flashback;
+package dev.bsmp.bouncestyles.mixin.compat.flashback;
 import com.moulberry.flashback.record.IgnoredPacketSet;
 import dev.bsmp.bouncestyles.core.networking.clientbound.OpenWardrobeUIClientbound;
 import dev.kikugie.fletching_table.annotation.MixinEnvironment;
@@ -24,4 +24,4 @@ public abstract class IgnoredPacketSetMixin {
     }
 
 }
-*///? }
+//? }

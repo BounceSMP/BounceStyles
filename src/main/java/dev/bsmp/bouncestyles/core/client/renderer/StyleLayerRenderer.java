@@ -9,6 +9,7 @@ import dev.bsmp.bouncestyles.core.data.animation.AnimationHandler;
 import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.api.data.StyleData;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.OrderedSubmitNodeCollector;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -17,12 +18,14 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Pose;
+import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import software.bernie.geckolib.GeckoLibClientServices;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
+import software.bernie.geckolib.renderer.base.BoneSnapshots;
 import software.bernie.geckolib.renderer.base.GeoRenderState;
 import software.bernie.geckolib.renderer.base.GeoRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
@@ -62,7 +65,7 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
         renderState.addGeckolibData(DataTickets.PACKED_LIGHT, packedLight);
 
         setupAnimationState(renderState, playerState);
-        fillRenderState(equippedStyle.getStyle().get(), styleData, renderState, ((GeoRenderState) playerState).getGeckolibData(DataTickets.PARTIAL_TICK));
+        fillRenderState(equippedStyle.getStyle().get(), styleData, renderState, ((GeoRenderState) playerState).getPartialTick());
 
         renderState.addGeckolibData(TICKET_STYLE, equippedStyle);
         renderState.addGeckolibData(TICKET_CATEGORY, category);
@@ -114,8 +117,9 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
             poseStack.last().set(pose);
             renderPassInfo.renderPosed(() -> {
                 for (GeoArmorRenderer.ArmorSegment segment : getSegmentsForCategory(category)) {
-                    renderPassInfo.model().getBone(getBoneNameForSegment(segment))
-                            .ifPresent(bone -> bone.positionAndRender(renderPassInfo, vertexConsumer, packedLight, packedOverlay, renderColor));
+                    renderPassInfo.model().getBone(getBoneNameForSegment(segment)).ifPresent(bone ->
+                            bone.positionAndRender(renderPassInfo, vertexConsumer, packedLight, packedOverlay, renderColor)
+                    );
                 }
             });
             poseStack.popPose();
@@ -126,6 +130,25 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
     public void adjustRenderPose(@NonNull RenderPassInfo<GeoRenderState.Impl> renderPassInfo) {
         renderPassInfo.poseStack().translate(0, 24 / 16f, 0);
         renderPassInfo.poseStack().scale(-1, -1, 1);
+    }
+
+    @Override
+    public void adjustModelBonesForRender(RenderPassInfo<GeoRenderState.Impl> renderPassInfo, BoneSnapshots snapshots) {
+        var category = renderPassInfo.renderState().getGeckolibData(TICKET_CATEGORY);
+
+        getSegmentsForCategory(category).forEach(segment ->
+                snapshots.get(getBoneNameForSegment(segment)).ifPresent(boneSnapshot -> {
+                    final ModelPart modelPart = segment.modelPartGetter.apply(getParentModel());
+                    final Vector3f bonePos = segment.modelPartMatcher.apply(new Vector3f(modelPart.x, modelPart.y, modelPart.z));
+
+                    boneSnapshot.setRotX(-modelPart.xRot)
+                            .setRotY(-modelPart.yRot)
+                            .setRotZ(modelPart.zRot)
+                            .setTranslateX(bonePos.x)
+                            .setTranslateY(bonePos.y)
+                            .setTranslateZ(bonePos.z);
+                })
+        );
     }
 
     @Override

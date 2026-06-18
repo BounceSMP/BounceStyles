@@ -1,5 +1,5 @@
 //? if neoforge {
-package dev.bsmp.bouncestyles.neoforge;
+/*package dev.bsmp.bouncestyles.neoforge;
 
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
@@ -15,12 +15,12 @@ import net.neoforged.neoforge.client.event.RegisterPictureInPictureRenderersEven
 import dev.bsmp.bouncestyles.core.client.renderer.StyleGuiRenderer;
 import dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer;
 //? } else {
-/*import net.minecraft.client.renderer.entity.RenderLayerParent;
+/^import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.world.entity.player.Player;
 import dev.bsmp.bouncestyles.core.client.renderer.LegacyStyleLayerRenderer;
-*///? }
+^///? }
 
 @Mod(value = BounceStyles.modId, dist = Dist.CLIENT)
 @EventBusSubscriber(value = Dist.CLIENT)
@@ -37,9 +37,9 @@ public class BounceStylesNeoforgeClient {
             var playerRenderer = event.getPlayerRenderer(model);
             playerRenderer.addLayer(BounceStylesClient.STYLE_RENDERER = new StyleLayerRenderer(playerRenderer));
             //? } else {
-            /*var playerRenderer = (LivingEntityRenderer) event.getSkin(model);
+            /^var playerRenderer = (LivingEntityRenderer) event.getSkin(model);
             playerRenderer.addLayer(BounceStylesClient.STYLE_RENDERER = new LegacyStyleLayerRenderer((RenderLayerParent<Player, PlayerModel<Player>>) playerRenderer));
-            *///? }
+            ^///? }
         });
     }
 
@@ -51,4 +51,4 @@ public class BounceStylesNeoforgeClient {
     //? }
 
 }
-//?}
+*///?}

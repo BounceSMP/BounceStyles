@@ -1,5 +1,5 @@
 //? if neoforge {
-package dev.bsmp.bouncestyles.neoforge;
+/*package dev.bsmp.bouncestyles.neoforge;
 
 import com.mojang.serialization.Lifecycle;
 import dev.bsmp.bouncestyles.core.BounceStyles;
@@ -43,4 +43,4 @@ public class BounceStylesNeoforge {
         event.dataPackRegistry(BounceStylesRegistries.STYLE_REGISTRY_KEY, Style.CODEC.withLifecycle(Lifecycle.stable()), Style.CODEC.withLifecycle(Lifecycle.stable()));
     }
 }
-//?}
+*///?}

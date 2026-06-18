@@ -71,7 +71,7 @@ dependencies {
         val modules = listOf("transitive-access-wideners-v1", "registry-sync-v0", "resource-loader-v0")
         for (it in modules) modImplementation(fabricApi.module("fabric-$it", property("deps.fabric.api") as String))
 
-        modImplementation(fletchingTable.modrinth("flashback", sc.current.version, "fabric"))
+        modCompileOnly(fletchingTable.modrinth("flashback", sc.current.version, "fabric"))
     }
     else {
         //Neoforge Dependencies

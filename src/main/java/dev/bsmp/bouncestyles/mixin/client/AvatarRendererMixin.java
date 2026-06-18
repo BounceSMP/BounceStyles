@@ -22,7 +22,7 @@ import software.bernie.geckolib.renderer.base.GeoRenderState;
 public abstract class AvatarRendererMixin<E extends Avatar & ClientAvatarEntity> {
 
     @Inject(method = "extractRenderState(Lnet/minecraft/world/entity/Avatar;Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;F)V", at = @At("TAIL"))
-    private void bounceStyles$setupStyleStateData(E entity, AvatarRenderState state, float f, CallbackInfo ci) {
+    private void setupStyleStateData(E entity, AvatarRenderState state, float f, CallbackInfo ci) {
         if (entity instanceof Avatar avatar && state instanceof StyleEntityState styleState) {
             var styleData = StyleData.getEntityData(avatar);
             styleData.getHiddenParts().forEach(styleState::bounceStyles$addHiddenPart);

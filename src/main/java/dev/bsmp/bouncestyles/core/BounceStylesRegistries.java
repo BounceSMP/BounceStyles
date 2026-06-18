@@ -40,16 +40,16 @@ public class BounceStylesRegistries {
 
         //Register StyleSlot Command Argument Type
         //? if fabric {
-        /*net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry.registerArgumentType(
+        net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry.registerArgumentType(
                 BounceStyles.id("style_slot"),
                 StyleSlotArgumentType.class,
                 SingletonArgumentInfo.contextFree(StyleSlotArgumentType::styleSlot)
         );
-        *///?} else {
-        Registrar<ArgumentTypeInfo<?, ?>> argTypes = REGISTRIES.get().get(Registries.COMMAND_ARGUMENT_TYPE);
+        //?} else {
+        /*Registrar<ArgumentTypeInfo<?, ?>> argTypes = REGISTRIES.get().get(Registries.COMMAND_ARGUMENT_TYPE);
         var argumentTypeInfo = ArgumentTypeInfos.registerByClass(StyleSlotArgumentType.class, SingletonArgumentInfo.contextFree(StyleSlotArgumentType::styleSlot));
         argTypes.register(BounceStyles.id("style_slot"), () -> argumentTypeInfo);
-        //?}
+        *///?}
     }
 
     public static <T, E extends T> RegistrySupplier<E> register(ResourceKey<Registry<T>> key, Identifier id, Supplier<E> supplier) {
