@@ -1,6 +1,9 @@
 package dev.bsmp.bouncestyles.api.style;
 
 //? if >= 1.21.11 {
+import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
+import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
+import software.bernie.geckolib.animatable.client.GeoRenderProvider;
 import software.bernie.geckolib.animatable.manager.AnimatableManager;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -43,7 +46,8 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.*;
 
-public class Style implements GeoAnimatable {
+//~ if >= 1.21.11 'GeoAnimatable' -> 'SingletonGeoAnimatable'
+public class Style implements SingletonGeoAnimatable {
     //~ if >= 1.21.11 'geo/missing_model.geo.json' -> 'missing_model'
     public static final Identifier MISSING_MODEL_ID = BounceStyles.id("missing_model");
     public static final Identifier MISSING_MODEL_TEXTURE_ID = BounceStyles.id("textures/missing_model.png");
@@ -51,7 +55,7 @@ public class Style implements GeoAnimatable {
     //~ if >= 1.21.5 'new DataTicket<>' -> 'DataTicket.create'
     public static final DataTicket<Player> PLAYER = DataTicket.create("player_entity", Player.class);
 
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this, false);
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this, true);
 
     private final Identifier styleId;
     private final Identifier modelId;
@@ -84,11 +88,14 @@ public class Style implements GeoAnimatable {
         this.categories = categories;
         this.hiddenParts = hiddenParts;
         this.credits = credits;
+
+        //? if >= 1.21.11
+        SingletonGeoAnimatable.registerSyncedAnimatable(this);
     }
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar registrar) {
-        if(animationMap != null && !animationMap.isEmpty()) {
+        if (animationMap != null && !animationMap.isEmpty()) {
             //~ if >= 1.21.8 'this, this.styleId.toString()' -> 'this.styleId.toString()'
             registrar.add(new AnimationController<>(this.styleId.toString(), Math.max(transitionTicks, 0), AnimationHandler::handleAnimState));
         }

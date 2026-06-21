@@ -6,10 +6,10 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.moulberry.flashback.io.AsyncReplaySaver;
 import com.moulberry.flashback.record.Recorder;
 import dev.bsmp.bouncestyles.api.data.StyleData;
-import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientbound;
 import dev.bsmp.bouncestyles.fabric.compat.FlashbackCompat;
 import dev.kikugie.fletching_table.annotation.MixinEnvironment;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.Entity;
@@ -33,11 +33,8 @@ public abstract class FlashbackRecorderMixin {
             if (!StyleData.hasStyleData(styleEntity)) return;
 
             var styleData = StyleData.getEntityData(styleEntity);
-            asyncReplaySaver.submit(replayWriter -> {
-                replayWriter.startAction(FlashbackCompat.StyleDataAction.INSTANCE);
-                SyncStyleDataClientbound.STREAM_CODEC.encode(replayWriter.friendlyByteBuf(), new SyncStyleDataClientbound(entity.getId(), styleData));
-                replayWriter.finishAction(FlashbackCompat.StyleDataAction.INSTANCE);
-            });
+
+            gamePackets.add(new ClientboundCustomPayloadPacket(new FlashbackCompat.SyncPacket(styleEntity.getId(), styleData)));
         }
     }
 

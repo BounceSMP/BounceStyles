@@ -7,7 +7,6 @@ import dev.bsmp.bouncestyles.api.data.EquippedStyle;
 import dev.bsmp.bouncestyles.api.animation.AnimState;
 import dev.bsmp.bouncestyles.core.data.animation.AnimationHandler;
 import dev.bsmp.bouncestyles.api.style.Style;
-import dev.bsmp.bouncestyles.api.data.StyleData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.player.PlayerModel;
@@ -38,34 +37,33 @@ import java.util.Objects;
 import static dev.bsmp.bouncestyles.core.client.renderer.StyleDataTickets.*;
 
 @SuppressWarnings("UnstableApiUsage")
-public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerModel> implements GeoRenderer<Style, StyleData, GeoRenderState.Impl> {
+public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerModel> implements GeoRenderer<Style, AvatarRenderState, GeoRenderState.Impl> {
     public static final StyleGeoModel geoModel = new StyleGeoModel();
 
     public StyleLayerRenderer(RenderLayerParent<AvatarRenderState, PlayerModel> context) {
         super(context);
     }
 
-    //? if >= 1.21.9 {
     @Override
     public void submit(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int packedLight, AvatarRenderState avatarState, float yRot, float xRot) {
         var cameraState = Minecraft.getInstance().gameRenderer.getLevelRenderState().cameraRenderState;
 
         var styleData = ((GeoRenderState) avatarState).getGeckolibData(TICKET_STYLE_DATA);
         if (styleData != null) {
+            poseStack.pushPose();
             styleData.getAllNonEmpty().forEach((category, equippedStyle) -> {
-                GeoRenderer.super.performRenderPass(setupRenderState(styleData, equippedStyle, category, avatarState, packedLight), poseStack, submitNodeCollector, cameraState);
+                GeoRenderer.super.performRenderPass(setupRenderState(equippedStyle, category, avatarState, packedLight), poseStack, submitNodeCollector, cameraState);
             });
+            poseStack.popPose();
         }
     }
-    //? } else {
-    //? }
 
-    private GeoRenderState.Impl setupRenderState(StyleData styleData, EquippedStyle equippedStyle, Category category, AvatarRenderState playerState, int packedLight) {
-        var renderState = createRenderState(equippedStyle.getStyle().get(), styleData);
+    private GeoRenderState.Impl setupRenderState(EquippedStyle equippedStyle, Category category, AvatarRenderState playerState, int packedLight) {
+        var renderState = createRenderState(equippedStyle.getStyle().get(), playerState);
         renderState.addGeckolibData(DataTickets.PACKED_LIGHT, packedLight);
 
         setupAnimationState(renderState, playerState);
-        fillRenderState(equippedStyle.getStyle().get(), styleData, renderState, ((GeoRenderState) playerState).getPartialTick());
+        fillRenderState(equippedStyle.getStyle().get(), playerState, renderState, ((GeoRenderState) playerState).getPartialTick());
 
         renderState.addGeckolibData(TICKET_STYLE, equippedStyle);
         renderState.addGeckolibData(TICKET_CATEGORY, category);
@@ -158,7 +156,7 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
     //? }
 
     @Override
-    public void fireCompileRenderStateEvent(Style animatable, @Nullable StyleData styleData, GeoRenderState.Impl renderState, float partialTick) {}
+    public void fireCompileRenderStateEvent(Style animatable, @Nullable AvatarRenderState styleData, GeoRenderState.Impl renderState, float partialTick) {}
 
     @Override
     public void fireCompileRenderLayersEvent() {}
@@ -186,6 +184,11 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
     }
 
     @Override
+    public long getInstanceId(Style animatable, @Nullable AvatarRenderState renderState) {
+        return renderState.id;
+    }
+
+    @Override
     public @NonNull GeoModel<Style> getGeoModel() {
         return geoModel;
     }
@@ -197,7 +200,7 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
         return RenderTypes.entityCutoutNoCull(texture);
     }
 
-    public GeoRenderState.Impl createRenderState(Style style, @Nullable StyleData styleData) {
+    public GeoRenderState.Impl createRenderState(Style style, @Nullable AvatarRenderState renderState) {
         return new GeoRenderState.Impl();
     }
 }
