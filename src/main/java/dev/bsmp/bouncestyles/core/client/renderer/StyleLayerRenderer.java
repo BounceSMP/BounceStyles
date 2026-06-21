@@ -31,6 +31,8 @@ import software.bernie.geckolib.renderer.base.GeoRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import software.bernie.geckolib.renderer.base.RenderPassInfo;
+import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+import software.bernie.geckolib.renderer.layer.builtin.AutoGlowingGeoLayer;
 
 import java.util.List;
 import java.util.Objects;
@@ -43,6 +45,7 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
 
     public StyleLayerRenderer(RenderLayerParent<AvatarRenderState, PlayerModel> context) {
         super(context);
+
     }
 
     //? if >= 1.21.9 {
@@ -183,6 +186,25 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
             case LEFT_FOOT -> "armorLeftBoot";
             case RIGHT_FOOT -> "armorRightBoot";
         };
+    }
+
+    @Override
+    public List<GeoRenderLayer<Style, StyleData, GeoRenderState.Impl>> getRenderLayers() {
+        return List.of(
+                new AutoGlowingGeoLayer<>(this)
+        );
+    }
+
+    @Override
+    public void applyRenderLayers(RenderPassInfo<GeoRenderState.Impl> renderPassInfo, SubmitNodeCollector renderTasks) {
+        for (GeoRenderLayer renderLayer : this.getRenderLayers()) {
+            if (renderLayer instanceof AutoGlowingGeoLayer<?, ?, ?>) {
+                var equippedStyle = renderPassInfo.renderState().getGeckolibData(TICKET_STYLE);
+                if (equippedStyle == null || equippedStyle.getStyle().isEmpty() || !equippedStyle.getStyle().get().isTextureEmissive())
+                    continue;
+            }
+            renderLayer.submitRenderTask(renderPassInfo, renderTasks);
+        }
     }
 
     @Override

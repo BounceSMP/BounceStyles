@@ -55,8 +55,11 @@ public class Style implements GeoAnimatable {
 
     private final Identifier styleId;
     private final Identifier modelId;
+
     private final Identifier textureId;
+    private final boolean isTextureEmissive;
     private final @Nullable List<Identifier> textureVariants;
+
     private final @Nullable Identifier animationId;
     private final @Nullable Map<String, RawAnimation> animationMap;
 
@@ -66,17 +69,18 @@ public class Style implements GeoAnimatable {
     private final @Nullable List<String> credits;
 
     public Style(Identifier styleId, Identifier modelId, Identifier textureId, @Nullable Identifier animationId, @Nullable Map<String, String> animationMap, List<Category> categories) {
-        this(styleId, modelId, textureId, null, animationId, animationMap, 1, null, categories, null);
+        this(styleId, modelId, textureId, false, null, animationId, animationMap, 1, null, categories, null);
     }
 
     public Style(Identifier styleId, Identifier modelId, Identifier textureId, @Nullable List<Identifier> textureVariants, @Nullable Identifier animationId, @Nullable Map<String, String> animationMap, int transitionTicks, List<Category> categories) {
-        this(styleId, modelId, textureId, textureVariants, animationId, animationMap, transitionTicks, null, categories, null);
+        this(styleId, modelId, textureId, false, textureVariants, animationId, animationMap, transitionTicks, null, categories, null);
     }
 
-    public Style(Identifier styleId, Identifier modelId, Identifier textureId, @Nullable List<Identifier> textureVariants, @Nullable Identifier animationId, @Nullable Map<String, String> animationMap, int transitionTicks, @Nullable List<String> hiddenParts, List<Category> categories, @Nullable List<String> credits) {
+    public Style(Identifier styleId, Identifier modelId, Identifier textureId, boolean isTextureEmissive, @Nullable List<Identifier> textureVariants, @Nullable Identifier animationId, @Nullable Map<String, String> animationMap, int transitionTicks, @Nullable List<String> hiddenParts, List<Category> categories, @Nullable List<String> credits) {
         this.styleId = styleId;
         this.modelId = modelId;
         this.textureId = textureId;
+        this.isTextureEmissive = isTextureEmissive;
         this.textureVariants = textureVariants;
         this.animationId = animationId;
         this.animationMap = animationMap != null ? buildAnimationMap(animationMap) : null;
@@ -103,8 +107,12 @@ public class Style implements GeoAnimatable {
         return cache;
     }
 
-    public int getTransitionTicks() {
-        return transitionTicks;
+    public Identifier getStyleId() {
+        return styleId;
+    }
+
+    public Identifier getModelId() {
+        return modelId;
     }
 
     public Identifier getTextureId() {
@@ -120,12 +128,8 @@ public class Style implements GeoAnimatable {
         return Optional.ofNullable(this.textureVariants);
     }
 
-    public Identifier getStyleId() {
-        return styleId;
-    }
-
-    public Identifier getModelId() {
-        return modelId;
+    public boolean isTextureEmissive() {
+        return this.isTextureEmissive;
     }
 
     public Optional<List<String>> getHiddenParts() {
@@ -142,6 +146,10 @@ public class Style implements GeoAnimatable {
 
     public Optional<Map<String, RawAnimation>> getAnimationMap() {
         return Optional.ofNullable(this.animationMap);
+    }
+
+    public int getTransitionTicks() {
+        return transitionTicks;
     }
 
     public Optional<Map<String, String>> getAnimationStringMap() {
@@ -183,7 +191,7 @@ public class Style implements GeoAnimatable {
         return animMap;
     }
 
-    private static Style decode(String styleName, Optional<Identifier> modelId, Optional<Identifier> textureId, Optional<List<Identifier>> textureVariants, Optional<Identifier> animationId, Optional<Map<String, String>> animationMap, Integer transitionTicks, Optional<List<String>> hiddenParts, List<Category> categories, Optional<List<String>> credits) {
+    private static Style decode(String styleName, Optional<Identifier> modelId, Optional<Identifier> textureId, boolean isTextureEmissive, Optional<List<Identifier>> textureVariants, Optional<Identifier> animationId, Optional<Map<String, String>> animationMap, Integer transitionTicks, Optional<List<String>> hiddenParts, List<Category> categories, Optional<List<String>> credits) {
         var styleId = BounceStyles.id(styleName);
 
         if (textureVariants.isPresent()) {
@@ -202,6 +210,7 @@ public class Style implements GeoAnimatable {
                 styleId,
                 parseId(styleId, modelId, "geo", ".geo.json"),
                 parseId(styleId, textureId, "textures", ".png"),
+                isTextureEmissive,
                 textureVariants.orElse(null),
                 parseId(styleId, animationId, "animations", ".animation.json"),
                 animationMap.orElse(null),
@@ -243,6 +252,7 @@ public class Style implements GeoAnimatable {
             Codec.STRING.fieldOf("name").forGetter(style -> style.getStyleId().toString()),
             ID_CODEC.optionalFieldOf("model_id").forGetter(style -> Optional.of(style.getModelId())),
             ID_CODEC.optionalFieldOf("texture_id").forGetter(style -> Optional.of(style.getTextureId())),
+            Codec.BOOL.optionalFieldOf("emissive_texture", false).forGetter(Style::isTextureEmissive),
             ID_CODEC.listOf().optionalFieldOf("texture_variants").forGetter(Style::getTextureVariants),
             ID_CODEC.optionalFieldOf("animation_id").forGetter(Style::getAnimationId),
             Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("animations").forGetter(Style::getAnimationStringMap),
