@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.api.style.StylePreset;
+import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
 import dev.bsmp.bouncestyles.core.data.attached.StyleDataAttachment;
@@ -113,6 +114,16 @@ public class StyleData {
                 this.getLegsStyle(),
                 this.getFeetStyle()
         );
+    }
+
+    @Override
+    public String toString() {
+        return "StyleData["
+                + this.getHeadStyle().getStyleId() + ", "
+                + this.getBodyStyle().getStyleId() + ", "
+                + this.getLegsStyle().getStyleId() + ", "
+                + this.getFeetStyle().getStyleId()
+                + "]";
     }
 
     public static boolean hasStyleData(Avatar avatar) {

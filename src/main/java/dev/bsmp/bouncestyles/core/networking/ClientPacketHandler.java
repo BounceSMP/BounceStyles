@@ -1,4 +1,5 @@
 package dev.bsmp.bouncestyles.core.networking;
+//~ avatar
 
 import dev.architectury.networking.NetworkManager;
 import dev.bsmp.bouncestyles.core.client.screen.WardrobeScreen;

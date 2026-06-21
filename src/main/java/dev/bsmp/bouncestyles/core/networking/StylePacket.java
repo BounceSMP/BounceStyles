@@ -4,7 +4,7 @@ import dev.architectury.networking.NetworkManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 
-public interface StylePacket /*? if >= 1.21.1 {*/ extends net.minecraft.network.protocol.common.custom.CustomPacketPayload /*?}*/ {
+public interface StylePacket extends net.minecraft.network.protocol.common.custom.CustomPacketPayload {
 
     interface ServerboundStylePacket extends StylePacket {
         default void sendToServer() {
@@ -13,7 +13,6 @@ public interface StylePacket /*? if >= 1.21.1 {*/ extends net.minecraft.network.
             *///?} else {
             NetworkManager.sendToServer(this);
             //?}
-            //net.neoforged.neoforge.network.PacketDistributor.sendToServer(this);
         }
     }
 
@@ -24,7 +23,6 @@ public interface StylePacket /*? if >= 1.21.1 {*/ extends net.minecraft.network.
             *///?} else {
             NetworkManager.sendToPlayer(player, this);
             //?}
-            //net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(player, this);
         }
 
         default void sendToPlayers(Iterable<ServerPlayer> players) {
