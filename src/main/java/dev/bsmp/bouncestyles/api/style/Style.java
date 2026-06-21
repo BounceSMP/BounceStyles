@@ -6,6 +6,7 @@ import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.cache.GeckoLibResources;
 import software.bernie.geckolib.constant.dataticket.DataTicket;
 //? } elif >= 1.21.8 {
 /*import software.bernie.geckolib.animatable.manager.AnimatableManager;
@@ -43,18 +44,12 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.*;
 
 public class Style implements GeoAnimatable {
-    //? if >= 1.21.11 {
+    //~ if >= 1.21.11 'geo/missing_model.geo.json' -> 'missing_model'
     public static final Identifier MISSING_MODEL_ID = BounceStyles.id("missing_model");
-    //? } else
-    //public static final Identifier MISSING_MODEL_ID = BounceStyles.id("geo/missing_model.geo.json");
-
     public static final Identifier MISSING_MODEL_TEXTURE_ID = BounceStyles.id("textures/missing_model.png");
 
-    //? if >= 1.21.5 {
+    //~ if >= 1.21.5 'new DataTicket<>' -> 'DataTicket.create'
     public static final DataTicket<Player> PLAYER = DataTicket.create("player_entity", Player.class);
-    //? } else {
-    /*public static final DataTicket<Player> PLAYER = new DataTicket<>("player_entity", Player.class);
-    *///? }
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this, false);
 
@@ -94,11 +89,8 @@ public class Style implements GeoAnimatable {
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar registrar) {
         if(animationMap != null && !animationMap.isEmpty()) {
-            //? if >= 1.21.8 {
+            //~ if >= 1.21.8 'this, this.styleId.toString()' -> 'this.styleId.toString()'
             registrar.add(new AnimationController<>(this.styleId.toString(), Math.max(transitionTicks, 0), AnimationHandler::handleAnimState));
-            //? } else {
-            /*registrar.add(new AnimationController<>(this, this.styleId.toString(), Math.max(transitionTicks, 0), AnimationHandler::handleAnimState));
-            *///? }
         }
     }
 
@@ -193,6 +185,7 @@ public class Style implements GeoAnimatable {
 
     private static Style decode(String styleName, Optional<Identifier> modelId, Optional<Identifier> textureId, Optional<List<Identifier>> textureVariants, Optional<Identifier> animationId, Optional<Map<String, String>> animationMap, Integer transitionTicks, Optional<List<String>> hiddenParts, List<Category> categories, Optional<List<String>> credits) {
         var styleId = BounceStyles.id(styleName);
+
         if (textureVariants.isPresent()) {
             if (!textureVariants.get().isEmpty()) {
                 List<Identifier> list = new ArrayList<>();
@@ -204,6 +197,7 @@ public class Style implements GeoAnimatable {
             else
                 textureVariants = Optional.empty();
         }
+
         return new Style(
                 styleId,
                 parseId(styleId, modelId, "geo", ".geo.json"),
@@ -218,15 +212,17 @@ public class Style implements GeoAnimatable {
         );
     }
 
-    private static Identifier parseId(Identifier styleName, Optional<Identifier> resourceId, String directory, String suffix) {
-        var id = resourceId.orElse(styleName);
+    private static Identifier parseId(Identifier styleId, Optional<Identifier> resourceId, String directory, String suffix) {
+        var id = resourceId.orElse(styleId);
 
         //? if >= 1.21.11 {
         if (directory.equalsIgnoreCase("textures") && !id.getPath().startsWith(directory)) {
             id = id.withPath(directory + "/" + id.getPath());
             if (!id.getPath().endsWith(".png")) id = id.withPath(id.getPath() + ".png");
+            return id;
         }
-        return id.withPath(id.getPath().replace(".geo.json", "").replace(".animation.json", ""));
+
+        return GeckoLibResources.stripPrefixAndSuffix(id);
         //? } else {
         /*var path = id.getPath().endsWith(suffix) ? id.getPath() : id.getPath() + suffix;
         if (!path.startsWith(directory)) path = directory + "/" + path;

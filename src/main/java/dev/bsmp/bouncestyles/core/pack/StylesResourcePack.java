@@ -109,7 +109,10 @@ public class StylesResourcePack extends AbstractPackResources implements Pack.Re
         for (PackResources pack : this.mergedPacks) {
             pack.listResources(type, namespace, path, consumer);
             if (!alternatePath.isBlank())
-                pack.listResources(type, namespace, alternatePath, consumer);
+                pack.listResources(type, namespace, alternatePath, (identifier, inputStreamIoSupplier) -> {
+                    identifier = identifier.withPath(identifier.getPath().replaceFirst("geo/", "").replaceFirst("animations/", ""));
+                    consumer.accept(identifier, inputStreamIoSupplier);
+                });
         }
     }
 
@@ -161,7 +164,5 @@ public class StylesResourcePack extends AbstractPackResources implements Pack.Re
     public PackResources openFull(net.minecraft.server.packs.PackLocationInfo location, Pack.Metadata metadata) {
         return this;
     }
-
-
     //?}
 }
