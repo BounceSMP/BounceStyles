@@ -1,4 +1,4 @@
-<div style="text-align: center;">
+<div style="text-align: center;" align="center">
 
 ![](https://i.ibb.co/vxFbQJvg/title-v2.png)
 
@@ -6,7 +6,7 @@
 
 </div>
 
-<div style="text-align: center;">
+<div style="text-align: center;" align="center">
 
 [![github](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy-minimal/available/github_vector.svg)](https://github.com/BounceSMP/BounceStyles)
 [![modrinth](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy-minimal/available/modrinth_vector.svg)](https://modrinth.com/mod/bouncestyles)
@@ -16,7 +16,7 @@
 
 </div>
 
-<div style="text-align: center;">
+<div style="text-align: center;" align="center">
 
 [![architectury-api](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/requires/architectury-api_vector.svg)](https://modrinth.com/mod/architectury-api)
 [![geckolib](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/requires/geckolib_vector.svg)](https://modrinth.com/mod/geckolib)
@@ -26,7 +26,7 @@
 
 </div>
 
-<div style="text-align: center;">
+<div style="text-align: center;" align="center">
 
 ![](https://i.ibb.co/ch98jQzc/Features-Trans.png)
 
@@ -40,11 +40,19 @@ Players can choose what Styles to equip in their respective slots in the Wardrob
 
 Server Admins can also create itemized versions of Styles in the form of Style Magazines to allow players to unlock particular Styles, or unlock/re-lock Styles via commands.
 
-<div style="text-align: center;">
+[**More details on creating Styles can be found on the wiki**](https://github.com/BounceSMP/BounceStyles/wiki) *(A wiki rework is planned, current state is not final)*
+
+<div style="text-align: center;" align="center">
 
 ![](https://i.ibb.co/kjFd6MY/giwi2.gif)
 
 ![](https://i.ibb.co/99Qpp43q/Dependencies-Trans.png)
 
-</div>
+_Supported versions are still under consideration, and likely to change. Long Term Support is not guaranteed._ 
 
+| Minecraft Version | Fabric API      | Neoforge | Architectury API | Geckolib |
+|-------------------|-----------------|----------|------------------|----------|
+| 1.21.1            | 0.102.0+1.21.1  | 21.1.1   | 13.0.6           | 4.8.x    |
+| 1.21.11           | 0.139.4+1.21.11 | 21.11.42 | 19.0.1           | 5.4.2    |
+
+</div>
