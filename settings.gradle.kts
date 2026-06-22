@@ -1,59 +1,29 @@
-import dev.kikugie.stonecutter.settings.StonecutterSettings
-
 pluginManagement {
     repositories {
-        gradlePluginPortal()
+        mavenLocal()
         mavenCentral()
-        maven("https://maven.fabricmc.net/")
-        maven("https://maven.architectury.dev")
-        maven("https://maven.minecraftforge.net/")
-        maven("https://maven.neoforged.net/releases/")
-        maven("https://repo.spongepowered.org/maven")
-        maven("https://maven.kikugie.dev/snapshots")
-        maven("https://maven.kikugie.dev/releases")
-    }
-    plugins {
-        kotlin("jvm") version "1.9.24"
+        gradlePluginPortal()
+        maven("https://maven.architectury.dev/") { name = "Architectury" }
+        maven("https://maven.fabricmc.net/") { name = "Fabric" }
+        maven("https://maven.neoforged.net/releases/") { name = "NeoForged" }
+        maven("https://maven.kikugie.dev/snapshots") { name = "KikuGie Snapshots" }
+        maven("https://maven.kikugie.dev/releases") { name = "KikuGie Releases" }
+        maven("https://maven.parchmentmc.org") { name = "ParchmentMC" }
     }
 }
 
 plugins {
-    id("dev.kikugie.stonecutter") version "0.6.2"
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
+    id("dev.kikugie.stonecutter") version "0.9+"
 }
-extensions.configure<StonecutterSettings> {
-    kotlinController = true
-    centralScript = "build.gradle.kts"
 
-    shared {
-        // vers("1.16.5-fabric","1.16.5")
-        // vers("1.16.5-forge","1.16.5")
-        // vers("1.18.2-fabric","1.18.2")
-        // vers("1.18.2-forge","1.18.2")
-        // vers("1.19.2-fabric","1.19.2")
-        // vers("1.19.2-forge","1.19.2")
-        // vers("1.19.4-fabric","1.19.4")
-        // vers("1.19.4-forge","1.19.4")
-        vers("1.20.1-fabric","1.20.1")
-        vers("1.20.1-forge","1.20.1")
-        // vers("1.20.4-fabric","1.20.4")
-        // vers("1.20.4-forge","1.20.4")
-        // vers("1.20.4-neoforge","1.20.4")
-        // vers("1.20.6-fabric","1.20.6")
-        // vers("1.20.6-neoforge","1.20.6")
-        // vers("1.21-fabric","1.21")
-        // vers("1.21-neoforge","1.21")
-        vers("1.21.1-fabric","1.21.1")
-        vers("1.21.1-neoforge","1.21.1")
-        // vers("1.21.2+3-fabric","1.21.2")
-        // vers("1.21.2+3-neoforge","1.21.2")
-        vcsVersion="1.20.1-fabric"
+stonecutter {
+
+    create(rootProject) {
+        fun addVersion(version: String, vararg loaders: String) = loaders.forEach { version("$version-$it", version) }
+
+        addVersion("1.21.11", "fabric", "neoforge")
+        addVersion("1.21.1", "fabric", "neoforge")
+
+        vcsVersion = "1.21.11-fabric"
     }
-    create(rootProject)
 }
-
-rootProject.name = "bouncestyles"
-
-
-
-

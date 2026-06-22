@@ -1,17 +1,24 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
+import dev.bsmp.bouncestyles.core.client.screen.widgets.button.StyleSelectionButton;
 import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.api.style.Category;
-import dev.bsmp.bouncestyles.core.data.StyleData;
+import dev.bsmp.bouncestyles.api.data.StyleData;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+
+//? if >= 1.21.5 {
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+//? }
 
 public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implements WardrobeWidget {
     Category category;
@@ -35,7 +42,7 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
     }
 
     @Override
-    protected void onSelectionClicked(StyleButton button, int mouseButton) {
+    public void onSelectionClicked(StyleSelectionButton button, int mouseButton) {
         Style style = button.getStyle();
         if (style.getTextureVariants().isPresent() && mouseButton != 1) {
             int popupWidth = this.width - 10;
@@ -45,14 +52,18 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
             this.popup = new SelectionPopup(this, this.category, style, popupX, popupY, popupWidth, popupHeight);
         }
         else {
-            if (this.selectedStyleButton == button) {
+            if (this.selectedButton == button) {
                 new EquipStyleServerbound(this.category).sendToServer();
-                this.selectedStyleButton = null;
+                this.selectedButton = null;
             } else if (mouseButton != 1) {
                 new EquipStyleServerbound(this.category, style.getStyleId()).sendToServer();
-                this.selectedStyleButton = button;
+                this.selectedButton = button;
             }
         }
+    }
+
+    public Category getCategory() {
+        return category;
     }
 
     public void updateButtons(Category category, List<Style> styles) {
@@ -71,16 +82,16 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
     @Override
     protected void updateButtons() {
         this.buttons.clear();
-        StyleData styleData = StyleData.getOrCreateStyleData(Minecraft.getInstance().player);
+        StyleData styleData = StyleData.getEntityData(Minecraft.getInstance().player);
 
         for (Style style : this.styles) {
-            WardrobeStyleSelectionWidget.StyleButton button = new WardrobeStyleSelectionWidget.StyleButton(this, 0, 0, buttonSize, buttonSize, category, style, true);
+            StyleSelectionButton button = new StyleSelectionButton(this, 0, 0, buttonSize, buttonSize, category, style);
 
             var equippedStyle = styleData.getStyleForSlot(category);
-            if (equippedStyle.isPresent() && equippedStyle.get().getFirst() == style) {
+            if (equippedStyle.getStyleId().orElse(null) == style.getStyleId()) {
                 if (style.getTextureVariants().isPresent())
-                    button.setTextureId(equippedStyle.get().getSecond());
-                this.selectedStyleButton = button;
+                    button.setTextureId(equippedStyle.getVariant());
+                this.selectedButton = button;
             }
 
             this.buttons.add(button);
@@ -106,7 +117,22 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
     }
     //?}
 
+    //? if >= 1.21.11 {
     @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (!this.active || !this.visible) {
+            return false;
+        }
+        if (this.isMouseOver(event.x(), event.y())) {
+            if (this.popup == null || !this.popup.mouseClicked(event, doubleClick)) {
+                return super.mouseClicked(event, doubleClick);
+            }
+        }
+        this.popup = null;
+        return false;
+    }
+    //? } else {
+    /*@Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
         if (!this.active || !this.visible) {
             return false;
@@ -120,8 +146,19 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
         this.popup = null;
         return false;
     }
+    *///? }
 
+    //? if >= 1.21.11 {
     @Override
+    public boolean keyPressed(KeyEvent event) {
+        if (event.key() == InputConstants.KEY_ESCAPE && this.popup != null) {
+            this.popup = null;
+            return true;
+        }
+        return false;
+    }
+    //? } else {
+    /*@Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == 256 && this.popup != null) {
             this.popup = null;
@@ -129,8 +166,9 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
         }
         return false;
     }
+    *///? }
 
-    private static class SelectionPopup extends WardrobeScrollWidget {
+    public static class SelectionPopup extends WardrobeScrollWidget {
         private final WardrobeStyleSelectionWidget parent;
         private final Category category;
         private final Style style;
@@ -154,13 +192,13 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
         }
 
         @Override
-        protected void onSelectionClicked(StyleButton button, int mouseButton) {
-            if (this.selectedStyleButton == button) {
+        public void onSelectionClicked(StyleSelectionButton button, int mouseButton) {
+            if (this.selectedButton == button) {
                 new EquipStyleServerbound(this.category).sendToServer();
-                this.selectedStyleButton = null;
+                this.selectedButton = null;
             } else {
                 new EquipStyleServerbound(this.category, this.style.getStyleId(), button.getTextureId()).sendToServer();
-                this.selectedStyleButton = button;
+                this.selectedButton = button;
             }
 
             this.parent.updateButtons = true;
@@ -169,16 +207,16 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
 
         @Override
         protected void updateButtons() {
-            List<ResourceLocation> textureVariants = style.getTextureVariants().get();
-            StyleData styleData = StyleData.getOrCreateStyleData(Minecraft.getInstance().player);
+            List<Identifier> textureVariants = style.getTextureVariants().get();
+            StyleData styleData = StyleData.getEntityData(Minecraft.getInstance().player);
 
             for (int textureId = -1; textureId < textureVariants.size(); textureId++) {
-                WardrobeStyleSelectionWidget.StyleButton button = new WardrobeStyleSelectionWidget.StyleButton(this, 0, 0, buttonSize, buttonSize, category, style, false);
+                StyleSelectionButton button = new StyleSelectionButton(this, 0, 0, buttonSize, buttonSize, category, style);
                 button.setTextureId(textureId);
 
                 var equippedStyle = styleData.getStyleForSlot(category);
-                if (equippedStyle.isPresent() && equippedStyle.get().getFirst() == style && equippedStyle.get().getSecond() == textureId)
-                    this.selectedStyleButton = button;
+                if (equippedStyle.getStyleId().orElse(null) == style.getStyleId() && equippedStyle.getVariant() == textureId)
+                    this.selectedButton = button;
 
                 this.buttons.add(button);
             }
@@ -187,7 +225,18 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
             this.updateButtons = false;
         }
 
+        //? if >= 1.21.11 {
         @Override
+        public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+            if (!this.isMouseOver(event.x(), event.y())) {
+                this.parent.popup = null;
+                return true;
+            }
+            super.mouseClicked(event, doubleClick);
+            return true;
+        }
+        //? } else {
+        /*@Override
         public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
             if (!this.isMouseOver(mouseX, mouseY)) {
                 this.parent.popup = null;
@@ -195,5 +244,6 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
             }
             return super.mouseClicked(mouseX, mouseY, mouseButton);
         }
+        *///? }
     }
 }

@@ -1,53 +1,61 @@
 package dev.bsmp.bouncestyles.api.style;
 
-import com.google.gson.JsonObject;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.bsmp.bouncestyles.core.BounceStyles;
+import dev.bsmp.bouncestyles.api.data.EquippedStyle;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
-import dev.bsmp.bouncestyles.core.data.StyleData;
-import net.minecraft.resources.ResourceLocation;
+import dev.bsmp.bouncestyles.core.data.unlocks.UnlockManager;
+import net.minecraft.world.entity.Entity;
 
+import java.util.Map;
 import java.util.Optional;
 
-public record StylePreset(ResourceLocation presetId, String name, Optional<Pair<ResourceLocation, Integer>> head, Optional<Pair<ResourceLocation, Integer>> body, Optional<Pair<ResourceLocation, Integer>> legs, Optional<Pair<ResourceLocation, Integer>> feet, boolean error) {
-    public StylePreset(ResourceLocation presetId, String name, Optional<Pair<ResourceLocation, Integer>> head, Optional<Pair<ResourceLocation, Integer>> body, Optional<Pair<ResourceLocation, Integer>> legs, Optional<Pair<ResourceLocation, Integer>> feet) {
-        this(presetId, name, head, body, legs, feet, errorCheck(head, body, legs, feet));
+public record StylePreset(Optional<EquippedStyle> head, Optional<EquippedStyle> body, Optional<EquippedStyle> legs, Optional<EquippedStyle> feet) {
+    public StylePreset(EquippedStyle head, EquippedStyle body, EquippedStyle legs, EquippedStyle feet) {
+        this(slotCheck(head), slotCheck(body), slotCheck(legs), slotCheck(feet));
     }
 
-    public StylePreset(String name, Optional<Pair<ResourceLocation, Integer>> head, Optional<Pair<ResourceLocation, Integer>> body, Optional<Pair<ResourceLocation, Integer>> legs, Optional<Pair<ResourceLocation, Integer>> feet) {
-        this(BounceStyles.resourceLocation(name), name, head, body, legs, feet);
+    public Map<Category, EquippedStyle> toMap() {
+        return Map.of(
+                Category.Head, head().orElse(new EquippedStyle()),
+                Category.Body, body().orElse(new EquippedStyle()),
+                Category.Legs, legs().orElse(new EquippedStyle()),
+                Category.Feet, feet().orElse(new EquippedStyle())
+        );
     }
 
-    public static Optional<StylePreset> fromJson(ResourceLocation presetId, JsonObject json) {
-        return CODEC.parse(JsonOps.INSTANCE, json).resultOrPartial(BounceStyles.LOGGER::error);
+    private static Optional<EquippedStyle> slotCheck(EquippedStyle equipped) {
+        if (equipped.getStyle().isEmpty()) return Optional.empty();
+        return Optional.of(equipped);
     }
 
-    public static boolean errorCheck(Optional<Pair<ResourceLocation, Integer>>... slots) {
-        for(Optional<Pair<ResourceLocation, Integer>> slot : slots)
-            if(slot.isPresent() && !BounceStylesRegistries.idExists(slot.get().getFirst()))
-                return true;
+    public static Error errorCheck(Entity entity, EquippedStyle... slots) {
+        Error error = Error.NO_ERROR;
 
-        return false;
-    }
+        for(EquippedStyle slot : slots)
+            if(slot.getStyleId().isPresent()) {
+                var styleId = slot.getStyleId().get();
+                if (!BounceStylesRegistries.idExists(styleId))
+                    error = error != Error.NO_ERROR ? Error.BOTH : Error.MISSING;
+                else if (!UnlockManager.hasUnlocked(entity, styleId))
+                    error = error != Error.NO_ERROR ? Error.BOTH : Error.LOCKED;
+            }
 
-    public boolean hasAllUnlocked(StyleData styleData) {
-        boolean result = true;
-        if (head.isPresent()) result &= styleData.hasStyleUnlocked(head.get().getFirst());
-        if (body.isPresent()) result &= styleData.hasStyleUnlocked(body.get().getFirst());
-        if (legs.isPresent()) result &= styleData.hasStyleUnlocked(legs.get().getFirst());
-        if (feet.isPresent()) result &= styleData.hasStyleUnlocked(feet.get().getFirst());
-        return result;
+        return error;
     }
 
     public static final Codec<StylePreset> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("name").forGetter(StylePreset::name),
-            StyleData.CODEC_PAIR.optionalFieldOf("head").forGetter(StylePreset::head),
-            StyleData.CODEC_PAIR.optionalFieldOf("body").forGetter(StylePreset::body),
-            StyleData.CODEC_PAIR.optionalFieldOf("legs").forGetter(StylePreset::legs),
-            StyleData.CODEC_PAIR.optionalFieldOf("feet").forGetter(StylePreset::feet)
+            EquippedStyle.CODEC.optionalFieldOf("head").forGetter(StylePreset::head),
+            EquippedStyle.CODEC.optionalFieldOf("body").forGetter(StylePreset::body),
+            EquippedStyle.CODEC.optionalFieldOf("legs").forGetter(StylePreset::legs),
+            EquippedStyle.CODEC.optionalFieldOf("feet").forGetter(StylePreset::feet)
     ).apply(instance, StylePreset::new));
+
+    enum Error {
+        NO_ERROR,
+        MISSING,
+        LOCKED,
+        BOTH
+    }
 
 }

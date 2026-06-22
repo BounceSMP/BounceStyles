@@ -13,7 +13,7 @@ public record OpenStyleScreenServerbound() implements StylePacket.ServerboundSty
     }
 
     //? if >= 1.21.1 {
-    public static final Type<OpenStyleScreenServerbound> TYPE = new net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<>(BounceStyles.resourceLocation("serverbound_open_wardrobe"));
+    public static final Type<OpenStyleScreenServerbound> TYPE = new net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<>(BounceStyles.id("serverbound_open_wardrobe"));
 
     public static final net.minecraft.network.codec.StreamCodec<ByteBuf, OpenStyleScreenServerbound> STREAM_CODEC = net.minecraft.network.codec.StreamCodec.unit(new OpenStyleScreenServerbound());
 

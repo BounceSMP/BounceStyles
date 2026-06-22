@@ -1,6 +1,6 @@
 {
-	"parent": "item/generated",
-	"textures": {
-		"layer0": "bounce_styles:item/magazine"
-	}
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "bounce_styles:item/magazine"
+  }
 }
