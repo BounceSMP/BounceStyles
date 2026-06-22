@@ -22,7 +22,7 @@
 [![geckolib](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/requires/geckolib_vector.svg)](https://modrinth.com/mod/geckolib)
 
 
-![](https://i.ibb.co/LhPJb6Nh/silver-2.gif)
+![](https://i.ibb.co/5xTR3gKN/silver.webp)
 
 </div>
 
@@ -44,7 +44,7 @@ Server Admins can also create itemized versions of Styles in the form of Style M
 
 <div style="text-align: center;" align="center">
 
-![](https://i.ibb.co/kjFd6MY/giwi2.gif)
+![](https://i.ibb.co/0yX92zxz/giwi.webp)
 
 ![](https://i.ibb.co/99Qpp43q/Dependencies-Trans.png)
 
