@@ -35,10 +35,10 @@ public class BounceStylesNeoforgeClient {
         event.getSkins().forEach(model -> {
             //? if >= 1.21.11 {
             var playerRenderer = event.getPlayerRenderer(model);
-            playerRenderer.addLayer(BounceStylesClient.STYLE_RENDERER = new StyleLayerRenderer(playerRenderer));
+            playerRenderer.addLayer(BounceStylesClient.getOrCreateStyleRenderer(playerRenderer));
             //? } else {
             /^var playerRenderer = (LivingEntityRenderer) event.getSkin(model);
-            playerRenderer.addLayer(BounceStylesClient.STYLE_RENDERER = new LegacyStyleLayerRenderer((RenderLayerParent<Player, PlayerModel<Player>>) playerRenderer));
+            playerRenderer.addLayer(BounceStylesClient.getOrCreateStyleRenderer(playerRenderer));
             ^///? }
         });
     }

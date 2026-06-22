@@ -113,7 +113,7 @@ public class StyleSelectionButton extends Button implements WardrobeWidget {
             };
 
             //? if >= 1.21.5 {
-            var renderState = BounceStylesClient.STYLE_RENDERER.createRenderState(null, null);
+            var renderState = BounceStylesClient.getStyleRenderer().createRenderState(null, null);
             renderState.addGeckolibData(StyleDataTickets.TICKET_STYLE, this.style);
             renderState.addGeckolibData(StyleDataTickets.TICKET_CATEGORY, this.category);
 

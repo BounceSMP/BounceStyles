@@ -8,11 +8,15 @@ import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
+import dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer;
 import dev.bsmp.bouncestyles.core.client.screen.WardrobeScreen;
 import dev.bsmp.bouncestyles.api.style.StylePreset;
 import dev.bsmp.bouncestyles.core.networking.serverbound.OpenStyleScreenServerbound;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.player.PlayerModel;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
@@ -33,7 +37,7 @@ public class BounceStylesClient {
 
     public static final KeyMapping KEY_WARDROBE = createWardrobeKeyMapping();
     //? if >= 1.21.5 {
-    public static dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer STYLE_RENDERER;
+    private static dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer STYLE_RENDERER;
     //? } else
     //public static dev.bsmp.bouncestyles.core.client.renderer.LegacyStyleLayerRenderer STYLE_RENDERER;
 
@@ -41,6 +45,15 @@ public class BounceStylesClient {
         KeyMappingRegistry.register(KEY_WARDROBE);
         ClientTickEvent.CLIENT_POST.register(instance -> { while (KEY_WARDROBE.consumeClick()) new OpenStyleScreenServerbound().sendToServer(); });
         ClientLifecycleEvent.CLIENT_LEVEL_LOAD.register(world -> BounceStylesRegistries.setRegistryAccess(world.registryAccess()));
+    }
+
+    public static StyleLayerRenderer getStyleRenderer() {
+        return STYLE_RENDERER;
+    }
+
+    public static StyleLayerRenderer getOrCreateStyleRenderer(RenderLayerParent<AvatarRenderState, PlayerModel> renderer) {
+        if (STYLE_RENDERER == null) STYLE_RENDERER = new StyleLayerRenderer(renderer);
+        return STYLE_RENDERER;
     }
 
     public static void setPresets(Map<String, StylePreset> map) {

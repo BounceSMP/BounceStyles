@@ -35,12 +35,10 @@ public class FlashbackCompat {
         public void handle() {
             var replayServer = Flashback.getReplayServer();
             if (replayServer != null) {
-                BounceStyles.LOGGER.info("READING STYLEDATA - {}", entityId);
                 var server = (ReplayServerAccessor) replayServer;
                 var entity = ((ReplayGamePacketHandlerAccessor) server.getGamePacketHandler()).invokeGetEntityOrPending(entityId);
 
                 if (entity instanceof Player player) {
-                    BounceStyles.LOGGER.info("SETTING TO PLAYER - {}", player);
                     StyleData.setEntityData(player, styleData);
                 }
             }

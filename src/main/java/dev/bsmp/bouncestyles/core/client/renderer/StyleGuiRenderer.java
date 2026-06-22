@@ -9,6 +9,7 @@ import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
 import net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -29,8 +30,8 @@ public class StyleGuiRenderer extends PictureInPictureRenderer<StyleGuiRenderer.
         if (renderState.isHovered()) poseStack.scale(1.2f, 1.2f, 1.2f);
 
         var featureRenderDispatcher = Minecraft.getInstance().gameRenderer.getFeatureRenderDispatcher();
-        BounceStylesClient.STYLE_RENDERER.performRenderPass(
-                (GeoRenderState.Impl) renderState.renderState,
+        BounceStylesClient.getStyleRenderer().performRenderPass(
+                renderState.renderState,
                 poseStack,
                 featureRenderDispatcher.getSubmitNodeStorage(),
                 new CameraRenderState()
@@ -48,8 +49,8 @@ public class StyleGuiRenderer extends PictureInPictureRenderer<StyleGuiRenderer.
         return StyleGuiRenderState.class;
     }
 
-    public record StyleGuiRenderState(GeoRenderState renderState, Vector3f translation, Quaternionf rotation, int x0, int y0, int x1, int y1, float scale, boolean isHovered, @Nullable ScreenRectangle scissorArea, @Nullable ScreenRectangle bounds) implements PictureInPictureRenderState {
-        public StyleGuiRenderState(GeoRenderState renderState, Vector3f translation, Quaternionf rotation, int x0, int y0, int x1, int y1, float scale, boolean isHovered, @Nullable ScreenRectangle scissorArea) {
+    public record StyleGuiRenderState(AvatarRenderState renderState, Vector3f translation, Quaternionf rotation, int x0, int y0, int x1, int y1, float scale, boolean isHovered, @Nullable ScreenRectangle scissorArea, @Nullable ScreenRectangle bounds) implements PictureInPictureRenderState {
+        public StyleGuiRenderState(AvatarRenderState renderState, Vector3f translation, Quaternionf rotation, int x0, int y0, int x1, int y1, float scale, boolean isHovered, @Nullable ScreenRectangle scissorArea) {
             this(renderState, translation, rotation, x0, y0, x1, y1, scale, isHovered, scissorArea, PictureInPictureRenderState.getBounds(x0, y0, x1, y1, scissorArea));
         }
     }
