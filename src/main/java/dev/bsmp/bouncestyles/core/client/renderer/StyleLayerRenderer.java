@@ -7,6 +7,7 @@ import dev.bsmp.bouncestyles.api.data.EquippedStyle;
 import dev.bsmp.bouncestyles.api.animation.AnimState;
 import dev.bsmp.bouncestyles.core.data.animation.AnimationHandler;
 import dev.bsmp.bouncestyles.api.style.Style;
+import dev.bsmp.bouncestyles.api.data.StyleData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.player.PlayerModel;
