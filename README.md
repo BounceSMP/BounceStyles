@@ -52,7 +52,7 @@ _Supported versions are still under consideration, and likely to change. Long Te
 
 | Minecraft Version | Fabric API      | Neoforge | Architectury API | Geckolib |
 |-------------------|-----------------|----------|------------------|----------|
-| 1.21.1            | 0.102.0+1.21.1  | 21.1.1   | 13.0.6           | 4.8.x    |
+| 1.21.1            | 0.102.0+1.21.1  | 21.1.150  | 13.0.6           | 4.8.x    |
 | 1.21.11           | 0.139.4+1.21.11 | 21.11.42 | 19.0.1           | 5.4.2    |
 
 </div>
