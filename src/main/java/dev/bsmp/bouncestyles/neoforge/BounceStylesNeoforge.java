@@ -18,27 +18,27 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import java.util.function.Supplier;
 
 @Mod(BounceStyles.modId)
-@EventBusSubscriber(modid = BounceStyles.modId)
 public class BounceStylesNeoforge {
     private static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, BounceStyles.modId);
     public static final Supplier<AttachmentType<StyleData>> STYLE_DATA_ATTACHMENT = ATTACHMENT_TYPES.register("style_data", () ->
         AttachmentType.builder(StyleData::new)
-                .copyOnDeath()
                 //? if >= 1.21.10 {
                 .serialize(StyleData.CODEC.fieldOf("style_data"))
                 .sync(StyleData.STREAM_CODEC)
                 //? } else
                 //.serialize(StyleData.CODEC.fieldOf("style_data").codec())
+                .copyOnDeath()
                 .build()
     );
 
     public BounceStylesNeoforge(IEventBus modBus) {
         BounceStyles.init();
 
+        modBus.addListener(BounceStylesNeoforge::registerDynamicRegistries);
+
         ATTACHMENT_TYPES.register(modBus);
     }
 
-    @SubscribeEvent
     public static void registerDynamicRegistries(DataPackRegistryEvent.NewRegistry event) {
         event.dataPackRegistry(BounceStylesRegistries.STYLE_REGISTRY_KEY, Style.CODEC.withLifecycle(Lifecycle.stable()), Style.CODEC.withLifecycle(Lifecycle.stable()));
     }

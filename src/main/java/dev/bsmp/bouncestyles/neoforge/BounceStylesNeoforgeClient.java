@@ -23,14 +23,15 @@ import dev.bsmp.bouncestyles.core.client.renderer.LegacyStyleLayerRenderer;
 ^///? }
 
 @Mod(value = BounceStyles.modId, dist = Dist.CLIENT)
+//? if >= 1.21.11
 @EventBusSubscriber(value = Dist.CLIENT)
 public class BounceStylesNeoforgeClient {
 
     public BounceStylesNeoforgeClient(IEventBus bus) {
         BounceStylesClient.init();
+        bus.addListener(BounceStylesNeoforgeClient::registerLayers);
     }
 
-    @SubscribeEvent
     static void registerLayers(EntityRenderersEvent.AddLayers event) {
         event.getSkins().forEach(model -> {
             //? if >= 1.21.11 {
