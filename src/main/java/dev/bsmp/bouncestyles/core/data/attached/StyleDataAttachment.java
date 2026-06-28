@@ -32,7 +32,7 @@ public class StyleDataAttachment {
         //? if fabric {
         return target.hasAttached(BounceStylesFabric.STYLE_DATA_ATTACHMENT);
         //? } else
-//        return target.hasData(BounceStylesNeoforge.STYLE_DATA_ATTACHMENT);
+        //return target.hasData(BounceStylesNeoforge.STYLE_DATA_ATTACHMENT);
     }
 
 }

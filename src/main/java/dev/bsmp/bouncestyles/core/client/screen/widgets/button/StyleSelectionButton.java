@@ -114,7 +114,7 @@ public class StyleSelectionButton extends Button implements WardrobeWidget {
 
             //? if >= 1.21.5 {
             var renderState = BounceStylesClient.getStyleRenderer().createRenderState(null, null);
-            renderState.addGeckolibData(StyleDataTickets.TICKET_STYLE, this.style);
+            renderState.addGeckolibData(StyleDataTickets.TICKET_EQUIPPED, this.style);
             renderState.addGeckolibData(StyleDataTickets.TICKET_CATEGORY, this.category);
 
             guiGraphics.guiRenderState.submitPicturesInPictureState(new StyleGuiRenderer.StyleGuiRenderState(
@@ -128,7 +128,7 @@ public class StyleSelectionButton extends Button implements WardrobeWidget {
                     guiGraphics.scissorStack.peek()
             ));
             //? } else {
-            /*RenderSystem.runAsFancy(() -> BounceStylesClient.STYLE_RENDERER.renderStyleForGUI(
+            /*RenderSystem.runAsFancy(() -> BounceStylesClient.getStyleRenderer().renderStyleForGUI(
                     poseStack,
                     this.style.getStyle().get(),
                     this.style.getVariant(),

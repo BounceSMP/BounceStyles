@@ -13,7 +13,7 @@ import software.bernie.geckolib.cache.animation.Animation;
 /*import software.bernie.geckolib.animation.Animation;
 *///? }
 
-import static dev.bsmp.bouncestyles.core.client.renderer.StyleDataTickets.TICKET_STYLE;
+import static dev.bsmp.bouncestyles.core.client.renderer.StyleDataTickets.TICKET_EQUIPPED;
 
 public class StyleGeoModel extends GeoModel<Style> {
     //? if < 1.21.5
@@ -38,13 +38,13 @@ public class StyleGeoModel extends GeoModel<Style> {
     //? if >= 1.21.5 {
     @Override
     public @NonNull Identifier getModelResource(GeoRenderState renderState) {
-        var style = renderState.getGeckolibData(TICKET_STYLE);
+        var style = renderState.getGeckolibData(TICKET_EQUIPPED);
         return getModelResource(style.getStyle().orElse(null));
     }
 
     @Override
     public @NonNull Identifier getTextureResource(GeoRenderState renderState) {
-        var style = renderState.getGeckolibData(TICKET_STYLE);
+        var style = renderState.getGeckolibData(TICKET_EQUIPPED);
         return getTextureResource(style.getStyle().orElse(null));
     }
 

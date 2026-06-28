@@ -30,7 +30,7 @@ public abstract class AvatarRendererMixin<E extends Avatar & ClientAvatarEntity>
             var geoState = ((GeoRenderState) state);
             geoState.addGeckolibData(StyleDataTickets.TICKET_STYLE_DATA, styleData);
             geoState.addGeckolibData(AnimationHandler.TICKET_ON_GROUND, avatar.onGround());
-            geoState.addGeckolibData(DataTickets.IS_MOVING, avatar.walkAnimation.speed() >= 0.015f);
+            geoState.addGeckolibData(DataTickets.IS_MOVING, avatar.walkAnimation.speed() >= 0.05f);
             geoState.addGeckolibData(AnimationHandler.TICKET_SPRINTING, avatar.isSprinting());
         }
     }

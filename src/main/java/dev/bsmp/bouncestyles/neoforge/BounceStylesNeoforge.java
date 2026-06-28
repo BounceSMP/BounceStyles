@@ -23,10 +23,10 @@ public class BounceStylesNeoforge {
     public static final Supplier<AttachmentType<StyleData>> STYLE_DATA_ATTACHMENT = ATTACHMENT_TYPES.register("style_data", () ->
         AttachmentType.builder(StyleData::new)
                 //? if >= 1.21.10 {
-                .serialize(StyleData.CODEC.fieldOf("style_data"))
+                /^.serialize(StyleData.CODEC.fieldOf("style_data"))
                 .sync(StyleData.STREAM_CODEC)
-                //? } else
-                //.serialize(StyleData.CODEC.fieldOf("style_data").codec())
+                ^///? } else
+                .serialize(StyleData.CODEC.fieldOf("style_data").codec())
                 .copyOnDeath()
                 .build()
     );

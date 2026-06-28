@@ -1,6 +1,7 @@
 package dev.bsmp.bouncestyles.core.data.animation;
 
 import dev.bsmp.bouncestyles.api.animation.AnimState;
+import dev.bsmp.bouncestyles.core.BounceStyles;
 import software.bernie.geckolib.animation.RawAnimation;
 import dev.bsmp.bouncestyles.api.style.Style;
 import software.bernie.geckolib.constant.dataticket.DataTicket;

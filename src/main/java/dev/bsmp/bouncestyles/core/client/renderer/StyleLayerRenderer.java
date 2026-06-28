@@ -2,36 +2,33 @@
 package dev.bsmp.bouncestyles.core.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.bsmp.bouncestyles.api.style.Category;
-import dev.bsmp.bouncestyles.api.data.EquippedStyle;
 import dev.bsmp.bouncestyles.api.animation.AnimState;
-import dev.bsmp.bouncestyles.core.data.animation.AnimationHandler;
+import dev.bsmp.bouncestyles.api.data.EquippedStyle;
+import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.api.style.Style;
+import dev.bsmp.bouncestyles.core.BounceStyles;
+import dev.bsmp.bouncestyles.core.data.animation.AnimationHandler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.OrderedSubmitNodeCollector;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Pose;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import software.bernie.geckolib.GeckoLibClient;
-import software.bernie.geckolib.GeckoLibClientServices;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
 import software.bernie.geckolib.renderer.base.BoneSnapshots;
 import software.bernie.geckolib.renderer.base.GeoRenderState;
 import software.bernie.geckolib.renderer.base.GeoRenderer;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import software.bernie.geckolib.renderer.base.RenderPassInfo;
 
 import java.util.List;
@@ -40,8 +37,9 @@ import java.util.Objects;
 import static dev.bsmp.bouncestyles.core.client.renderer.StyleDataTickets.*;
 
 @SuppressWarnings("UnstableApiUsage")
-public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerModel> implements GeoRenderer<Style, AvatarRenderState, AvatarRenderState> {
+public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerModel> implements GeoRenderer<Style, StyleLayerRenderer.RenderData, GeoRenderState.Impl> {
     public static final StyleGeoModel geoModel = new StyleGeoModel();
+    private AvatarRenderState currentPlayerState;
 
     public StyleLayerRenderer(RenderLayerParent<AvatarRenderState, PlayerModel> context) {
         super(context);
@@ -54,54 +52,60 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
         var styleData = ((GeoRenderState) avatarState).getGeckolibData(TICKET_STYLE_DATA);
         if (styleData != null) {
             poseStack.pushPose();
+
+            currentPlayerState = avatarState;
+            var animation = setupAnimationState(avatarState);
+
             styleData.getAllNonEmpty().forEach((category, equippedStyle) -> {
-                GeoRenderer.super.performRenderPass(setupRenderState(equippedStyle, category, avatarState, packedLight), poseStack, submitNodeCollector, cameraState);
+                var geoRenderState = setupRenderState(equippedStyle, category, avatarState, animation, packedLight);
+                GeoRenderer.super.performRenderPass(geoRenderState, poseStack, submitNodeCollector, cameraState);
             });
             poseStack.popPose();
         }
     }
 
-    private AvatarRenderState setupRenderState(EquippedStyle equippedStyle, Category category, AvatarRenderState playerState, int packedLight) {
-        var renderState = createRenderState(equippedStyle.getStyle().get(), playerState);
+    private GeoRenderState.Impl setupRenderState(EquippedStyle equippedStyle, Category category, AvatarRenderState playerState, AnimState animState, int packedLight) {
+        var renderData = new StyleLayerRenderer.RenderData(playerState.id);
+        var renderState = createRenderState(equippedStyle.getStyle().get(), renderData);
+
         renderState.addGeckolibData(DataTickets.PACKED_LIGHT, packedLight);
-
-        setupAnimationState(renderState, playerState);
-        fillRenderState(equippedStyle.getStyle().get(), playerState, renderState, ((GeoRenderState) playerState).getPartialTick());
-
-        renderState.addGeckolibData(TICKET_STYLE, equippedStyle);
+        renderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, animState);
+        renderState.addGeckolibData(TICKET_EQUIPPED, equippedStyle);
         renderState.addGeckolibData(TICKET_CATEGORY, category);
+
+        fillRenderState(equippedStyle.getStyle().get(), renderData, renderState, ((GeoRenderState) playerState).getPartialTick());
 
         return renderState;
     }
 
-    public void setupAnimationState(GeoRenderState geoRenderState, AvatarRenderState avatarState) {
+    public AnimState setupAnimationState(AvatarRenderState avatarState) {
         if (avatarState.pose == Pose.SLEEPING)
-            geoRenderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, AnimState.SLEEPING);
+            return AnimState.SLEEPING;
 
         else if (avatarState.isInWater && avatarState.isVisuallySwimming)
-            geoRenderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, AnimState.SWIMMING);
+            return AnimState.SWIMMING;
 
         else if (avatarState.isFallFlying)
-            geoRenderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, AnimState.FLYING);
+            return AnimState.FLYING;
 
         else if (!((GeoRenderState) avatarState).getGeckolibData(AnimationHandler.TICKET_ON_GROUND))
-            geoRenderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, AnimState.IN_AIR);
+            return AnimState.IN_AIR;
 
         else if (avatarState.isCrouching)
-            geoRenderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, AnimState.SNEAKING);
+            return AnimState.SNEAKING;
 
         else if (((GeoRenderState) avatarState).getGeckolibData(DataTickets.IS_MOVING)) {
             if (((GeoRenderState) avatarState).getGeckolibData(AnimationHandler.TICKET_SPRINTING))
-                geoRenderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, AnimState.SPRINTING);
+                return AnimState.SPRINTING;
             else
-                geoRenderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, AnimState.WALKING);
+                return AnimState.WALKING;
         }
         else
-            geoRenderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, AnimState.IDLE);
+            return AnimState.IDLE;
     }
 
     @Override
-    public void submitRenderTasks(RenderPassInfo<AvatarRenderState> renderPassInfo, OrderedSubmitNodeCollector renderTasks, @Nullable RenderType renderType) {
+    public void submitRenderTasks(RenderPassInfo<GeoRenderState.Impl> renderPassInfo, OrderedSubmitNodeCollector renderTasks, @Nullable RenderType renderType) {
         if (renderType == null) return;
 
         final int packedLight = renderPassInfo.packedLight();
@@ -127,24 +131,20 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
     }
 
     @Override
-    public void adjustRenderPose(@NonNull RenderPassInfo<AvatarRenderState> renderPassInfo) {
+    public void adjustRenderPose(@NonNull RenderPassInfo<GeoRenderState.Impl> renderPassInfo) {
         renderPassInfo.poseStack().translate(0, 24 / 16f, 0);
         renderPassInfo.poseStack().scale(-1, -1, 1);
     }
 
     @Override
-    public void adjustModelBonesForRender(RenderPassInfo<AvatarRenderState> renderPassInfo, BoneSnapshots snapshots) {
+    public void adjustModelBonesForRender(RenderPassInfo<GeoRenderState.Impl> renderPassInfo, BoneSnapshots snapshots) {
         var renderState = (GeoRenderState) renderPassInfo.renderState();
 
-        this.getParentModel().setupAnim((AvatarRenderState) renderState);
-        var styleData = renderState.getGeckolibData(TICKET_STYLE_DATA);
-        if (styleData != null) {
-            styleData.getAllNonEmpty().forEach((category, equippedStyle) -> {
-                adjustBone(category, snapshots);
-            });
-        }
-        else {
-            adjustBone(renderState.getGeckolibData(TICKET_CATEGORY), snapshots);
+        var equipped = renderState.getGeckolibData(TICKET_EQUIPPED);
+        var category = renderState.getGeckolibData(TICKET_CATEGORY);
+        if (equipped.getStyle().isPresent()) {
+            this.getParentModel().setupAnim(currentPlayerState);
+            adjustBone(category, snapshots);
         }
     }
 
@@ -165,12 +165,12 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
     }
 
     @Override
-    public boolean firePreRenderEvent(@NonNull RenderPassInfo<AvatarRenderState> renderPassInfo, @NonNull SubmitNodeCollector renderTasks) {
+    public boolean firePreRenderEvent(@NonNull RenderPassInfo<GeoRenderState.Impl> renderPassInfo, @NonNull SubmitNodeCollector renderTasks) {
         return true;
     }
 
     @Override
-    public void fireCompileRenderStateEvent(Style animatable, @Nullable AvatarRenderState styleData, AvatarRenderState renderState, float partialTick) {}
+    public void fireCompileRenderStateEvent(Style animatable, StyleLayerRenderer.RenderData relatedObject, GeoRenderState.Impl renderState, float partialTick) {}
 
     @Override
     public void fireCompileRenderLayersEvent() {}
@@ -198,7 +198,7 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
     }
 
     @Override
-    public long getInstanceId(Style animatable, @Nullable AvatarRenderState renderState) {
+    public long getInstanceId(Style animatable, StyleLayerRenderer.RenderData renderState) {
         return renderState.id;
     }
 
@@ -208,14 +208,19 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
     }
 
     @Override
-    public @Nullable RenderType getRenderType(AvatarRenderState renderState, Identifier texture) {
+    public @Nullable RenderType getRenderType(GeoRenderState.Impl renderState, Identifier texture) {
         //ToDo Allow choosing rendertype per-style?
         //~ if >= 1.21.11 'RenderType' -> 'RenderTypes'
         return RenderTypes.entityCutout(texture);
     }
 
-    public AvatarRenderState createRenderState(Style style, @Nullable AvatarRenderState renderState) {
-        return renderState == null ? new AvatarRenderState() : renderState;
+    @Override
+    public GeoRenderState.Impl createRenderState(Style style, StyleLayerRenderer.RenderData avatarState) {
+        var renderState =  new GeoRenderState.Impl();
+
+        return renderState;
     }
+
+    public record RenderData(int id) {}
 }
 //? }

@@ -1,5 +1,6 @@
 package dev.bsmp.bouncestyles.core.client;
 
+//~ if >= 1.21.5 'LegacyStyleLayerRenderer' -> 'StyleLayerRenderer' {
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -16,7 +17,6 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
-import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
@@ -32,14 +32,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+//? if >= 1.21.5 {
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+//? }
+
 public class BounceStylesClient {
     private static final HashMap<String, StylePreset> PRESETS = new HashMap<>(); //ToDo add server->client syncing; adds serverside presets in addition to existing client presets
 
     public static final KeyMapping KEY_WARDROBE = createWardrobeKeyMapping();
-    //? if >= 1.21.5 {
-    private static dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer STYLE_RENDERER;
-    //? } else
-    //public static dev.bsmp.bouncestyles.core.client.renderer.LegacyStyleLayerRenderer STYLE_RENDERER;
+    private static StyleLayerRenderer STYLE_RENDERER;
 
     public static void init() {
         KeyMappingRegistry.register(KEY_WARDROBE);
@@ -51,7 +52,7 @@ public class BounceStylesClient {
         return STYLE_RENDERER;
     }
 
-    public static StyleLayerRenderer getOrCreateStyleRenderer(RenderLayerParent<AvatarRenderState, PlayerModel> renderer) {
+    public static StyleLayerRenderer getOrCreateStyleRenderer(RenderLayerParent renderer) {
         if (STYLE_RENDERER == null) STYLE_RENDERER = new StyleLayerRenderer(renderer);
         return STYLE_RENDERER;
     }
@@ -115,3 +116,4 @@ public class BounceStylesClient {
         return null;
     }
 }
+//~ }

@@ -49,8 +49,8 @@ public class StyleGuiRenderer extends PictureInPictureRenderer<StyleGuiRenderer.
         return StyleGuiRenderState.class;
     }
 
-    public record StyleGuiRenderState(AvatarRenderState renderState, Vector3f translation, Quaternionf rotation, int x0, int y0, int x1, int y1, float scale, boolean isHovered, @Nullable ScreenRectangle scissorArea, @Nullable ScreenRectangle bounds) implements PictureInPictureRenderState {
-        public StyleGuiRenderState(AvatarRenderState renderState, Vector3f translation, Quaternionf rotation, int x0, int y0, int x1, int y1, float scale, boolean isHovered, @Nullable ScreenRectangle scissorArea) {
+    public record StyleGuiRenderState(GeoRenderState.Impl renderState, Vector3f translation, Quaternionf rotation, int x0, int y0, int x1, int y1, float scale, boolean isHovered, @Nullable ScreenRectangle scissorArea, @Nullable ScreenRectangle bounds) implements PictureInPictureRenderState {
+        public StyleGuiRenderState(GeoRenderState.Impl renderState, Vector3f translation, Quaternionf rotation, int x0, int y0, int x1, int y1, float scale, boolean isHovered, @Nullable ScreenRectangle scissorArea) {
             this(renderState, translation, rotation, x0, y0, x1, y1, scale, isHovered, scissorArea, PictureInPictureRenderState.getBounds(x0, y0, x1, y1, scissorArea));
         }
     }
