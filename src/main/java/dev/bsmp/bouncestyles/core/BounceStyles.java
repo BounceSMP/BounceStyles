@@ -52,6 +52,7 @@ public class BounceStyles {
             BounceStyles.LOGGER.info("Server Started with {} styles registered", styles.size());
         }));
 
+        PlayerEvent.PLAYER_JOIN.register(player -> new SyncStyleDataClientbound(player.getId(), StyleData.getEntityData(player)).sendToPlayer(player));
         PlayerEvent.PLAYER_CLONE.register((oldPlayer, newPlayer, wonGame) -> StyleData.copyFrom(oldPlayer, newPlayer));
         PlayerEvent.CHANGE_DIMENSION.register((player, oldLevel, newLevel) -> new SyncStyleDataClientbound(player.getId(), StyleData.getEntityData(player)).sendToPlayer(player));
         PlayerEvent.PLAYER_RESPAWN.register((player, conqueredEnd, reason) -> new SyncStyleDataClientbound(player.getId(), StyleData.getEntityData(player)).sendToPlayer(player));
