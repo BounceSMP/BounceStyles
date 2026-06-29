@@ -15,7 +15,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.joml.Vector3f;
@@ -25,6 +24,7 @@ import java.util.List;
 import java.util.StringJoiner;
 
 //? if >= 1.21.5 {
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer;
 import net.minecraft.client.input.MouseButtonEvent;
 import dev.bsmp.bouncestyles.core.client.renderer.StyleDataTickets;
