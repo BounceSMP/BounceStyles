@@ -17,9 +17,6 @@ public class BounceStylesFabric implements ModInitializer {
     public static final AttachmentType<StyleData> STYLE_DATA_ATTACHMENT = AttachmentRegistry.<StyleData>builder()
             .initializer(StyleData::new)
             .persistent(StyleData.CODEC)
-            //? if >= 1.21.11
-            .syncWith(StyleData.STREAM_CODEC, net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate.all())
-            .copyOnDeath()
             .buildAndRegister(BounceStyles.id("style_data"));
 
     @Override

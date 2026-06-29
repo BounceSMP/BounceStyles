@@ -24,10 +24,8 @@ public class BounceStylesNeoforge {
         AttachmentType.builder(StyleData::new)
                 //? if >= 1.21.10 {
                 /^.serialize(StyleData.CODEC.fieldOf("style_data"))
-                .sync(StyleData.STREAM_CODEC)
                 ^///? } else
                 .serialize(StyleData.CODEC.fieldOf("style_data").codec())
-                .copyOnDeath()
                 .build()
     );
 
