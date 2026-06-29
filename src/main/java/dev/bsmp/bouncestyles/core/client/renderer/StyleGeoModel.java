@@ -22,11 +22,12 @@ public class StyleGeoModel extends GeoModel<Style> {
         return style != null ? style.getModelId() : Style.MISSING_MODEL_ID;
     }
 
-    //? if < 1.21.5
+    //? if < 1.21.5 {
     //@Override
-    public @NonNull Identifier getTextureResource(Style style) {
-        return style != null ? style.getTextureId() : Style.MISSING_MODEL_TEXTURE_ID;
-    }
+//    public @NonNull Identifier getTextureResource(Style style) {
+//        return style != null ? style.getTextureId() : Style.MISSING_MODEL_TEXTURE_ID;
+//    }
+    //? }
 
     @Override
     public @NonNull Identifier getAnimationResource(Style style) {
@@ -44,8 +45,15 @@ public class StyleGeoModel extends GeoModel<Style> {
 
     @Override
     public @NonNull Identifier getTextureResource(GeoRenderState renderState) {
-        var style = renderState.getGeckolibData(TICKET_EQUIPPED);
-        return getTextureResource(style.getStyle().orElse(null));
+        var equippedStyle = renderState.getGeckolibData(TICKET_EQUIPPED);
+        if (equippedStyle.getStyle().isEmpty()) return Style.MISSING_MODEL_TEXTURE_ID;
+
+        var style = equippedStyle.getStyle().get();
+        if (style.hasVariants() && equippedStyle.getVariant() > -1) {
+            return style.getTextureId(equippedStyle.getVariant());
+        }
+
+        return style.getTextureId();
     }
 
     @Override
