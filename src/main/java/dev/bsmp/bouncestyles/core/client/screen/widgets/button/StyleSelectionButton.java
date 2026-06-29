@@ -15,6 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.joml.Vector3f;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.StringJoiner;
 
 //? if >= 1.21.5 {
+import dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer;
 import net.minecraft.client.input.MouseButtonEvent;
 import dev.bsmp.bouncestyles.core.client.renderer.StyleDataTickets;
 import dev.bsmp.bouncestyles.core.client.renderer.StyleGuiRenderer;
@@ -113,7 +115,8 @@ public class StyleSelectionButton extends Button implements WardrobeWidget {
             };
 
             //? if >= 1.21.5 {
-            var renderState = BounceStylesClient.getStyleRenderer().createRenderState(null, null);
+            var renderData = new StyleLayerRenderer.RenderData(0, new AvatarRenderState());
+            var renderState = BounceStylesClient.getStyleRenderer().createRenderState(null, renderData);
             renderState.addGeckolibData(StyleDataTickets.TICKET_EQUIPPED, this.style);
             renderState.addGeckolibData(StyleDataTickets.TICKET_CATEGORY, this.category);
 

@@ -6,7 +6,6 @@ import dev.bsmp.bouncestyles.api.animation.AnimState;
 import dev.bsmp.bouncestyles.api.data.EquippedStyle;
 import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.api.style.Style;
-import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.data.animation.AnimationHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
@@ -65,7 +64,7 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
     }
 
     private GeoRenderState.Impl setupRenderState(EquippedStyle equippedStyle, Category category, AvatarRenderState playerState, AnimState animState, int packedLight) {
-        var renderData = new StyleLayerRenderer.RenderData(playerState.id);
+        var renderData = new StyleLayerRenderer.RenderData(playerState.id, playerState);
         var renderState = createRenderState(equippedStyle.getStyle().get(), renderData);
 
         renderState.addGeckolibData(DataTickets.PACKED_LIGHT, packedLight);
@@ -143,12 +142,12 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
         var equipped = renderState.getGeckolibData(TICKET_EQUIPPED);
         var category = renderState.getGeckolibData(TICKET_CATEGORY);
         if (equipped.getStyle().isPresent()) {
-            this.getParentModel().setupAnim(currentPlayerState);
-            adjustBone(category, snapshots);
+            this.getParentModel().setupAnim(renderState.getGeckolibData(TICKET_RENDER_DATA).playerState());
+            adjustBones(category, snapshots);
         }
     }
 
-    private void adjustBone(Category category, BoneSnapshots snapshots) {
+    private void adjustBones(Category category, BoneSnapshots snapshots) {
         getSegmentsForCategory(category).forEach(segment ->
                 snapshots.get(getBoneNameForSegment(segment)).ifPresent(boneSnapshot -> {
                     final ModelPart modelPart = segment.modelPartGetter.apply(this.getParentModel());
@@ -215,12 +214,12 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
     }
 
     @Override
-    public GeoRenderState.Impl createRenderState(Style style, StyleLayerRenderer.RenderData avatarState) {
+    public GeoRenderState.Impl createRenderState(Style style, StyleLayerRenderer.RenderData renderData) {
         var renderState =  new GeoRenderState.Impl();
-
+        renderState.addGeckolibData(TICKET_RENDER_DATA, renderData);
         return renderState;
     }
 
-    public record RenderData(int id) {}
+    public record RenderData(int id, AvatarRenderState playerState) {}
 }
 //? }
