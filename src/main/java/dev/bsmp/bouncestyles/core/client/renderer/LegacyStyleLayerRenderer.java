@@ -64,10 +64,10 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
         poseStack.scale(-1.005F, -1.0F, 1.005F);
         poseStack.pushPose();
 
-        renderStyle(poseStack, styleData.getHeadStyle(), Category.Head, vertexConsumers, headYaw, partialTick, light, false);
-        renderStyle(poseStack, styleData.getBodyStyle(), Category.Body, vertexConsumers, headYaw, partialTick, light, false);
-        renderStyle(poseStack, styleData.getLegsStyle(), Category.Legs, vertexConsumers, headYaw, partialTick, light, false);
-        renderStyle(poseStack, styleData.getFeetStyle(), Category.Feet, vertexConsumers, headYaw, partialTick, light, false);
+        renderStyle(poseStack, styleData.getHeadStyle(), Category.Head, vertexConsumers, headYaw, partialTick, light);
+        renderStyle(poseStack, styleData.getBodyStyle(), Category.Body, vertexConsumers, headYaw, partialTick, light);
+        renderStyle(poseStack, styleData.getLegsStyle(), Category.Legs, vertexConsumers, headYaw, partialTick, light);
+        renderStyle(poseStack, styleData.getFeetStyle(), Category.Feet, vertexConsumers, headYaw, partialTick, light);
 
         poseStack.popPose();
         poseStack.scale(-1.005F, -1.0F, 1.005F);
@@ -76,12 +76,12 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
         this.currentPlayer = null;
     }
 
-    public void renderStyle(PoseStack poseStack, EquippedStyle equippedStyle, Category category, MultiBufferSource vertexConsumers, float headYaw, float partialTick, int light, boolean isGui) {
+    public void renderStyle(PoseStack poseStack, EquippedStyle equippedStyle, Category category, MultiBufferSource vertexConsumers, float headYaw, float partialTick, int light) {
         if (equippedStyle.getStyle().isEmpty()) return;
-        renderStyle(poseStack, equippedStyle.getStyle().get(), equippedStyle.getVariant(), category, vertexConsumers, headYaw, partialTick, light, isGui);
+        renderStyle(poseStack, equippedStyle.getStyle().get(), equippedStyle.getVariant(), category, vertexConsumers, headYaw, partialTick, light);
     }
 
-    public void renderStyle(PoseStack poseStack, Style style, int variant, Category category, MultiBufferSource bufferSource, float headYaw, float partialTick, int light, boolean isGui) {
+    public void renderStyle(PoseStack poseStack, Style style, int variant, Category category, MultiBufferSource bufferSource, float headYaw, float partialTick, int light) {
         Identifier texture = getStyleTexture(style, variant);
 
         RenderType renderLayer = getRenderType(style, texture, bufferSource, partialTick);
@@ -100,14 +100,15 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
         var bakedModel = geoModel.getBakedModel(style.getModelId());
         setupBoneVisibility(bakedModel, category);
 
-        poseStack.pushPose();
-
         switch (category) {
             case Head -> {
                 moveFromPivot(poseStack, bakedModel.getBone(headBone).get());
-                poseStack.translate(0, -.7f, 0);
+                poseStack.translate(0, -2.2f, 0);
             }
-            case Body -> moveFromPivot(poseStack, bakedModel.getBone(bodyBone).get());
+            case Body -> {
+                moveFromPivot(poseStack, bakedModel.getBone(bodyBone).get());
+                poseStack.translate(0, -1.0f, 0);
+            }
             case Legs -> {
                 moveFromPivot(poseStack, bakedModel.getBone(leftLegBone).get());
                 poseStack.translate(.1f, 0, 0);
@@ -118,10 +119,8 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
             }
         }
 
-        poseStack.translate(0, 1.1f, 0);
+        poseStack.scale(2f, 2f, 2f);
         defaultRender(poseStack, style, bufferSource, renderType, buffer, 0f, partialTick, 15728880);
-
-        poseStack.popPose();
     }
 
     private void moveFromPivot(PoseStack poseStack, GeoBone bone) {
@@ -144,7 +143,6 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
         GeoRenderer.super.actuallyRender(poseStack, style, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
     }
     //? }
-
 
     @Override
     public void applyRenderLayers(PoseStack poseStack, Style animatable, BakedGeoModel model, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {

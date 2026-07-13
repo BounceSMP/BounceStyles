@@ -1,5 +1,6 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets.button;
 
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.client.BounceStylesClient;
@@ -14,9 +15,11 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -32,6 +35,8 @@ import dev.bsmp.bouncestyles.core.client.renderer.StyleGuiRenderer;
 import org.joml.Quaternionf;
 //? } else {
 /*import com.mojang.blaze3d.systems.RenderSystem;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
 *///? }
 
 public class StyleSelectionButton extends Button implements WardrobeWidget {
@@ -73,14 +78,15 @@ public class StyleSelectionButton extends Button implements WardrobeWidget {
             renderBtn(guiGraphics, mouseX, mouseY, partialTick);
         }
         //? } else {
-        /*public void renderWidget(GuiGraphics guiGraphics, MultiBufferSource.BufferSource bufferSource, int mouseX, int mouseY, float partialTick) {
+        /*@Override
+        protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
             renderBtn(guiGraphics, mouseX, mouseY, partialTick);
         }
         *///? }
 
         public void renderBtn(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-            this.isHovered = this.isMouseOver(mouseX, mouseY);
             var currentStyle = StyleData.getEntityData(Minecraft.getInstance().player).getStyleForSlot(this.category);
+
             boolean equipped = currentStyle.getStyleId().map(identifier -> identifier.equals(this.getStyle().getStyleId())).orElse(false);
             if (equipped && this.parentWidget instanceof WardrobeStyleSelectionWidget.SelectionPopup)
                 equipped = this.getTextureId() == currentStyle.getVariant();
@@ -93,20 +99,29 @@ public class StyleSelectionButton extends Button implements WardrobeWidget {
                 blit(guiGraphics, variantTexture, this.getX() + (this.getWidth() / 2) - 5, this.getY() + this.getHeight() - 6, 10, 7);
             }
 
-            if (this.isHovered())
-                //~ if >= 1.21.5 'renderComponentTooltip' -> 'setComponentTooltipForNextFrame'
-                guiGraphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, this.tooltip, mouseX, mouseY);
+            if (!this.isHovered())
+                guiGraphics.enableScissor(getX() + 8, getY() + 8, getX() + getWidth() - 8, getY() + getHeight() - 8);
 
-            if (!this.isHovered)
-                guiGraphics.enableScissor(this.getX() + 8, this.getY() + 8, this.getX() + this.getWidth() - 8, this.getY() + this.getHeight() - 8);
+            renderStyle(guiGraphics, partialTick);
 
-            renderStyle(new PoseStack(), guiGraphics, partialTick);
-
-            if (!this.isHovered)
+            if (!this.isHovered())
                 guiGraphics.disableScissor();
+
+            if (this.isHovered()) {
+                //? if >= 1.21.5 {
+                guiGraphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, this.tooltip, mouseX, mouseY);
+                //? } else
+                //guiGraphics.renderComponentTooltip(Minecraft.getInstance().font, this.tooltip, mouseX, mouseY);
+            }
         }
 
-        private void renderStyle(PoseStack poseStack, GuiGraphics guiGraphics, float partialTick) {
+        private void renderStyle(GuiGraphics guiGraphics, float partialTick) {
+            //? if >= 1.21.5 {
+            var renderData = new StyleLayerRenderer.RenderData(0, new AvatarRenderState());
+            var renderState = BounceStylesClient.getStyleRenderer().createRenderState(null, renderData);
+            renderState.addGeckolibData(StyleDataTickets.TICKET_EQUIPPED, this.style);
+            renderState.addGeckolibData(StyleDataTickets.TICKET_CATEGORY, this.category);
+
             var translate = switch (this.category) {
                 case Head -> new Vector3f(0f, -0.4f, 0f);
                 case Body -> new Vector3f(0f, -1.1f, 0f);
@@ -114,11 +129,8 @@ public class StyleSelectionButton extends Button implements WardrobeWidget {
                 case Feet -> new Vector3f(0f, -2.0f, 0f);
             };
 
-            //? if >= 1.21.5 {
-            var renderData = new StyleLayerRenderer.RenderData(0, new AvatarRenderState());
-            var renderState = BounceStylesClient.getStyleRenderer().createRenderState(null, renderData);
-            renderState.addGeckolibData(StyleDataTickets.TICKET_EQUIPPED, this.style);
-            renderState.addGeckolibData(StyleDataTickets.TICKET_CATEGORY, this.category);
+            if (!this.isHovered)
+                guiGraphics.enableScissor(this.getX() + 8, this.getY() + 8, this.getX() + this.getWidth() - 8, this.getY() + this.getHeight() - 8);
 
             guiGraphics.guiRenderState.submitPicturesInPictureState(new StyleGuiRenderer.StyleGuiRenderState(
                     renderState,
@@ -130,8 +142,31 @@ public class StyleSelectionButton extends Button implements WardrobeWidget {
                     isHovered,
                     guiGraphics.scissorStack.peek()
             ));
+
+            if (!this.isHovered)
+                guiGraphics.disableScissor();
             //? } else {
-            /*RenderSystem.runAsFancy(() -> BounceStylesClient.getStyleRenderer().renderStyleForGUI(
+            /*var poseStack = guiGraphics.pose();
+            poseStack.pushPose();
+            poseStack.translate(this.getX() + (this.width / 2), this.getY() + (this.height / 2), 100);
+
+            poseStack.scale(1f, 1f, -1f);
+            poseStack.scale(16f, 16f, 16f);
+
+            if (this.isHovered()) {
+                poseStack.translate(0, 0.2f, 0);
+                poseStack.scale(1.35f, 1.35f, 1.35f);
+            }
+
+            poseStack.mulPose(new Quaternionf()
+                    .rotateZ((float) Math.PI)
+                    .rotateY(this.parentWidget.previewRotation)
+            );
+
+            RenderSystem.disableDepthTest();
+            Lighting.setupForEntityInInventory();
+
+            RenderSystem.runAsFancy(() -> BounceStylesClient.getStyleRenderer().renderStyleForGUI(
                     poseStack,
                     this.style.getStyle().get(),
                     this.style.getVariant(),
@@ -140,19 +175,24 @@ public class StyleSelectionButton extends Button implements WardrobeWidget {
                     0f,
                     partialTick
             ));
+            guiGraphics.bufferSource().endBatch();
+
+            Lighting.setupFor3DItems();
+            RenderSystem.enableDepthTest();
+            poseStack.popPose();
             *///? }
         }
 
-    //? if >= 1.21.11 {
-    @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if (this.active && this.visible && this.isMouseOver(event.x(), event.y())) {
-            this.playDownSound(Minecraft.getInstance().getSoundManager());
-            this.parentWidget.onSelectionClicked(this, event.button());
-            return true;
+        //? if >= 1.21.11 {
+        @Override
+        public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+            if (this.active && this.visible && this.isMouseOver(event.x(), event.y())) {
+                this.playDownSound(Minecraft.getInstance().getSoundManager());
+                this.parentWidget.onSelectionClicked(this, event.button());
+                return true;
+            }
+            return false;
         }
-        return false;
-    }
     //? } else {
         /*@Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
@@ -176,15 +216,4 @@ public class StyleSelectionButton extends Button implements WardrobeWidget {
     public void setTextureId(int id) {
         this.style.setVariant(id);
     }
-
-//        public void renderTooltip(GuiGraphics poseStack, int mouseX, int mouseY) {
-//            poseStack.pose().pushPose();
-//            poseStack.pose().translate(0, 0, 1050);
-//            WardrobeWidget.drawTooltipStatic(poseStack, Minecraft.getInstance().font, this.tooltip, mouseX + 3, mouseY);
-//            poseStack.pose().popPose();
-//        }
-
-//    private int getYOffset() {
-//        return this.parentWidget.selectedStyleButton == this ? 2 : isHovered ? 1 : 0;
-//    }
 }

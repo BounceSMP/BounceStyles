@@ -110,18 +110,9 @@ public class WardrobeScreen extends Screen {
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
         renderWardrobeBackground(context);
+        super.render(context, mouseX, mouseY, partialTick);
         if (this.activeWidget != null)
             this.activeWidget.render(context, mouseX, mouseY, partialTick);
-        //? if < 1.21.11 {
-        /*context.pose().pushPose();
-        context.pose().translate(0, 0, 1200);
-        super.render(context, mouseX, mouseY, partialTick);
-        context.pose().popPose();
-        *///? } else {
-        context.pose().pushMatrix();
-        super.render(context, mouseX, mouseY, partialTick);
-        context.pose().popMatrix();
-        //? }
     }
 
     private void renderWardrobeBackground(GuiGraphics context) {

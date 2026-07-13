@@ -1,7 +1,7 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
-import dev.bsmp.bouncestyles.core.client.screen.widgets.button.StyleSelectionButton;
 import dev.bsmp.bouncestyles.api.style.Style;
+import dev.bsmp.bouncestyles.core.client.screen.widgets.button.StyleSelectionButton;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -13,11 +13,7 @@ import java.util.List;
 
 //? if >= 1.21.11 {
 import net.minecraft.client.input.MouseButtonEvent;
-//? } else {
-/*import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.Minecraft;
-*///? }
+//? }
 
 public abstract class WardrobeScrollWidget extends AbstractWidget {
     protected static final int buttonSize = 50;
@@ -46,6 +42,7 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
     @Override
     protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
         this.previewRotation += 0.03f * partialTick;
+
         if (this.updateButtons)
             this.updateButtons();
         if (this.updateVisible)
@@ -55,8 +52,7 @@ public abstract class WardrobeScrollWidget extends AbstractWidget {
             //? if >= 1.21.5 {
             button.render(context, mouseX, mouseY, partialTick);
             //? } else {
-            /*MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-            button.renderWidget(context, bufferSource, mouseX, mouseY, partialTick);
+            /*button.render(context, mouseX, mouseY, partialTick);
             *///? }
         }
 
