@@ -226,7 +226,7 @@ publishMods {
     type = STABLE
     displayName = "${property("mod.name")} - ${property("mod.version")} - ${loader.uppercaseFirstChar()} - ${stonecutter.current.version}"
     version = "${property("mod.version")}-${loader}-${stonecutter.current.version}"
-    changelog = provider { rootProject.file("CHANGELOG.md").readText() }
+    changelog = provider { rootProject.file("changelogs/CHANGELOG-${property("mod.version")}.md").readText() }
     modLoaders.add(loader)
 
     dryRun = true
@@ -239,6 +239,14 @@ publishMods {
 
         if (isFabric())
             requires("fabric-api")
+
+        requires {
+            slug = "architectury-api"
+        }
+
+        requires {
+            slug = "geckolib"
+        }
     }
 
     curseforge {
@@ -246,7 +254,10 @@ publishMods {
         accessToken = env.CURSEFORGE_API_KEY.orNull()
         minecraftVersions.add(stonecutter.current.version)
         minecraftVersions.addAll(additionalVersions)
-        requires("fabric-api")
+        changelogType = "markdown"
+
+        if (isFabric())
+            requires("fabric-api")
 
         client = true
         server = true
