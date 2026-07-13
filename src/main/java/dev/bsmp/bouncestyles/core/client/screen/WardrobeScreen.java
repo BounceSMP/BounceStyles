@@ -29,6 +29,9 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class WardrobeScreen extends Screen {
+    private static Category lastCategory;
+    private static String lastSearch = "";
+
     WardrobeWidget activeWidget;
     WardrobePreviewWidget previewWidget;
     WardrobeStyleSelectionWidget styleWidget;
@@ -53,7 +56,11 @@ public class WardrobeScreen extends Screen {
         this.previewRight = width / 3;
         this.topBarHeight = height / 10;
 
-        var selectedCategory = this.styleWidget != null ? this.styleWidget.getCategory() : Category.Head;
+        var selectedCategory = Category.Head;
+        if (this.styleWidget != null)
+            selectedCategory = this.styleWidget.getCategory();
+        else if (lastCategory != null)
+            selectedCategory = lastCategory;
 
         this.previewWidget = addRenderableWidget(new WardrobePreviewWidget(0, 0, previewRight, height, minecraft.player));
         this.styleWidget = new WardrobeStyleSelectionWidget(previewRight, topBarHeight + 2, width - previewRight, height - topBarHeight);
@@ -62,8 +69,13 @@ public class WardrobeScreen extends Screen {
         int y = 2;
         var i = width - previewRight - (50 + (Category.values().length * 22));
         this.searchBox = addRenderableWidget(new EditBox(minecraft.font, previewRight + 4, y, i, 20, Component.empty()));
-        this.searchBox.setResponder(s -> this.updateStyles(this.styleWidget.getCategory()));
         this.searchBox.setHint(Component.literal("Search..."));
+        if (!lastSearch.isBlank())
+            this.searchBox.setValue(lastSearch);
+        this.searchBox.setResponder(s -> {
+            lastSearch = s;
+            this.updateStyles(this.styleWidget.getCategory());
+        });
 
         for (int index = 0; index < Category.values().length; index++) {
             Category category = Category.values()[index];
@@ -71,7 +83,10 @@ public class WardrobeScreen extends Screen {
                     (width - 44) - ((Category.values().length - index) * 22), y,
                     "btn_"+category.getSerializedName(),
                     Component.literal(category.name()),
-                    button -> this.updateStyles(category)
+                    button -> {
+                        lastCategory = category;
+                        this.updateStyles(category);
+                    }
             )));
         }
 
