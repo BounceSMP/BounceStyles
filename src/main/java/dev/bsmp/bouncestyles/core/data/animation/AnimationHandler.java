@@ -28,8 +28,8 @@ public class AnimationHandler {
         if (!animations.isEmpty()) {
             //ToDo Consider supporting EmoteCraft emote-specific animations, if specified as something like "emote.emote_name"
             RawAnimation anim;
-            //~ if >= 1.21.8 'getController' -> 'controller'
-            var controller = state.controller();
+
+            var animController = /*~ if >= 1.21.8 'getController' -> 'controller'*/ state.controller();
             var animState =
             //? if >= 1.21.8 {
             state.getDataOrDefault(TICKET_ANIM_STATE, AnimState.IDLE);
@@ -38,7 +38,7 @@ public class AnimationHandler {
             *///? }
 
             if ((anim = animations.get(animState.name().toLowerCase())) != null)
-                return applyAnimation(controller, anim);
+                return applyAnimation(animController, anim);
         }
 
         return PlayState.STOP;
