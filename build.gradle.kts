@@ -1,5 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
+import org.gradle.kotlin.dsl.support.uppercaseFirstChar
+
 plugins {
     kotlin("jvm")
     id("architectury-plugin")
@@ -221,18 +223,22 @@ publishMods {
     file = tasks.remapJar.map { it.archiveFile.get() }
     additionalFiles.from(tasks.remapSourcesJar.map { it.archiveFile.get() })
 
-    type = BETA
-    displayName = "${property("mod.name")} ${property("mod.version")} - Fabric ${stonecutter.current.version}"
-    version = "${property("mod.version")}+${sc.current.version}-fabric"
+    type = STABLE
+    displayName = "${property("mod.name")} - ${property("mod.version")} - ${loader.uppercaseFirstChar()} - ${stonecutter.current.version}"
+    version = "${property("mod.version")}-${loader}-${stonecutter.current.version}"
     changelog = provider { rootProject.file("CHANGELOG.md").readText() }
-    modLoaders.add("fabric")
+    modLoaders.add(loader)
+
+    dryRun = true
 
     modrinth {
         projectId = property("publish.modrinth") as String
         accessToken = env.MODRINTH_API_KEY.orNull()
         minecraftVersions.add(stonecutter.current.version)
         minecraftVersions.addAll(additionalVersions)
-        requires("fabric-api")
+
+        if (isFabric())
+            requires("fabric-api")
     }
 
     curseforge {
@@ -241,6 +247,9 @@ publishMods {
         minecraftVersions.add(stonecutter.current.version)
         minecraftVersions.addAll(additionalVersions)
         requires("fabric-api")
+
+        client = true
+        server = true
     }
 }
 
