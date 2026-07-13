@@ -27,10 +27,18 @@ import net.minecraft.client.renderer.RenderType;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoRenderer;
+import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
+import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+import software.bernie.geckolib.util.RenderUtil;
+
+import java.util.HashMap;
+import java.util.List;
 
 public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Player>> implements GeoRenderer<Style> {
-    private Player currentPlayer;
     private static final StyleGeoModel geoModel = new StyleGeoModel();
+    private final List<GeoRenderLayer<Style>> renderLayers = List.of(
+            new AutoGlowingGeoLayer<>(this)
+    );
 
     public static String headBone = "armorHead";
     public static String bodyBone = "armorBody";
@@ -41,6 +49,8 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
     public static String rightBootBone = "armorRightBoot";
     public static String leftBootBone = "armorLeftBoot";
 
+    private Player currentPlayer;
+    private final HashMap<Identifier, Boolean> emissiveCache = new HashMap<>();
     public LegacyStyleLayerRenderer(RenderLayerParent<Player, PlayerModel<Player>> context) {
         super(context);
     }
@@ -54,8 +64,6 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
         poseStack.scale(-1.005F, -1.0F, 1.005F);
         poseStack.pushPose();
 
-        this.getParentModel().prepareMobModel(player, limbSwing, limbSwingAmount, partialTick);
-        this.getParentModel().setupAnim(player, limbSwing, limbSwingAmount, partialTick, headYaw, headPitch);
         renderStyle(poseStack, styleData.getHeadStyle(), Category.Head, vertexConsumers, headYaw, partialTick, light, false);
         renderStyle(poseStack, styleData.getBodyStyle(), Category.Body, vertexConsumers, headYaw, partialTick, light, false);
         renderStyle(poseStack, styleData.getLegsStyle(), Category.Legs, vertexConsumers, headYaw, partialTick, light, false);
@@ -136,6 +144,22 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
         GeoRenderer.super.actuallyRender(poseStack, style, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
     }
     //? }
+
+
+    @Override
+    public void applyRenderLayers(PoseStack poseStack, Style animatable, BakedGeoModel model, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
+        for (GeoRenderLayer<Style> renderLayer : getRenderLayers()) {
+            if (renderLayer instanceof AutoGlowingGeoLayer) {
+                var emissiveTexture = this.getTextureLocation(animatable).withPath(path -> path.replace(".png", "_glowmask.png"));
+
+                if (emissiveCache.computeIfAbsent(emissiveTexture, id -> Minecraft.getInstance().getResourceManager().getResource(id).isPresent()))
+                    renderLayer.render(poseStack, animatable, model, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
+                else
+                    continue;
+            }
+            renderLayer.render(poseStack, animatable, model, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
+        }
+    }
 
     private static Identifier getStyleTexture(Style style, int textureId) {
         Identifier texture = style.getTextureId();
@@ -295,6 +319,11 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
         catch (RuntimeException e) {
             BounceStyles.LOGGER.info("Could not find bone ["+bone+"]");
         }
+    }
+
+    @Override
+    public List<GeoRenderLayer<Style>> getRenderLayers() {
+        return renderLayers;
     }
 
     @Override
