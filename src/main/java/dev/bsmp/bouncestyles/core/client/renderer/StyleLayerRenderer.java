@@ -29,7 +29,11 @@ import software.bernie.geckolib.renderer.base.BoneSnapshots;
 import software.bernie.geckolib.renderer.base.GeoRenderState;
 import software.bernie.geckolib.renderer.base.GeoRenderer;
 import software.bernie.geckolib.renderer.base.RenderPassInfo;
+import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+import software.bernie.geckolib.renderer.layer.builtin.AutoGlowingGeoLayer;
+import software.bernie.geckolib.util.RenderUtil;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,7 +42,11 @@ import static dev.bsmp.bouncestyles.core.client.renderer.StyleDataTickets.*;
 @SuppressWarnings("UnstableApiUsage")
 public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerModel> implements GeoRenderer<Style, StyleLayerRenderer.RenderData, GeoRenderState.Impl> {
     public static final StyleGeoModel geoModel = new StyleGeoModel();
-    private AvatarRenderState currentPlayerState;
+    private static final HashMap<Identifier, Boolean> emissiveCache = new HashMap<>();
+
+    private final List<GeoRenderLayer<Style, RenderData, GeoRenderState.Impl>> layers = List.of(
+            new AutoGlowingGeoLayer(this)
+    );
 
     public StyleLayerRenderer(RenderLayerParent<AvatarRenderState, PlayerModel> context) {
         super(context);
@@ -52,7 +60,6 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
         if (styleData != null) {
             poseStack.pushPose();
 
-            currentPlayerState = avatarState;
             var animation = setupAnimationState(avatarState);
 
             styleData.getAllNonEmpty().forEach((category, equippedStyle) -> {
@@ -130,6 +137,21 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
     }
 
     @Override
+    public void applyRenderLayers(RenderPassInfo<GeoRenderState.Impl> renderPassInfo, SubmitNodeCollector renderTasks) {
+        for (GeoRenderLayer renderLayer : getRenderLayers()) {
+            if (renderLayer instanceof AutoGlowingGeoLayer) {
+                var emissiveTexture = RenderUtil.getEmissiveResource(this.getTextureLocation(renderPassInfo.renderState()));
+
+                if (emissiveCache.computeIfAbsent(emissiveTexture, id -> Minecraft.getInstance().getResourceManager().getResource(id).isPresent()))
+                    renderLayer.submitRenderTask(renderPassInfo, renderTasks);
+                else
+                    continue;
+            }
+            renderLayer.submitRenderTask(renderPassInfo, renderTasks);
+        }
+    }
+
+    @Override
     public void adjustRenderPose(@NonNull RenderPassInfo<GeoRenderState.Impl> renderPassInfo) {
         renderPassInfo.poseStack().translate(0, 24 / 16f, 0);
         renderPassInfo.poseStack().scale(-1, -1, 1);
@@ -194,6 +216,11 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
             case LEFT_FOOT -> "armorLeftBoot";
             case RIGHT_FOOT -> "armorRightBoot";
         };
+    }
+
+    @Override
+    public List<GeoRenderLayer<Style, RenderData, GeoRenderState.Impl>> getRenderLayers() {
+        return this.layers;
     }
 
     @Override
