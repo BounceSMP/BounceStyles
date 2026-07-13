@@ -3,17 +3,22 @@
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.bsmp.bouncestyles.api.animation.AnimState;
 import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.api.data.EquippedStyle;
 import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.api.data.StyleData;
+import dev.bsmp.bouncestyles.core.data.animation.AnimationHandler;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
+import org.jspecify.annotations.Nullable;
 import org.joml.Vector3d;
 import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.model.GeoModel;
@@ -41,7 +46,7 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource vertexConsumers, int light, Player player, float limbAngle, float limbDistance, float partialTick, float animationProgress, float headYaw, float headPitch) {
+    public void render(PoseStack poseStack, MultiBufferSource vertexConsumers, int light, Player player, float limbSwing, float limbSwingAmount, float partialTick, float animationProgress, float headYaw, float headPitch) {
         this.currentPlayer = player;
         StyleData styleData = StyleData.getEntityData(player);
 
@@ -49,6 +54,8 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
         poseStack.scale(-1.005F, -1.0F, 1.005F);
         poseStack.pushPose();
 
+        this.getParentModel().prepareMobModel(player, limbSwing, limbSwingAmount, partialTick);
+        this.getParentModel().setupAnim(player, limbSwing, limbSwingAmount, partialTick, headYaw, headPitch);
         renderStyle(poseStack, styleData.getHeadStyle(), Category.Head, vertexConsumers, headYaw, partialTick, light, false);
         renderStyle(poseStack, styleData.getBodyStyle(), Category.Body, vertexConsumers, headYaw, partialTick, light, false);
         renderStyle(poseStack, styleData.getLegsStyle(), Category.Legs, vertexConsumers, headYaw, partialTick, light, false);
@@ -57,6 +64,8 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
         poseStack.popPose();
         poseStack.scale(-1.005F, -1.0F, 1.005F);
         poseStack.translate(0.0D, -1.497F, 0.0D);
+
+        this.currentPlayer = null;
     }
 
     public void renderStyle(PoseStack poseStack, EquippedStyle equippedStyle, Category category, MultiBufferSource vertexConsumers, float headYaw, float partialTick, int light, boolean isGui) {
@@ -68,7 +77,7 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
         Identifier texture = getStyleTexture(style, variant);
 
         RenderType renderLayer = getRenderType(style, texture, bufferSource, partialTick);
-        var bakedModel = geoModel.getBakedModel(style.getModelId());
+        var bakedModel = geoModel.getBakedModel(this.getGeoModel().getModelResource(style, this));
         setupBoneVisibility(bakedModel, category);
         fitToBones(bakedModel, category);
         defaultRender(poseStack, style, bufferSource, renderLayer, null, headYaw, partialTick, light);
@@ -109,25 +118,24 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
 
     private void moveFromPivot(PoseStack poseStack, GeoBone bone) {
         //? if <= 1.20.1 {
-        /^/^²software.bernie.geckolib.util.RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
-        ²^///?} else if >= 1.21.1 {
+        //software.bernie.geckolib.util.RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
+        //? } else {
         software.bernie.geckolib.util.RenderUtil.translateAwayFromPivotPoint(poseStack, bone);
-        ^///?}
+        //? }
     }
 
     //? if <= 1.20.1 {
-    /^/^²@Override
-    public void actuallyRender(PoseStack poseStack, Style style, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        setupAnimation(style, isReRender, partialTick);
-        GeoRenderer.super.actuallyRender(poseStack, style, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
-    }
-    ²^///?} else if >= 1.21.1 {
+//    @Override
+//    public void actuallyRender(PoseStack poseStack, Style style, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+//        setupAnimation(style, isReRender, partialTick);
+//        GeoRenderer.super.actuallyRender(poseStack, style, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+    //? } else {
     @Override
-    public void actuallyRender(PoseStack poseStack, Style style, BakedGeoModel model, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
+    public void actuallyRender(PoseStack poseStack, Style style, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
         setupAnimation(style, isReRender, partialTick);
         GeoRenderer.super.actuallyRender(poseStack, style, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
     }
-    ^///?}
+    //? }
 
     private static Identifier getStyleTexture(Style style, int textureId) {
         Identifier texture = style.getTextureId();
@@ -139,7 +147,7 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
     }
 
     private void setupAnimation(Style style, boolean isReRender, float partialTick) {
-        if (!isReRender) {
+        if (this.currentPlayer != null && !isReRender) {
             boolean isMoving = false;
             long instanceId = -1;
 
@@ -152,13 +160,40 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
             AnimationState<Style> animationState = new AnimationState<>(style, 0, 0, partialTick, isMoving);
 
             animationState.setData(Style.PLAYER, this.currentPlayer);
+            animationState.setData(AnimationHandler.TICKET_ANIM_STATE, getAnimSate(isMoving));
             geoModel.addAdditionalStateData(style, instanceId, animationState::setData);
             //? if <= 1.20.1 {
-            /^/^²geoModel.handleAnimations(style, instanceId, animationState);
-            ²^///?} else if >= 1.21.1 {
+            //geoModel.handleAnimations(style, instanceId, animationState);
+            //? } else {
             geoModel.handleAnimations(style, instanceId, animationState, partialTick);
-            ^///?}
+            //? }
         }
+    }
+
+    private AnimState getAnimSate(boolean isMoving) {
+        if (currentPlayer.isSleeping())
+            return AnimState.SLEEPING;
+
+        else if (currentPlayer.isInLiquid() && currentPlayer.isVisuallySwimming())
+            return AnimState.SWIMMING;
+
+        else if (currentPlayer.isFallFlying())
+            return AnimState.FLYING;
+
+        else if (!currentPlayer.onGround())
+            return AnimState.IN_AIR;
+
+        else if (currentPlayer.isCrouching())
+            return AnimState.SNEAKING;
+
+        else if (isMoving) {
+            if (currentPlayer.isSprinting())
+                return AnimState.SPRINTING;
+            else
+                return AnimState.WALKING;
+        }
+        else
+            return AnimState.IDLE;
     }
 
     private void setupBoneVisibility(BakedGeoModel model, Category category) {
@@ -191,25 +226,33 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
     }
 
     private void fitToBones(BakedGeoModel model, Category category) {
-        PlayerModel<Player> playerModel = getParentModel();
+        PlayerModel playerModel = getParentModel();
+
+        var renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(this.currentPlayer);
+        if ((Object) renderer instanceof PlayerRenderer playerRenderer) {
+            playerModel = playerRenderer.getModel();
+        }
 
         switch (category) {
             case Head -> {
                 GeoBone bone = model.getBone(headBone).orElse(null);
                 if (bone != null) {
-                    matchModelPartRot(getParentModel().head, bone);
-                    bone.setModelPosition(new Vector3d(playerModel.head.x, -playerModel.head.y, playerModel.head.z));
+                    matchModelPartRot(playerModel.head, bone);
+                    bone.updatePosition(playerModel.head.x, -playerModel.head.y, playerModel.head.z);
                 }
             }
             case Body -> {
                 GeoBone bodyGeoBone = model.getBone(bodyBone).orElse(null);
+                if (bodyGeoBone != null) {
+                    matchModelPartRot(playerModel.body, bodyGeoBone);
+                    bodyGeoBone.updatePosition(playerModel.body.x, -playerModel.body.y, playerModel.body.z);
+                }
+
                 GeoBone rightArmGeoBone = model.getBone(rightArmBone).orElse(null);
                 GeoBone leftArmGeoBone = model.getBone(leftArmBone).orElse(null);
                 if (bodyGeoBone != null && rightArmGeoBone != null && leftArmGeoBone != null) {
-                    matchModelPartRot(getParentModel().body, bodyGeoBone);
-                    matchModelPartRot(getParentModel().rightArm, rightArmGeoBone);
-                    matchModelPartRot(getParentModel().leftArm, leftArmGeoBone);
-                    bodyGeoBone.setModelPosition(new Vector3d(playerModel.body.x, -playerModel.body.y, playerModel.body.z));
+                    matchModelPartRot(playerModel.rightArm, rightArmGeoBone);
+                    matchModelPartRot(playerModel.leftArm, leftArmGeoBone);
                     rightArmGeoBone.setModelPosition(new Vector3d(playerModel.rightArm.x + 5, 2 - playerModel.rightArm.y, playerModel.rightArm.z));
                     leftArmGeoBone.setModelPosition(new Vector3d(playerModel.leftArm.x - 5, 2 - playerModel.leftArm.y, playerModel.leftArm.z));
                 }
@@ -218,8 +261,8 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
                 GeoBone rightLegGeoBone = model.getBone(rightLegBone).orElse(null);
                 GeoBone leftLegGeoBone = model.getBone(leftLegBone).orElse(null);
                 if (rightLegGeoBone != null && leftLegGeoBone != null) {
-                    matchModelPartRot(getParentModel().rightLeg, rightLegGeoBone);
-                    matchModelPartRot(getParentModel().leftLeg, leftLegGeoBone);
+                    matchModelPartRot(playerModel.rightLeg, rightLegGeoBone);
+                    matchModelPartRot(playerModel.leftLeg, leftLegGeoBone);
                     rightLegGeoBone.setModelPosition(new Vector3d(playerModel.rightLeg.x + 2, 12 - playerModel.rightLeg.y, playerModel.rightLeg.z));
                     leftLegGeoBone.setModelPosition(new Vector3d(playerModel.leftLeg.x - 2, 12 - playerModel.leftLeg.y, playerModel.leftLeg.z));
                 }
@@ -228,8 +271,8 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
                 GeoBone rightBootGeoBone = model.getBone(rightBootBone).orElse(null);
                 GeoBone leftBootGeoBone = model.getBone(leftBootBone).orElse(null);
                 if (rightBootGeoBone != null && leftBootGeoBone != null) {
-                    matchModelPartRot(getParentModel().rightLeg, rightBootGeoBone);
-                    matchModelPartRot(getParentModel().leftLeg, leftBootGeoBone);
+                    matchModelPartRot(playerModel.rightLeg, rightBootGeoBone);
+                    matchModelPartRot(playerModel.leftLeg, leftBootGeoBone);
                     rightBootGeoBone.setModelPosition(new Vector3d(playerModel.rightLeg.x + 2, 12 - playerModel.rightLeg.y, playerModel.rightLeg.z));
                     leftBootGeoBone.setModelPosition(new Vector3d(playerModel.leftLeg.x - 2, 12 - playerModel.leftLeg.y, playerModel.leftLeg.z));
                 }
@@ -239,10 +282,10 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
 
     private void matchModelPartRot(ModelPart modelPart, GeoBone geoBone) {
         //? if <= 1.20.1 {
-        /^/^²software.bernie.geckolib.util.RenderUtils.matchModelPartRot(modelPart, geoBone);
-        ²^///?} else if >= 1.21.1 {
+        //software.bernie.geckolib.util.RenderUtils.matchModelPartRot(modelPart, geoBone);
+        //? } else {
         software.bernie.geckolib.util.RenderUtil.matchModelPartRot(modelPart, geoBone);
-        ^///?}
+        //? }
     }
 
     private void setBoneVisibility(String bone, BakedGeoModel model, boolean isVisible) {

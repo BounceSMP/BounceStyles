@@ -23,11 +23,11 @@ public class StyleGeoModel extends GeoModel<Style> {
     }
 
     //? if < 1.21.5 {
-    //@Override
-//    public @NonNull Identifier getTextureResource(Style style) {
-//        return style != null ? style.getTextureId() : Style.MISSING_MODEL_TEXTURE_ID;
-//    }
-    //? }
+    /*@Override
+    public @NonNull Identifier getTextureResource(Style style) {
+        return style != null ? style.getTextureId() : Style.MISSING_MODEL_TEXTURE_ID;
+    }
+    *///? }
 
     @Override
     public @NonNull Identifier getAnimationResource(Style style) {
