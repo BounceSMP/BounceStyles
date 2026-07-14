@@ -23,7 +23,10 @@ public class ServerPacketHandler {
     public static void handleEquipStyle(ServerPlayer player, EquipStyleServerbound packet) {
         StyleData styleData = StyleData.getEntityData(player);
 
-        packet.styleMap().forEach(styleData::equipStyle);
+        packet.styleMap().forEach((category, equippedStyle) -> {
+            if (equippedStyle.getStyleId().isEmpty() || UnlockManager.hasUnlocked(player, equippedStyle.getStyleId().get()))
+                styleData.equipStyle(category, equippedStyle);
+        });
 
         SyncStyleDataClientbound packetOut = new SyncStyleDataClientbound(player.getId(), styleData);
         packetOut.sendToPlayer(player);

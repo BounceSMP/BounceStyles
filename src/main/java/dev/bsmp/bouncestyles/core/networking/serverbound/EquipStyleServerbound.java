@@ -25,17 +25,6 @@ public record EquipStyleServerbound(Map<Category, EquippedStyle> styleMap) imple
         this(Map.of(category, new EquippedStyle(BounceStylesRegistries.getStyle(styleId).orElse(null), textureId)));
     }
 
-    public void encode(FriendlyByteBuf buf) {
-        buf.writeJsonWithCodec(CODEC, styleMap);
-    }
-
-    public static EquipStyleServerbound decode(FriendlyByteBuf buf) {
-        //? if >= 1.21.11 {
-        return new EquipStyleServerbound(buf.readLenientJsonWithCodec(CODEC));
-        //? } else
-        //return new EquipStyleServerbound(buf.readJsonWithCodec(CODEC));
-    }
-
     //? if <= 1.20.1 {
     /*private static final Codec<Map<Category, Optional<Pair<Identifier, Integer>>>> CODEC = Codec.unboundedMap(Category.CODEC, Codec.optionalField("value", Codec.pair(
             Identifier.CODEC.fieldOf("style_id").codec(),
