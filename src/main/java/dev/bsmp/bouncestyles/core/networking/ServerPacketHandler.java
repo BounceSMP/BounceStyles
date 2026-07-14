@@ -10,17 +10,10 @@ import dev.bsmp.bouncestyles.core.networking.serverbound.OpenStyleScreenServerbo
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class ServerPacketHandler {
-    public static void handleEquipStyle(EquipStyleServerbound packet, Supplier<NetworkManager.PacketContext> contextSupplier) {
-        NetworkManager.PacketContext ctx = contextSupplier.get();
-        ServerPlayer player = (ServerPlayer) ctx.getPlayer();
-
-        ctx.queue(() -> handleEquipStyle(player, packet));
-    }
-
-    public static void handleEquipStyle(ServerPlayer player, EquipStyleServerbound packet) {
+    public static void handleEquipStyle(NetworkManager.PacketContext context, EquipStyleServerbound packet) {
+        var player = (ServerPlayer) context.getPlayer();
         StyleData styleData = StyleData.getEntityData(player);
 
         packet.styleMap().forEach((category, equippedStyle) -> {
@@ -28,15 +21,14 @@ public class ServerPacketHandler {
                 styleData.equipStyle(category, equippedStyle);
         });
 
-        SyncStyleDataClientbound packetOut = new SyncStyleDataClientbound(player.getId(), styleData);
-        packetOut.sendToPlayer(player);
-        packetOut.sendToTrackingPlayers(player);
+        new SyncStyleDataClientbound(player.getId(), styleData)
+                .sendToPlayer(player)
+                .sendToTrackingPlayers(player);
     }
 
-    public static void handleOpenStyleScreen(OpenStyleScreenServerbound packet, Supplier<NetworkManager.PacketContext> contextSupplier) {
-        NetworkManager.PacketContext ctx = contextSupplier.get();
-        ServerPlayer player = (ServerPlayer) ctx.getPlayer();
-
-        ctx.queue(() -> new OpenWardrobeUIClientbound(UnlockManager.readUnlockData(player).orElse(Set.of()).stream().toList()).sendToPlayer(player));
+    public static void handleOpenStyleScreen(NetworkManager.PacketContext context, OpenStyleScreenServerbound packet) {
+        var player = (ServerPlayer) context.getPlayer();
+        var unlocks = UnlockManager.readUnlockData(player).orElse(Set.of()).stream().toList();
+        new OpenWardrobeUIClientbound(unlocks).sendToPlayer(player);
     }
 }
