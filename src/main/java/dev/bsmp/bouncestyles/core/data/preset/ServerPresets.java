@@ -6,7 +6,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import dev.bsmp.bouncestyles.api.style.StylePreset;
 import dev.bsmp.bouncestyles.core.BounceStyles;
-import dev.bsmp.bouncestyles.core.data.style.StyleLoader;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.storage.LevelResource;
@@ -18,7 +17,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 public class ServerPresets {
     public static final LevelResource LEVEL_DIR_PRESETS = new LevelResource("style_presets");
@@ -72,7 +70,7 @@ public class ServerPresets {
             return Optional.empty();
 
         try (BufferedReader reader = Files.newReader(file, StandardCharsets.UTF_8)) {
-            JsonObject jsonObject = StyleLoader.GSON.fromJson(reader, JsonObject.class);
+            JsonObject jsonObject = BounceStyles.GSON.fromJson(reader, JsonObject.class);
             return MAP_CODEC.parse(JsonOps.INSTANCE, jsonObject).resultOrPartial();
         }
         catch (Exception e) {
@@ -88,7 +86,7 @@ public class ServerPresets {
 
             try (BufferedWriter bufferedWriter = Files.newWriter(file, StandardCharsets.UTF_8)) {
                 MAP_CODEC.encodeStart(JsonOps.INSTANCE, map).resultOrPartial()
-                        .ifPresent(jsonElement -> StyleLoader.GSON.toJson(jsonElement, bufferedWriter));
+                        .ifPresent(jsonElement -> BounceStyles.GSON.toJson(jsonElement, bufferedWriter));
             }
         }
         catch (Exception e) {

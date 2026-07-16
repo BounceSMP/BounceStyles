@@ -15,8 +15,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class StyleLoader {
-    public static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().create();
-
     public static void checkAndConvertPackFormat() {
         File stylesDirectory = getStylesDirectory();
         if (stylesDirectory.mkdirs() || !stylesDirectory.isDirectory()) return;
@@ -115,7 +113,7 @@ public class StyleLoader {
 
     private static boolean convertStyleJsonToData(File directory, File jsonFile) {
         try (BufferedReader reader = Files.newReader(jsonFile, StandardCharsets.UTF_8)) {
-            var jsonArray = GSON.fromJson(reader, JsonArray.class);
+            var jsonArray = BounceStyles.GSON.fromJson(reader, JsonArray.class);
             for (JsonElement obj : jsonArray) {
                 JsonObject styleObj = obj.getAsJsonObject();
                 String name = styleObj.get("name").getAsString();
@@ -123,7 +121,7 @@ public class StyleLoader {
                 styleFile.getParentFile().mkdirs();
 
                 try (Writer writer = new FileWriter(styleFile)) {
-                    GSON.toJson(styleObj, writer);
+                    BounceStyles.GSON.toJson(styleObj, writer);
                 }
                 catch (Exception e) {
                     BounceStyles.LOGGER.error("Exception Occurred trying to write json for Style: '{}' in pack: '{}'", name, directory.getName(), e);

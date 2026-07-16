@@ -1,5 +1,7 @@
 package dev.bsmp.bouncestyles.core;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.registry.registries.RegistrySupplier;
@@ -21,6 +23,7 @@ import org.apache.logging.log4j.Logger;
 public class BounceStyles {
     public static final String modId = "bounce_styles";
     public static final Logger LOGGER = LogManager.getLogger();
+    public static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().create();
 
     private static RegistrySupplier<StyleMagazineItem> MAGAZINE_ITEM;
 
