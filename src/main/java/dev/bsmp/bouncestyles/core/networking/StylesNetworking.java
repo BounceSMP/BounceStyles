@@ -34,9 +34,9 @@ public class StylesNetworking {
     }
 
     public static void initClientbound() {
-        registerClientbound(SyncStyleDataClientbound.TYPE, SyncStyleDataClientbound.STREAM_CODEC, ClientPacketHandler::handleSyncStyleData);
-        registerClientbound(OpenWardrobeUIClientbound.TYPE, OpenWardrobeUIClientbound.STREAM_CODEC, ClientPacketHandler::handleOpenWardrobeUI);
-        registerClientbound(SyncPresetsClientbound.TYPE, SyncPresetsClientbound.STREAM_CODEC, ClientPacketHandler::handleSyncPresets);
+        registerClientbound(SyncStyleDataClientbound.TYPE, SyncStyleDataClientbound.STREAM_CODEC, (context, packet) ->  ClientPacketHandler.handleSyncStyleData(context, packet));
+        registerClientbound(OpenWardrobeUIClientbound.TYPE, OpenWardrobeUIClientbound.STREAM_CODEC, (context, packet) ->  ClientPacketHandler.handleOpenWardrobeUI(context, packet));
+        registerClientbound(SyncPresetsClientbound.TYPE, SyncPresetsClientbound.STREAM_CODEC, (context, packet) ->  ClientPacketHandler.handleSyncPresets(context, packet));
     }
 
     private static <T extends StylePacket.ServerboundStylePacket> void registerServerbound(CustomPacketPayload.Type<T> type, StreamCodec<ByteBuf, T> streamCodec, BiConsumer<NetworkManager.PacketContext, T> handler) {
