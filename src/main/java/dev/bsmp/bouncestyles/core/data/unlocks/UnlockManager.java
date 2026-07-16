@@ -115,6 +115,8 @@ public class UnlockManager {
     }
 
     public static boolean requiresUnlocks(Entity entity) {
+        if (!BounceStyles.config().unlocksEnabled()) return true;
+
         if (entity instanceof Player player) {
             //? if >= 1.21.11 {
             return !(player.isCreative() && player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER));
