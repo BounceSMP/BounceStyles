@@ -6,8 +6,10 @@ import dev.architectury.utils.Env;
 import dev.bsmp.bouncestyles.core.networking.clientbound.OpenWardrobeUIClientbound;
 import dev.bsmp.bouncestyles.core.networking.clientbound.SyncPresetsClientbound;
 import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientbound;
+import dev.bsmp.bouncestyles.core.networking.serverbound.UpdatePresetServerbound;
 import dev.bsmp.bouncestyles.core.networking.serverbound.EquipStyleServerbound;
 import dev.bsmp.bouncestyles.core.networking.serverbound.OpenStyleScreenServerbound;
+import dev.bsmp.bouncestyles.core.networking.serverbound.RequestPresetsServerbound;
 import dev.bsmp.bouncestyles.mixin.common.ChunkStorageAccessor;
 import dev.bsmp.bouncestyles.mixin.common.EntityTrackerAccessor;
 import io.netty.buffer.ByteBuf;
@@ -27,6 +29,8 @@ public class StylesNetworking {
     public static void initServerbound() {
         registerServerbound(EquipStyleServerbound.TYPE, EquipStyleServerbound.STREAM_CODEC, ServerPacketHandler::handleEquipStyle);
         registerServerbound(OpenStyleScreenServerbound.TYPE, OpenStyleScreenServerbound.STREAM_CODEC, ServerPacketHandler::handleOpenStyleScreen);
+        registerServerbound(RequestPresetsServerbound.TYPE, RequestPresetsServerbound.STREAM_CODEC, ServerPacketHandler::handleRequestPresets);
+        registerServerbound(UpdatePresetServerbound.TYPE, UpdatePresetServerbound.STREAM_CODEC, ServerPacketHandler::handleCreatePreset);
     }
 
     public static void initClientbound() {

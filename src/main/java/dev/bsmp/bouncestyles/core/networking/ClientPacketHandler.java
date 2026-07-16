@@ -8,6 +8,7 @@ import dev.bsmp.bouncestyles.core.data.preset.ClientPresets;
 import dev.bsmp.bouncestyles.core.networking.clientbound.OpenWardrobeUIClientbound;
 import dev.bsmp.bouncestyles.core.networking.clientbound.SyncPresetsClientbound;
 import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientbound;
+import dev.bsmp.bouncestyles.core.networking.serverbound.RequestPresetsServerbound;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.Entity;
@@ -21,11 +22,13 @@ public class ClientPacketHandler {
     }
 
     public static void handleOpenWardrobeUI(NetworkManager.PacketContext context, OpenWardrobeUIClientbound packet) {
-        //ToDo Request presets from server
-        Minecraft.getInstance().setScreen(new WardrobeScreen(packet.unlocks()));
+        new RequestPresetsServerbound().sendToServer();
+        Minecraft.getInstance().setScreen(new WardrobeScreen(packet.unlocks().orElse(null)));
     }
 
     public static void handleSyncPresets(NetworkManager.PacketContext context, SyncPresetsClientbound packet) {
-        ClientPresets.loadPresets(packet.presets());
+        ClientPresets.loadPresets(packet.globalPresets(), packet.playerPresets());
+        if (Minecraft.getInstance().screen instanceof WardrobeScreen screen)
+            screen.refreshPresets();
     }
 }

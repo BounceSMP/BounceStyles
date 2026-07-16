@@ -39,9 +39,9 @@ public class BounceStyles {
         StylesNetworking.initClientbound();
 
         LifecycleEvent.SERVER_STARTING.register(server -> BounceStylesRegistries.setRegistryAccess(server.registryAccess()));
-        LifecycleEvent.SERVER_STARTED.register(server -> BounceStylesRegistries.getRegistry().ifPresent(styles -> {
-            BounceStyles.LOGGER.info("Server Started with {} styles registered", styles.size());
-        }));
+        LifecycleEvent.SERVER_STARTED.register(server ->
+            BounceStylesRegistries.getRegistry().ifPresent(styles -> BounceStyles.LOGGER.info("Server Started with {} styles registered", styles.size()))
+        );
 
         PlayerEvent.PLAYER_JOIN.register(player -> new SyncStyleDataClientbound(player.getId(), StyleData.getEntityData(player)).sendToPlayer(player));
         PlayerEvent.PLAYER_CLONE.register((oldPlayer, newPlayer, wonGame) -> StyleData.copyFrom(oldPlayer, newPlayer));

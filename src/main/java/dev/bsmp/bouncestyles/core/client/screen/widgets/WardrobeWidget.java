@@ -24,7 +24,7 @@ public interface WardrobeWidget extends GuiEventListener, Renderable {
         blit(guiGraphics, id, x, y, width, height, textureWidth, textureHeight, 0, 0);
     }
 
-    default void blit(GuiGraphics guiGraphics, Identifier id, int x, int y, int width, int height, int textureWidth, int textureHeight, int u, int v) {
+    static void blit(GuiGraphics guiGraphics, Identifier id, int x, int y, int width, int height, int textureWidth, int textureHeight, int u, int v) {
         //? if >= 1.21.5 {
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, id, x, y, u, v, width, height, textureWidth, textureHeight);
         //? } else

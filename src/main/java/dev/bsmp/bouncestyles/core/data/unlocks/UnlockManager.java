@@ -7,7 +7,9 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.IOException;
@@ -17,10 +19,12 @@ import java.util.Optional;
 import java.util.Set;
 
 public class UnlockManager {
+    public static final LevelResource LEVEL_DIR_UNLOCKS = new LevelResource("style_unlocks");
+
     public static Optional<Set<Identifier>> readUnlockData(Entity entity) {
         if (entity.level().isClientSide()) return Optional.empty();
 
-        var unlocksDir = ((ServerLevel) entity.level()).getServer().getWorldPath(LevelResource.ROOT).resolve("style_unlocks");
+        var unlocksDir = ((ServerLevel) entity.level()).getServer().getWorldPath(LEVEL_DIR_UNLOCKS);
         if (unlocksDir.toFile().mkdirs()) return Optional.empty();
 
         var dataFile = unlocksDir.resolve(entity.getStringUUID()+".dat");
@@ -108,5 +112,15 @@ public class UnlockManager {
     public static boolean hasUnlocked(Entity entity, Identifier styleId) {
         if(styleId == null) return false;
         return readUnlockData(entity).map(identifiers -> identifiers.contains(styleId)).orElse(false);
+    }
+
+    public static boolean requiresUnlocks(Entity entity) {
+        if (entity instanceof Player player) {
+            //? if >= 1.21.11 {
+            return !(player.isCreative() && player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER));
+            //? } else
+            //return !(minecraft.player.isCreative() && minecraft.player.hasPermissions(2));
+        }
+        return false;
     }
 }

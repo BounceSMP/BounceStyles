@@ -1,5 +1,6 @@
 package dev.bsmp.bouncestyles.core.client.screen;
 
+import dev.bsmp.bouncestyles.api.data.EquippedStyle;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.WardrobePresetsWidget;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.WardrobePreviewWidget;
@@ -19,7 +20,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.server.permissions.Permissions;
 //? }
 
 import java.util.Comparator;
@@ -64,7 +64,7 @@ public class WardrobeScreen extends Screen {
 
         this.previewWidget = addRenderableWidget(new WardrobePreviewWidget(0, 0, previewRight, height, minecraft.player));
         this.styleWidget = new WardrobeStyleSelectionWidget(previewRight, topBarHeight + 2, width - previewRight, height - topBarHeight);
-        this.presetsWidget = new WardrobePresetsWidget(minecraft, this, previewRight, topBarHeight + 4, width - previewRight, height - topBarHeight, 30, topBarHeight);
+        this.presetsWidget = new WardrobePresetsWidget(minecraft, this, previewRight, topBarHeight + 4, width - previewRight, height - topBarHeight, 20, topBarHeight);
 
         int y = 2;
         var i = width - previewRight - (50 + (Category.values().length * 22));
@@ -94,17 +94,18 @@ public class WardrobeScreen extends Screen {
             this.setActiveWidget(this.presetsWidget);
             this.categoryButtons.get(this.styleWidget.getCategory()).setFocused(false);
         }));
+
         addRenderableWidget(new WardrobeIconButton(width - 22, y, "btn_clear", Component.literal("Clear Equipped"), button -> {
             this.clearEquipped();
         }));
+
         if(this.activeWidget instanceof WardrobePresetsWidget) {
             this.setActiveWidget(this.presetsWidget);
         }
         else {
             this.setActiveWidget(this.styleWidget);
+            this.updateStyles(selectedCategory);
         }
-
-        this.updateStyles(selectedCategory);
     }
 
     @Override
@@ -235,14 +236,14 @@ public class WardrobeScreen extends Screen {
         this.categoryButtons.get(category).setFocused(true);
     }
 
+    public void refreshPresets() {
+        this.presetsWidget.refreshEntries();
+    }
+
     private boolean availabilityFilter(Style style, Category category) {
         boolean categoryCheck = style.getCategories().contains(category);
-        boolean unlockCheck = this.unlockedStyles.contains(style.getStyleId());
-        //? if >= 1.21.11 {
-        boolean permissionCheck = (minecraft.player.isCreative() && minecraft.player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER));
-        //? } else
-        //boolean permissionCheck = (minecraft.player.isCreative() && minecraft.player.hasPermissions(2));
-        return  categoryCheck && (unlockCheck || permissionCheck);
+        boolean unlockCheck = this.unlockedStyles == null || this.unlockedStyles.contains(style.getStyleId());
+        return categoryCheck && unlockCheck;
     }
 
     private boolean searchFilter(Style style, Category category) {
@@ -251,9 +252,11 @@ public class WardrobeScreen extends Screen {
     }
 
     private void clearEquipped() {
-        new EquipStyleServerbound(Category.Head).sendToServer();
-        new EquipStyleServerbound(Category.Body).sendToServer();
-        new EquipStyleServerbound(Category.Legs).sendToServer();
-        new EquipStyleServerbound(Category.Feet).sendToServer();
+        new EquipStyleServerbound(Map.of(
+                Category.Head, new EquippedStyle(),
+                Category.Body, new EquippedStyle(),
+                Category.Legs, new EquippedStyle(),
+                Category.Feet, new EquippedStyle()
+        )).sendToServer();
     }
 }
