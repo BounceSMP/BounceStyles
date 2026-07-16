@@ -64,19 +64,21 @@ public class Style implements SingletonGeoAnimatable {
     private final @Nullable Map<String, RawAnimation> animationMap;
 
     private final int transitionTicks;
+    private final RenderType renderType;
+
     private final List<Category> categories;
     private final @Nullable List<String> hiddenParts;
     private final @Nullable List<String> credits;
 
     public Style(Identifier styleId, Identifier modelId, Identifier textureId, @Nullable Identifier animationId, @Nullable Map<String, String> animationMap, List<Category> categories) {
-        this(styleId, modelId, textureId, null, animationId, animationMap, 1, null, categories, null);
+        this(styleId, modelId, textureId, null, animationId, animationMap, 1, RenderType.Cull, null, categories, null);
     }
 
     public Style(Identifier styleId, Identifier modelId, Identifier textureId, @Nullable List<Identifier> textureVariants, @Nullable Identifier animationId, @Nullable Map<String, String> animationMap, int transitionTicks, List<Category> categories) {
-        this(styleId, modelId, textureId, textureVariants, animationId, animationMap, transitionTicks, null, categories, null);
+        this(styleId, modelId, textureId, textureVariants, animationId, animationMap, transitionTicks, RenderType.Cull, null, categories, null);
     }
 
-    public Style(Identifier styleId, Identifier modelId, Identifier textureId, @Nullable List<Identifier> textureVariants, @Nullable Identifier animationId, @Nullable Map<String, String> animationMap, int transitionTicks, @Nullable List<String> hiddenParts, List<Category> categories, @Nullable List<String> credits) {
+    public Style(Identifier styleId, Identifier modelId, Identifier textureId, @Nullable List<Identifier> textureVariants, @Nullable Identifier animationId, @Nullable Map<String, String> animationMap, int transitionTicks, RenderType renderType, @Nullable List<String> hiddenParts, List<Category> categories, @Nullable List<String> credits) {
         this.styleId = styleId;
         this.modelId = modelId;
         this.textureId = textureId;
@@ -84,6 +86,7 @@ public class Style implements SingletonGeoAnimatable {
         this.animationId = animationId;
         this.animationMap = animationMap != null ? buildAnimationMap(animationMap) : null;
         this.transitionTicks = transitionTicks;
+        this.renderType = renderType;
         this.categories = categories;
         this.hiddenParts = hiddenParts;
         this.credits = credits;
@@ -150,6 +153,10 @@ public class Style implements SingletonGeoAnimatable {
         return transitionTicks;
     }
 
+    public RenderType getRenderType() {
+        return this.renderType;
+    }
+
     public Optional<Map<String, String>> getAnimationStringMap() {
         if (this.animationMap == null) return Optional.empty();
 
@@ -189,7 +196,7 @@ public class Style implements SingletonGeoAnimatable {
         return animMap;
     }
 
-    private static Style decode(String styleName, Optional<Identifier> modelId, Optional<Identifier> textureId, Optional<List<Identifier>> textureVariants, Optional<Identifier> animationId, Optional<Map<String, String>> animationMap, Integer transitionTicks, Optional<List<String>> hiddenParts, List<Category> categories, Optional<List<String>> credits) {
+    private static Style decode(String styleName, Optional<Identifier> modelId, Optional<Identifier> textureId, Optional<List<Identifier>> textureVariants, Optional<Identifier> animationId, Optional<Map<String, String>> animationMap, Integer transitionTicks, RenderType renderType, Optional<List<String>> hiddenParts, List<Category> categories, Optional<List<String>> credits) {
         var styleId = BounceStyles.id(styleName);
 
         if (textureVariants.isPresent()) {
@@ -212,6 +219,7 @@ public class Style implements SingletonGeoAnimatable {
                 parseId(styleId, animationId, "animations", ".animation.json"),
                 animationMap.orElse(null),
                 transitionTicks,
+                renderType,
                 hiddenParts.orElse(null),
                 categories,
                 credits.orElse(null)
@@ -253,6 +261,7 @@ public class Style implements SingletonGeoAnimatable {
             ID_CODEC.optionalFieldOf("animation_id").forGetter(Style::getAnimationId),
             Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("animations").forGetter(Style::getAnimationStringMap),
             Codec.INT.optionalFieldOf("transition_ticks", 0).forGetter(Style::getTransitionTicks),
+            RenderType.CODEC.optionalFieldOf("render_type", RenderType.Cull).forGetter(Style::getRenderType),
             Codec.STRING.listOf().optionalFieldOf("hidden_parts").forGetter(Style::getHiddenParts),
             Category.CODEC.listOf().fieldOf("slots").forGetter(Style::getCategories),
             Codec.STRING.listOf().optionalFieldOf("credits").forGetter(Style::getCredits)

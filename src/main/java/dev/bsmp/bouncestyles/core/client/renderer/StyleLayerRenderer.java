@@ -71,7 +71,7 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
     }
 
     private GeoRenderState.Impl setupRenderState(EquippedStyle equippedStyle, Category category, AvatarRenderState playerState, AnimState animState, int packedLight) {
-        var renderData = new StyleLayerRenderer.RenderData(playerState.id, playerState);
+        var renderData = new RenderData(playerState.id, playerState);
         var renderState = createRenderState(equippedStyle.getStyle().get(), renderData);
 
         renderState.addGeckolibData(DataTickets.PACKED_LIGHT, packedLight);
@@ -191,7 +191,7 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
     }
 
     @Override
-    public void fireCompileRenderStateEvent(Style animatable, StyleLayerRenderer.RenderData relatedObject, GeoRenderState.Impl renderState, float partialTick) {}
+    public void fireCompileRenderStateEvent(Style animatable, RenderData relatedObject, GeoRenderState.Impl renderState, float partialTick) {}
 
     @Override
     public void fireCompileRenderLayersEvent() {}
@@ -224,7 +224,7 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
     }
 
     @Override
-    public long getInstanceId(Style animatable, StyleLayerRenderer.RenderData renderState) {
+    public long getInstanceId(Style animatable, RenderData renderState) {
         return renderState.id;
     }
 
@@ -235,13 +235,23 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
 
     @Override
     public @Nullable RenderType getRenderType(GeoRenderState.Impl renderState, Identifier texture) {
-        //ToDo Allow choosing rendertype per-style?
-        //~ if >= 1.21.11 'RenderType' -> 'RenderTypes'
-        return RenderTypes.entityCutout(texture);
+        //~ if >= 1.21.11 'RenderType' -> 'RenderTypes' {
+        var renderType = RenderTypes.entityCutout(texture);
+
+        renderState.getGeckolibData(TICKET_EQUIPPED).getStyle().ifPresent(style -> {
+            switch (style.getRenderType()) {
+                case Cull -> RenderTypes.entityCutout(texture);
+                case No_Cull -> RenderTypes.entityCutoutNoCull(texture);
+                case Translucent -> RenderTypes.entityTranslucent(texture);
+            }
+        });
+
+        return renderType;
+        //~ }
     }
 
     @Override
-    public GeoRenderState.Impl createRenderState(Style style, StyleLayerRenderer.RenderData renderData) {
+    public GeoRenderState.Impl createRenderState(Style style, RenderData renderData) {
         var renderState =  new GeoRenderState.Impl();
         renderState.addGeckolibData(TICKET_RENDER_DATA, renderData);
         return renderState;
