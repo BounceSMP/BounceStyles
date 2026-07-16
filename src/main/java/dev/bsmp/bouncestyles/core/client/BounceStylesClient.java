@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.architectury.event.events.client.ClientLifecycleEvent;
+import dev.architectury.event.events.client.ClientPlayerEvent;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer;
@@ -31,6 +32,10 @@ public class BounceStylesClient {
     public static void init() {
         Keybinds.register();
         ClientLifecycleEvent.CLIENT_LEVEL_LOAD.register(world -> BounceStylesRegistries.setRegistryAccess(world.registryAccess()));
+        ClientPlayerEvent.CLIENT_PLAYER_JOIN.register(player -> {
+            if (player == Minecraft.getInstance().player)
+                Keybinds.loadPresetKeybinds();
+        });
     }
 
     public static StyleLayerRenderer getStyleRenderer() {

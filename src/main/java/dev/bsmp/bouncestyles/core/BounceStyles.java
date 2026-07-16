@@ -10,6 +10,7 @@ import dev.bsmp.bouncestyles.core.data.preset.ServerPresets;
 import dev.bsmp.bouncestyles.core.data.style.StyleLoader;
 import dev.bsmp.bouncestyles.core.item.StyleMagazineItem;
 import dev.bsmp.bouncestyles.core.networking.StylesNetworking;
+import dev.bsmp.bouncestyles.core.networking.clientbound.SyncPresetsClientbound;
 import dev.bsmp.bouncestyles.core.networking.clientbound.SyncStyleDataClientbound;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -46,7 +47,10 @@ public class BounceStyles {
             BounceStylesRegistries.getRegistry().ifPresent(styles -> BounceStyles.LOGGER.info("Server Started with {} styles registered", styles.size()))
         );
 
-        PlayerEvent.PLAYER_JOIN.register(player -> new SyncStyleDataClientbound(player.getId(), StyleData.getEntityData(player)).sendToPlayer(player));
+        PlayerEvent.PLAYER_JOIN.register(player -> {
+            new SyncStyleDataClientbound(player.getId(), StyleData.getEntityData(player)).sendToPlayer(player);
+            ServerPresets.syncToPlayer(player);
+        });
         PlayerEvent.PLAYER_CLONE.register((oldPlayer, newPlayer, wonGame) -> StyleData.copyFrom(oldPlayer, newPlayer));
         PlayerEvent.CHANGE_DIMENSION.register((player, oldLevel, newLevel) -> new SyncStyleDataClientbound(player.getId(), StyleData.getEntityData(player)).sendToPlayer(player));
         PlayerEvent.PLAYER_RESPAWN.register((player, conqueredEnd, reason) -> new SyncStyleDataClientbound(player.getId(), StyleData.getEntityData(player)).sendToPlayer(player));

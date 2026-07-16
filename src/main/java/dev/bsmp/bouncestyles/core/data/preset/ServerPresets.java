@@ -6,6 +6,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import dev.bsmp.bouncestyles.api.style.StylePreset;
 import dev.bsmp.bouncestyles.core.BounceStyles;
+import dev.bsmp.bouncestyles.core.networking.clientbound.SyncPresetsClientbound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.storage.LevelResource;
@@ -92,6 +93,10 @@ public class ServerPresets {
         catch (Exception e) {
             BounceStyles.LOGGER.error("Exception Occurred writing preset file '{}'", file.getName(), e);
         }
+    }
+
+    public static void syncToPlayer(ServerPlayer player) {
+        new SyncPresetsClientbound(getGlobalPresets(player.level().getServer()).orElse(Map.of()), getPlayerPresets(player).orElse(Map.of())).sendToPlayer(player);
     }
 
     public static final Codec<Map<String, StylePreset>> MAP_CODEC = Codec.unboundedMap(Codec.STRING, StylePreset.CODEC);
