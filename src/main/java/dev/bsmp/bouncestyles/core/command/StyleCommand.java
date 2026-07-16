@@ -48,52 +48,6 @@ public class StyleCommand {
     }
 
     //Register
-    private static void unlockCommand(LiteralCommandNode<CommandSourceStack> styleNode) {
-        LiteralCommandNode<CommandSourceStack> unlockNode = Commands
-                .literal("unlock")
-                .build();
-        ArgumentCommandNode<CommandSourceStack, EntitySelector> playerNode = Commands
-                .argument("players", EntityArgument.players())
-                .build();
-        LiteralCommandNode<CommandSourceStack> allNode = Commands
-                .literal("all")
-                .executes(context -> unlockAll(EntityArgument.getPlayers(context, "players")))
-                .build();
-        ArgumentCommandNode<CommandSourceStack, Identifier> unlockIdNode = Commands
-                .argument("id", IdentifierArgument.id())
-                .suggests((context, builder) -> SharedSuggestionProvider.suggestResource(BounceStylesRegistries.getAllStyleIds(), builder))
-                .executes(context -> unlock(EntityArgument.getPlayers(context, "players"), IdentifierArgument.getId(context, "id")))
-                .build();
-
-        styleNode.addChild(unlockNode);
-        unlockNode.addChild(playerNode);
-        playerNode.addChild(allNode);
-        playerNode.addChild(unlockIdNode);
-    }
-
-    private static void removeCommand(LiteralCommandNode<CommandSourceStack> styleNode) {
-        LiteralCommandNode<CommandSourceStack> removeNode = Commands
-                .literal("remove")
-                .build();
-        ArgumentCommandNode<CommandSourceStack, EntitySelector> playerNode = Commands
-                .argument("players", EntityArgument.players())
-                .build();
-        LiteralCommandNode<CommandSourceStack> allNode = Commands
-                .literal("all")
-                .executes(context -> removeAll(context.getSource(), EntityArgument.getPlayers(context, "players")))
-                .build();
-        ArgumentCommandNode<CommandSourceStack, Identifier> unlockIdNode = Commands
-                .argument("id", IdentifierArgument.id())
-                .suggests((context, builder) -> SharedSuggestionProvider.suggestResource(BounceStylesRegistries.getAllStyleIds(), builder))
-                .executes(context -> remove(context.getSource(), EntityArgument.getPlayers(context, "players"), IdentifierArgument.getId(context, "id")))
-                .build();
-
-        styleNode.addChild(removeNode);
-        removeNode.addChild(playerNode);
-        playerNode.addChild(allNode);
-        playerNode.addChild(unlockIdNode);
-    }
-
     private static void equipCommand(LiteralCommandNode<CommandSourceStack> styleNode) {
         LiteralCommandNode<CommandSourceStack> equipNode = Commands
                 .literal("equip")
@@ -149,48 +103,53 @@ public class StyleCommand {
         idNode.addChild(playerNode);
     }
 
+    private static void removeCommand(LiteralCommandNode<CommandSourceStack> styleNode) {
+        LiteralCommandNode<CommandSourceStack> removeNode = Commands
+                .literal("remove")
+                .build();
+        ArgumentCommandNode<CommandSourceStack, EntitySelector> playerNode = Commands
+                .argument("players", EntityArgument.players())
+                .build();
+        LiteralCommandNode<CommandSourceStack> allNode = Commands
+                .literal("all")
+                .executes(context -> removeAll(context.getSource(), EntityArgument.getPlayers(context, "players")))
+                .build();
+        ArgumentCommandNode<CommandSourceStack, Identifier> unlockIdNode = Commands
+                .argument("id", IdentifierArgument.id())
+                .suggests((context, builder) -> SharedSuggestionProvider.suggestResource(BounceStylesRegistries.getAllStyleIds(), builder))
+                .executes(context -> remove(context.getSource(), EntityArgument.getPlayers(context, "players"), IdentifierArgument.getId(context, "id")))
+                .build();
+
+        styleNode.addChild(removeNode);
+        removeNode.addChild(playerNode);
+        playerNode.addChild(allNode);
+        playerNode.addChild(unlockIdNode);
+    }
+
+    private static void unlockCommand(LiteralCommandNode<CommandSourceStack> styleNode) {
+        LiteralCommandNode<CommandSourceStack> unlockNode = Commands
+                .literal("unlock")
+                .build();
+        ArgumentCommandNode<CommandSourceStack, EntitySelector> playerNode = Commands
+                .argument("players", EntityArgument.players())
+                .build();
+        LiteralCommandNode<CommandSourceStack> allNode = Commands
+                .literal("all")
+                .executes(context -> unlockAll(EntityArgument.getPlayers(context, "players")))
+                .build();
+        ArgumentCommandNode<CommandSourceStack, Identifier> unlockIdNode = Commands
+                .argument("id", IdentifierArgument.id())
+                .suggests((context, builder) -> SharedSuggestionProvider.suggestResource(BounceStylesRegistries.getAllStyleIds(), builder))
+                .executes(context -> unlock(EntityArgument.getPlayers(context, "players"), IdentifierArgument.getId(context, "id")))
+                .build();
+
+        styleNode.addChild(unlockNode);
+        unlockNode.addChild(playerNode);
+        playerNode.addChild(allNode);
+        playerNode.addChild(unlockIdNode);
+    }
+
     //Functions
-    private static int unlockAll(Collection<ServerPlayer> players) {
-        for(ServerPlayer player : players) {
-            for(Identifier id : BounceStylesRegistries.getAllStyleIds()) {
-                UnlockManager.unlockStyle(player, id);
-            }
-            player.displayClientMessage(Component.literal("You've unlocked all current styles, enjoy!").withStyle(style -> style.withColor(ChatFormatting.GOLD)), false);
-        }
-        return 1;
-    }
-
-    private static int unlock(Collection<ServerPlayer> players, Identifier id) {
-        for(ServerPlayer player : players)
-            if (id != null && BounceStylesRegistries.idExists(id)) {
-                UnlockManager.unlockStyle(player, id);
-                player.displayClientMessage(Component.literal("Style unlocked").withStyle(style -> style.withColor(ChatFormatting.GOLD)), false);
-            }
-        return 1;
-    }
-
-    private static int removeAll(CommandSourceStack source, Collection<ServerPlayer> players) {
-        for(ServerPlayer player : players) {
-            for(Identifier id : BounceStylesRegistries.getAllStyleIds())
-                UnlockManager.lockStyle(player, id);
-            source.sendSuccess(() -> Component.literal("Removed all styles for " + player.getScoreboardName()), true);
-        }
-        return 1;
-    }
-
-    private static int remove(CommandSourceStack source, Collection<ServerPlayer> players, Identifier id) {
-        for(ServerPlayer player : players) {
-            if (id != null && BounceStylesRegistries.idExists(id)) {
-                if (UnlockManager.lockStyle(player, id)) {
-                    source.sendSuccess(() -> Component.literal("Removed style " + id + " from player " + player.getScoreboardName()), true);
-                }
-                else
-                    source.sendFailure(Component.literal("Player does not have " + id + " unlocked"));
-            }
-        }
-        return 1;
-    }
-
     private static int equip(CommandContext<CommandSourceStack> context, ServerPlayer player, Category slot, Identifier id, boolean forced) {
         if(id == null || BounceStylesRegistries.idExists(id)) {
             Style style = id != null ? BounceStylesRegistries.getStyle(id).orElse(null) : null;
@@ -232,6 +191,47 @@ public class StyleCommand {
             }
         }
         return 0;
+    }
+
+    private static int removeAll(CommandSourceStack source, Collection<ServerPlayer> players) {
+        for(ServerPlayer player : players) {
+            for(Identifier id : BounceStylesRegistries.getAllStyleIds())
+                UnlockManager.lockStyle(player, id);
+            source.sendSuccess(() -> Component.literal("Removed all styles for " + player.getScoreboardName()), true);
+        }
+        return 1;
+    }
+
+    private static int remove(CommandSourceStack source, Collection<ServerPlayer> players, Identifier id) {
+        for(ServerPlayer player : players) {
+            if (id != null && BounceStylesRegistries.idExists(id)) {
+                if (UnlockManager.lockStyle(player, id)) {
+                    source.sendSuccess(() -> Component.literal("Removed style " + id + " from player " + player.getScoreboardName()), true);
+                }
+                else
+                    source.sendFailure(Component.literal("Player does not have " + id + " unlocked"));
+            }
+        }
+        return 1;
+    }
+
+    private static int unlockAll(Collection<ServerPlayer> players) {
+        for(ServerPlayer player : players) {
+            for(Identifier id : BounceStylesRegistries.getAllStyleIds()) {
+                UnlockManager.unlockStyle(player, id);
+            }
+            player.displayClientMessage(Component.literal("You've unlocked all current styles, enjoy!").withStyle(style -> style.withColor(ChatFormatting.GOLD)), false);
+        }
+        return 1;
+    }
+
+    private static int unlock(Collection<ServerPlayer> players, Identifier id) {
+        for(ServerPlayer player : players)
+            if (id != null && BounceStylesRegistries.idExists(id)) {
+                UnlockManager.unlockStyle(player, id);
+                player.displayClientMessage(Component.literal("Style unlocked").withStyle(style -> style.withColor(ChatFormatting.GOLD)), false);
+            }
+        return 1;
     }
 
 }
