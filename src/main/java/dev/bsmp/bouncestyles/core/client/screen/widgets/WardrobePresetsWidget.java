@@ -1,7 +1,6 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.client.Keybinds;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.button.WardrobeIconButton;
@@ -19,7 +18,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -32,6 +30,7 @@ import java.util.function.Supplier;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 //? } elif <= 1.21.1 {
 /*import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -323,6 +322,7 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
 
             if (this.isHovered) {
                 if (this.tooltip != null)
+                    //~ if >= 1.21.5 'renderComponentTooltip' -> 'setComponentTooltipForNextFrame'
                     guiGraphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, this.tooltip, mouseX, mouseY);
             }
         }
@@ -364,8 +364,19 @@ public class WardrobePresetsWidget extends AbstractSelectionList<WardrobePresets
             super(0, 0, 60, 20, key != null ? Component.translatable(key.getName()) : Component.literal("[ ]"), onPress, PresetKeybindButton::createNarration);
         }
 
+        //? if >= 1.21.5 {
         @Override
         protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            renderBtn(guiGraphics, mouseX, mouseY);
+        }
+        //? } else {
+        /*@Override
+        protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            renderBtn(guiGraphics, mouseX, mouseY);
+        }
+        *///? }
+
+        private void renderBtn(GuiGraphics guiGraphics, int mouseX, int mouseY) {
             this.isHovered = mouseX >= this.getX() && mouseX <= this.getX() + width && mouseY >= this.getY() && mouseY <= this.getY() + height;
 
             int colorBg = this.isHovered ? 0xFF2E4C6B : 0xFF0D2C4C;

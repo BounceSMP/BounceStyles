@@ -8,9 +8,6 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.permissions.Permission;
-import net.minecraft.server.permissions.PermissionLevel;
-import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.storage.LevelResource;
@@ -20,6 +17,12 @@ import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+
+//? if >= 1.21.11 {
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionLevel;
+import net.minecraft.server.permissions.Permissions;
+//? }
 
 public class UnlockManager {
     public static final LevelResource LEVEL_DIR_UNLOCKS = new LevelResource("style_unlocks");
@@ -127,12 +130,13 @@ public class UnlockManager {
                     &&
                     player.permissions().hasPermission(getRequiredPermission())
             );
-            //? } else
-            //return !(
-            //      (!Config.unlockBypassRequiresCreative || player.isCreative())
-            //      &&
-            //      minecraft.player.hasPermissions(Config.unlockBypassPermissionLevel)
-          //);
+            //? } else {
+            /*return !(
+                  (!Config.unlockBypassRequiresCreative || player.isCreative())
+                  &&
+                  player.hasPermissions(Config.unlockBypassPermissionLevel)
+            );
+            *///? }
         }
         return false;
     }

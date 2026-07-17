@@ -29,7 +29,6 @@ import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
-import software.bernie.geckolib.util.RenderUtil;
 
 import java.util.HashMap;
 import java.util.List;
@@ -333,8 +332,16 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
     public void fireCompileRenderLayersEvent() {}
 
     @Override
-    public RenderType getRenderType(Style animatable, Identifier texture, MultiBufferSource bufferSource, float partialTick) {
-        return RenderType.entityCutout(texture);
+    public RenderType getRenderType(Style style, Identifier texture, MultiBufferSource bufferSource, float partialTick) {
+        var renderType = RenderType.entityCutout(texture);
+
+        switch (style.getRenderType()) {
+            case Cull -> RenderType.entityCutout(texture);
+            case No_Cull -> RenderType.entityCutoutNoCull(texture);
+            case Translucent -> RenderType.entityTranslucent(texture);
+        }
+
+        return renderType;
     }
 
     @Override

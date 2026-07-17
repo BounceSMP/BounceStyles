@@ -235,11 +235,12 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
 
     @Override
     public @Nullable RenderType getRenderType(GeoRenderState.Impl renderState, Identifier texture) {
-        //~ if >= 1.21.11 'RenderType' -> 'RenderTypes' {
+        //~ if >= 1.21.11 'RenderType' -> 'RenderTypes'
         var renderType = RenderTypes.entityCutout(texture);
 
         renderState.getGeckolibData(TICKET_EQUIPPED).getStyle().ifPresent(style -> {
             switch (style.getRenderType()) {
+                //~ if >= 1.21.11 'RenderType' -> 'RenderTypes'
                 case Cull -> RenderTypes.entityCutout(texture);
                 case No_Cull -> RenderTypes.entityCutoutNoCull(texture);
                 case Translucent -> RenderTypes.entityTranslucent(texture);
@@ -247,7 +248,6 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
         });
 
         return renderType;
-        //~ }
     }
 
     @Override
