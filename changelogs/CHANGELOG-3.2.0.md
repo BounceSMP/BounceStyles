@@ -21,3 +21,8 @@
 
 ## Fixes/Compat
 - Supported Minecraft versions: **1.21.1** and **1.21.11**
+
+## Known Issues
+- Looping animations sometimes cause style models to disappear for a frame
+- Neoforge 1.21.1 has some issues with server synchronization. Ensure both client and server are both on the same, latest compatible versions of NeoForge if you find yourself running into a `Tried to applied snapshot with registry name neoforge:synced_attachment_types but was not found` error
+- Emissive Textures don't work particularly well with shaders. Unsure if there's much I can do or if this is just because of how GeckoLib does emissive textures.
