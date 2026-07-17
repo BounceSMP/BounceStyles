@@ -1,7 +1,6 @@
 package dev.bsmp.bouncestyles.core.data.config;
 
 import com.bawnorton.configurable.Configurable;
-import dev.bsmp.bouncestyles.core.BounceStyles;
 
 import java.util.Arrays;
 
@@ -15,7 +14,8 @@ public class Config {
     public static boolean requireUnlocks = true;
 
     /**
-     * Whether a player must be in Creative mode, in addition to meeting the required Permission Level, to bypass the Unlock system, and equip any Style.
+     * Whether a player must be in Creative mode, in addition to meeting the required Permission Level,
+     * to bypass the Unlock system, and equip any Style.
      * Default: true
      */
     @Configurable(group = "unlocks")

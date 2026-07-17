@@ -88,9 +88,7 @@ public class Keybinds {
     }
 
     private static File file() {
-        var dir = Platform.getConfigFolder().resolve("bounce_styles").toFile();
-        if (!dir.exists()) dir.mkdirs();
-        return new File(dir, "preset_hotkeys.json");
+        return Platform.getConfigFolder().resolve("bounce_styles_preset_hotkeys.json").toFile();
     }
 
     public static void loadPresetKeybinds() {

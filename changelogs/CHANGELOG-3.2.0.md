@@ -11,7 +11,7 @@
   - *With these changes, existing presets will unfortunately be reset unless you manually migrate your existing presets. Apologies for the inconvenience.*
 - **Configs**
   - Now includes a Config file (via [Configurable](https://github.com/Bawnorton/Configurable), packaged in-jar so it does not require downloading by players)
-  - Config file is located at `configs/bounce_styles/config.toml`
+  - Config file is located at `configs/bounce_styles.toml`
   - Configurable settings include;
     - Style GUI button in the Inventory GUI
     - Unlock System and it's requirements
