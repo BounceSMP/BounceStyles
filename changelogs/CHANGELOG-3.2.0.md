@@ -17,6 +17,7 @@
     - Unlock System and it's requirements
 - **Misc**
   - Wardrobe UI now remembers last viewed Category and last used Search Term
+  - `/bouncestyles equip` command now respects Unlock System bypass requirements
 
 ## Fixes/Compat
 - Supported Minecraft versions: **1.21.1** and **1.21.11**
