@@ -45,4 +45,4 @@ bin/
 
 ### Jetbrains ###
 .idea/
-/.env.template
+/.env

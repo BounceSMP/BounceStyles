@@ -238,7 +238,7 @@ publishMods {
     changelog = provider { rootProject.file("changelogs/CHANGELOG-${property("mod.version")}.md").readText() }
     modLoaders.add(loader)
 
-    dryRun = true
+    dryRun = env.MODRINTH_API_KEY.orNull() == null
 
     modrinth {
         projectId = property("publish.modrinth") as String
@@ -247,14 +247,19 @@ publishMods {
         minecraftVersions.addAll(additionalVersions)
 
         if (isFabric())
-            requires("fabric-api")
+            requires {
+                slug = "fabric-api"
+                version = property("deps.fabric.api.modrinth") as String?
+            }
 
         requires {
             slug = "architectury-api"
+            version = property("deps.architectury.modrinth") as String?
         }
 
         requires {
             slug = "geckolib"
+            version = property("deps.geckolib.modrinth") as String?
         }
     }
 
@@ -267,6 +272,8 @@ publishMods {
 
         if (isFabric())
             requires("fabric-api")
+
+        requires("geckolib", "architectury-api")
 
         client = true
         server = true
