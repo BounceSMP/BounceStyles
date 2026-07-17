@@ -121,7 +121,7 @@ public class UnlockManager {
     }
 
     public static boolean requiresUnlocks(Entity entity) {
-        if (!Config.requireUnlocks) return true;
+        if (!Config.requireUnlocks) return false;
 
         if (entity instanceof Player player) {
             //? if >= 1.21.11 {
