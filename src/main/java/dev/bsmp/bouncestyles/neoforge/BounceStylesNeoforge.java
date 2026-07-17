@@ -7,8 +7,6 @@ import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
 import dev.bsmp.bouncestyles.api.data.StyleData;
 import dev.bsmp.bouncestyles.api.style.Style;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
@@ -23,9 +21,9 @@ public class BounceStylesNeoforge {
     public static final Supplier<AttachmentType<StyleData>> STYLE_DATA_ATTACHMENT = ATTACHMENT_TYPES.register("style_data", () ->
         AttachmentType.builder(StyleData::new)
                 //? if >= 1.21.10 {
-                /^.serialize(StyleData.CODEC.fieldOf("style_data"))
-                ^///? } else
-                .serialize(StyleData.CODEC.fieldOf("style_data").codec())
+                .serialize(StyleData.CODEC.fieldOf("style_data"))
+                //? } else
+                //.serialize(StyleData.CODEC.fieldOf("style_data").codec())
                 .build()
     );
 

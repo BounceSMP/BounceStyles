@@ -116,6 +116,7 @@ public class UnlockManager {
     }
 
     public static boolean hasUnlocked(Entity entity, Identifier styleId) {
+        if (!requiresUnlocks(entity)) return true;
         if(styleId == null) return false;
         return readUnlockData(entity).map(identifiers -> identifiers.contains(styleId)).orElse(false);
     }
