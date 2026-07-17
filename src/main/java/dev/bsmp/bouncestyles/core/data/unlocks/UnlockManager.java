@@ -1,12 +1,15 @@
 package dev.bsmp.bouncestyles.core.data.unlocks;
 
 import dev.bsmp.bouncestyles.core.BounceStyles;
+import dev.bsmp.bouncestyles.core.data.config.Config;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -115,14 +118,34 @@ public class UnlockManager {
     }
 
     public static boolean requiresUnlocks(Entity entity) {
-        if (!BounceStyles.config().unlocksEnabled()) return true;
+        if (!Config.requireUnlocks) return true;
 
         if (entity instanceof Player player) {
             //? if >= 1.21.11 {
-            return !(player.isCreative() && player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER));
+            return !(
+                    (!Config.unlockBypassRequiresCreative || player.isCreative())
+                    &&
+                    player.permissions().hasPermission(getRequiredPermission())
+            );
             //? } else
-            //return !(minecraft.player.isCreative() && minecraft.player.hasPermissions(2));
+            //return !(
+            //      (!Config.unlockBypassRequiresCreative || player.isCreative())
+            //      &&
+            //      minecraft.player.hasPermissions(Config.unlockBypassPermissionLevel)
+          //);
         }
         return false;
     }
+
+    //? if >= 1.21.11 {
+    public static Permission getRequiredPermission() {
+        return switch (Config.unlockBypassPermissionLevel) {
+            case 1 -> Permissions.COMMANDS_MODERATOR;
+            case 2 -> Permissions.COMMANDS_GAMEMASTER;
+            case 3 -> Permissions.COMMANDS_ADMIN;
+            case 4 -> Permissions.COMMANDS_OWNER;
+            default -> new Permission.HasCommandLevel(PermissionLevel.ALL);
+        };
+    }
+    //? }
 }

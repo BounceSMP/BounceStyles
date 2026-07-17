@@ -1,6 +1,7 @@
 package dev.bsmp.bouncestyles.mixin.client;
 
 import dev.bsmp.bouncestyles.core.client.screen.widgets.button.WardrobeIconButton;
+import dev.bsmp.bouncestyles.core.data.config.Config;
 import dev.bsmp.bouncestyles.core.networking.serverbound.OpenStyleScreenServerbound;
 import dev.kikugie.fletching_table.annotation.MixinEnvironment;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -21,7 +22,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
 @Mixin(InventoryScreen.class)
 @MixinEnvironment(type = MixinEnvironment.Env.CLIENT)
 //? if >= 1.21.11 {
-public abstract class InventoryScreenMixin  extends AbstractRecipeBookScreen<InventoryMenu> {
+public abstract class InventoryScreenMixin extends AbstractRecipeBookScreen<InventoryMenu> {
 //? } else
 //public abstract class InventoryScreenMixin extends EffectRenderingInventoryScreen<InventoryMenu> {
 
@@ -35,15 +36,15 @@ public abstract class InventoryScreenMixin  extends AbstractRecipeBookScreen<Inv
     }
     *///? }
 
-    //ToDo Decide on if I want to keep the inventory button later, or have a config option
-//    @Inject(method = "init", at = @At("TAIL"))
-//    private void addWardrobeButton(CallbackInfo ci) {
-//        var recipeButton = this.getRecipeBookButtonPosition();
-//        addRenderableWidget(new WardrobeIconButton(
-//                recipeButton.x() + 22, recipeButton.y() - 1,
-//                "btn_inventory",
-//                Component.literal("Open Wardrobe"),
-//                button -> new OpenStyleScreenServerbound().sendToServer()
-//        ));
-//    }
+    @Inject(method = "init", at = @At("TAIL"))
+    private void addWardrobeButton(CallbackInfo ci) {
+        if (Config.enableInventoryButton) {
+            addRenderableWidget(new WardrobeIconButton(
+                    this.leftPos + Config.inventoryButtonPosition[0], this.topPos + Config.inventoryButtonPosition[1],
+                    "btn_inventory",
+                    Component.literal("Open Wardrobe"),
+                    button -> new OpenStyleScreenServerbound().sendToServer()
+            ));
+        }
+    }
 }

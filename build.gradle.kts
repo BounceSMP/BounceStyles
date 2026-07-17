@@ -56,6 +56,10 @@ repositories {
             includeGroup("maven.modrinth")
         }
     }
+    maven {
+        name = "Configurable"
+        url = uri("https://maven.bawnorton.com/releases")
+    }
 }
 
 dependencies {
@@ -82,6 +86,11 @@ dependencies {
 
     modImplementation("dev.architectury:architectury-$loader:${property("deps.architectury")}")
     modImplementation("software.bernie.geckolib:geckolib-$loader-${sc.current.version}:${property("deps.geckolib")}")
+
+    var configurable = "com.bawnorton.configurable:configurable-$loader:${property("deps.configurable")}+${sc.current.version}"
+    modImplementation(configurable)
+    annotationProcessor(configurable)
+    include(configurable)
 }
 
 val accessWidener = when {
