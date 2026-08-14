@@ -48,8 +48,10 @@ public abstract class PlayerModelVisibilityMixin extends HumanoidModel<AvatarRen
 
     @Inject(method = "setupAnim(Lnet/minecraft/world/entity/LivingEntity;FFFFF)V", at = @At("TAIL"))
     private void bounceStyles$checkStyleVisibility(LivingEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
-        StyleData styleData = StyleData.getEntityData((Player) entity);
-        bounceStyles$applyVisibility(styleData.getHiddenParts());
+        if (entity instanceof Player player) {
+            StyleData styleData = StyleData.getEntityData(player);
+            bounceStyles$applyVisibility(styleData.getHiddenParts());
+        }
     }
     *///? }
 
