@@ -1,6 +1,7 @@
 //? if >= 1.21.11 {
 package dev.bsmp.bouncestyles.core.client.renderer;
 
+import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.bsmp.bouncestyles.api.animation.AnimState;
 import dev.bsmp.bouncestyles.api.data.EquippedStyle;
@@ -82,6 +83,14 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
         fillRenderState(equippedStyle.getStyle().get(), renderData, renderState, ((GeoRenderState) playerState).getPartialTick());
 
         return renderState;
+    }
+
+    @Override
+    public void captureDefaultRenderState(Style animatable, StyleLayerRenderer.RenderData relatedObject, GeoRenderState.Impl renderState, float partialTick) {
+        GeoRenderer.super.captureDefaultRenderState(animatable, relatedObject, renderState, partialTick);
+
+        double tick = Minecraft.getInstance().level != null ? (double) Minecraft.getInstance().level.getGameTime() + partialTick : Blaze3D.getTime() * 20d;
+        renderState.addGeckolibData(DataTickets.TICK, tick);
     }
 
     public AnimState setupAnimationState(AvatarRenderState avatarState) {
