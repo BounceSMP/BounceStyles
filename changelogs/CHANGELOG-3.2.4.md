@@ -1,0 +1,10 @@
+## Compat
+- Fixed Molang Query support for the following queries (Note: Using entity queries that are NOT listed here will cause crashes)
+  - `query.body_x_rotation`
+  - `query.head_x_rotation`
+  - `query.head_y_rotation`
+  - `query.death_ticks`
+  - `query.scale`
+  - `query.distance_from_camera`
+  - `query.is_on_fire`
+  - `query.ground_speed`

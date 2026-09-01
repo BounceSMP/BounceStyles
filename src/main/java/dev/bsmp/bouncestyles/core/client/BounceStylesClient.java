@@ -7,16 +7,17 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.architectury.event.events.client.ClientLifecycleEvent;
 import dev.architectury.event.events.client.ClientPlayerEvent;
+import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.BounceStylesRegistries;
-import dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer;
+import dev.bsmp.bouncestyles.core.client.renderer.StyleDataTickets;import dev.bsmp.bouncestyles.core.client.renderer.StyleLayerRenderer;
 import dev.bsmp.bouncestyles.core.client.screen.WardrobeScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.resources.IoSupplier;
+import net.minecraft.server.packs.resources.IoSupplier;import software.bernie.geckolib.loading.math.MolangQueries;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -36,6 +37,8 @@ public class BounceStylesClient {
             if (player == Minecraft.getInstance().player)
                 Keybinds.loadPresetKeybinds();
         });
+
+        StyleMolangQueries.registerQueries();
     }
 
     public static StyleLayerRenderer getStyleRenderer() {
