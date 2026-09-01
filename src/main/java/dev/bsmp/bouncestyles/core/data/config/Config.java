@@ -6,6 +6,13 @@ import java.util.Arrays;
 
 public class Config {
     /**
+     * Whether Styles should be hidden when a Player is invisible.
+     * Default: true
+     */
+    @Configurable(group = "general")
+    public static boolean hideWithInvisibility = true;
+
+    /**
      * Whether the Unlock System should be used or not.
      * If true, Styles need to be Unlocked per-player in order for them to equip them.
      * Default: true

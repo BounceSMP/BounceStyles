@@ -8,7 +8,7 @@ import dev.bsmp.bouncestyles.api.data.EquippedStyle;
 import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.data.animation.AnimationHandler;
-import net.minecraft.client.Minecraft;
+import dev.bsmp.bouncestyles.core.data.config.Config;import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.OrderedSubmitNodeCollector;
@@ -55,6 +55,8 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
 
     @Override
     public void submit(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int packedLight, AvatarRenderState avatarState, float yRot, float xRot) {
+        if (avatarState.isInvisibleToPlayer && Config.hideWithInvisibility) return;
+
         var cameraState = Minecraft.getInstance().gameRenderer.getLevelRenderState().cameraRenderState;
 
         var styleData = ((GeoRenderState) avatarState).getGeckolibData(TICKET_STYLE_DATA);
