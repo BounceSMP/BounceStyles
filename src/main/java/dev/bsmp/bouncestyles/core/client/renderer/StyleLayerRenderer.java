@@ -3,7 +3,7 @@ package dev.bsmp.bouncestyles.core.client.renderer;
 
 import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.bsmp.bouncestyles.api.animation.AnimState;
+import dev.bsmp.bouncestyles.api.animation.StyleAnimState;
 import dev.bsmp.bouncestyles.api.data.EquippedStyle;
 import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.api.style.Style;
@@ -24,7 +24,7 @@ import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.loading.math.MathParser;import software.bernie.geckolib.loading.math.MolangQueries;import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
 import software.bernie.geckolib.renderer.base.BoneSnapshots;
 import software.bernie.geckolib.renderer.base.GeoRenderState;
@@ -73,12 +73,12 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
         }
     }
 
-    private GeoRenderState.Impl setupRenderState(EquippedStyle equippedStyle, Category category, AvatarRenderState playerState, AnimState animState, int packedLight) {
+    private GeoRenderState.Impl setupRenderState(EquippedStyle equippedStyle, Category category, AvatarRenderState playerState, StyleAnimState StyleAnimState, int packedLight) {
         var renderData = new RenderData(playerState.id, playerState);
         var renderState = createRenderState(equippedStyle.getStyle().get(), renderData);
 
         renderState.addGeckolibData(DataTickets.PACKED_LIGHT, packedLight);
-        renderState.addGeckolibData(AnimationHandler.TICKET_ANIM_STATE, animState);
+        renderState.addGeckolibData(AnimationHandler.TICKET_STYLE_ANIM_STATE, StyleAnimState);
         renderState.addGeckolibData(TICKET_EQUIPPED, equippedStyle);
         renderState.addGeckolibData(TICKET_CATEGORY, category);
 
@@ -95,30 +95,30 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
         renderState.addGeckolibData(DataTickets.TICK, tick);
     }
 
-    public AnimState setupAnimationState(AvatarRenderState avatarState) {
+    public StyleAnimState setupAnimationState(AvatarRenderState avatarState) {
         if (avatarState.pose == Pose.SLEEPING)
-            return AnimState.SLEEPING;
+            return StyleAnimState.SLEEPING;
 
         else if (avatarState.isInWater && avatarState.isVisuallySwimming)
-            return AnimState.SWIMMING;
+            return StyleAnimState.SWIMMING;
 
         else if (avatarState.isFallFlying)
-            return AnimState.FLYING;
+            return StyleAnimState.FLYING;
 
         else if (!((GeoRenderState) avatarState).getGeckolibData(AnimationHandler.TICKET_ON_GROUND))
-            return AnimState.IN_AIR;
+            return StyleAnimState.IN_AIR;
 
         else if (avatarState.isCrouching)
-            return AnimState.SNEAKING;
+            return StyleAnimState.SNEAKING;
 
         else if (((GeoRenderState) avatarState).getGeckolibData(DataTickets.IS_MOVING)) {
             if (((GeoRenderState) avatarState).getGeckolibData(AnimationHandler.TICKET_SPRINTING))
-                return AnimState.SPRINTING;
+                return StyleAnimState.SPRINTING;
             else
-                return AnimState.WALKING;
+                return StyleAnimState.WALKING;
         }
         else
-            return AnimState.IDLE;
+            return StyleAnimState.IDLE;
     }
 
     @Override

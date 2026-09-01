@@ -3,7 +3,7 @@
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.bsmp.bouncestyles.api.animation.AnimState;
+import dev.bsmp.bouncestyles.api.animation.StyleAnimState;
 import dev.bsmp.bouncestyles.api.style.Category;
 import dev.bsmp.bouncestyles.api.data.EquippedStyle;
 import dev.bsmp.bouncestyles.api.style.Style;
@@ -181,7 +181,7 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
             AnimationState<Style> animationState = new AnimationState<>(style, 0, 0, partialTick, isMoving);
 
             animationState.setData(Style.PLAYER, this.currentPlayer);
-            animationState.setData(AnimationHandler.TICKET_ANIM_STATE, getAnimSate(isMoving));
+            animationState.setData(AnimationHandler.TICKET_STYLE_ANIM_STATE, getAnimSate(isMoving));
             geoModel.addAdditionalStateData(style, instanceId, animationState::setData);
             //? if <= 1.20.1 {
             //geoModel.handleAnimations(style, instanceId, animationState);
@@ -191,30 +191,30 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
         }
     }
 
-    private AnimState getAnimSate(boolean isMoving) {
+    private StyleAnimState getAnimSate(boolean isMoving) {
         if (currentPlayer.isSleeping())
-            return AnimState.SLEEPING;
+            return StyleAnimState.SLEEPING;
 
         else if (currentPlayer.isInLiquid() && currentPlayer.isVisuallySwimming())
-            return AnimState.SWIMMING;
+            return StyleAnimState.SWIMMING;
 
         else if (currentPlayer.isFallFlying())
-            return AnimState.FLYING;
+            return StyleAnimState.FLYING;
 
         else if (!currentPlayer.onGround())
-            return AnimState.IN_AIR;
+            return StyleAnimState.IN_AIR;
 
         else if (currentPlayer.isCrouching())
-            return AnimState.SNEAKING;
+            return StyleAnimState.SNEAKING;
 
         else if (isMoving) {
             if (currentPlayer.isSprinting())
-                return AnimState.SPRINTING;
+                return StyleAnimState.SPRINTING;
             else
-                return AnimState.WALKING;
+                return StyleAnimState.WALKING;
         }
         else
-            return AnimState.IDLE;
+            return StyleAnimState.IDLE;
     }
 
     private void setupBoneVisibility(BakedGeoModel model, Category category) {

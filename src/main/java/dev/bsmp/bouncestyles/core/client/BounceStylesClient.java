@@ -38,7 +38,8 @@ public class BounceStylesClient {
                 Keybinds.loadPresetKeybinds();
         });
 
-        StyleMolangQueries.registerQueries();
+        //? if >= 1.21.11
+            StyleMolangQueries.registerQueries();
     }
 
     public static StyleLayerRenderer getStyleRenderer() {

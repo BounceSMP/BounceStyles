@@ -2,7 +2,7 @@
 - Stopped Styles rendering when the Player is invisible
   - Added a Config option to toggle this functionality
 - Fixed Molang Query support for the following queries (Note: Using entity queries that are NOT listed here will cause crashes)
-  - `query.body_x_rotation`
+  - `query.body_y_rotation`
   - `query.head_x_rotation`
   - `query.head_y_rotation`
   - `query.death_ticks`

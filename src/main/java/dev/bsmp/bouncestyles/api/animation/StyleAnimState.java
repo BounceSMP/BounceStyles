@@ -1,6 +1,6 @@
 package dev.bsmp.bouncestyles.api.animation;
 
-public enum AnimState {
+public enum StyleAnimState {
     SLEEPING,
     SITTING,
     SWIMMING,
