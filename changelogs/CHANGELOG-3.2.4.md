@@ -5,8 +5,4 @@
   - `query.body_y_rotation`
   - `query.head_x_rotation`
   - `query.head_y_rotation`
-  - `query.death_ticks`
-  - `query.scale`
-  - `query.distance_from_camera`
   - `query.is_on_fire`
-  - `query.ground_speed`
