@@ -1,9 +1,10 @@
 package dev.bsmp.bouncestyles.core.data.animation;
 
 import dev.bsmp.bouncestyles.api.animation.StyleAnimState;
+import dev.bsmp.bouncestyles.core.client.renderer.StyleDataTickets;
 import software.bernie.geckolib.animation.RawAnimation;
 import dev.bsmp.bouncestyles.api.style.Style;
-import software.bernie.geckolib.constant.dataticket.DataTicket;
+
 import java.util.Map;
 
 //? if >= 1.21.11 {
@@ -31,9 +32,9 @@ public class AnimationHandler {
             var animController = /*~ if >= 1.21.8 'getController' -> 'controller'*/ state.controller();
             var animState =
             //? if >= 1.21.8 {
-            state.getDataOrDefault(TICKET_STYLE_ANIM_STATE, StyleAnimState.IDLE);
+            state.getDataOrDefault(StyleDataTickets.TICKET_STYLE_ANIM_STATE, StyleAnimState.IDLE);
             //? } else {
-            /*state.getData(TICKET_STYLE_ANIM_STATE);
+            /*state.getData(StyleDataTickets.TICKET_STYLE_ANIM_STATE);
             *///? }
 
             if ((anim = animations.get(animState.name().toLowerCase())) != null)
@@ -48,10 +49,4 @@ public class AnimationHandler {
         controller.setAnimation(anim);
         return PlayState.CONTINUE;
     }
-
-    //~ if >= 1.21.5 'new DataTicket<>' -> 'DataTicket.create' {
-    public static final DataTicket<StyleAnimState> TICKET_STYLE_ANIM_STATE = DataTicket.create("anim_state", StyleAnimState.class);
-    public static final DataTicket<Boolean> TICKET_ON_GROUND = DataTicket.create("in_air", Boolean.class);
-    public static final DataTicket<Boolean> TICKET_SPRINTING = DataTicket.create("sprinting", Boolean.class);
-    //~ }
 }

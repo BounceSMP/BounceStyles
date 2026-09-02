@@ -78,7 +78,7 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
         var renderState = createRenderState(equippedStyle.getStyle().get(), renderData);
 
         renderState.addGeckolibData(DataTickets.PACKED_LIGHT, packedLight);
-        renderState.addGeckolibData(AnimationHandler.TICKET_STYLE_ANIM_STATE, StyleAnimState);
+        renderState.addGeckolibData(StyleDataTickets.TICKET_STYLE_ANIM_STATE, StyleAnimState);
         renderState.addGeckolibData(TICKET_EQUIPPED, equippedStyle);
         renderState.addGeckolibData(TICKET_CATEGORY, category);
 
@@ -105,14 +105,14 @@ public class StyleLayerRenderer extends RenderLayer<AvatarRenderState, PlayerMod
         else if (avatarState.isFallFlying)
             return StyleAnimState.FLYING;
 
-        else if (!((GeoRenderState) avatarState).getGeckolibData(AnimationHandler.TICKET_ON_GROUND))
+        else if (!((GeoRenderState) avatarState).getGeckolibData(TICKET_ON_GROUND))
             return StyleAnimState.IN_AIR;
 
         else if (avatarState.isCrouching)
             return StyleAnimState.SNEAKING;
 
         else if (((GeoRenderState) avatarState).getGeckolibData(DataTickets.IS_MOVING)) {
-            if (((GeoRenderState) avatarState).getGeckolibData(AnimationHandler.TICKET_SPRINTING))
+            if (((GeoRenderState) avatarState).getGeckolibData(TICKET_SPRINTING))
                 return StyleAnimState.SPRINTING;
             else
                 return StyleAnimState.WALKING;

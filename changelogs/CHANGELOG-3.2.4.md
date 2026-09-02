@@ -6,3 +6,5 @@
   - `query.head_x_rotation`
   - `query.head_y_rotation`
   - `query.is_on_fire`
+  - `query.is_on_ground`
+  - `query.is_in_air`

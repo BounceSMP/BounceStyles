@@ -4,7 +4,6 @@ package dev.bsmp.bouncestyles.mixin.client;
 import dev.bsmp.bouncestyles.core.client.renderer.StyleDataTickets;
 import dev.bsmp.bouncestyles.core.client.renderer.StyleEntityState;
 import dev.bsmp.bouncestyles.api.data.StyleData;
-import dev.bsmp.bouncestyles.core.data.animation.AnimationHandler;
 import dev.kikugie.fletching_table.annotation.MixinEnvironment;
 import net.minecraft.client.entity.ClientAvatarEntity;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
@@ -29,9 +28,9 @@ public abstract class AvatarRendererMixin<E extends Avatar & ClientAvatarEntity>
 
             var geoState = ((GeoRenderState) state);
             geoState.addGeckolibData(StyleDataTickets.TICKET_STYLE_DATA, styleData);
-            geoState.addGeckolibData(AnimationHandler.TICKET_ON_GROUND, avatar.onGround());
+            geoState.addGeckolibData(StyleDataTickets.TICKET_ON_GROUND, avatar.onGround());
             geoState.addGeckolibData(DataTickets.IS_MOVING, avatar.walkAnimation.speed() >= 0.05f);
-            geoState.addGeckolibData(AnimationHandler.TICKET_SPRINTING, avatar.isSprinting());
+            geoState.addGeckolibData(StyleDataTickets.TICKET_SPRINTING, avatar.isSprinting());
         }
     }
 

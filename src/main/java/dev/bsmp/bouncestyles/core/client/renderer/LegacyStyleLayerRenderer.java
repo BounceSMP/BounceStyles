@@ -9,7 +9,6 @@ import dev.bsmp.bouncestyles.api.data.EquippedStyle;
 import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.api.data.StyleData;
-import dev.bsmp.bouncestyles.core.data.animation.AnimationHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -181,7 +180,7 @@ public class LegacyStyleLayerRenderer extends RenderLayer<Player, PlayerModel<Pl
             AnimationState<Style> animationState = new AnimationState<>(style, 0, 0, partialTick, isMoving);
 
             animationState.setData(Style.PLAYER, this.currentPlayer);
-            animationState.setData(AnimationHandler.TICKET_STYLE_ANIM_STATE, getAnimSate(isMoving));
+            animationState.setData(StyleDataTickets.TICKET_STYLE_ANIM_STATE, getAnimSate(isMoving));
             geoModel.addAdditionalStateData(style, instanceId, animationState::setData);
             //? if <= 1.20.1 {
             //geoModel.handleAnimations(style, instanceId, animationState);
