@@ -27,7 +27,7 @@ import net.minecraft.world.entity.Avatar;
 import net.minecraft.client.renderer.MultiBufferSource;
 *///? }
 
-@Mixin(HumanoidArmorLayer.class)
+@Mixin(value = HumanoidArmorLayer.class, priority = 1)
 @MixinEnvironment(type = MixinEnvironment.Env.CLIENT)
 //? if >= 1.21.11 {
 public abstract class ArmorRenderingMixin<S extends HumanoidRenderState, M extends HumanoidModel<S>, A extends HumanoidModel<S>> {
