@@ -44,6 +44,7 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
         //? if <= 1.21.1 {
         /*if (StyleSelectionButton.hoveredButton != null)
             guiGraphics.renderComponentTooltip(Minecraft.getInstance().font, StyleSelectionButton.hoveredButton.getTooltipLines(), mouseX, mouseY);
+          StyleSelectionButton.hoveredButton = null;
         *///? }
     }
 

@@ -111,13 +111,13 @@ public class StyleSelectionButton extends Button implements WardrobeWidget {
             if (!this.isHovered())
                 guiGraphics.disableScissor();
 
-            //? if >= 1.21.5 {
-            if (this.isHovered())
+            if (this.isHovered()) {
+                //? if >= 1.21.5 {
                 guiGraphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, this.tooltip, mouseX, mouseY);
-            //? } else {
-//            if (this.isHovered()) hoveredButton = this;
-//            else hoveredButton = null;
-            //? }
+                //? } else {
+                /*hoveredButton = this;
+                *///? }
+            }
         }
 
         private void renderStyle(GuiGraphics guiGraphics, float partialTick) {
