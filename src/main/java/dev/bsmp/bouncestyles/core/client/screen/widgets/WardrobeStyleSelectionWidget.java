@@ -1,5 +1,6 @@
 package dev.bsmp.bouncestyles.core.client.screen.widgets;
 
+import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.bsmp.bouncestyles.core.client.screen.widgets.button.StyleSelectionButton;
 import dev.bsmp.bouncestyles.api.style.Style;
 import dev.bsmp.bouncestyles.api.style.Category;
@@ -33,12 +34,17 @@ public class WardrobeStyleSelectionWidget extends WardrobeScrollWidget implement
     }
 
     @Override
-    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         if (this.popup != null) {
-            this.popup.renderWidget(context, mouseX, mouseY, partialTick);
+            this.popup.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
         }
         else
-            super.renderWidget(context, mouseX, mouseY, partialTick);
+            super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+
+        //? if <= 1.21.1 {
+        /*if (StyleSelectionButton.hoveredButton != null)
+            guiGraphics.renderComponentTooltip(Minecraft.getInstance().font, StyleSelectionButton.hoveredButton.getTooltipLines(), mouseX, mouseY);
+        *///? }
     }
 
     @Override

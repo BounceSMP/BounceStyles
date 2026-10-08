@@ -19,6 +19,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -47,6 +48,9 @@ public class StyleSelectionButton extends Button implements WardrobeWidget {
     private static final Identifier TEX_VARIANT = BounceStyles.id("textures/gui/sprites/style_selection/style_selection_variant.png");
     private static final Identifier TEX_VARIANT_HOVER = BounceStyles.id("textures/gui/sprites/style_selection/style_selection_variant_hover.png");
     private static final Identifier TEX_VARIANT_EQUIPPED = BounceStyles.id("textures/gui/sprites/style_selection/style_selection_variant_equipped.png");
+
+    //? if <= 1.21.1
+    //public static StyleSelectionButton hoveredButton;
 
     private final WardrobeScrollWidget parentWidget;
     private final List<Component> tooltip;
@@ -110,8 +114,9 @@ public class StyleSelectionButton extends Button implements WardrobeWidget {
             if (this.isHovered()) {
                 //? if >= 1.21.5 {
                 guiGraphics.setComponentTooltipForNextFrame(Minecraft.getInstance().font, this.tooltip, mouseX, mouseY);
-                //? } else
-                //guiGraphics.renderComponentTooltip(Minecraft.getInstance().font, this.tooltip, mouseX, mouseY);
+                //? } else {
+                /*hoveredButton = this;
+                *///? }
             }
         }
 
@@ -215,5 +220,9 @@ public class StyleSelectionButton extends Button implements WardrobeWidget {
 
     public void setTextureId(int id) {
         this.style.setVariant(id);
+    }
+
+    public @Nullable List<Component> getTooltipLines() {
+        return tooltip;
     }
 }
