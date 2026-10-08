@@ -99,7 +99,8 @@ public class StyleData {
     }
 
     public boolean isEquipmentSlotVisible(EquipmentSlot slot) {
-        if (this.hiddenParts.contains("armor.*") || this.hiddenParts.contains("armor."+slot.getName().toLowerCase())) return false;
+        String slotName = slot.getName().toLowerCase();
+        if (this.hiddenParts.contains("armor.*") || this.hiddenParts.contains("armor."+slotName) || slot == EquipmentSlot.CHEST && this.hiddenParts.contains("armor.body")) return false;
         return true;
     }
 
