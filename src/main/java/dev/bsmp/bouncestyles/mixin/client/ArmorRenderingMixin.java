@@ -3,7 +3,6 @@ package dev.bsmp.bouncestyles.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.bsmp.bouncestyles.api.data.StyleData;
-import dev.bsmp.bouncestyles.core.BounceStyles;
 import dev.kikugie.fletching_table.annotation.MixinEnvironment;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
@@ -41,7 +40,7 @@ public abstract class ArmorRenderingMixin<S extends HumanoidRenderState, M exten
     @Redirect(method = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/HumanoidRenderState;FF)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/HumanoidArmorLayer;renderArmorPiece(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/EquipmentSlot;ILnet/minecraft/client/renderer/entity/state/HumanoidRenderState;)V")
     )
-    private void bounceStyles$skipArmorRendering(HumanoidArmorLayer instance, PoseStack poseStack, SubmitNodeCollector nodeCollector, ItemStack item, EquipmentSlot slot, int packedLight, S renderState, @Local S humanoidRenderState) {
+    private void bounceStyles$hideSlot(HumanoidArmorLayer instance, PoseStack poseStack, SubmitNodeCollector nodeCollector, ItemStack item, EquipmentSlot slot, int packedLight, S renderState, @Local S humanoidRenderState) {
         if (humanoidRenderState instanceof GeoRenderState state) {
             StyleData styleData = state.getGeckolibData(StyleDataTickets.TICKET_STYLE_DATA);
             if (styleData != null && !styleData.isEquipmentSlotVisible(slot)) return;
@@ -50,12 +49,12 @@ public abstract class ArmorRenderingMixin<S extends HumanoidRenderState, M exten
     }
     //? } else {
     /*//? if neoforge {
-    @Inject(method = "renderArmorPiece(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/EquipmentSlot;ILnet/minecraft/client/model/HumanoidModel;FFFFFF)V", at = @At("HEAD"), cancellable = true)
-    private void bounceStyles$skipArmorRendering(PoseStack poseStack, MultiBufferSource buffer, LivingEntity livingEntity, EquipmentSlot slot, int packedLight, HumanoidModel model, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
-    //? } else {
-    /^@Inject(method = "renderArmorPiece", at = @At("HEAD"), cancellable = true)
-    private void bounceStyles$skipArmorRendering(PoseStack poseStack, MultiBufferSource buffer, T livingEntity, EquipmentSlot slot, int packedLight, A model, CallbackInfo ci) {
-    ^///? }
+    /^@Inject(method = "renderArmorPiece(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/EquipmentSlot;ILnet/minecraft/client/model/HumanoidModel;FFFFFF)V", at = @At("HEAD"), cancellable = true)
+    private void bounceStyles$hideSlot(PoseStack poseStack, MultiBufferSource buffer, LivingEntity livingEntity, EquipmentSlot slot, int packedLight, HumanoidModel model, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
+    ^///? } else {
+    @Inject(method = "renderArmorPiece", at = @At("HEAD"), cancellable = true)
+    private void bounceStyles$hideSlot(PoseStack poseStack, MultiBufferSource buffer, T livingEntity, EquipmentSlot slot, int packedLight, A model, CallbackInfo ci) {
+    //? }
         if(!(livingEntity instanceof Avatar) || !slot.isArmor()) return;
 
         StyleData styleData = StyleData.getEntityData((Avatar) livingEntity);
