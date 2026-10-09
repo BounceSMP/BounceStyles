@@ -44,8 +44,7 @@ public abstract class ArmorRenderingMixin<S extends HumanoidRenderState, M exten
     private void bounceStyles$skipArmorRendering(HumanoidArmorLayer instance, PoseStack poseStack, SubmitNodeCollector nodeCollector, ItemStack item, EquipmentSlot slot, int packedLight, S renderState, @Local S humanoidRenderState) {
         if (humanoidRenderState instanceof GeoRenderState state) {
             StyleData styleData = state.getGeckolibData(StyleDataTickets.TICKET_STYLE_DATA);
-            if (styleData == null) return;
-            if (!styleData.isEquipmentSlotVisible(slot)) return;
+            if (styleData != null && !styleData.isEquipmentSlotVisible(slot)) return;
             renderArmorPiece(poseStack, nodeCollector, item, slot, packedLight, humanoidRenderState);
         }
     }
