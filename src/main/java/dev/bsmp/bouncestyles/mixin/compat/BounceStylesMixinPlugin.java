@@ -1,6 +1,5 @@
 package dev.bsmp.bouncestyles.mixin.compat;
 
-import dev.architectury.platform.Platform;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -14,7 +13,12 @@ public class BounceStylesMixinPlugin implements IMixinConfigPlugin {
         if (!mixinClassName.contains("compat.")) return true;
         var path = mixinClassName.split("\\.");
         var modId = path[path.length - 2];
-        return Platform.isModLoaded(modId);
+        //? if fabric {
+        return net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded(modId);
+        //? } else {
+        /*//~ if >=1.21.11 'FMLLoader.getLoadingModList()' -> 'FMLLoader.getCurrent().getLoadingModList()'
+        return net.neoforged.fml.loading.FMLLoader.getCurrent().getLoadingModList().getModFileById(modId) != null;
+        *///? }
     }
 
     @Override
