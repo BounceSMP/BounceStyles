@@ -27,6 +27,7 @@ architectury {
 repositories {
     maven("https://maven.parchmentmc.org") { name = "ParchmentMC" }
     maven("https://maven.neoforged.net/releases/")
+
     maven {
         name = "Architectury"
         url = uri("https://maven.architectury.dev/")
@@ -34,6 +35,7 @@ repositories {
             includeGroup("dev.architectury")
         }
     }
+
     maven {
         name = "GeckoLib"
         url = uri("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/")
@@ -42,6 +44,17 @@ repositories {
             includeGroupAndSubgroups("com.geckolib")
         }
     }
+
+    maven {
+        name = "Configurable"
+        url = uri("https://maven.bawnorton.com/releases")
+    }
+
+    maven {
+        name = "Curios"
+        url = uri("https://maven.theillusivec4.top/")
+    }
+
     maven {
         name = "Curseforge"
         url = uri("https://www.cursemaven.com")
@@ -49,16 +62,13 @@ repositories {
             includeGroup("curse.maven")
         }
     }
+
     maven {
         name = "Modrinth"
         url = uri("https://api.modrinth.com/maven")
         content {
             includeGroup("maven.modrinth")
         }
-    }
-    maven {
-        name = "Configurable"
-        url = uri("https://maven.bawnorton.com/releases")
     }
 }
 
@@ -83,6 +93,8 @@ dependencies {
     else {
         //Neoforge Dependencies
         "neoForge"("net.neoforged:neoforge:${property("deps.neoforge")}")
+
+        modImplementation("top.theillusivec4.curios:curios-neoforge:${property("deps.curios")}")
     }
 
     modImplementation("dev.architectury:architectury-$loader:${property("deps.architectury")}")
